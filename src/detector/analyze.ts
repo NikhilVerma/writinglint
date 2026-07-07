@@ -56,14 +56,16 @@ function dedupe(findings: Finding[]): Finding[] {
   return out;
 }
 
-// Verdict bands over the classifier probability (×100). Operating threshold
-// ~49 (best-F1 on train). Below it reads human; above, increasingly AI.
+// Verdict bands over the classifier probability (×100). The detector measures
+// AI-shaped *style* (hollowness / generic rhythm), NOT authorship — tight,
+// specific writing scores low whoever wrote it — so the labels describe how the
+// prose reads, not who produced it.
 const VERDICTS: { max: number; label: string }[] = [
-  { max: 20, label: 'Reads human' },
-  { max: 45, label: 'Mostly human' },
-  { max: 60, label: 'Mixed signals' },
-  { max: 80, label: 'Likely AI-generated' },
-  { max: 101, label: 'Reads AI-generated' },
+  { max: 20, label: 'Reads clean' },
+  { max: 45, label: 'Mostly clean' },
+  { max: 60, label: 'Some AI-style' },
+  { max: 80, label: 'Noticeably AI-styled' },
+  { max: 101, label: 'Reads AI-styled' },
 ];
 
 function verdictFor(score: number): string {

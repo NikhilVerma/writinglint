@@ -1,15 +1,22 @@
 #!/usr/bin/env node
 /**
- * Better Write CLI — flag AI-writing style tells in a file or stdin.
+ * Better Write CLI — score your own docs and see which AI-writing flags fire.
  *
- *   better-write essay.txt
- *   cat essay.txt | better-write
- *   better-write --json essay.txt
+ *   npm run cli -- essay.txt              one doc
+ *   npm run cli -- posts/*.md             many docs (glob expanded by the shell)
+ *   cat essay.txt | npm run cli           stdin
+ *   npm run cli -- --json essay.txt       machine-readable
+ *   npm run cli -- --quiet posts/*.md     one score line per doc (no highlights)
+ *
+ * The score is the trained classifier (same as the web app) when
+ * models/classifier.json is present; otherwise it falls back to the heuristic.
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { analyze, segments } from './detector/analyze.js';
 import { loadParser } from './detector/parser-node.js';
 import { CATEGORIES, type Category } from './detector/types.js';
+import type { Model } from './detector/classifier.js';
 
 // ── tiny ANSI helpers (no deps) ──────────────────────────────────────────
 const useColor = process.stdout.isTTY && !process.env.NO_COLOR;
@@ -17,7 +24,6 @@ const paint = (code: string, s: string) => (useColor ? `\x1b[${code}m${s}\x1b[0m
 const bold = (s: string) => paint('1', s);
 const dim = (s: string) => paint('2', s);
 
-/** 256-colour background per category so highlighted terminal output reads. */
 const CAT_BG: Record<Category, string> = {
   significance: '48;5;131',
   parallelism: '48;5;68',
@@ -29,61 +35,113 @@ const CAT_BG: Record<Category, string> = {
   conjunctions: '48;5;71',
   formatting: '48;5;102',
 };
+const swatch = (c: Category) => (useColor ? `\x1b[${CAT_BG[c]}m  \x1b[0m` : '##');
 
-function readInput(args: string[]): string {
-  const file = args.find((a) => !a.startsWith('-'));
-  if (file) return readFileSync(file, 'utf8');
-  return readFileSync(0, 'utf8'); // stdin
+// Verdict colour bands (match the web app's probability bands).
+function scoreColor(score: number): (s: string) => string {
+  if (score < 20) return (s) => paint('32', s); // green
+  if (score < 45) return (s) => paint('92', s);
+  if (score < 60) return (s) => paint('33', s); // amber
+  if (score < 80) return (s) => paint('93', s);
+  return (s) => paint('31', s); // red
+}
+
+// The classifier is a data-free JSON next to the parser model.
+function loadModel(): Model | undefined {
+  const p = fileURLToPath(new URL('../models/classifier.json', import.meta.url));
+  return existsSync(p) ? (JSON.parse(readFileSync(p, 'utf8')) as Model) : undefined;
+}
+
+// ~50 words is roughly where the classifier has enough signal to be trusted.
+const MIN_CONFIDENT_WORDS = 50;
+
+async function reportFile(
+  label: string,
+  text: string,
+  parser: Awaited<ReturnType<typeof loadParser>>,
+  model: Model | undefined,
+  opts: { json: boolean; quiet: boolean; single: boolean },
+): Promise<{ label: string; score: number; verdict: string; flags: number; words: number }> {
+  const result = await analyze(text, parser, model);
+  const { findings, stats, counts } = result;
+
+  if (opts.json) {
+    console.log(JSON.stringify({ file: label, ...result }, null, 2));
+    return { label, score: stats.score, verdict: stats.verdict, flags: findings.length, words: stats.words };
+  }
+
+  const colour = scoreColor(stats.score);
+  const header = `${bold(label)}  ${colour(bold(`${stats.score}/100`))} ${dim('·')} ${colour(stats.verdict)}`;
+  console.log(opts.single ? '' : `\n${'─'.repeat(60)}`);
+  console.log(header);
+  console.log(
+    dim(`${stats.words} words · ${stats.sentences} sentences · ${findings.length} flags`),
+  );
+  if (stats.words < MIN_CONFIDENT_WORDS) {
+    console.log(dim(`⚠ short input (<${MIN_CONFIDENT_WORDS} words) — the score is unreliable; trust the flags, not the number.`));
+  }
+
+  // Inline highlighted reproduction (single doc, non-quiet, colour terminal).
+  if (opts.single && !opts.quiet && useColor) {
+    let out = '';
+    for (const seg of segments(text, findings)) {
+      const chunk = text.slice(seg.start, seg.end);
+      out += seg.finding ? `\x1b[${CAT_BG[seg.finding.category]}m${chunk}\x1b[0m` : chunk;
+    }
+    console.log(`\n${out.trimEnd()}`);
+  }
+
+  // The flags themselves — what fired, where, and why.
+  if (!opts.quiet) {
+    if (findings.length === 0) {
+      console.log(dim('\nNo AI-style flags. (The number above still reflects overall style.)'));
+    } else {
+      console.log();
+      for (const f of findings) {
+        const quote = f.text.replace(/\s+/g, ' ').trim();
+        console.log(`  ${swatch(f.category)} ${bold(CATEGORIES[f.category].label)}  ${dim('“')}${quote}${dim('”')}`);
+        console.log(`      ${dim(f.message)}`);
+      }
+      // per-category tally
+      const rows = (Object.keys(counts) as Category[]).filter((c) => counts[c] > 0).sort((a, b) => counts[b] - counts[a]);
+      console.log('\n  ' + rows.map((c) => `${CATEGORIES[c].label} ${bold(String(counts[c]))}`).join(dim('  ·  ')));
+    }
+  }
+
+  return { label, score: stats.score, verdict: stats.verdict, flags: findings.length, words: stats.words };
 }
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   if (args.includes('-h') || args.includes('--help')) {
-    console.log('Usage: better-write [--json] [file]   (reads stdin if no file)');
+    console.log('Usage: better-write [--json] [--quiet] [files…]   (reads stdin if no files)');
     return;
   }
+  const json = args.includes('--json');
+  const quiet = args.includes('--quiet');
+  const files = args.filter((a) => !a.startsWith('-'));
 
-  const text = readInput(args);
   const parser = await loadParser();
-  const result = await analyze(text, parser);
+  const model = loadModel();
+  if (!model && !json) console.log(dim('(models/classifier.json not found — using heuristic score. Run `npm run train`.)'));
 
-  if (args.includes('--json')) {
-    console.log(JSON.stringify(result, null, 2));
-    return;
+  const single = files.length <= 1;
+  const inputs = files.length
+    ? files.map((f) => ({ label: f, text: readFileSync(f, 'utf8') }))
+    : [{ label: 'stdin', text: readFileSync(0, 'utf8') }];
+
+  const summary = [];
+  for (const { label, text } of inputs) {
+    summary.push(await reportFile(label, text, parser, model, { json, quiet, single }));
   }
 
-  // Highlighted reproduction of the text with inline colour, using the same
-  // overlap-resolution the web UI uses so both renderers agree.
-  const { findings, stats, counts } = result;
-  let out = '';
-  for (const seg of segments(text, findings)) {
-    const chunk = text.slice(seg.start, seg.end);
-    if (seg.finding) {
-      out += useColor ? `\x1b[${CAT_BG[seg.finding.category]}m${chunk}\x1b[0m` : `[${chunk}]`;
-    } else {
-      out += chunk;
-    }
-  }
-
-  console.log(out.trimEnd());
-  console.log();
-  console.log(bold(`Score ${stats.score}/100`) + dim(`  ·  ${stats.verdict}`));
-  console.log(
-    dim(
-      `${stats.words} words · ${stats.sentences} sentences · ${stats.density} tells/100w · ${findings.length} findings`,
-    ),
-  );
-  console.log();
-
-  const rows = (Object.keys(counts) as Category[])
-    .filter((c) => counts[c] > 0)
-    .sort((a, b) => counts[b] - counts[a]);
-  if (rows.length === 0) {
-    console.log(dim('No AI-style tells found. Reads human.'));
-  } else {
-    for (const c of rows) {
-      const swatch = useColor ? `\x1b[${CAT_BG[c]}m  \x1b[0m` : '##';
-      console.log(`  ${swatch} ${String(counts[c]).padStart(3)}  ${CATEGORIES[c].label}`);
+  // Multi-doc summary table, sorted most-AI-shaped first.
+  if (!json && summary.length > 1) {
+    console.log(`\n${'═'.repeat(60)}\n${bold('Summary')} (most AI-shaped first)`);
+    for (const r of [...summary].sort((a, b) => b.score - a.score)) {
+      const colour = scoreColor(r.score);
+      const warn = r.words < MIN_CONFIDENT_WORDS ? dim(' ⚠short') : '';
+      console.log(`  ${colour(String(r.score).padStart(3))}/100  ${r.label}  ${dim(`${r.flags} flags`)}${warn}`);
     }
   }
 }

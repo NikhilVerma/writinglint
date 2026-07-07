@@ -42,23 +42,27 @@
       <aside class="sidebar">
         <div class="score-card">
           <div class="score-ring" id="score-ring">
-            <div><span class="score-num" id="score-num">0</span><span class="score-label">/ 100</span></div>
+            <div><span class="score-num" id="score-num">0</span><span class="score-label">style</span></div>
           </div>
           <div class="verdict" id="verdict">—</div>
+          <p class="score-cap">How AI-shaped the <b>style</b> reads — not who wrote it. Tight, specific prose scores low whoever wrote it.</p>
+          <p class="score-note" id="score-note" hidden></p>
           <div class="stat-row">
             <span><b id="stat-words">0</b> words</span>
             <span><b id="stat-sentences">0</b> sentences</span>
-            <span><b id="stat-density">0</b> flags/100w</span>
+            <span><b id="stat-flags">0</b> flags</span>
           </div>
         </div>
 
-        <p class="legend-title">Signals (click to mute)</p>
+        <p class="legend-title">Flags to fix <span class="legend-hint">— specific spots, independent of the score · click to mute</span></p>
         <ul class="legend" id="legend"></ul>
 
         <p class="disclaimer">
-          The score is a stylometric estimate of how AI-shaped the prose is — a writing aid, not an
-          accusation. Highlights mark hollow constructions worth revising. Everything runs locally in
-          your browser; nothing is uploaded.
+          This detects AI-shaped <b>style</b> (hollow, generic prose), <b>not authorship</b> — a
+          well-edited AI draft can read clean, and it should. Two independent readings: the
+          <b>score</b> rates the overall style; the <b>flags</b> mark specific constructions to revise.
+          They can disagree. A writing aid, not an accusation. Best on prose (markdown/code inflate
+          “formatting” flags). Runs locally; nothing is uploaded.
         </p>
       </aside>
     </main>

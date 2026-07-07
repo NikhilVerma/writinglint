@@ -23,8 +23,25 @@ const scoreRing = $<HTMLDivElement>('score-ring');
 const verdictEl = $<HTMLDivElement>('verdict');
 const statWords = $<HTMLElement>('stat-words');
 const statSentences = $<HTMLElement>('stat-sentences');
-const statDensity = $<HTMLElement>('stat-density');
+const statFlags = $<HTMLElement>('stat-flags');
+const scoreNote = $<HTMLParagraphElement>('score-note');
 const legend = $<HTMLUListElement>('legend');
+
+// ~50 words is roughly where the classifier has enough signal to be trusted.
+const MIN_CONFIDENT_WORDS = 50;
+
+/** One contextual line that explains the score in relation to the flags. */
+function noteFor(score: number, words: number, flags: number): string {
+  if (words < MIN_CONFIDENT_WORDS)
+    return `⚠ Too short to score reliably — add more text (~${MIN_CONFIDENT_WORDS}+ words). Trust the flags, not the number.`;
+  if (score < 30 && flags > 0)
+    return `Reads clean overall — the ${flags} flag${flags > 1 ? 's' : ''} below mark specific phrases you could still tighten.`;
+  if (score >= 70 && flags === 0)
+    return `No single construction stands out, but the overall phrasing and rhythm read AI-shaped.`;
+  if (score >= 45 && score < 60)
+    return `Borderline — the overall style is ambiguous. Use the flags below as the actionable signal.`;
+  return '';
+}
 
 const loadingEl = $<HTMLDivElement>('loading');
 const loadingBar = $<HTMLDivElement>('loading-bar');
@@ -110,7 +127,12 @@ async function run(): Promise<void> {
     verdictEl.textContent = result.stats.verdict;
     statWords.textContent = String(result.stats.words);
     statSentences.textContent = String(result.stats.sentences);
-    statDensity.textContent = String(result.stats.density);
+    statFlags.textContent = String(result.findings.length);
+
+    const note = noteFor(result.stats.score, result.stats.words, result.findings.length);
+    scoreNote.textContent = note;
+    scoreNote.hidden = note === '';
+    scoreNote.classList.toggle('warn', result.stats.words < MIN_CONFIDENT_WORDS);
 
     const col = scoreColor(result.stats.score);
     scoreRing.style.setProperty('--pct', String(result.stats.score));
