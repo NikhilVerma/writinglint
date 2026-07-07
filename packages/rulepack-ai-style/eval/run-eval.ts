@@ -1,5 +1,5 @@
 /**
- * Better Write — INTERPRETABLE detector view (score distributions, per-category
+ * WritingLint — INTERPRETABLE detector view (score distributions, per-category
  * firing, false-positive phrase triage).
  *
  * NOTE: the AUTHORITATIVE, guarded metrics come from `npm run train`, which does

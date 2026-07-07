@@ -1,26 +1,26 @@
 #!/usr/bin/env node
 /**
- * Better Write CLI — lint prose for grammar/style rules (the ai-style rulepack
+ * WritingLint CLI — lint prose for grammar/style rules (the ai-style rulepack
  * by default) and, separately, score how AI-shaped it reads.
  *
- *   better-write essay.txt                 lint one doc (+ score)
- *   better-write lint posts/*.md           lint many docs
- *   better-write score posts/*.md          just the AI-style score per doc
- *   cat essay.txt | better-write           stdin
- *   better-write --json essay.txt          machine-readable
- *   better-write --quiet posts/*.md        one line per doc (no per-lint detail)
- *   better-write --config bw.config.ts …   use a specific config
+ *   writinglint essay.txt                 lint one doc (+ score)
+ *   writinglint lint posts/*.md           lint many docs
+ *   writinglint score posts/*.md          just the AI-style score per doc
+ *   cat essay.txt | writinglint           stdin
+ *   writinglint --json essay.txt          machine-readable
+ *   writinglint --quiet posts/*.md        one line per doc (no per-lint detail)
+ *   writinglint --config writinglint.config.ts …   use a specific config
  *
- * Config: a `bw.config.ts` in the working directory is picked up automatically;
+ * Config: a `writinglint.config.ts` in the working directory is picked up automatically;
  * otherwise the ai-style `recommended` config is used.
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { Linter, resolveConfig, segments, type Config, type Lint } from '@better-write/core';
-import { loadParser } from '@better-write/parser-node';
-import { recommended, score, CATEGORIES, CATEGORY_ORDER, type Model } from '@better-write/rulepack-ai-style';
-import { loadModelNode } from '@better-write/rulepack-ai-style/node';
+import { Linter, resolveConfig, segments, type Config, type Lint } from '@writinglint/core';
+import { loadParser } from '@writinglint/parser-node';
+import { recommended, score, CATEGORIES, CATEGORY_ORDER, type Model } from '@writinglint/rulepack-ai-style';
+import { loadModelNode } from '@writinglint/rulepack-ai-style/node';
 
 // ── tiny ANSI helpers (no deps) ──────────────────────────────────────────
 const useColor = process.stdout.isTTY && !process.env.NO_COLOR;
@@ -57,9 +57,9 @@ const priorityOf = (l: Lint) => PRIORITY.get(l.category) ?? 99;
 // ~50 words is roughly where the classifier has enough signal to be trusted.
 const MIN_CONFIDENT_WORDS = 50;
 
-/** Discover and load the config (explicit --config, or bw.config.* in cwd, else recommended). */
+/** Discover and load the config (explicit --config, or writinglint.config.* in cwd, else recommended). */
 async function loadConfig(explicit?: string): Promise<Config> {
-  const candidates = explicit ? [explicit] : ['bw.config.ts', 'bw.config.js', 'bw.config.mjs'];
+  const candidates = explicit ? [explicit] : ['writinglint.config.ts', 'writinglint.config.js', 'writinglint.config.mjs'];
   for (const c of candidates) {
     const p = resolve(process.cwd(), c);
     if (existsSync(p)) {
@@ -141,7 +141,7 @@ async function reportFile(
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   if (argv.includes('-h') || argv.includes('--help')) {
-    console.log('Usage: better-write [lint|score] [--json] [--quiet] [--config <path>] [files…]   (reads stdin if no files)');
+    console.log('Usage: writinglint [lint|score] [--json] [--quiet] [--config <path>] [files…]   (reads stdin if no files)');
     return;
   }
   const mode: 'lint' | 'score' = argv[0] === 'score' ? 'score' : 'lint';

@@ -1,40 +1,40 @@
 {
-  "name": "@better-write/cli",
+  "name": "@writinglint/cli",
   "version": "0.1.0",
-  "description": "Command-line interface for the Better Write grammar linter — lint prose and score how AI-shaped it reads.",
+  "description": "Command-line interface for the WritingLint grammar linter — lint prose and score how AI-shaped it reads.",
   "type": "module",
   "license": "MIT",
   "author": "Nikhil Verma",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NikhilVerma/better-write.git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
     "directory": "packages/cli"
   },
   "bugs": {
-    "url": "https://github.com/NikhilVerma/better-write/issues"
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
   },
-  "homepage": "https://github.com/NikhilVerma/better-write#readme",
+  "homepage": "https://github.com/NikhilVerma/writinglint#readme",
   "keywords": [
     "grammar",
     "linter",
     "prose",
     "cli",
     "ai-writing",
-    "better-write"
+    "writinglint"
   ],
   "engines": {
     "node": ">=18"
   },
   "bin": {
-    "better-write": "./src/cli.ts"
+    "writinglint": "./src/cli.ts"
   },
   "files": [
     "src",
     "README.md"
   ],
   "dependencies": {
-    "@better-write/core": "*",
-    "@better-write/parser-node": "*",
-    "@better-write/rulepack-ai-style": "*"
+    "@writinglint/core": "*",
+    "@writinglint/parser-node": "*",
+    "@writinglint/rulepack-ai-style": "*"
   }
 }

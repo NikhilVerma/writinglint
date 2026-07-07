@@ -5,7 +5,7 @@
  */
 import { NlpGraph } from 'nlpgraph';
 import { fileURLToPath } from 'node:url';
-import type { Parser } from '@better-write/core';
+import type { Parser } from '@writinglint/core';
 
 let cached: Promise<Parser> | null = null;
 

@@ -1,6 +1,6 @@
 ---
 title: Why a dependency graph
-description: What Better Write can express that regex and POS-only linters can't — and the performance cost of getting there.
+description: What WritingLint can express that regex and POS-only linters can't — and the performance cost of getting there.
 ---
 
 Prose linters mostly work one of two ways:
@@ -10,7 +10,7 @@ Prose linters mostly work one of two ways:
 - **Linear POS matching** — Harper's Weir DSL matches on part-of-speech tags in sequence. Richer than
   regex, but still **linear**: it can't express which word governs which.
 
-Better Write parses each sentence into a **Universal-Dependencies graph** with
+WritingLint parses each sentence into a **Universal-Dependencies graph** with
 [nlpgraph](https://github.com/NikhilVerma/nlpgraph): every token linked to its syntactic **head** by a
 labeled **relation** (`nsubj`, `conj`, `advmod`, `amod`, …). Rules match on that structure.
 
@@ -41,7 +41,7 @@ matching.
 A dependency parser is a real neural model, not a pattern scan. Parsing costs on the order of
 **hundreds of milliseconds per document**, versus microseconds for regex. So:
 
-| | Regex / POS linter | Better Write |
+| | Regex / POS linter | WritingLint |
 | --- | --- | --- |
 | Speed | microseconds | ~ hundreds of ms / doc |
 | Sees | characters / POS sequence | full dependency + POS graph |

@@ -2,7 +2,7 @@
  * Light-verb significance — "plays/serves a [ADJ] role/part" (adjective open):
  * asserts importance without saying what the thing actually does.
  */
-import { childrenByRel, defineRule, lower, subtree, type DepSentence } from '@better-write/core';
+import { childrenByRel, defineRule, lower, subtree, type DepSentence } from '@writinglint/core';
 
 const LIGHT_VERB = new Set([
   'play', 'plays', 'played', 'serve', 'serves', 'served', 'occupy', 'occupies', 'occupied',

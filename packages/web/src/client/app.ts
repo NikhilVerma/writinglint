@@ -1,6 +1,6 @@
 import './demo.css';
-import { segments, type Lint } from '@better-write/core';
-import { CATEGORIES, CATEGORY_ORDER } from '@better-write/rulepack-ai-style';
+import { segments, type Lint } from '@writinglint/core';
+import { CATEGORIES, CATEGORY_ORDER } from '@writinglint/rulepack-ai-style';
 import { AI_PITCH, HUMAN_PITCH } from './examples.js';
 
 /*
@@ -142,7 +142,7 @@ function boot(): void {
       return `${line}:${col}\t${l.ruleId}\t${label}: ${l.message}\t“${l.text.replace(/\s+/g, ' ').trim()}”`;
     });
     try {
-      await navigator.clipboard.writeText(`Better Write — ${lines.length} problem${lines.length > 1 ? 's' : ''}\n${lines.join('\n')}\n`);
+      await navigator.clipboard.writeText(`WritingLint — ${lines.length} problem${lines.length > 1 ? 's' : ''}\n${lines.join('\n')}\n`);
       const prev = copyBtn.textContent; copyBtn.textContent = 'Copied';
       window.setTimeout(() => { copyBtn.textContent = prev; }, 1200);
     } catch { /* clipboard blocked */ }

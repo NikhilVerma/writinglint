@@ -1,9 +1,9 @@
 /**
- * @better-write/core — the grammar-linter engine.
+ * @writinglint/core — the grammar-linter engine.
  *
  * A Document model over a real dependency-parse + POS graph, an authorable Rule
  * API, config resolution, and the Linter. Knows nothing about any particular
- * rulepack; the AI-writing rules live in @better-write/rulepack-ai-style.
+ * rulepack; the AI-writing rules live in @writinglint/rulepack-ai-style.
  */
 
 // Document model + parser surface

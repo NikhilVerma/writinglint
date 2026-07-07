@@ -17,7 +17,7 @@
  * TF-IDF-vectorised by the classifier (which owns the fitted vocabulary/IDF);
  * the scalars are returned as a named record.
  */
-import type { Document, Lint } from '@better-write/core';
+import type { Document, Lint } from '@writinglint/core';
 
 export interface DocFeatures {
   /** Dependency-relation label sequence (per sentence, in token order). */

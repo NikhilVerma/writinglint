@@ -1,9 +1,9 @@
 ---
 title: Command line
-description: Lint prose from the terminal and score how AI-shaped it reads, with a bw.config.ts picked up automatically.
+description: Lint prose from the terminal and score how AI-shaped it reads, with a writinglint.config.ts picked up automatically.
 ---
 
-The `@better-write/cli` package installs a `better-write` command. It lints prose against the ai-style
+The `@writinglint/cli` package installs a `writinglint` command. It lints prose against the ai-style
 rulepack (by default) and, separately, scores how AI-shaped a document reads.
 
 From inside the repo you can run it via the workspace script:
@@ -15,13 +15,13 @@ npm run cli -- lint README.md
 ## Usage
 
 ```bash
-better-write essay.txt              # lint one doc (+ score)
-better-write lint posts/*.md        # lint many docs
-better-write score posts/*.md       # just the AI-style score per doc
-cat essay.txt | better-write        # read from stdin
-better-write --json essay.txt       # machine-readable output
-better-write --quiet posts/*.md     # one summary line per doc
-better-write --config bw.config.ts essay.txt
+writinglint essay.txt              # lint one doc (+ score)
+writinglint lint posts/*.md        # lint many docs
+writinglint score posts/*.md       # just the AI-style score per doc
+cat essay.txt | writinglint        # read from stdin
+writinglint --json essay.txt       # machine-readable output
+writinglint --quiet posts/*.md     # one summary line per doc
+writinglint --config writinglint.config.ts essay.txt
 ```
 
 Each lint prints its location, rule id, category, and message, followed by an inline colour
@@ -30,13 +30,13 @@ AI-style score.
 
 ## Configuration
 
-Drop a `bw.config.ts` in your working directory and the CLI picks it up automatically (or point at one
+Drop a `writinglint.config.ts` in your working directory and the CLI picks it up automatically (or point at one
 with `--config`). It's the same `defineConfig` you'd use as a library:
 
 ```ts
-// bw.config.ts
-import { defineConfig } from '@better-write/core';
-import { recommended } from '@better-write/rulepack-ai-style';
+// writinglint.config.ts
+import { defineConfig } from '@writinglint/core';
+import { recommended } from '@writinglint/rulepack-ai-style';
 
 export default defineConfig({
   extends: [recommended],

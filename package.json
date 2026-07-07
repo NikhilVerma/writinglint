@@ -1,5 +1,5 @@
 {
-  "name": "better-write",
+  "name": "writinglint",
   "version": "0.1.0",
   "description": "A grammar linter for prose — authorable rules that match over a real dependency-parse + POS graph. Ships an AI-writing-style rulepack.",
   "type": "module",
@@ -10,9 +10,9 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "npm run dev -w @better-write/web",
-    "build": "npm run build -w @better-write/web",
-    "copy-runtime": "npm run copy-runtime -w @better-write/web",
+    "dev": "npm run dev -w @writinglint/web",
+    "build": "npm run build -w @writinglint/web",
+    "copy-runtime": "npm run copy-runtime -w @writinglint/web",
     "cli": "tsx packages/cli/src/cli.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p packages/web/tsconfig.client.json",
     "test": "node --import tsx --test packages/*/test/*.test.ts",

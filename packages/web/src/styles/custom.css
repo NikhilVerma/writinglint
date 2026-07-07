@@ -1,4 +1,4 @@
-/* Better Write Starlight theme — accent + demo page layout, light/dark aware. */
+/* WritingLint Starlight theme — accent + demo page layout, light/dark aware. */
 :root {
   --sl-color-accent-low: #12233f;
   --sl-color-accent: #4f7cff;
@@ -13,5 +13,5 @@
 /* On the demo page, drop the centered reading column so the editor + Problems
    panel can use the full content width. */
 body:has(.bw-demo) .sl-container { max-width: none; margin-inline: 0; }
-/* The Starlight header already shows "Better Write" — hide the duplicate page H1. */
+/* The Starlight header already shows "WritingLint" — hide the duplicate page H1. */
 body:has(.bw-demo) .content-panel:has(> .sl-container > h1) { display: none; }

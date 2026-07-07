@@ -3,7 +3,7 @@
  * "Furthermore,", "In conclusion,". Mid-sentence uses are usually fine, so we
  * anchor to the sentence head.
  */
-import { defineRule } from '@better-write/core';
+import { defineRule } from '@writinglint/core';
 import { OPENING_CONJUNCTIONS, PHRASE_NOTES } from '../lexicons.js';
 import { normalize } from './_lexicon.js';
 

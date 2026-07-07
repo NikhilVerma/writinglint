@@ -1,5 +1,5 @@
 /**
- * Better Write config — the reference for how to configure the linter.
+ * WritingLint config — the reference for how to configure the linter.
  *
  * `defineConfig` layers rulepacks and rule settings, ESLint-flat-config style:
  *   - `extends` pulls in preset configs (later entries win)
@@ -8,8 +8,8 @@
  *
  * The CLI picks this file up automatically from the working directory.
  */
-import { defineConfig } from '@better-write/core';
-import { recommended } from '@better-write/rulepack-ai-style';
+import { defineConfig } from '@writinglint/core';
+import { recommended } from '@writinglint/rulepack-ai-style';
 
 export default defineConfig({
   // Start from the ai-style pack's recommended rules…

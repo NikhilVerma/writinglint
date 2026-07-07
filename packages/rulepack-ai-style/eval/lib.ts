@@ -13,8 +13,8 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Linter, resolveConfig, type Lint } from '@better-write/core';
-import { loadParser } from '@better-write/parser-node';
+import { Linter, resolveConfig, type Lint } from '@writinglint/core';
+import { loadParser } from '@writinglint/parser-node';
 import { recommended, score as scoreDoc, type Model } from '../src/index.js';
 import { loadModelNode } from '../src/score/model-node.js';
 

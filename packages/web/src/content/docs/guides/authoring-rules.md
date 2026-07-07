@@ -16,7 +16,7 @@ The `Token` listener receives a lexical `Tok` — `{ text, lower, upos, start, e
 offsets. Match on `t.lower` and report a `span`:
 
 ```ts
-import { defineRule } from '@better-write/core';
+import { defineRule } from '@writinglint/core';
 
 export const noUtilize = defineRule({
   meta: {
@@ -36,14 +36,14 @@ export const noUtilize = defineRule({
 });
 ```
 
-## A structural rule (the point of Better Write)
+## A structural rule (the point of WritingLint)
 
 Match over the graph. Here we flag a **coordinated "X, not Y" contrast** — a `conj`/`appos` dependent
 whose coordinator is the word *not*. One rule catches "clarity, not cleverness" **and** "the graph,
 not the vibes", and it survives rewording — impossible with a word list.
 
 ```ts
-import { defineRule, byId, childrenOf, lower, subtree } from '@better-write/core';
+import { defineRule, byId, childrenOf, lower, subtree } from '@writinglint/core';
 
 export const correctiveAntithesis = defineRule({
   meta: {
@@ -70,7 +70,7 @@ export const correctiveAntithesis = defineRule({
 });
 ```
 
-Graph helpers re-exported from `@better-write/core` for exactly this: `childrenOf`, `childrenByRel`,
+Graph helpers re-exported from `@writinglint/core` for exactly this: `childrenOf`, `childrenByRel`,
 `child`, `hasChild`, `byId`, `root`, `subtree`, `spanOf`, `isGerund`, `lower`.
 
 ## Locating a report
@@ -90,7 +90,7 @@ A **rulepack** is the unit of distribution: rules keyed by short name, category 
 configs. Register it in a config under a namespace via `plugins`, then enable its rules.
 
 ```ts
-import { definePack, defineConfig } from '@better-write/core';
+import { definePack, defineConfig } from '@writinglint/core';
 
 export const house = definePack({
   name: 'house',
@@ -105,4 +105,4 @@ export const houseRecommended = defineConfig({
 ```
 
 Now `linter.lint(text, houseRecommended)` runs your pack. That's the whole extension model — the same
-one `@better-write/rulepack-ai-style` uses.
+one `@writinglint/rulepack-ai-style` uses.

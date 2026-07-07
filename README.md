@@ -1,9 +1,9 @@
-# Better Write
+# WritingLint
 
 **A grammar linter for prose — like ESLint, but its rules match over a real
 dependency-parse + POS graph.**
 
-Better Write lints writing the way ESLint lints code: a small engine parses your
+WritingLint lints writing the way ESLint lints code: a small engine parses your
 text once, runs a set of **authorable rules** over it, and reports each problem
 with a location and a plain-language message. Rules are ordinary TypeScript that
 match on the **dependency graph** of each sentence — head/child/`deprel` shapes,
@@ -24,7 +24,7 @@ The prose-linter landscape already has good tools — but none match on syntax:
 | [Vale](https://vale.sh) | YAML patterns | ❌ markup-aware, not syntax-aware |
 | [proselint](https://github.com/amperser/proselint) | fixed Python rules | ❌ |
 | [Harper](https://github.com/automattic/harper) | Rust + **Weir** DSL | ✅ POS + token sequences, ❌ **no dependency relations** |
-| **Better Write** | **TS code** | ✅ **full dependency graph (head/child/`deprel`)** |
+| **WritingLint** | **TS code** | ✅ **full dependency graph (head/child/`deprel`)** |
 
 Harper's Weir is authorable and POS-aware — but it's linear token/POS matching
 only. The one thing no incumbent can express is a **dependency relation**, and
@@ -64,21 +64,21 @@ in a pack that plugs in.
 
 ```
 packages/
-  core/                @better-write/core
+  core/                @writinglint/core
     document.ts        parse-once Document model over the dependency graph
     graph.ts           dependency helpers (child, subtree, spanOf …) for rule authors
     rule.ts            the authorable Rule API (defineRule, RuleContext, Lint)
     pack.ts            Rulepack + categories (definePack)
     config.ts          defineConfig / resolveConfig (extends, plugins, rules)
     linter.ts          Linter.lint(): parse → run rules → deduped, sorted lints
-  parser-node/         @better-write/parser-node — Node nlpgraph loader
-  rulepack-ai-style/   @better-write/rulepack-ai-style — the first rulepack
+  parser-node/         @writinglint/parser-node — Node nlpgraph loader
+  rulepack-ai-style/   @writinglint/rulepack-ai-style — the first rulepack
     rules/*.ts         18 rules (structural on the graph; lexical on words/chars)
     score/             the stylometric AI-style SCORE (separate from the lints)
     model/             classifier.json — data-free weights, shipped
     eval/              training + honest evaluation (data is private, gitignored)
-  cli/                 @better-write/cli — `better-write lint | score`
-  web/                 @better-write/web — the browser editor (one consumer)
+  cli/                 @writinglint/cli — `writinglint lint | score`
+  web/                 @writinglint/web — the browser editor (one consumer)
 ```
 
 Two independent outputs, deliberately decoupled:
@@ -95,17 +95,17 @@ A rule is a `meta` block plus `create(ctx)` returning a listener the engine
 visits once per document: `Document(doc)`, `Sentence(s)` (with `s.dep`, the
 graph), and `Token(t)`. Report a problem with `ctx.report({ tokens | span, … })`.
 The dependency-graph toolkit (`childrenOf`, `child`, `childrenByRel`, `subtree`,
-`spanOf`, `hasChild`, `lower`, …) is exported from `@better-write/core`.
+`spanOf`, `hasChild`, `lower`, …) is exported from `@writinglint/core`.
 
 ## Config
 
 `defineConfig` layers rulepacks and rule settings (ESLint-flat-config style;
-Harper's Weir "base pack + override layer" is the same idea). A `bw.config.ts` in
+Harper's Weir "base pack + override layer" is the same idea). A `writinglint.config.ts` in
 the working directory is picked up automatically by the CLI:
 
 ```ts
-import { defineConfig } from '@better-write/core';
-import { recommended } from '@better-write/rulepack-ai-style';
+import { defineConfig } from '@writinglint/core';
+import { recommended } from '@writinglint/rulepack-ai-style';
 
 export default defineConfig({
   extends: [recommended],
@@ -216,7 +216,7 @@ cat essay.txt | npm run cli           # stdin
 npm run cli -- --json essay.txt       # machine-readable
 ```
 
-A `bw.config.ts` in the working directory is used automatically; otherwise the
+A `writinglint.config.ts` in the working directory is used automatically; otherwise the
 ai-style `recommended` config applies.
 
 ### Web app

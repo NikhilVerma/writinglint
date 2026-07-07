@@ -1,5 +1,5 @@
 ---
-title: Better Write
+title: WritingLint
 description: A grammar linter for prose. Authorable rules match over a real dependency-parse + POS graph — not just regex or POS tags. Ships an AI-writing-style rulepack. Library, CLI, and browser demo.
 tableOfContents: false
 pagefind: false
@@ -16,23 +16,23 @@ import Demo from '../../components/Demo.astro';
 
 ## The same pitch, two ways
 
-Here is the fun part. Below are two descriptions of Better Write that say the **same thing**.
+Here is the fun part. Below are two descriptions of WritingLint that say the **same thing**.
 The first is the kind of copy an LLM produces. The second is what a human writes after editing it
 down. The linter above is loaded with the first one — every highlight is a structural tell it caught.
 
 ### Written by an AI
 
-> In today's fast-moving landscape, Better Write stands as a testament to a simple idea: that prose
+> In today's fast-moving landscape, WritingLint stands as a testament to a simple idea: that prose
 > deserves the same rigor we give code. It's not just a linter, it's a paradigm shift in how we think
-> about writing. Leveraging the rich tapestry of dependency-graph analysis, Better Write delves into
+> about writing. Leveraging the rich tapestry of dependency-graph analysis, WritingLint delves into
 > the intricate, nuanced, and multifaceted structure of every sentence. Studies suggest that structural
-> tells are far more robust than surface patterns. Moreover, Better Write boasts a diverse array of
+> tells are far more robust than surface patterns. Moreover, WritingLint boasts a diverse array of
 > authorable rules. Ultimately, it empowers writers to craft clearer, sharper, and more compelling
 > prose. Trust the graph, not the vibes.
 
 ### Edited by a human
 
-> Better Write is a grammar linter for prose. Its rules match over a dependency parse of each sentence,
+> WritingLint is a grammar linter for prose. Its rules match over a dependency parse of each sentence,
 > not just a flat list of words or part-of-speech tags. That lets a rule target the real structure of a
 > phrase — say, a coordinated "X, not Y" contrast — which regex and POS patterns tend to miss. The
 > trade-off is speed: the parser is a real model, so it is slower than a pattern matcher. In exchange,
@@ -42,7 +42,7 @@ The AI version isn't wrong — it's just wearing every tell at once: corrective 
 ("*not just a linter, it's a paradigm shift*"), the rule of three ("*intricate, nuanced, and
 multifaceted*"), copula avoidance ("*stands as a testament*"), vague attribution ("*Studies
 suggest*"), promotional verbs ("*boasts a diverse array*"), and throat-clearing openers
-("*In today's…*", "*Moreover*", "*Ultimately*"). Better Write flags each one **by its structure**,
+("*In today's…*", "*Moreover*", "*Ultimately*"). WritingLint flags each one **by its structure**,
 not by a word list — so the flags survive a synonym swap.
 
 ## Why a dependency graph, not just POS tags
@@ -51,7 +51,7 @@ Most prose linters match **regular expressions** (Vale, proselint) or, at best, 
 part-of-speech stream** (Harper's Weir). That's enough for "avoid the word *utilize*", but it can't
 see *relationships between words*.
 
-Better Write parses each sentence into a **Universal-Dependencies graph** — every word linked to its
+WritingLint parses each sentence into a **Universal-Dependencies graph** — every word linked to its
 syntactic head with a labeled relation (`nsubj`, `conj`, `advmod`, …) — using
 [nlpgraph](https://github.com/NikhilVerma/nlpgraph), an offline ONNX parser that runs in Node and the
 browser. A rule can then match on **structure**: *"a `conj` dependent coordinated by the word 'not'"*
@@ -63,7 +63,7 @@ participial appendages, light-verb inflation, copula dressing. Structural tells 
 they survive the surface edits that defeat a keyword linter.
 
 **The con.** A real parser is heavier than a pattern matcher. The model is a few hundred milliseconds
-per parse, not microseconds — so Better Write is **slower** than a regex linter. We think the richer
+per parse, not microseconds — so WritingLint is **slower** than a regex linter. We think the richer
 rules are worth it, and the parse runs off the main thread so your editor stays responsive.
 
 ## Not just a demo — a library
@@ -74,7 +74,7 @@ The editor above is one consumer. The engine is a **library** you can build on:
   See [Consume as a library](/guides/consume-library/).
 - **Author your own rules** with the ESLint-style `defineRule` API over the dependency graph.
   See [Author a rule](/guides/authoring-rules/).
-- **Run it from the CLI**: `better-write lint README.md`. See [Command line](/guides/cli/).
+- **Run it from the CLI**: `writinglint lint README.md`. See [Command line](/guides/cli/).
 
 The AI-writing rulepack is just the first pack. The core knows nothing about AI prose — it's a general
 grammar-linting engine, and "AI style" is one rulepack among the ones you can write.

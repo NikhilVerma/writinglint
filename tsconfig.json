@@ -7,7 +7,7 @@
     "packages/cli/src",
     "packages/*/test",
     "packages/rulepack-ai-style/eval",
-    "bw.config.ts"
+    "writinglint.config.ts"
   ],
   "comment": "packages/web is an Astro package with its own (astro strict) tsconfig — checked via `astro build`, not the root tsc.",
   "exclude": ["node_modules", "**/dist", "packages/web"]

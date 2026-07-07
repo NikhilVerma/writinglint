@@ -2,7 +2,7 @@
  * Rule of three — a head with ≥2 `conj` siblings of its OWN part of speech,
  * restricted to ADJ/ADV so we flag rhetorical triads, not itemised noun lists.
  */
-import { childrenByRel, defineRule } from '@better-write/core';
+import { childrenByRel, defineRule } from '@writinglint/core';
 
 export const ruleOfThree = defineRule({
   meta: {

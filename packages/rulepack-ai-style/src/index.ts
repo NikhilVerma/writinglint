@@ -1,12 +1,12 @@
 /**
- * @better-write/rulepack-ai-style — the AI-writing-style rulepack.
+ * @writinglint/rulepack-ai-style — the AI-writing-style rulepack.
  *
  * Eighteen authorable rules (structural, matched on the dependency graph; and
  * lexical, matched on words/characters) plus a separate document-level SCORE.
- * The pack plugs into @better-write/core like any other; `recommended` is the
+ * The pack plugs into @writinglint/core like any other; `recommended` is the
  * batteries-included config a consumer can lint with directly or `extends`.
  */
-import { definePack, defineConfig, type Config, type RuleSetting } from '@better-write/core';
+import { definePack, defineConfig, type Config, type RuleSetting } from '@writinglint/core';
 import { CATEGORIES } from './categories.js';
 
 // structural (dependency-graph) rules

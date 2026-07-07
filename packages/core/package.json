@@ -1,5 +1,5 @@
 {
-  "name": "@better-write/core",
+  "name": "@writinglint/core",
   "version": "0.1.0",
   "description": "Grammar-linter engine: a Document model over a dependency-parse + POS graph, an authorable Rule API, config resolution, and the Linter.",
   "type": "module",
@@ -7,13 +7,13 @@
   "author": "Nikhil Verma",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NikhilVerma/better-write.git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
     "directory": "packages/core"
   },
   "bugs": {
-    "url": "https://github.com/NikhilVerma/better-write/issues"
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
   },
-  "homepage": "https://github.com/NikhilVerma/better-write#readme",
+  "homepage": "https://github.com/NikhilVerma/writinglint#readme",
   "keywords": [
     "grammar",
     "linter",

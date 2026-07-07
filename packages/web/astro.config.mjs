@@ -5,16 +5,16 @@ import starlightTypeDoc, { typeDocSidebarGroup } from 'starlight-typedoc';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://better-write.pages.dev',
+  site: 'https://writinglint.pages.dev',
   integrations: [
     starlight({
-      title: 'Better Write',
+      title: 'WritingLint',
       description:
         'A grammar linter for prose. Authorable rules match over a real dependency-parse + POS graph — not just regex or POS tags — so structural writing tells survive surface edits. Ships an AI-writing-style rulepack. Library, CLI, and browser demo.',
       logo: { src: './src/assets/logo.svg', replacesTitle: false },
-      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/NikhilVerma/better-write' }],
+      social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/NikhilVerma/writinglint' }],
       customCss: ['./src/styles/custom.css'],
-      // Auto-generate the authoring API reference from @better-write/core's TSDoc.
+      // Auto-generate the authoring API reference from @writinglint/core's TSDoc.
       plugins: [
         starlightTypeDoc({
           entryPoints: ['../core/src/index.ts'],

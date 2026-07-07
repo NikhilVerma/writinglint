@@ -2,7 +2,7 @@
  * Copula avoidance — a non-"be" verb predicating via "as a NOUN"
  * ("X stands/serves as a testament"), instead of a plain "is".
  */
-import { childrenByRel, childrenOf, defineRule, hasChild, lower, subtree, type DepSentence } from '@better-write/core';
+import { childrenByRel, childrenOf, defineRule, hasChild, lower, subtree, type DepSentence } from '@writinglint/core';
 
 const COPULA_SUB = new Set([
   'stand', 'stands', 'stood', 'serve', 'serves', 'served', 'act', 'acts', 'acted',

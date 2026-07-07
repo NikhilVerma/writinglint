@@ -1,14 +1,14 @@
 ---
 title: Consume as a library
-description: Use the Better Write engine in your own tool — parse once, lint against a config, and read back structured problems.
+description: Use the WritingLint engine in your own tool — parse once, lint against a config, and read back structured problems.
 ---
 
-Better Write is a library first, a demo second. The engine lives in `@better-write/core`; the parser
-loader for Node is `@better-write/parser-node`; the AI-writing rules and scorer are in
-`@better-write/rulepack-ai-style`.
+WritingLint is a library first, a demo second. The engine lives in `@writinglint/core`; the parser
+loader for Node is `@writinglint/parser-node`; the AI-writing rules and scorer are in
+`@writinglint/rulepack-ai-style`.
 
 :::note
-These packages are an npm workspace in the [better-write repo](https://github.com/NikhilVerma/better-write).
+These packages are an npm workspace in the [writinglint repo](https://github.com/NikhilVerma/writinglint).
 The imports below are exactly what the CLI and the browser demo use.
 :::
 
@@ -19,9 +19,9 @@ single walk. It returns the document, the flat list of `Lint`s, and the category
 rules that ran.
 
 ```ts
-import { Linter } from '@better-write/core';
-import { loadParser } from '@better-write/parser-node';
-import { recommended } from '@better-write/rulepack-ai-style';
+import { Linter } from '@writinglint/core';
+import { loadParser } from '@writinglint/parser-node';
+import { recommended } from '@writinglint/rulepack-ai-style';
 
 const linter = new Linter(await loadParser());
 
@@ -47,8 +47,8 @@ optional `fix`/`suggestion`).
 (`'off' | 'warn' | 'error'`).
 
 ```ts
-import { defineConfig } from '@better-write/core';
-import { recommended } from '@better-write/rulepack-ai-style';
+import { defineConfig } from '@writinglint/core';
+import { recommended } from '@writinglint/rulepack-ai-style';
 
 const config = defineConfig({
   extends: [recommended],
@@ -67,8 +67,8 @@ The stylometric score is **separate from the lints** by design — it's a docume
 rule. Load the shipped, data-free model and call `score(doc, lints, model)`:
 
 ```ts
-import { score } from '@better-write/rulepack-ai-style';
-import { loadModelNode } from '@better-write/rulepack-ai-style/node';
+import { score } from '@writinglint/rulepack-ai-style';
+import { loadModelNode } from '@writinglint/rulepack-ai-style/node';
 
 const model = await loadModelNode();
 const { doc, lints } = await linter.lint(text, recommended);

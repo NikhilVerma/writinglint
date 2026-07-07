@@ -4,7 +4,7 @@
  * "Studies suggest that …". The "who says so?" is generic; detected structurally
  * (no `det`/`nmod:poss` on the nsubj) with a small saying-verb seed.
  */
-import { childrenByRel, defineRule, hasChild, lower, subtree, type DepSentence } from '@better-write/core';
+import { childrenByRel, defineRule, hasChild, lower, subtree, type DepSentence } from '@writinglint/core';
 
 // Verbs of saying/attribution — the semantic half of vague attribution (the
 // structural half is a bare, generic subject). "features mean that …" isn't

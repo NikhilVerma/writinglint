@@ -1,7 +1,7 @@
 {
-  "name": "@better-write/web",
+  "name": "@writinglint/web",
   "version": "0.1.0",
-  "description": "Docs + live browser demo for the Better Write grammar linter (Astro + Starlight). One consumer of the library.",
+  "description": "Docs + live browser demo for the WritingLint grammar linter (Astro + Starlight). One consumer of the library.",
   "type": "module",
   "license": "MIT",
   "author": "Nikhil Verma",
@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.34.8",
-    "@better-write/core": "*",
-    "@better-write/rulepack-ai-style": "*",
+    "@writinglint/core": "*",
+    "@writinglint/rulepack-ai-style": "*",
     "@huggingface/transformers": "^4.2.0",
     "astro": "^5.18.2",
     "nlpgraph": "^0.3.0",

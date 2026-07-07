@@ -2,7 +2,7 @@
 editUrl: false
 next: false
 prev: false
-title: "@better-write/core"
+title: "@writinglint/core"
 ---
 
 ## Classes

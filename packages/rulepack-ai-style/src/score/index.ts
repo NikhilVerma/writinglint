@@ -5,7 +5,7 @@
  * can score low with a few flags; a smooth one can score high with none), so the
  * score lives here as its own function, not as a rule.
  */
-import type { Document, Lint } from '@better-write/core';
+import type { Document, Lint } from '@writinglint/core';
 import { docFeatures } from './features.js';
 import { predict, type Model } from './classifier.js';
 import { CATEGORY_WEIGHT } from '../categories.js';
