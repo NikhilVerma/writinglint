@@ -232,6 +232,41 @@ npm run dev              # stage assets, bundle (esbuild), serve localhost:5173
 npm run copy-runtime && npm run build:client   # → packages/web/public/
 ```
 
+## Deploy (Cloudflare Pages)
+
+The docs + demo site deploys to **Cloudflare Pages via its native Git
+integration** — Cloudflare builds and deploys on every push to `main`, with no CI
+workflow or API token in the repo.
+
+The ~145 MB parser and the onnxruntime-web WASM exceed the Pages 25 MiB
+static-asset limit, so they live in an **R2 bucket** and stream same-origin
+through the Pages Functions in [`functions/`](functions/) — the browser fetches
+the same `/model/*` and `/ort/*` URLs it uses in local dev.
+
+**One-time setup.** Create the bucket and upload the model + runtime (both
+gitignored, never committed):
+
+```bash
+npx wrangler r2 bucket create writinglint-models
+npm run download-model            # fetch the parser locally, if you haven't
+bash scripts/upload-model-to-r2.sh
+```
+
+Then, in the Cloudflare dashboard → **Workers & Pages → Create → Pages →
+Connect to Git**, pick this repo and set:
+
+| Setting | Value |
+|---|---|
+| Production branch | `main` |
+| Root directory | *(repo root)* |
+| Build command | `npm run build:cf` |
+| Build output directory | `packages/web/dist` |
+
+Bind the bucket under **Settings → Functions → R2 bindings**: variable `MODELS`
+→ `writinglint-models` (also declared in [`wrangler.toml`](wrangler.toml)); set
+`NODE_VERSION=20` (or newer). Every push to `main` then builds and deploys to
+`https://writinglint.pages.dev`.
+
 ## Roadmap
 
 1. ✅ Grammar-linter engine — authorable rules over a dependency graph.
@@ -245,7 +280,7 @@ npm run copy-runtime && npm run build:client   # → packages/web/public/
 
 - Engine: [`nlpgraph`](https://www.npmjs.com/package/nlpgraph) dependency parser (MIT).
 - ai-style taxonomy: Wikipedia, *[Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)* (CC BY-SA).
-- Method: [DependencyAI](https://arxiv.org/abs/2602.15514); AI-text-detection [survey](https://www.sciencedirect.com/science/article/abs/pii/S1574013725000693).
+- Method: dependency-relation + POS features for structural AI-text detection.
 - Prior art in prose linting: [textlint](https://textlint.org), [Vale](https://vale.sh), [proselint](https://github.com/amperser/proselint), [Harper](https://github.com/automattic/harper).
 
 ## License

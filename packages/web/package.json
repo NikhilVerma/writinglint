@@ -11,6 +11,7 @@
     "build:client": "node build-client.mjs",
     "copy-runtime": "node copy-runtime.mjs",
     "build": "npm run copy-runtime && npm run build:client && astro build",
+    "build:site": "npm run build:client && astro build",
     "preview": "astro preview"
   },
   "dependencies": {

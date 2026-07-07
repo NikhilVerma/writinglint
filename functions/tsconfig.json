@@ -1,0 +1,14 @@
+{
+  "comment": "Standalone config for the Cloudflare Pages Functions. Not part of the root `npm run typecheck` (which is Node) — Pages compiles these with the Workers runtime types. Run `npm run typecheck:functions` to check them.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "types": ["@cloudflare/workers-types"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["**/*.ts"]
+}

@@ -1,0 +1,20 @@
+# Cloudflare Pages config for the WritingLint docs + demo (packages/web).
+#
+# Deployed via Cloudflare Pages' native Git integration: connect the GitHub repo
+# in the Pages dashboard, set the build command to `npm run build:cf` and the root
+# directory to the repo root (an npm-workspaces monorepo must install at the root).
+# `pages_build_output_dir` below points at the Astro output; the Pages Functions in
+# functions/ stream the parser model + ONNX runtime from R2 (they exceed the Pages
+# 25 MiB static-asset limit, so they can't ship in the build output).
+name = "writinglint"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "packages/web/dist"
+
+# R2 bucket holding the ~145 MB parser (xsmall/) and the onnxruntime-web WASM
+# kernels (ort/). Served same-origin by functions/model + functions/ort so the
+# browser needs no CORS and Cloudflare edge-caches the immutable files.
+# Create once: `npx wrangler r2 bucket create writinglint-models`
+# Upload:      `bash scripts/upload-model-to-r2.sh`
+[[r2_buckets]]
+binding = "MODELS"
+bucket_name = "writinglint-models"

@@ -12,15 +12,18 @@
   "scripts": {
     "dev": "npm run dev -w @writinglint/web",
     "build": "npm run build -w @writinglint/web",
+    "build:cf": "node -e \"const fs=require('fs');for(const d of ['packages/web/public/model','packages/web/public/ort'])fs.rmSync(d,{recursive:true,force:true})\" && npm run build:site -w @writinglint/web",
     "copy-runtime": "npm run copy-runtime -w @writinglint/web",
     "cli": "tsx packages/cli/src/cli.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p packages/web/tsconfig.client.json",
+    "typecheck:functions": "tsc --noEmit -p functions/tsconfig.json",
     "test": "node --import tsx --test packages/*/test/*.test.ts",
     "eval": "tsx packages/rulepack-ai-style/eval/run-eval.ts",
     "train": "tsx packages/rulepack-ai-style/eval/train.ts",
     "download-model": "nlpgraph download --model xsmall --dir ./models/xsmall"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241106.0",
     "@types/node": "^22.20.0",
     "esbuild": "^0.24.2",
     "tsx": "^4.23.0",

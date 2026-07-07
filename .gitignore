@@ -1,3 +1,8 @@
+# Secrets — never commit (Cloudflare API token lives in .env)
+.env
+.env.*
+!.env.example
+
 node_modules/
 dist/
 dist-cli/
@@ -20,6 +25,9 @@ packages/web/public/*.ttf
 scratch-*.ts
 scratch-*.mjs
 scratchpad/
+
+# Cloudflare Wrangler local state (Pages/R2 dev + build cache)
+.wrangler/
 
 # The vendored ONNX parser model (~145MB) is downloaded, never committed.
 # The trained classifier (packages/rulepack-ai-style/model/classifier.json) IS
