@@ -21,7 +21,8 @@
     "test": "node --conditions=source --import tsx --test packages/*/test/*.test.ts",
     "eval": "node --conditions=source --import tsx packages/rulepack-ai-style/eval/run-eval.ts",
     "train": "node --conditions=source --import tsx packages/rulepack-ai-style/eval/train.ts",
-    "download-model": "nlpgraph download --model xsmall --dir ./models/xsmall"
+    "download-model": "nlpgraph download --model xsmall --dir ./models/xsmall",
+    "gen:demo-lints": "node --conditions=source --import tsx scripts/gen-demo-lints.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241106.0",

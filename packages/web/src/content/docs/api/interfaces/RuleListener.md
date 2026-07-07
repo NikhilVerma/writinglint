@@ -5,7 +5,7 @@ prev: false
 title: "RuleListener"
 ---
 
-Defined in: [rule.ts:77](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/rule.ts#L77)
+Defined in: [rule.ts:77](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L77)
 
 The callbacks a rule subscribes to. The engine visits `Document` once, then
 every `Sentence` (with its dependency graph), then every `Token`.
@@ -16,7 +16,7 @@ every `Sentence` (with its dependency graph), then every `Token`.
 
 > `optional` **Document**(`doc`): `void`
 
-Defined in: [rule.ts:78](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/rule.ts#L78)
+Defined in: [rule.ts:78](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L78)
 
 #### Parameters
 
@@ -34,7 +34,7 @@ Defined in: [rule.ts:78](https://github.com/NikhilVerma/writinglint/blob/65eaf27
 
 > `optional` **Sentence**(`sentence`): `void`
 
-Defined in: [rule.ts:79](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/rule.ts#L79)
+Defined in: [rule.ts:79](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L79)
 
 #### Parameters
 
@@ -52,7 +52,7 @@ Defined in: [rule.ts:79](https://github.com/NikhilVerma/writinglint/blob/65eaf27
 
 > `optional` **Token**(`token`): `void`
 
-Defined in: [rule.ts:80](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/rule.ts#L80)
+Defined in: [rule.ts:80](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L80)
 
 #### Parameters
 

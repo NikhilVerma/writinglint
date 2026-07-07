@@ -280,3 +280,47 @@
 @media (prefers-reduced-motion: reduce) {
   .bw-drawin .bw-tell, .bw-pulse, .bw-spinner, .bw-loading, .bw-tell, .bw-seg { animation: none !important; transition: none !important; }
 }
+
+/* ── static preview notice (iOS: the 145 MB model would OOM the tab) ─────────── */
+.bw-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 0.9rem;
+  margin: 0 var(--pad-x) 0.9rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--bw-border);
+  border-left: 3px solid var(--bw-accent);
+  border-radius: 8px;
+  background: var(--bw-panel);
+}
+.bw-note__txt {
+  flex: 1 1 16rem;
+  font-family: var(--bw-mono);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--bw-ink-dim);
+}
+.bw-note__txt strong { color: var(--bw-ink); font-weight: 600; }
+.bw-note__txt code {
+  font-family: var(--bw-mono);
+  font-size: 0.72rem;
+  padding: 0.05em 0.35em;
+  border-radius: 5px;
+  background: var(--bw-hover);
+  color: var(--bw-ink);
+}
+.bw-note__run {
+  flex: 0 0 auto;
+  font-family: var(--bw-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--bw-accent);
+  border: 0;
+  border-radius: 7px;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+}
+.bw-note__run:hover { filter: brightness(1.07); }
+.bw-note__run:focus-visible { outline: none; box-shadow: var(--bw-ring); }

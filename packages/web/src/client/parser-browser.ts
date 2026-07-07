@@ -28,8 +28,25 @@ async function fetchBytes(url: string, onProgress: Progress): Promise<Uint8Array
   const total = Number(res.headers.get('content-length')) || 0;
   if (!res.body) return new Uint8Array(await res.arrayBuffer());
   const reader = res.body.getReader();
-  const chunks: Uint8Array[] = [];
   let loaded = 0;
+
+  // When the length is known, stream straight into one pre-sized buffer. The
+  // accumulate-then-concat path briefly holds two full copies (~2×145 MB); on a
+  // memory-constrained phone that alone can push the tab over its limit.
+  if (total > 0) {
+    const out = new Uint8Array(total);
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      out.set(value, loaded);
+      loaded += value.length;
+      onProgress('model', loaded, total);
+    }
+    return out;
+  }
+
+  // Unknown length: accumulate chunks then concatenate.
+  const chunks: Uint8Array[] = [];
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;

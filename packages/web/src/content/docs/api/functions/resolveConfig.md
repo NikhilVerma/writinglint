@@ -7,7 +7,7 @@ title: "resolveConfig"
 
 > **resolveConfig**(`config`): [`ResolvedConfig`](/api/interfaces/resolvedconfig/)
 
-Defined in: [config.ts:70](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/config.ts#L70)
+Defined in: [config.ts:70](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/config.ts#L70)
 
 Flatten a Config into the set of enabled rules + merged category metadata.
 Rules set to 'off' (or never turned on) are omitted. A rule referencing an

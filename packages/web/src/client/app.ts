@@ -2,6 +2,7 @@ import './demo.css';
 import { segments, type Lint } from 'writinglint-core';
 import { CATEGORIES, CATEGORY_ORDER } from 'writinglint-rulepack-ai-style';
 import { AI_PITCH, HUMAN_PITCH } from './examples.js';
+import { AI_LINTS, HUMAN_LINTS } from './precomputed-lints.js';
 
 /*
  * The "Proof" demo — a prose manuscript linted live, no code editor.
@@ -53,6 +54,8 @@ function boot(): void {
   let inFlight = false;
   let pending = false;
   let firstPaint = true;
+  let live = false;                    // true once the real engine worker is running
+  let worker: Worker | undefined;
 
   const setLinting = (on: boolean) => { status.hidden = !on; };
 
@@ -150,7 +153,7 @@ function boot(): void {
 
   // ── lint request/coalesce (single in-flight) ──────────────────────────────
   function requestLint(): void {
-    if (!ready) return;
+    if (!ready || !worker) return;
     if (input.value.trim() === '') { clearAll(); return; }
     if (inFlight) { pending = true; return; }
     inFlight = true; setLinting(true);
@@ -184,10 +187,17 @@ function boot(): void {
   function loadDraft(text: string, btn?: HTMLButtonElement): void {
     input.value = text;
     segButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
-    paintBackdrop(text, []);
     window.clearTimeout(timer);
     input.scrollTop = 0; backdrop.scrollTop = 0;
-    requestLint();
+    if (live) {
+      paintBackdrop(text, []);
+      requestLint();
+    } else {
+      // Static preview (iOS): swap to the precomputed marks for the chosen draft.
+      const lints = text === HUMAN_PITCH ? HUMAN_LINTS : AI_LINTS;
+      sentText = text; lastLints = lints;
+      paintBackdrop(text, lints); renderRail(lints);
+    }
   }
   segButtons.forEach((b) => b.addEventListener('click', () => {
     loadDraft(b.dataset.draft === 'human' ? HUMAN_PITCH : AI_PITCH, b);
@@ -207,19 +217,68 @@ function boot(): void {
     if (pct !== undefined) loadBar.style.width = `${Math.round(pct * 100)}%`;
   }
 
-  // paint the initial AI draft immediately (unlinted) so the surface isn't empty
+  // Spin up the real engine worker and go live. Called immediately on desktop, or
+  // on explicit opt-in on iOS (where auto-loading the 145 MB model kills the tab).
+  function startLive(): void {
+    if (live) return;
+    live = true;
+    input.readOnly = false;
+    host?.classList.remove('bw-demo--static');
+    loading.classList.remove('done', 'error');
+    loadBar.style.width = '0%';
+    loadMsg.textContent = 'Starting';
+    paintBackdrop(input.value, []);
+    worker = new Worker('/worker.js', { type: 'module' });
+    worker.onmessage = (e: MessageEvent<WorkerMsg>) => {
+      const msg = e.data;
+      if (msg.type === 'progress') onProgress(msg.stage, msg.loaded, msg.total);
+      else if (msg.type === 'ready') { ready = true; loading.classList.add('done'); requestLint(); }
+      else if (msg.type === 'result') { if (msg.id === lastSent) renderResult(msg); settle(); }
+      else if (msg.type === 'lint-error') { console.warn('lint failed:', msg.message); settle(); }
+      else if (msg.type === 'error') { loadMsg.textContent = `Failed to load: ${msg.message}`; loading.classList.add('error'); }
+    };
+    worker.onerror = (e) => { loadMsg.textContent = `Worker error: ${e.message}`; loading.classList.add('error'); };
+  }
+
   input.value = AI_PITCH;
-  paintBackdrop(AI_PITCH, []);
   segButtons.find((b) => b.dataset.draft === 'ai')?.setAttribute('aria-pressed', 'true');
 
-  const worker = new Worker('/worker.js', { type: 'module' });
-  worker.onmessage = (e: MessageEvent<WorkerMsg>) => {
-    const msg = e.data;
-    if (msg.type === 'progress') onProgress(msg.stage, msg.loaded, msg.total);
-    else if (msg.type === 'ready') { ready = true; loading.classList.add('done'); requestLint(); }
-    else if (msg.type === 'result') { if (msg.id === lastSent) renderResult(msg); settle(); }
-    else if (msg.type === 'lint-error') { console.warn('lint failed:', msg.message); settle(); }
-    else if (msg.type === 'error') { loadMsg.textContent = `Failed to load: ${msg.message}`; loading.classList.add('error'); }
-  };
-  worker.onerror = (e) => { loadMsg.textContent = `Worker error: ${e.message}`; loading.classList.add('error'); };
+  // iOS Safari OOM-kills the tab when onnxruntime instantiates the 145 MB model
+  // (it works on desktop Safari, which has far more per-tab memory). So on iOS we
+  // don't auto-load: show the manuscript with precomputed marks (read-only) plus an
+  // explicit opt-in to try the live engine anyway.
+  const IS_IOS =
+    /iP(hone|od|ad)/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  if (IS_IOS) {
+    host?.classList.add('bw-demo--static');
+    const eyebrow = host?.querySelector('.bw-eyebrow');
+    if (eyebrow) eyebrow.textContent = 'Preview · desktop for live';
+    input.readOnly = true;
+    loading.classList.add('done'); // hide the loader overlay so the marks show
+    sentText = AI_PITCH; lastLints = AI_LINTS;
+    paintBackdrop(AI_PITCH, AI_LINTS);
+    renderRail(AI_LINTS);
+    showStaticNotice(startLive);
+  } else {
+    paintBackdrop(AI_PITCH, []);
+    startLive();
+  }
+
+  // A non-blocking banner above the manuscript, injected only on the static path.
+  function showStaticNotice(onRun: () => void): void {
+    if (!host || host.querySelector('.bw-note')) return;
+    const note = document.createElement('div');
+    note.className = 'bw-note';
+    note.innerHTML =
+      `<span class="bw-note__txt"><strong>Desktop&#8209;only live demo.</strong> The in&#8209;browser parser is ~145&nbsp;MB — more than iOS&nbsp;Safari allows, so it crashes the tab here. Below is a captured run; edit it live on a desktop browser, or run <code>npx&nbsp;writinglint</code>.</span>` +
+      `<button type="button" class="bw-note__run">Run it live anyway</button>`;
+    const bar = host.querySelector('.bw-demo__bar');
+    if (bar) bar.after(note); else host.prepend(note);
+    note.querySelector<HTMLButtonElement>('.bw-note__run')?.addEventListener('click', () => {
+      note.remove();
+      onRun();
+    });
+  }
 }

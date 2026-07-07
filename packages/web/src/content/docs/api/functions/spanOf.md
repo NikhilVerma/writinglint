@@ -7,7 +7,7 @@ title: "spanOf"
 
 > **spanOf**(`s`, `toks`): `object`
 
-Defined in: [graph.ts:106](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/graph.ts#L106)
+Defined in: [graph.ts:106](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/graph.ts#L106)
 
 Global char span covering a set of tokens (min start … max end).
 

@@ -7,4 +7,4 @@ title: "Severity"
 
 > **Severity** = `"off"` \| `"warn"` \| `"error"`
 
-Defined in: [rule.ts:15](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/rule.ts#L15)
+Defined in: [rule.ts:15](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L15)
