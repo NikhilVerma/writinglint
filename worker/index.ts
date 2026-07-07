@@ -28,7 +28,18 @@ export default {
       object.writeHttpMetadata(headers);
       headers.set('etag', object.httpEtag);
       headers.set('cache-control', 'public, max-age=31536000, immutable');
-      if (key.endsWith('.wasm')) headers.set('content-type', 'application/wasm');
+      // R2 objects uploaded via `wrangler r2 object put` carry no content-type, so
+      // set it by extension. Critical: onnxruntime-web dynamically imports the .mjs
+      // glue, and browsers reject an ES-module import unless it's served as
+      // JavaScript; WASM streaming likewise needs application/wasm.
+      const MIME: Record<string, string> = {
+        wasm: 'application/wasm',
+        mjs: 'text/javascript',
+        js: 'text/javascript',
+        json: 'application/json',
+      };
+      const ext = key.slice(key.lastIndexOf('.') + 1);
+      if (MIME[ext]) headers.set('content-type', MIME[ext]);
       return new Response(object.body, { headers });
     }
     // Everything else: the static site.
