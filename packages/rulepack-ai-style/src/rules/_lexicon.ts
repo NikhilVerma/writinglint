@@ -4,7 +4,7 @@
  * is over-used without the token "delve"). Constructions live in the structural
  * rules, matched on the dependency graph.
  */
-import { defineRule, type Rule } from '@writinglint/core';
+import { defineRule, type Rule } from 'writinglint-core';
 import { PHRASE_NOTES } from '../lexicons.js';
 
 /** Fold curly quotes/apostrophes to straight, preserving length & offsets. */

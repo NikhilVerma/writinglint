@@ -4,7 +4,7 @@
  * web UI colours highlights with — so they are stable identifiers, not just
  * labels. Display order is the array order in `CATEGORY_ORDER`.
  */
-import type { Category } from '@writinglint/core';
+import type { Category } from 'writinglint-core';
 
 export const CATEGORIES: Record<string, Category> = {
   significance: {

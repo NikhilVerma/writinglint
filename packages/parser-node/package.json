@@ -1,5 +1,5 @@
 {
-  "name": "@writinglint/parser-node",
+  "name": "writinglint-parser-node",
   "version": "0.1.0",
   "description": "Node-side nlpgraph parser loader for the WritingLint linter (CLI, eval, tests).",
   "type": "module",
@@ -26,20 +26,28 @@
     "node": ">=18"
   },
   "sideEffects": false,
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
     }
   },
   "files": [
-    "src",
+    "dist",
     "README.md"
   ],
   "dependencies": {
-    "@writinglint/core": "*",
+    "writinglint-core": "^0.1.0",
     "nlpgraph": "^0.3.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

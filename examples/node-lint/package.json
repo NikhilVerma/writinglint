@@ -1,0 +1,16 @@
+{
+  "name": "writinglint-example-node-lint",
+  "private": true,
+  "type": "module",
+  "description": "Standalone example: install writinglint-* from npm and lint text.",
+  "scripts": {
+    "setup": "nlpgraph download --model xsmall --dir ./models",
+    "start": "node lint.js"
+  },
+  "dependencies": {
+    "writinglint-core": "^0.1.0",
+    "writinglint-parser-node": "^0.1.0",
+    "writinglint-rulepack-ai-style": "^0.1.0",
+    "nlpgraph": "^0.3.0"
+  }
+}

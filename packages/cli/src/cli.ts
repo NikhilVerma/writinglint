@@ -17,10 +17,10 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { Linter, resolveConfig, segments, type Config, type Lint } from '@writinglint/core';
-import { loadParser } from '@writinglint/parser-node';
-import { recommended, score, CATEGORIES, CATEGORY_ORDER, type Model } from '@writinglint/rulepack-ai-style';
-import { loadModelNode } from '@writinglint/rulepack-ai-style/node';
+import { Linter, resolveConfig, segments, type Config, type Lint } from 'writinglint-core';
+import { loadParser } from 'writinglint-parser-node';
+import { recommended, score, CATEGORIES, CATEGORY_ORDER, type Model } from 'writinglint-rulepack-ai-style';
+import { loadModelNode } from 'writinglint-rulepack-ai-style/node';
 
 // ── tiny ANSI helpers (no deps) ──────────────────────────────────────────
 const useColor = process.stdout.isTTY && !process.env.NO_COLOR;

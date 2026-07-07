@@ -1,5 +1,5 @@
 {
-  "name": "@writinglint/cli",
+  "name": "writinglint",
   "version": "0.1.0",
   "description": "Command-line interface for the WritingLint grammar linter — lint prose and score how AI-shaped it reads.",
   "type": "module",
@@ -26,15 +26,22 @@
     "node": ">=18"
   },
   "bin": {
-    "writinglint": "./src/cli.ts"
+    "writinglint": "./dist/cli.js"
   },
   "files": [
-    "src",
+    "dist",
     "README.md"
   ],
   "dependencies": {
-    "@writinglint/core": "*",
-    "@writinglint/parser-node": "*",
-    "@writinglint/rulepack-ai-style": "*"
+    "writinglint-core": "^0.1.0",
+    "writinglint-parser-node": "^0.1.0",
+    "writinglint-rulepack-ai-style": "^0.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

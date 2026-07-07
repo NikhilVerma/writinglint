@@ -21,7 +21,9 @@ export const options = {
   format: 'esm',
   platform: 'browser',
   target: ['es2022'],
-  conditions: ['browser', 'import', 'module', 'default'],
+  // 'source' first so writinglint-* resolve to their TypeScript src (bundled here),
+  // not the published dist — the packages ship a "source" export condition for us.
+  conditions: ['source', 'browser', 'import', 'module', 'default'],
   mainFields: ['browser', 'module', 'main'],
   sourcemap: true,
   logLevel: 'info',

@@ -3,7 +3,7 @@
  * words LLMs reach for far more often than people do (delve, tapestry,
  * meticulous …). Wikipedia's own high-density list, kept in the lexicon.
  */
-import { defineRule } from '@writinglint/core';
+import { defineRule } from 'writinglint-core';
 import { AI_VOCAB, PHRASE_NOTES } from '../lexicons.js';
 
 const VOCAB = new Set(AI_VOCAB.map((w) => w.toLowerCase()));

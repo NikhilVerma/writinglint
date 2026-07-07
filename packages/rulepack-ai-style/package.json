@@ -1,5 +1,5 @@
 {
-  "name": "@writinglint/rulepack-ai-style",
+  "name": "writinglint-rulepack-ai-style",
   "version": "0.1.0",
   "description": "AI-writing-style rulepack for the WritingLint grammar linter: authorable rules over the dependency graph, plus a stylometric document scorer.",
   "type": "module",
@@ -28,28 +28,37 @@
     "node": ">=18"
   },
   "sideEffects": false,
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
     },
     "./node": {
-      "types": "./src/score/model-node.ts",
-      "default": "./src/score/model-node.ts"
+      "types": "./dist/score/model-node.d.ts",
+      "source": "./src/score/model-node.ts",
+      "default": "./dist/score/model-node.js"
     },
     "./model/classifier.json": "./model/classifier.json"
   },
   "files": [
-    "src",
+    "dist",
     "model/classifier.json",
     "README.md"
   ],
   "dependencies": {
-    "@writinglint/core": "*"
+    "writinglint-core": "^0.1.0"
   },
   "devDependencies": {
-    "@writinglint/parser-node": "*"
+    "writinglint-parser-node": "^0.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

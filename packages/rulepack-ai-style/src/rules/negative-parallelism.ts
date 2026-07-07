@@ -5,7 +5,7 @@
  * plain "not X but Y" contrast is ordinary human writing (see corrective-antithesis
  * for the "X, not Y" form).
  */
-import { child, childrenOf, defineRule, lower, subtree, type DepSentence } from '@writinglint/core';
+import { child, childrenOf, defineRule, lower, subtree, type DepSentence } from 'writinglint-core';
 
 // Adverbs that give the "not ONLY … but ALSO …" cadence (vs a plain human contrast).
 const PARALLEL_MARKER = new Set(['only', 'just', 'merely', 'simply', 'also', 'too']);

@@ -64,21 +64,21 @@ in a pack that plugs in.
 
 ```
 packages/
-  core/                @writinglint/core
+  core/                writinglint-core
     document.ts        parse-once Document model over the dependency graph
     graph.ts           dependency helpers (child, subtree, spanOf …) for rule authors
     rule.ts            the authorable Rule API (defineRule, RuleContext, Lint)
     pack.ts            Rulepack + categories (definePack)
     config.ts          defineConfig / resolveConfig (extends, plugins, rules)
     linter.ts          Linter.lint(): parse → run rules → deduped, sorted lints
-  parser-node/         @writinglint/parser-node — Node nlpgraph loader
-  rulepack-ai-style/   @writinglint/rulepack-ai-style — the first rulepack
-    rules/*.ts         18 rules (structural on the graph; lexical on words/chars)
+  parser-node/         writinglint-parser-node — Node nlpgraph loader
+  rulepack-ai-style/   writinglint-rulepack-ai-style — the first rulepack
+    rules/*.ts         16 rules (structural on the graph; lexical on words/chars)
     score/             the stylometric AI-style SCORE (separate from the lints)
     model/             classifier.json — data-free weights, shipped
     eval/              training + honest evaluation (data is private, gitignored)
-  cli/                 @writinglint/cli — `writinglint lint | score`
-  web/                 @writinglint/web — the browser editor (one consumer)
+  cli/                 writinglint — `writinglint lint | score`
+  web/                 writinglint-web — the browser editor (one consumer)
 ```
 
 Two independent outputs, deliberately decoupled:
@@ -95,7 +95,7 @@ A rule is a `meta` block plus `create(ctx)` returning a listener the engine
 visits once per document: `Document(doc)`, `Sentence(s)` (with `s.dep`, the
 graph), and `Token(t)`. Report a problem with `ctx.report({ tokens | span, … })`.
 The dependency-graph toolkit (`childrenOf`, `child`, `childrenByRel`, `subtree`,
-`spanOf`, `hasChild`, `lower`, …) is exported from `@writinglint/core`.
+`spanOf`, `hasChild`, `lower`, …) is exported from `writinglint-core`.
 
 ## Config
 
@@ -104,8 +104,8 @@ Harper's Weir "base pack + override layer" is the same idea). A `writinglint.con
 the working directory is picked up automatically by the CLI:
 
 ```ts
-import { defineConfig } from '@writinglint/core';
-import { recommended } from '@writinglint/rulepack-ai-style';
+import { defineConfig } from 'writinglint-core';
+import { recommended } from 'writinglint-rulepack-ai-style';
 
 export default defineConfig({
   extends: [recommended],
@@ -264,7 +264,7 @@ serving the static site from `packages/web/dist` and streaming the model from R2
 ## Roadmap
 
 1. ✅ Grammar-linter engine — authorable rules over a dependency graph.
-2. ✅ ai-style rulepack (18 rules) + stylometric score, evaluated on diverse data.
+2. ✅ ai-style rulepack (16 rules) + stylometric score, evaluated on diverse data.
 3. ✅ CLI + browser editor as consumers of the library.
 4. **VSCode extension / LSP** (`packages/lsp`, `packages/vscode`) — lint in the editor.
 5. **More rulepacks** — grammar, clarity, house-style; richer user-rule authoring.

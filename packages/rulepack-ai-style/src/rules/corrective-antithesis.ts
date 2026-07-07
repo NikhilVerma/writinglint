@@ -12,7 +12,7 @@
  * Kept distinct from `negative-parallelism`, which owns the "not only X but also Y"
  * form (coordinator "but", with an only/just/also marker). No overlap.
  */
-import { byId, childrenOf, defineRule, lower, subtree, type DepSentence } from '@writinglint/core';
+import { byId, childrenOf, defineRule, lower, subtree, type DepSentence } from 'writinglint-core';
 
 export const correctiveAntithesis = defineRule({
   meta: {

@@ -14,8 +14,8 @@
 import * as ort from 'onnxruntime-web';
 import { AutoTokenizer, env } from '@huggingface/transformers';
 import { NlpGraph } from 'nlpgraph/browser';
-import type { Parser } from '@writinglint/core';
-import type { Model } from '@writinglint/rulepack-ai-style';
+import type { Parser } from 'writinglint-core';
+import type { Model } from 'writinglint-rulepack-ai-style';
 
 export interface Progress {
   (stage: string, loaded?: number, total?: number): void;

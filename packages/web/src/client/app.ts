@@ -1,6 +1,6 @@
 import './demo.css';
-import { segments, type Lint } from '@writinglint/core';
-import { CATEGORIES, CATEGORY_ORDER } from '@writinglint/rulepack-ai-style';
+import { segments, type Lint } from 'writinglint-core';
+import { CATEGORIES, CATEGORY_ORDER } from 'writinglint-rulepack-ai-style';
 import { AI_PITCH, HUMAN_PITCH } from './examples.js';
 
 /*

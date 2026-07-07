@@ -14,7 +14,7 @@ export default defineConfig({
       logo: { src: './src/assets/logo.svg', replacesTitle: false },
       social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/NikhilVerma/writinglint' }],
       customCss: ['./src/styles/custom.css'],
-      // Auto-generate the authoring API reference from @writinglint/core's TSDoc.
+      // Auto-generate the authoring API reference from writinglint-core's TSDoc.
       plugins: [
         starlightTypeDoc({
           entryPoints: ['../core/src/index.ts'],

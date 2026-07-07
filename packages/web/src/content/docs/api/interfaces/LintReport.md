@@ -5,7 +5,7 @@ prev: false
 title: "LintReport"
 ---
 
-Defined in: linter.ts:13
+Defined in: [linter.ts:13](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/linter.ts#L13)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: linter.ts:13
 
 > **categories**: `Record`\<`string`, [`Category`](/api/interfaces/category/)\>
 
-Defined in: linter.ts:17
+Defined in: [linter.ts:17](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/linter.ts#L17)
 
 Category metadata for the rules that ran (for grouping / colour in a UI).
 
@@ -23,7 +23,7 @@ Category metadata for the rules that ran (for grouping / colour in a UI).
 
 > **doc**: [`Document`](/api/interfaces/document/)
 
-Defined in: linter.ts:14
+Defined in: [linter.ts:14](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/linter.ts#L14)
 
 ***
 
@@ -31,4 +31,4 @@ Defined in: linter.ts:14
 
 > **lints**: [`Lint`](/api/interfaces/lint/)[]
 
-Defined in: linter.ts:15
+Defined in: [linter.ts:15](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/linter.ts#L15)

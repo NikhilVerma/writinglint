@@ -5,7 +5,7 @@ prev: false
 title: "Rule"
 ---
 
-Defined in: rule.ts:97
+Defined in: [rule.ts:97](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L97)
 
 ## Type Parameters
 
@@ -19,7 +19,7 @@ Defined in: rule.ts:97
 
 > **meta**: [`RuleMeta`](/api/interfaces/rulemeta/)
 
-Defined in: rule.ts:98
+Defined in: [rule.ts:98](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L98)
 
 ## Methods
 
@@ -27,7 +27,7 @@ Defined in: rule.ts:98
 
 > **create**(`context`): [`RuleListener`](/api/interfaces/rulelistener/)
 
-Defined in: rule.ts:99
+Defined in: [rule.ts:99](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L99)
 
 #### Parameters
 

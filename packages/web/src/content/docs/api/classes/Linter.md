@@ -5,7 +5,7 @@ prev: false
 title: "Linter"
 ---
 
-Defined in: linter.ts:30
+Defined in: [linter.ts:30](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/linter.ts#L30)
 
 ## Constructors
 
@@ -13,7 +13,7 @@ Defined in: linter.ts:30
 
 > **new Linter**(`parser`): `Linter`
 
-Defined in: linter.ts:31
+Defined in: [linter.ts:31](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/linter.ts#L31)
 
 #### Parameters
 
@@ -31,7 +31,7 @@ Defined in: linter.ts:31
 
 > **lint**(`text`, `config`): `Promise`\<[`LintReport`](/api/interfaces/lintreport/)\>
 
-Defined in: linter.ts:33
+Defined in: [linter.ts:33](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/linter.ts#L33)
 
 #### Parameters
 

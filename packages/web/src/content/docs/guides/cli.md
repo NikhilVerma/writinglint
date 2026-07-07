@@ -3,7 +3,7 @@ title: Command line
 description: Lint prose from the terminal and score how AI-shaped it reads, with a writinglint.config.ts picked up automatically.
 ---
 
-The `@writinglint/cli` package installs a `writinglint` command. It lints prose against the ai-style
+The `writinglint` package installs a `writinglint` command. It lints prose against the ai-style
 rulepack (by default) and, separately, scores how AI-shaped a document reads.
 
 From inside the repo you can run it via the workspace script:
@@ -35,8 +35,8 @@ with `--config`). It's the same `defineConfig` you'd use as a library:
 
 ```ts
 // writinglint.config.ts
-import { defineConfig } from '@writinglint/core';
-import { recommended } from '@writinglint/rulepack-ai-style';
+import { defineConfig } from 'writinglint-core';
+import { recommended } from 'writinglint-rulepack-ai-style';
 
 export default defineConfig({
   extends: [recommended],

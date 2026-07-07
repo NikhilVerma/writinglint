@@ -1,7 +1,7 @@
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { Linter, resolveConfig, type Lint, type ResolvedConfig } from '@writinglint/core';
-import { loadParser } from '@writinglint/parser-node';
+import { Linter, resolveConfig, type Lint, type ResolvedConfig } from 'writinglint-core';
+import { loadParser } from 'writinglint-parser-node';
 import { recommended, score } from '../src/index.js';
 
 let linter: Linter;

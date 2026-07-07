@@ -1,5 +1,5 @@
 {
-  "name": "@writinglint/web",
+  "name": "writinglint-web",
   "version": "0.1.0",
   "description": "Docs + live browser demo for the WritingLint grammar linter (Astro + Starlight). One consumer of the library.",
   "type": "module",
@@ -16,8 +16,8 @@
   },
   "dependencies": {
     "@astrojs/starlight": "^0.34.8",
-    "@writinglint/core": "*",
-    "@writinglint/rulepack-ai-style": "*",
+    "writinglint-core": "*",
+    "writinglint-rulepack-ai-style": "*",
     "@huggingface/transformers": "^4.2.0",
     "astro": "^5.18.2",
     "nlpgraph": "^0.3.0",

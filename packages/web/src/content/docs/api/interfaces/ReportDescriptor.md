@@ -5,7 +5,7 @@ prev: false
 title: "ReportDescriptor"
 ---
 
-Defined in: rule.ts:53
+Defined in: [rule.ts:53](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L53)
 
 What a rule passes to `ctx.report`. Give a location as either an explicit
 `span` or a set of `tokens` (with the `sentence` they belong to, so the engine
@@ -19,7 +19,7 @@ literal `message`, or a `messageId` into `meta.messages` with `data` for
 
 > `optional` **data?**: `Record`\<`string`, `string` \| `number`\>
 
-Defined in: rule.ts:59
+Defined in: [rule.ts:59](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L59)
 
 ***
 
@@ -27,7 +27,7 @@ Defined in: rule.ts:59
 
 > `optional` **fix?**: [`TextFix`](/api/interfaces/textfix/)
 
-Defined in: rule.ts:60
+Defined in: [rule.ts:60](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L60)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: rule.ts:60
 
 > `optional` **message?**: `string`
 
-Defined in: rule.ts:58
+Defined in: [rule.ts:58](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L58)
 
 ***
 
@@ -43,7 +43,7 @@ Defined in: rule.ts:58
 
 > `optional` **messageId?**: `string`
 
-Defined in: rule.ts:57
+Defined in: [rule.ts:57](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L57)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: rule.ts:57
 
 > `optional` **sentence?**: [`DepSentence`](/api/interfaces/depsentence/)
 
-Defined in: rule.ts:56
+Defined in: [rule.ts:56](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L56)
 
 ***
 
@@ -59,7 +59,7 @@ Defined in: rule.ts:56
 
 > `optional` **span?**: `object`
 
-Defined in: rule.ts:54
+Defined in: [rule.ts:54](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L54)
 
 #### end
 
@@ -75,7 +75,7 @@ Defined in: rule.ts:54
 
 > `optional` **suggestion?**: `string`
 
-Defined in: rule.ts:61
+Defined in: [rule.ts:61](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L61)
 
 ***
 
@@ -83,4 +83,4 @@ Defined in: rule.ts:61
 
 > `optional` **tokens?**: `DepToken`[]
 
-Defined in: rule.ts:55
+Defined in: [rule.ts:55](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L55)

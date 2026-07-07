@@ -3,14 +3,20 @@ title: Consume as a library
 description: Use the WritingLint engine in your own tool — parse once, lint against a config, and read back structured problems.
 ---
 
-WritingLint is a library first, a demo second. The engine lives in `@writinglint/core`; the parser
-loader for Node is `@writinglint/parser-node`; the AI-writing rules and scorer are in
-`@writinglint/rulepack-ai-style`.
+WritingLint is a library first, a demo second. The engine lives in `writinglint-core`; the parser
+loader for Node is `writinglint-parser-node`; the AI-writing rules and scorer are in
+`writinglint-rulepack-ai-style`.
 
-:::note
-These packages are an npm workspace in the [writinglint repo](https://github.com/NikhilVerma/writinglint).
-The imports below are exactly what the CLI and the browser demo use.
-:::
+## Install
+
+```bash
+npm install writinglint-core writinglint-parser-node writinglint-rulepack-ai-style
+# the parser needs the model once (~145 MB):
+npx nlpgraph download --model xsmall --dir ./models
+```
+
+A runnable version of everything below is in
+[`examples/node-lint`](https://github.com/NikhilVerma/writinglint/tree/main/examples/node-lint).
 
 ## Lint some text
 
@@ -19,11 +25,11 @@ single walk. It returns the document, the flat list of `Lint`s, and the category
 rules that ran.
 
 ```ts
-import { Linter } from '@writinglint/core';
-import { loadParser } from '@writinglint/parser-node';
-import { recommended } from '@writinglint/rulepack-ai-style';
+import { Linter } from 'writinglint-core';
+import { loadParser } from 'writinglint-parser-node';
+import { recommended } from 'writinglint-rulepack-ai-style';
 
-const linter = new Linter(await loadParser());
+const linter = new Linter(await loadParser({ modelDir: './models/xsmall' }));
 
 const { lints } = await linter.lint(
   "It's not just a linter, it's a paradigm shift.",
@@ -47,8 +53,8 @@ optional `fix`/`suggestion`).
 (`'off' | 'warn' | 'error'`).
 
 ```ts
-import { defineConfig } from '@writinglint/core';
-import { recommended } from '@writinglint/rulepack-ai-style';
+import { defineConfig } from 'writinglint-core';
+import { recommended } from 'writinglint-rulepack-ai-style';
 
 const config = defineConfig({
   extends: [recommended],
@@ -67,8 +73,8 @@ The stylometric score is **separate from the lints** by design — it's a docume
 rule. Load the shipped, data-free model and call `score(doc, lints, model)`:
 
 ```ts
-import { score } from '@writinglint/rulepack-ai-style';
-import { loadModelNode } from '@writinglint/rulepack-ai-style/node';
+import { score } from 'writinglint-rulepack-ai-style';
+import { loadModelNode } from 'writinglint-rulepack-ai-style/node';
 
 const model = await loadModelNode();
 const { doc, lints } = await linter.lint(text, recommended);

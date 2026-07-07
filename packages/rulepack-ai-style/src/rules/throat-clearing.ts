@@ -3,7 +3,7 @@
  * [cognition verb]: "It is important to note that …". Structure from the parse;
  * the two adjective/verb slots are small semantic seeds (POS can't open them).
  */
-import { child, childrenOf, defineRule, hasChild, lower, subtree, type DepSentence } from '@writinglint/core';
+import { child, childrenOf, defineRule, hasChild, lower, subtree, type DepSentence } from 'writinglint-core';
 
 const IMPORTANCE_ADJ = new Set([
   'important', 'critical', 'crucial', 'essential', 'vital', 'key', 'necessary',

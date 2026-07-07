@@ -36,3 +36,8 @@ models/*/
 
 # Eval data is CLOSED-SOURCE (third-party text; kept private). Never commit it here.
 eval/data/
+
+# Example apps: installed deps + downloaded model (not committed)
+examples/**/node_modules/
+examples/**/models/
+examples/**/package-lock.json

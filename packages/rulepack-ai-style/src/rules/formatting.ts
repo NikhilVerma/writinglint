@@ -4,7 +4,7 @@
  * without losing the em-dash / curly-quote checks. All share the `formatting`
  * category (the scorer counts by category, so the split is score-neutral).
  */
-import { defineRule } from '@writinglint/core';
+import { defineRule } from 'writinglint-core';
 
 const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}️]/gu;
 

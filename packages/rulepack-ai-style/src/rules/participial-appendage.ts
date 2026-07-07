@@ -3,7 +3,7 @@
  * the main clause after a comma, filled by an editorialising gerund. The AI
  * "superficial analysis" tell: "…, showcasing its heritage".
  */
-import { defineRule, isGerund, lower, subtree, type DepSentence } from '@writinglint/core';
+import { defineRule, isGerund, lower, subtree, type DepSentence } from 'writinglint-core';
 
 // Editorialising gerunds — the semantic half of the tell (vacuous significance).
 // "…, showcasing its heritage" vs human "…, trying to fix it".

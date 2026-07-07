@@ -5,7 +5,7 @@ prev: false
 title: "RuleListener"
 ---
 
-Defined in: rule.ts:77
+Defined in: [rule.ts:77](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L77)
 
 The callbacks a rule subscribes to. The engine visits `Document` once, then
 every `Sentence` (with its dependency graph), then every `Token`.
@@ -16,7 +16,7 @@ every `Sentence` (with its dependency graph), then every `Token`.
 
 > `optional` **Document**(`doc`): `void`
 
-Defined in: rule.ts:78
+Defined in: [rule.ts:78](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L78)
 
 #### Parameters
 
@@ -34,7 +34,7 @@ Defined in: rule.ts:78
 
 > `optional` **Sentence**(`sentence`): `void`
 
-Defined in: rule.ts:79
+Defined in: [rule.ts:79](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L79)
 
 #### Parameters
 
@@ -52,7 +52,7 @@ Defined in: rule.ts:79
 
 > `optional` **Token**(`token`): `void`
 
-Defined in: rule.ts:80
+Defined in: [rule.ts:80](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/rule.ts#L80)
 
 #### Parameters
 

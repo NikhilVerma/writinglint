@@ -8,8 +8,8 @@
  *
  * The CLI picks this file up automatically from the working directory.
  */
-import { defineConfig } from '@writinglint/core';
-import { recommended } from '@writinglint/rulepack-ai-style';
+import { defineConfig } from 'writinglint-core';
+import { recommended } from 'writinglint-rulepack-ai-style';
 
 export default defineConfig({
   // Start from the ai-style pack's recommended rules…

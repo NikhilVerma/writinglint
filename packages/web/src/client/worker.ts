@@ -4,9 +4,9 @@
  * and the transformers.js tokenizer both run fine in a worker (all asset loads are
  * same-origin fetches). The main thread only sends text and renders the result.
  */
-import { Linter, resolveConfig, type Lint, type ResolvedConfig } from '@writinglint/core';
-import { recommended, score } from '@writinglint/rulepack-ai-style';
-import type { Model } from '@writinglint/rulepack-ai-style';
+import { Linter, resolveConfig, type Lint, type ResolvedConfig } from 'writinglint-core';
+import { recommended, score } from 'writinglint-rulepack-ai-style';
+import type { Model } from 'writinglint-rulepack-ai-style';
 import { loadEngine } from './parser-browser.js';
 
 // Messages the worker receives / sends.

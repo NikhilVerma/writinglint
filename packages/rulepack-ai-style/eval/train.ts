@@ -13,8 +13,8 @@
  */
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { Linter, resolveConfig } from '@writinglint/core';
-import { loadParser } from '@writinglint/parser-node';
+import { Linter, resolveConfig } from 'writinglint-core';
+import { loadParser } from 'writinglint-parser-node';
 import { recommended } from '../src/index.js';
 import { docFeatures, predict, trainModel, type DocFeatures, type Model } from '../src/score/index.js';
 import { loadDocs, mean, type Doc } from './lib.js';

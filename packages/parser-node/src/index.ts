@@ -5,16 +5,23 @@
  */
 import { NlpGraph } from 'nlpgraph';
 import { fileURLToPath } from 'node:url';
-import type { Parser } from '@writinglint/core';
+import type { Parser } from 'writinglint-core';
 
 let cached: Promise<Parser> | null = null;
 
-/** Load (and memoise) the Node parser. */
-export function loadParser(): Promise<Parser> {
+/**
+ * Load (and memoise) the Node parser.
+ *
+ * The ~145 MB xsmall model is not bundled with this package. Point `modelDir` at a
+ * downloaded copy (`npx nlpgraph download --model xsmall --dir ./models`), or set
+ * NLPGRAPH_MODEL_DIR. The bare fallback only resolves inside this repo.
+ */
+export function loadParser(opts?: { modelDir?: string }): Promise<Parser> {
   if (cached) return cached;
   const modelDir =
+    opts?.modelDir ??
     process.env.NLPGRAPH_MODEL_DIR ??
-    // repo-root/models/xsmall — from packages/parser-node/src/
+    // repo-root/models/xsmall — from packages/parser-node/{src,dist}/
     fileURLToPath(new URL('../../../models/xsmall', import.meta.url));
   cached = NlpGraph.load({ modelDir }) as Promise<Parser>;
   return cached;
