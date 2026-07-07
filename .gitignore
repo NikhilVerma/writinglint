@@ -1,0 +1,20 @@
+node_modules/
+dist/
+dist-cli/
+public/model/
+public/ort/
+public/app.js
+public/app.css
+public/*.map
+.DS_Store
+*.log
+scratch-*.ts
+scratch-*.mjs
+scratchpad/
+
+# The vendored ONNX parser model (~145MB) is downloaded, never committed.
+# The trained classifier (models/classifier.json) IS committed — it's data-free.
+models/*/
+
+# Eval data is CLOSED-SOURCE (third-party text; kept private). Never commit it here.
+eval/data/

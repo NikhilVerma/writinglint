@@ -1,0 +1,33 @@
+{
+  "name": "better-write",
+  "version": "0.1.0",
+  "description": "Detects and highlights AI-writing style tells (Hemingway-style), based on Wikipedia's 'Signs of AI writing'.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "bin": {
+    "better-write": "dist-cli/cli.js"
+  },
+  "scripts": {
+    "dev": "node dev.mjs",
+    "build:client": "node build-client.mjs",
+    "cli": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test test/*.test.ts",
+    "eval": "tsx eval/run-eval.ts",
+    "train": "tsx eval/train.ts",
+    "download-model": "nlpgraph download --model xsmall --dir ./models/xsmall",
+    "copy-runtime": "node copy-runtime.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.2.0",
+    "nlpgraph": "^0.3.0",
+    "onnxruntime-web": "^1.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "esbuild": "^0.24.2",
+    "tsx": "^4.23.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Better Write — where your writing rings hollow</title>
+    <meta
+      name="description"
+      content="A dependency-parse–driven editor that highlights the hollow, AI-shaped constructions in your writing so you can fix them."
+    />
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="mark">✒️</span>
+        <div>
+          <h1>Better Write</h1>
+          <p class="tagline">Find where your writing rings hollow — and fix it.</p>
+        </div>
+      </div>
+      <nav class="topnav">
+        <button id="sample-btn" class="ghost" type="button">Try an example</button>
+        <button id="clear-btn" class="ghost" type="button">Clear</button>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <section class="editor-col">
+        <div class="editor-wrap">
+          <div class="backdrop" id="backdrop"><div class="highlights" id="highlights"></div></div>
+          <textarea
+            id="input"
+            spellcheck="false"
+            autocomplete="off"
+            autocapitalize="off"
+            placeholder="Paste your writing here…"
+          ></textarea>
+        </div>
+      </section>
+
+      <aside class="sidebar">
+        <div class="score-card">
+          <div class="score-ring" id="score-ring">
+            <div><span class="score-num" id="score-num">0</span><span class="score-label">/ 100</span></div>
+          </div>
+          <div class="verdict" id="verdict">—</div>
+          <div class="stat-row">
+            <span><b id="stat-words">0</b> words</span>
+            <span><b id="stat-sentences">0</b> sentences</span>
+            <span><b id="stat-density">0</b> flags/100w</span>
+          </div>
+        </div>
+
+        <p class="legend-title">Signals (click to mute)</p>
+        <ul class="legend" id="legend"></ul>
+
+        <p class="disclaimer">
+          The score is a stylometric estimate of how AI-shaped the prose is — a writing aid, not an
+          accusation. Highlights mark hollow constructions worth revising. Everything runs locally in
+          your browser; nothing is uploaded.
+        </p>
+      </aside>
+    </main>
+
+    <div class="tooltip" id="tooltip" hidden></div>
+
+    <div class="loading" id="loading">
+      <div class="spark">✒️</div>
+      <div class="loading-track"><div class="loading-bar" id="loading-bar"></div></div>
+      <div class="loading-msg" id="loading-msg">Starting…</div>
+      <div class="loading-sub">
+        Loading the dependency parser (~145 MB, one-time). It runs entirely on-device — your text
+        never leaves the browser.
+      </div>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
