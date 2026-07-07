@@ -1,28 +1,24 @@
 {
   "name": "better-write",
   "version": "0.1.0",
-  "description": "Detects and highlights AI-writing style tells (Hemingway-style), based on Wikipedia's 'Signs of AI writing'.",
+  "description": "A grammar linter for prose — authorable rules that match over a real dependency-parse + POS graph. Ships an AI-writing-style rulepack.",
   "type": "module",
   "license": "MIT",
   "author": "Nikhil Verma",
-  "bin": {
-    "better-write": "dist-cli/cli.js"
-  },
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "node dev.mjs",
-    "build:client": "node build-client.mjs",
-    "cli": "tsx src/cli.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "node --import tsx --test test/*.test.ts",
-    "eval": "tsx eval/run-eval.ts",
-    "train": "tsx eval/train.ts",
-    "download-model": "nlpgraph download --model xsmall --dir ./models/xsmall",
-    "copy-runtime": "node copy-runtime.mjs"
-  },
-  "dependencies": {
-    "@huggingface/transformers": "^4.2.0",
-    "nlpgraph": "^0.3.0",
-    "onnxruntime-web": "^1.27.0"
+    "dev": "npm run dev -w @better-write/web",
+    "build": "npm run build -w @better-write/web",
+    "copy-runtime": "npm run copy-runtime -w @better-write/web",
+    "cli": "tsx packages/cli/src/cli.ts",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p packages/web/tsconfig.client.json",
+    "test": "node --import tsx --test packages/*/test/*.test.ts",
+    "eval": "tsx packages/rulepack-ai-style/eval/run-eval.ts",
+    "train": "tsx packages/rulepack-ai-style/eval/train.ts",
+    "download-model": "nlpgraph download --model xsmall --dir ./models/xsmall"
   },
   "devDependencies": {
     "@types/node": "^22.20.0",

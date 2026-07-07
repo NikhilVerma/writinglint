@@ -1,0 +1,54 @@
+---
+// The "Proof" demo: a prose manuscript linted live. A transparent textarea over a
+// backdrop that paints category-coloured proof-mark underlines, beside a diagnostics
+// rail. All logic is the esbuild bundle at /app.js; styles at /app.css (linked in
+// the page head). No code editor — the marks are built from the engine's segments().
+---
+
+<section class="bw-demo" id="bw-manuscript" aria-label="Live linter demo">
+  <div class="bw-demo__bar">
+    <p class="bw-eyebrow">Live &middot; on&#8209;device</p>
+    <div class="bw-segmented" role="group" aria-label="Choose a draft to lint">
+      <button class="bw-seg" data-draft="ai" type="button" aria-pressed="true">AI draft</button>
+      <button class="bw-seg" data-draft="human" type="button" aria-pressed="false">Human draft</button>
+    </div>
+  </div>
+
+  <p class="bw-demo__lead">
+    A grammar linter for prose. This manuscript is an <strong>AI-written pitch</strong> for the project
+    itself — every underline is a structural tell Better Write caught. Edit it, or switch to the
+    human-edited draft and watch the marks fall away. Everything runs in your browser.
+  </p>
+
+  <div class="bw-split">
+    <div class="bw-ms">
+      <div class="bw-ms__backdrop" id="bw-backdrop" aria-hidden="true"></div>
+      <textarea
+        class="bw-ms__input"
+        id="bw-input"
+        spellcheck="false"
+        autocomplete="off"
+        autocapitalize="off"
+        aria-label="Prose to lint"
+      ></textarea>
+      <div class="bw-loading" id="bw-loading">
+        <div class="bw-loading__mark">✎</div>
+        <div class="bw-loading__track"><div class="bw-loading__bar" id="bw-loadbar"></div></div>
+        <div class="bw-loading__msg" id="bw-loadmsg">Starting</div>
+        <p class="bw-loading__sub">Loading the dependency parser (~145&nbsp;MB, one&#8209;time). It runs entirely on your device.</p>
+      </div>
+    </div>
+
+    <aside class="bw-rail" aria-label="Diagnostics">
+      <header class="bw-rail__head">
+        <span class="bw-rail__title">Problems</span>
+        <span class="bw-badge" id="bw-count">0</span>
+        <span class="bw-rail__status" id="bw-status" hidden><span class="bw-spinner"></span>Linting</span>
+        <button class="bw-textbtn" id="bw-copy" type="button" disabled>Copy all</button>
+      </header>
+      <div class="bw-rail__list" id="bw-diagnostics"></div>
+    </aside>
+  </div>
+</section>
+
+<script is:inline type="module" src="/app.js"></script>

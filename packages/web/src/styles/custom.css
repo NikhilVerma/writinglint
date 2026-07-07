@@ -1,0 +1,17 @@
+/* Better Write Starlight theme — accent + demo page layout, light/dark aware. */
+:root {
+  --sl-color-accent-low: #12233f;
+  --sl-color-accent: #4f7cff;
+  --sl-color-accent-high: #c4d4ff;
+}
+:root[data-theme='light'] {
+  --sl-color-accent-low: #d6e0ff;
+  --sl-color-accent: #2f5bd6;
+  --sl-color-accent-high: #16244a;
+}
+
+/* On the demo page, drop the centered reading column so the editor + Problems
+   panel can use the full content width. */
+body:has(.bw-demo) .sl-container { max-width: none; margin-inline: 0; }
+/* The Starlight header already shows "Better Write" — hide the duplicate page H1. */
+body:has(.bw-demo) .content-panel:has(> .sl-container > h1) { display: none; }

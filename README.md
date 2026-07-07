@@ -1,34 +1,131 @@
 # Better Write
 
-**A dependency-parse–driven detector that shows you where your writing rings hollow.**
+**A grammar linter for prose — like ESLint, but its rules match over a real
+dependency-parse + POS graph.**
 
-AI prose is convincingly fluent but often *hollow* — grand-sounding constructions
-with nothing inside. Better Write finds those constructions in the **dependency
-graph** of your text (not by matching words), scores how AI-shaped the writing is
-with a stylometric classifier, and highlights each hollow spot with a concrete
-fix. It's built to help you *write better*, not to accuse.
+Better Write lints writing the way ESLint lints code: a small engine parses your
+text once, runs a set of **authorable rules** over it, and reports each problem
+with a location and a plain-language message. Rules are ordinary TypeScript that
+match on the **dependency graph** of each sentence — head/child/`deprel` shapes,
+not just word lists or linear token patterns — so *any* words can fill a
+construction's slots and still be caught.
 
-Two layers:
+"AI-writing style" is just the **first rulepack**. The architecture is a general
+prose linter you can build on: write your own rules, ship your own rulepacks,
+and (soon) plug it into an editor over LSP.
 
-1. **Detection score (SOTA-for-POS+graph)** — a stylometric classifier over
-   dependency-relation n-grams + POS n-grams + interpretable style features →
-   *how AI-shaped is this?*
-2. **Actionable highlights** — interpretable rules that match hollow
-   *constructions* in the parse and suggest how to add substance.
+## Why a dependency graph
 
-The taxonomy of tells comes from Wikipedia's
-[**Signs of AI writing**](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing);
-the engine is [`nlpgraph`](https://www.npmjs.com/package/nlpgraph)'s offline
-dependency parser.
+The prose-linter landscape already has good tools — but none match on syntax:
 
-## The insight: match constructions, not words
+| Tool | Rules are… | Syntax layer |
+|---|---|---|
+| [textlint](https://textlint.org) | TS/JS code (pluggable) | ❌ text/markdown AST — regex fallback for structure |
+| [Vale](https://vale.sh) | YAML patterns | ❌ markup-aware, not syntax-aware |
+| [proselint](https://github.com/amperser/proselint) | fixed Python rules | ❌ |
+| [Harper](https://github.com/automattic/harper) | Rust + **Weir** DSL | ✅ POS + token sequences, ❌ **no dependency relations** |
+| **Better Write** | **TS code** | ✅ **full dependency graph (head/child/`deprel`)** |
 
-Most "AI detectors" match keyword lists, which any paraphrase defeats. Better
-Write matches the **syntactic shape** in the dependency graph, so *any* words
-fill the slots:
+Harper's Weir is authorable and POS-aware — but it's linear token/POS matching
+only. The one thing no incumbent can express is a **dependency relation**, and
+that's exactly what the hard constructions need. The flagship example:
 
-| Wikipedia sign (a "hollow" construction) | dependency signature — word-agnostic |
+> *"Trust the flags, not the number."* — **corrective antithesis** ("X, not Y")
+
+That's a `conj`/`appos` dependent whose coordinator is the negator *"not"* — a
+head/child relation. A linear DSL can't tell it apart from ordinary negation
+(*"I did not see the number"*) without over-firing. A dependency rule can:
+
+```ts
+// packages/rulepack-ai-style/src/rules/corrective-antithesis.ts
+export const correctiveAntithesis = defineRule({
+  meta: { name: 'corrective-antithesis', category: 'parallelism', docs: { … } },
+  create(ctx) {
+    return {
+      Sentence(sentence) {
+        const s = sentence.dep;                       // the dependency graph
+        for (const y of s.tokens) {
+          if (y.deprel !== 'conj' && y.deprel !== 'appos') continue;
+          const not = childrenOf(s, y.id).find((c) => lower(c) === 'not');
+          if (!not) continue;
+          if (byId(s, not.id - 1)?.form !== ',') continue;   // the ", not" comma
+          ctx.report({ tokens: subtree(s, y.head), sentence: s, message: … });
+        }
+      },
+    };
+  },
+});
+```
+
+## Architecture
+
+A workspaces monorepo. The engine knows nothing about AI writing; the rules live
+in a pack that plugs in.
+
+```
+packages/
+  core/                @better-write/core
+    document.ts        parse-once Document model over the dependency graph
+    graph.ts           dependency helpers (child, subtree, spanOf …) for rule authors
+    rule.ts            the authorable Rule API (defineRule, RuleContext, Lint)
+    pack.ts            Rulepack + categories (definePack)
+    config.ts          defineConfig / resolveConfig (extends, plugins, rules)
+    linter.ts          Linter.lint(): parse → run rules → deduped, sorted lints
+  parser-node/         @better-write/parser-node — Node nlpgraph loader
+  rulepack-ai-style/   @better-write/rulepack-ai-style — the first rulepack
+    rules/*.ts         18 rules (structural on the graph; lexical on words/chars)
+    score/             the stylometric AI-style SCORE (separate from the lints)
+    model/             classifier.json — data-free weights, shipped
+    eval/              training + honest evaluation (data is private, gitignored)
+  cli/                 @better-write/cli — `better-write lint | score`
+  web/                 @better-write/web — the browser editor (one consumer)
+```
+
+Two independent outputs, deliberately decoupled:
+
+1. **Lints** — each rule flags a specific construction with a location + message.
+   This is the linter proper; authorable, configurable, per-rule.
+2. **Score** — a stylometric classifier rates how AI-shaped the whole document
+   reads (0–100). *Not* a rule — a text can score low with a few flags, or high
+   with none. Shipped in the ai-style pack as `score(doc, lints, model)`.
+
+## Authoring a rule
+
+A rule is a `meta` block plus `create(ctx)` returning a listener the engine
+visits once per document: `Document(doc)`, `Sentence(s)` (with `s.dep`, the
+graph), and `Token(t)`. Report a problem with `ctx.report({ tokens | span, … })`.
+The dependency-graph toolkit (`childrenOf`, `child`, `childrenByRel`, `subtree`,
+`spanOf`, `hasChild`, `lower`, …) is exported from `@better-write/core`.
+
+## Config
+
+`defineConfig` layers rulepacks and rule settings (ESLint-flat-config style;
+Harper's Weir "base pack + override layer" is the same idea). A `bw.config.ts` in
+the working directory is picked up automatically by the CLI:
+
+```ts
+import { defineConfig } from '@better-write/core';
+import { recommended } from '@better-write/rulepack-ai-style';
+
+export default defineConfig({
+  extends: [recommended],
+  rules: {
+    'ai-style/corrective-antithesis': 'error',
+    'ai-style/markdown-bold': 'off',        // linting Markdown? silence format tells
+  },
+  // plugins: { house: myRulepack },        // register your own rules
+});
+```
+
+## The ai-style rulepack
+
+Its structural rules match Wikipedia's
+[**Signs of AI writing**](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
+as *constructions* in the parse — word-agnostic:
+
+| Sign (a "hollow" construction) | dependency signature |
 |---|---|
+| **Corrective antithesis** ("X, not Y") | `conj`/`appos` dependent coordinated by "not" |
 | **Copula avoidance** ("X stands as a testament…") | non-`be` root verb + `obl` noun with `case`="as" |
 | **Vague attribution** ("Experts argue that…") | bare (no-`det`) common-noun `nsubj` + saying-verb + `ccomp` |
 | **Participial appendage** ("…, showcasing its value") | trailing `advcl` gerund after the main clause |
@@ -38,60 +135,47 @@ fill the slots:
 
 Where a slot is irreducibly *semantic* (a parser can't tell an *importance*
 adjective from any adjective), a **small closed seed** narrows it — but the
-structure always comes from the parse. And a few signs are inherently
-lexical/character-level (the "AI vocabulary" word list; em-dash / curly-quote /
-emoji formatting) — those stay lists *by nature*, and are labelled as such.
+structure always comes from the parse. Inherently lexical signs (the "AI
+vocabulary" list; em-dash / curly-quote / markdown / emoji formatting) stay lists
+*by nature*, split into individually-toggleable rules.
 
-## The detector (SOTA with POS + graph)
+### The score (SOTA with POS + graph)
 
-We don't reinvent the method — we follow the literature and extend it:
+We follow the literature and extend it:
 
-- **Base — [DependencyAI](https://arxiv.org/abs/2602.15514)** (dependency-relation
-  n-gram TF-IDF → gradient-boosted classifier, ~89% F1 on public benchmarks).
+- **Base — dependency-relation n-gram TF-IDF → a linear classifier** (the shape
+  recent structural AI-text detectors converge on).
 - **Extensions:** + POS (UPOS) n-grams; + interpretable **stylometric scalars**
-  (burstiness, type-token ratio, copula ratio, POS/deprel ratios, mean
-  dependency distance, tree depth…); + our **hollowness-rule rates**. The last
-  set is what also makes the score *explainable and fixable*.
-- **Model:** an L2-regularised logistic regression (deterministic, calibrated
-  probability). It serialises to a **data-free** JSON file (`models/classifier.json`,
-  vocabulary + weights only), so the model ships open-source while the training
-  data stays closed.
+  (burstiness, type-token ratio, copula ratio, POS/deprel ratios, mean dependency
+  distance, tree depth…); + our **hollowness-rule rates** (which also make the
+  score explainable).
+- **Model:** an L2-regularised logistic regression (deterministic, calibrated).
+  It serialises to a **data-free** JSON
+  (`packages/rulepack-ai-style/model/classifier.json`, vocabulary + weights only),
+  so the model ships open-source while the training data stays closed.
 
-True SOTA overall is neural/perplexity-based (fine-tuned DeBERTa; Binoculars),
-but that needs an LLM at runtime and generalises poorly under adversarial
-paraphrase. This is the strongest *offline, deterministic, no-LLM* detector we
-can build.
-
-```
-src/detector/
-  graph.ts        dependency-graph helpers + doc-global byte→char offsets
-  structural.ts   Wikipedia constructions as dependency-shape rules
-  rules.ts        the inherently-lexical signs (AI vocab, formatting, idioms)
-  features.ts     deprel/POS n-grams + stylometric + hollowness features
-  classifier.ts   TF-IDF vectoriser + logistic regression (train / predict)
-  analyze.ts      orchestration: parse → rules → findings + classifier score
-```
+True SOTA overall is neural/perplexity-based (fine-tuned DeBERTa; Binoculars), but
+that needs an LLM at runtime and generalises poorly under paraphrase. This is the
+strongest *offline, deterministic, no-LLM* score we can build.
 
 ## Evaluation
 
-Measured with a **maker≠checker** discipline (`eval/`), and with the two rules
-this project learned the hard way:
+Measured with a **maker≠checker** discipline (`packages/rulepack-ai-style/eval/`),
+and with the two rules this project learned the hard way:
 
 1. **We never author the data.** The tool is an AI; any text *it* writes is AI
-   text. Early on, 3 maintainer-written "human-voice" samples poisoned the human
-   class — the classifier correctly flagged them, which is *how we found the
-   bug*. Human data must be **real, fetched** writing; AI data must be **real
-   model output**, not our confabulation.
+   text. Early on, maintainer-written "human-voice" samples poisoned the human
+   class — the classifier correctly flagged them, which is *how we found the bug*.
+   Human data must be **real, fetched** writing; AI data must be **real model
+   output**.
 2. **Don't trust a number from one distribution.** An early model scored
-   **AUC 0.997** on same-distribution held-out — then **0.65** on more varied
-   data. It hadn't learned "AI vs human"; it had learned *one narrow stylistic
-   slice vs everything else* and flagged out-of-slice human writing as AI. The
-   honest fix was a **diverse** training pool, not a better model.
+   **AUC 0.997** on same-distribution held-out — then **0.65** on varied data. It
+   had learned *one narrow stylistic slice vs everything else*, and flagged
+   out-of-slice human writing as AI. The fix was a **diverse** training pool.
 
 The training pool spans **real human** writing across many authors and eras and
 **real AI** output from many model families; a stratified blind slice is held out
-and never trained on. (Sources and composition are documented privately with the
-closed dataset.)
+and never trained on.
 
 | eval | ROC-AUC | F1 | precision | recall | specificity |
 |---|---|---|---|---|---|
@@ -99,75 +183,70 @@ closed dataset.)
 | **blind test** (held-out slice) | **0.899** | 0.833 | 0.786 | 0.887 | 0.754 |
 | OOD probe (out-of-distribution) | 0.923 | 0.811 | 0.789 | 0.833 | 0.778 |
 
-**AUC ~0.90 that holds across CV, a blind slice, *and* out-of-distribution** — a
-real detector, comparable to DependencyAI's 0.889 F1 on a comparable multi-model
-task. The classifier lifts subtle-AI recall from **33% (rules alone) → ~89%**.
+**AUC ~0.90 that holds across CV, a blind slice, *and* out-of-distribution.** The
+classifier lifts subtle-AI recall from **33% (rules alone) → ~89%**.
 
 **Honest limitations.** (a) Specificity ~0.75 is the weak spot — clean *modern*
-human prose still trips it; needs richer human diversity + precision tuning.
-(b) Cross-source generalisation (train one domain / test another) is untested.
-(c) Highlight offsets are exact (nlpgraph 0.3.0 doc-global byte ranges).
-
-```bash
-npm run download-model   # fetch the xsmall ONNX parser (~145 MB, once)
-npm run train            # fit + GUARDED honest eval (CV + blind slice + OOD)
-npm run eval             # interpretable diagnostic view (firing / FP triage)
-npm test                 # detector unit tests
-```
+human prose still trips it. (b) Cross-source generalisation is untested. (c)
+Highlight offsets are exact (nlpgraph 0.3.0 doc-global byte ranges).
 
 > **⚠ Eval data is CLOSED-SOURCE / private.** It contains third-party text, so
-> `eval/data/` is **gitignored** and never enters this repo. The
-> code, the trained model (`models/classifier.json` — data-free), and the metrics
-> are open source; only the corpus is private, and its sources are documented
-> privately alongside it. `npm run train` / `npm run eval` degrade gracefully with
-> a pointer if the data isn't present.
+> `eval/data/` is **gitignored** and never enters this repo. The code, the trained
+> model (data-free), and the metrics are open source; only the corpus is private,
+> documented privately alongside it. `npm run train` / `npm run eval` degrade
+> gracefully with a pointer if the data isn't present.
 
-## Web app
-
-A Hemingway-style editor that highlights hollow constructions as you type —
-**runs entirely in your browser**, no server, nothing uploaded. The dependency
-parser (~145 MB, one-time) and the classifier load on-device (onnxruntime-web on
-WASM + a transformers.js tokenizer, following nlpgraph's browser conventions).
+## Getting started
 
 ```bash
-npm run download-model   # once — vendors the ONNX parser into ./models
-npm run train            # once — produces models/classifier.json
-npm run dev              # stages assets, bundles (esbuild), serves localhost:5173
-# or a production bundle:
-npm run copy-runtime && npm run build:client   # → public/ (static, self-hostable)
+npm install
+npm run download-model   # fetch the xsmall ONNX parser (~145 MB, once) → ./models
+npm run typecheck        # tsc across all packages
+npm test                 # core engine + rulepack rule tests
+npm run train            # fit + GUARDED honest eval (needs private eval data)
 ```
 
-```
-src/web/
-  parser-browser.ts   loads parser + tokenizer + classifier from our own origin
-  main.ts             editor UI: debounced parse, highlights, score ring, legend
-build-client.mjs      esbuild bundle → public/app.js
-copy-runtime.mjs      stage /model (parser + classifier) + /ort (WASM) into public/
-dev.mjs               watch + serve
-```
-
-## CLI
+### CLI
 
 ```bash
-npm run cli -- essay.txt          # highlighted output + score + categories
-cat essay.txt | npm run cli
+npm run cli -- essay.txt              # lint one doc (+ AI-style score)
+npm run cli -- lint posts/*.md        # lint many docs
+npm run cli -- score posts/*.md       # just the score per doc
+cat essay.txt | npm run cli           # stdin
+npm run cli -- --json essay.txt       # machine-readable
+```
+
+A `bw.config.ts` in the working directory is used automatically; otherwise the
+ai-style `recommended` config applies.
+
+### Web app
+
+A Hemingway-style editor that highlights constructions as you type — **runs
+entirely in your browser**, no server, nothing uploaded. The dependency parser
+(~145 MB, one-time) and the classifier load on-device (onnxruntime-web on WASM +
+a transformers.js tokenizer).
+
+```bash
+npm run dev              # stage assets, bundle (esbuild), serve localhost:5173
+# or a static, self-hostable bundle:
+npm run copy-runtime && npm run build:client   # → packages/web/public/
 ```
 
 ## Roadmap
 
-1. ✅ Dependency-graph detector (constructions, not word lists).
-2. ✅ SOTA-for-POS+graph stylometric classifier (DependencyAI + extensions), eval'd.
-3. ✅ External validity — trained + evaluated on real, diverse, multi-model data.
-4. ✅ Browser app — Hemingway-style editor (esbuild + onnxruntime-web, on-device).
-5. **Lift specificity** on modern human prose (richer human diversity, precision tuning).
-6. Cross-source eval (train-one-dataset / test-another); per-finding rewrite suggestions.
+1. ✅ Grammar-linter engine — authorable rules over a dependency graph.
+2. ✅ ai-style rulepack (18 rules) + stylometric score, evaluated on diverse data.
+3. ✅ CLI + browser editor as consumers of the library.
+4. **VSCode extension / LSP** (`packages/lsp`, `packages/vscode`) — lint in the editor.
+5. **More rulepacks** — grammar, clarity, house-style; richer user-rule authoring.
+6. Lift specificity on modern human prose; per-lint autofixes; cross-source eval.
 
 ## Credits
 
-- Detection taxonomy: Wikipedia, *[Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)* (CC BY-SA).
-- Dependency parser: [`nlpgraph`](https://www.npmjs.com/package/nlpgraph) (MIT).
+- Engine: [`nlpgraph`](https://www.npmjs.com/package/nlpgraph) dependency parser (MIT).
+- ai-style taxonomy: Wikipedia, *[Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)* (CC BY-SA).
 - Method: [DependencyAI](https://arxiv.org/abs/2602.15514); AI-text-detection [survey](https://www.sciencedirect.com/science/article/abs/pii/S1574013725000693).
-- Inspiration: [Hemingway Editor](https://hemingwayapp.com/).
+- Prior art in prose linting: [textlint](https://textlint.org), [Vale](https://vale.sh), [proselint](https://github.com/amperser/proselint), [Harper](https://github.com/automattic/harper).
 
 ## License
 

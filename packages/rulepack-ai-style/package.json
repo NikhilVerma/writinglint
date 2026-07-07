@@ -1,0 +1,55 @@
+{
+  "name": "@better-write/rulepack-ai-style",
+  "version": "0.1.0",
+  "description": "AI-writing-style rulepack for the Better Write grammar linter: authorable rules over the dependency graph, plus a stylometric document scorer.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/better-write.git",
+    "directory": "packages/rulepack-ai-style"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/better-write/issues"
+  },
+  "homepage": "https://github.com/NikhilVerma/better-write#readme",
+  "keywords": [
+    "grammar",
+    "linter",
+    "prose",
+    "ai-writing",
+    "ai-detection",
+    "rulepack",
+    "stylometry",
+    "better-write"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./node": {
+      "types": "./src/score/model-node.ts",
+      "default": "./src/score/model-node.ts"
+    },
+    "./model/classifier.json": "./model/classifier.json"
+  },
+  "files": [
+    "src",
+    "model/classifier.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "@better-write/core": "*"
+  },
+  "devDependencies": {
+    "@better-write/parser-node": "*"
+  }
+}

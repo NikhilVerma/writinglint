@@ -1,0 +1,32 @@
+{
+  "name": "@better-write/web",
+  "version": "0.1.0",
+  "description": "Docs + live browser demo for the Better Write grammar linter (Astro + Starlight). One consumer of the library.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "private": true,
+  "scripts": {
+    "dev": "node dev.mjs",
+    "build:client": "node build-client.mjs",
+    "copy-runtime": "node copy-runtime.mjs",
+    "build": "npm run copy-runtime && npm run build:client && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.34.8",
+    "@better-write/core": "*",
+    "@better-write/rulepack-ai-style": "*",
+    "@huggingface/transformers": "^4.2.0",
+    "astro": "^5.18.2",
+    "nlpgraph": "^0.3.0",
+    "onnxruntime-web": "^1.27.0",
+    "sharp": "^0.34.5",
+    "starlight-typedoc": "^0.21.5",
+    "typedoc": "^0.28.20",
+    "typedoc-plugin-markdown": "^4.12.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2"
+  }
+}

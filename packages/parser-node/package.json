@@ -1,0 +1,45 @@
+{
+  "name": "@better-write/parser-node",
+  "version": "0.1.0",
+  "description": "Node-side nlpgraph parser loader for the Better Write linter (CLI, eval, tests).",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/better-write.git",
+    "directory": "packages/parser-node"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/better-write/issues"
+  },
+  "homepage": "https://github.com/NikhilVerma/better-write#readme",
+  "keywords": [
+    "grammar",
+    "linter",
+    "prose",
+    "nlpgraph",
+    "dependency-parser",
+    "node"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "dependencies": {
+    "@better-write/core": "*",
+    "nlpgraph": "^0.3.0"
+  }
+}

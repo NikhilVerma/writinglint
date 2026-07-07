@@ -1,0 +1,282 @@
+/*
+ * Better Write demo — the "Proof" design language.
+ *
+ * A linter that reads prose the way a compiler reads code and a copyeditor marks a
+ * manuscript. Three type roles encode WHO is reading: a serif for the human's prose,
+ * the site sans for UI chrome, mono for everything the machine emits (rule ids,
+ * line:col, the diagnostics rail). Colour is reserved for linguistic tells.
+ */
+
+/* ── design tokens ──────────────────────────────────────────────────────── */
+.bw-demo {
+  --bw-serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, 'Times New Roman', serif;
+  --bw-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, Consolas, monospace;
+
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem; --sp-5: 1.5rem;
+  --r-sm: 6px; --r: 10px; --r-lg: 14px;
+  --pad-x: 1.4rem;                       /* shared text inset: intro ↔ manuscript ↔ rail */
+  --surface-h: clamp(380px, 62vh, 620px); /* manuscript and rail share one height */
+
+  --bw-ink: #e6edf3;
+  --bw-ink-dim: #9fb0c0;
+  --bw-ink-faint: #61707f;
+  --bw-border: #263039;
+  --bw-border-soft: #1b232c;
+  --bw-paper: #10161d;
+  --bw-panel: #0e141b;
+  --bw-hover: #171f28;
+  --bw-accent: #8b7cff;
+  --bw-ring: 0 0 0 3px color-mix(in srgb, var(--bw-accent) 40%, transparent);
+
+  --cat-significance: #ef6b6b;
+  --cat-parallelism: #5b9dff;
+  --cat-promo: #f0a34e;
+  --cat-vague: #d3a24c;
+  --cat-meta: #b98cff;
+  --cat-ai-vocab: #ff7ac6;
+  --cat-rule-of-three: #46c9b8;
+  --cat-conjunctions: #6ec86e;
+  --cat-formatting: #9aa7b8;
+}
+:root[data-theme='light'] .bw-demo {
+  --bw-ink: #1a2430;
+  --bw-ink-dim: #566372;
+  --bw-ink-faint: #8a97a5;
+  --bw-border: #e2e7ee;
+  --bw-border-soft: #eef1f5;
+  --bw-paper: #ffffff;
+  --bw-panel: #f7f8fa;
+  --bw-hover: #f1f3f7;
+  --bw-accent: #6a5cff;
+
+  --cat-significance: #d64550;
+  --cat-parallelism: #2f6fe0;
+  --cat-promo: #c9781f;
+  --cat-vague: #a97c2e;
+  --cat-meta: #7a52d6;
+  --cat-ai-vocab: #c13d8f;
+  --cat-rule-of-three: #1f9e8f;
+  --cat-conjunctions: #3f9b3f;
+  --cat-formatting: #6b7887;
+}
+
+/* Starlight styles everything inside .sl-markdown-content as prose and injects a
+   margin-top onto adjacent siblings at ANY depth. That cascade reaches into this
+   hand-built demo and knocks elements out of alignment — it inflated the draft
+   toggle and shoved its second option down. We own every gap in here explicitly,
+   so hard-reset inherited top margins across the whole subtree, except the one
+   element that sets its own (the diagnostic dot). This seals the demo off from the
+   framework cascade so hand-built components stay predictable. */
+.bw-demo *:not(.bw-diag__dot) { margin-top: 0 !important; }
+
+/* ── header row: eyebrow + draft toggle ─────────────────────────────────── */
+.bw-demo { margin: 0; }
+.bw-demo__bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--sp-3); flex-wrap: wrap;
+  margin-bottom: var(--sp-3);
+}
+.bw-eyebrow {
+  margin: 0;
+  font-family: var(--bw-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bw-ink-faint);
+  display: inline-flex; align-items: center; gap: var(--sp-2);
+}
+.bw-eyebrow::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cat-rule-of-three);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cat-rule-of-three) 25%, transparent);
+}
+
+.bw-segmented {
+  display: inline-flex; align-items: center; padding: 3px; gap: 2px;
+  background: var(--bw-panel); border: 1px solid var(--bw-border);
+  border-radius: 999px;
+}
+.bw-seg {
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  display: inline-flex; align-items: center;
+  font: inherit; font-size: 0.8125rem; font-weight: 500; line-height: 1.2;
+  color: var(--bw-ink-dim); padding: 0.4rem 0.9rem; border-radius: 999px;
+  transition: color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.bw-seg:hover { color: var(--bw-ink); }
+.bw-seg[aria-pressed='true'] {
+  background: var(--bw-accent); color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+.bw-seg:focus-visible { outline: none; box-shadow: var(--bw-ring); }
+
+.bw-demo__lead {
+  color: var(--bw-ink-dim); font-size: var(--sl-text-base);
+  line-height: 1.6; margin: 0 0 var(--sp-4); max-width: 44rem;
+}
+/* The eyebrow, lead, and both surface borders share one left edge (the column
+   edge). The manuscript/rail prose is inset by the surfaces' own padding — the
+   same way a form label sits above a padded input, not over its text. */
+
+/* ── split: manuscript + diagnostics rail ───────────────────────────────── */
+.bw-split { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: var(--sp-3); align-items: stretch; }
+@media (max-width: 900px) { .bw-split { grid-template-columns: 1fr; } }
+
+/* ── the manuscript (overlay: textarea over a painted backdrop) ─────────── */
+.bw-ms {
+  position: relative;
+  height: var(--surface-h);
+  border: 1px solid var(--bw-border);
+  border-radius: var(--r-lg);
+  background: var(--bw-paper);
+  overflow: hidden;
+}
+/* both layers MUST share identical metrics so the marks register under the text */
+.bw-ms__backdrop,
+.bw-ms__input {
+  position: absolute; inset: 0; margin: 0;
+  box-sizing: border-box;
+  padding: 1.35rem var(--pad-x);
+  font-family: var(--bw-serif);
+  font-size: 1.075rem;
+  line-height: 1.75;
+  letter-spacing: normal;
+  tab-size: 2;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: normal;
+  border: 0;
+}
+.bw-ms__backdrop {
+  z-index: 1;
+  color: transparent;
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+}
+.bw-ms__input {
+  z-index: 2;
+  color: var(--bw-ink);
+  background: transparent;
+  caret-color: var(--bw-accent);
+  resize: none;
+  outline: none;
+  overflow: auto;
+}
+.bw-ms__input::selection { background: color-mix(in srgb, var(--bw-accent) 28%, transparent); }
+.bw-ms__input::-webkit-scrollbar { width: 10px; }
+.bw-ms__input::-webkit-scrollbar-thumb { background: var(--bw-border); border-radius: 6px; border: 3px solid transparent; background-clip: padding-box; }
+
+/* proof-mark underlines painted in the backdrop */
+.bw-tell {
+  color: transparent;
+  background: none;
+  border-bottom: 2.5px solid var(--tell, var(--bw-ink-faint));
+  border-radius: 0;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+.bw-tell.is-active { background: color-mix(in srgb, var(--tell) 22%, transparent); border-bottom-width: 2px; }
+.bw-tell--significance { --tell: var(--cat-significance); }
+.bw-tell--parallelism { --tell: var(--cat-parallelism); }
+.bw-tell--promo { --tell: var(--cat-promo); }
+.bw-tell--vague { --tell: var(--cat-vague); }
+.bw-tell--meta { --tell: var(--cat-meta); }
+.bw-tell--ai-vocab { --tell: var(--cat-ai-vocab); }
+.bw-tell--rule-of-three { --tell: var(--cat-rule-of-three); }
+.bw-tell--conjunctions { --tell: var(--cat-conjunctions); }
+.bw-tell--formatting { --tell: var(--cat-formatting); }
+
+.bw-drawin .bw-tell { animation: bw-draw 0.5s ease both; }
+@keyframes bw-draw { from { opacity: 0; } to { opacity: 1; } }
+.bw-pulse { animation: bw-pulse 0.9s ease; }
+@keyframes bw-pulse { 0%, 100% { background: transparent; } 30% { background: color-mix(in srgb, var(--tell) 34%, transparent); } }
+
+/* ── loading overlay ────────────────────────────────────────────────────── */
+.bw-loading {
+  position: absolute; inset: 0; z-index: 3;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: var(--sp-3); text-align: center; padding: var(--sp-4);
+  background: var(--bw-paper);
+  transition: opacity 0.45s ease;
+}
+.bw-loading.done { opacity: 0; pointer-events: none; }
+.bw-loading__mark { font-size: 1.75rem; color: var(--bw-accent); }
+.bw-loading__track { width: min(300px, 72%); height: 5px; border-radius: 3px; background: var(--bw-border); overflow: hidden; }
+.bw-loading__bar { height: 100%; width: 0; background: var(--bw-accent); transition: width 0.2s ease; }
+.bw-loading__msg { font-family: var(--bw-mono); font-size: 0.8rem; color: var(--bw-ink-dim); font-variant-numeric: tabular-nums; }
+.bw-loading__sub { margin: 0; font-size: 0.78rem; color: var(--bw-ink-faint); max-width: 21rem; line-height: 1.55; }
+.bw-loading.error .bw-loading__msg { color: var(--cat-significance); }
+
+/* ── diagnostics rail ───────────────────────────────────────────────────── */
+.bw-rail {
+  display: flex; flex-direction: column;
+  height: var(--surface-h);      /* same height as the manuscript */
+  border: 1px solid var(--bw-border);
+  border-radius: var(--r-lg);
+  background: var(--bw-panel);
+  overflow: hidden;
+  min-height: 0;
+}
+@media (max-width: 900px) { .bw-rail { height: 22rem; } }
+.bw-rail__head {
+  flex: 0 0 auto;
+  display: flex; align-items: center; gap: var(--sp-2);
+  padding: 0 var(--sp-3); height: 44px;
+  border-bottom: 1px solid var(--bw-border);
+}
+.bw-rail__title {
+  font-family: var(--bw-mono); font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--bw-ink-dim);
+}
+.bw-badge {
+  font-family: var(--bw-mono); font-size: 0.7rem; font-weight: 600;
+  min-width: 1.3rem; height: 1.3rem; padding: 0 0.35rem; border-radius: 999px;
+  background: var(--bw-hover); color: var(--bw-ink);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.bw-rail__status { display: inline-flex; align-items: center; gap: var(--sp-1); font-family: var(--bw-mono); font-size: 0.7rem; color: var(--bw-accent); }
+.bw-rail__status[hidden] { display: none; }
+.bw-spinner { width: 11px; height: 11px; border: 2px solid var(--bw-border); border-top-color: var(--bw-accent); border-radius: 50%; animation: bw-spin 0.7s linear infinite; }
+@keyframes bw-spin { to { transform: rotate(360deg); } }
+
+.bw-textbtn {
+  margin-left: auto; appearance: none; border: 0; background: transparent; cursor: pointer;
+  font-family: var(--bw-mono); font-size: 0.72rem; color: var(--bw-ink-dim);
+  padding: 0.25rem 0.4rem; border-radius: var(--r-sm);
+}
+.bw-textbtn:hover:not(:disabled) { color: var(--bw-ink); background: var(--bw-hover); }
+.bw-textbtn:focus-visible { outline: none; box-shadow: var(--bw-ring); }
+.bw-textbtn:disabled { opacity: 0.4; cursor: default; }
+
+.bw-rail__list { flex: 1 1 auto; overflow-y: auto; padding: var(--sp-1) 0; min-height: 0; }
+.bw-rail__empty { padding: var(--sp-4); margin: 0; color: var(--bw-ink-faint); font-size: 0.85rem; line-height: 1.6; }
+.bw-rail__empty span { color: var(--bw-ink-dim); }
+
+.bw-diag {
+  display: flex; gap: var(--sp-2); width: 100%; text-align: left;
+  appearance: none; border: 0; background: transparent; cursor: pointer;
+  padding: var(--sp-2) var(--sp-3);
+  border-left: 2px solid transparent;
+}
+.bw-diag:hover, .bw-diag:focus-visible { background: var(--bw-hover); outline: none; }
+.bw-diag:focus-visible { border-left-color: var(--bw-accent); }
+.bw-diag__dot { flex: 0 0 auto; width: 9px; height: 9px; border-radius: 50%; margin-top: 0.3rem; background: var(--tell, var(--bw-ink-faint)); }
+.bw-diag__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.bw-diag__msg { color: var(--bw-ink); font-size: 0.82rem; line-height: 1.45; }
+.bw-diag__meta { display: flex; gap: var(--sp-2); font-family: var(--bw-mono); font-size: 0.68rem; color: var(--bw-ink-faint); }
+.bw-diag__rule { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bw-diag__loc { flex: 0 0 auto; }
+
+.bw-dot--significance { --tell: var(--cat-significance); }
+.bw-dot--parallelism { --tell: var(--cat-parallelism); }
+.bw-dot--promo { --tell: var(--cat-promo); }
+.bw-dot--vague { --tell: var(--cat-vague); }
+.bw-dot--meta { --tell: var(--cat-meta); }
+.bw-dot--ai-vocab { --tell: var(--cat-ai-vocab); }
+.bw-dot--rule-of-three { --tell: var(--cat-rule-of-three); }
+.bw-dot--conjunctions { --tell: var(--cat-conjunctions); }
+.bw-dot--formatting { --tell: var(--cat-formatting); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bw-drawin .bw-tell, .bw-pulse, .bw-spinner, .bw-loading, .bw-tell, .bw-seg { animation: none !important; transition: none !important; }
+}

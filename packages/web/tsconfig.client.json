@@ -1,0 +1,8 @@
+{
+  "comment": "Type-checks the esbuild-bundled demo client (src/client) with the repo's base config. The Astro parts (.astro, astro:content) are checked separately by the astro tsconfig. Run via the root `typecheck` script.",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"]
+  },
+  "include": ["src/client"]
+}
