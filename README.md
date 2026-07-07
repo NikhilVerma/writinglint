@@ -232,40 +232,34 @@ npm run dev              # stage assets, bundle (esbuild), serve localhost:5173
 npm run copy-runtime && npm run build:client   # → packages/web/public/
 ```
 
-## Deploy (Cloudflare Pages)
+## Deploy (Cloudflare Workers)
 
-The docs + demo site deploys to **Cloudflare Pages via its native Git
-integration** — Cloudflare builds and deploys on every push to `main`, with no CI
-workflow or API token in the repo.
+The docs + demo site deploys to **Cloudflare Workers** (Static Assets — the modern
+replacement for the now-deprecated Pages) via the GitHub Action in
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): every push to `main`
+runs `wrangler deploy`. There's no dashboard "Connect to Git" step — the first
+deploy creates the Worker via the API token.
 
-The ~145 MB parser and the onnxruntime-web WASM exceed the Pages 25 MiB
-static-asset limit, so they live in an **R2 bucket** and stream same-origin
-through the Pages Functions in [`functions/`](functions/) — the browser fetches
-the same `/model/*` and `/ort/*` URLs it uses in local dev.
+The ~145 MB parser and the onnxruntime-web WASM are too large to ship as static
+assets, so they live in an **R2 bucket** and stream same-origin through the Worker
+([`worker/index.ts`](worker/index.ts)) at `/model/*` and `/ort/*` — the same URLs
+the browser uses in local dev (`[assets]` serves everything else).
 
-**One-time setup.** Create the bucket and upload the model + runtime (both
-gitignored, never committed):
+**One-time setup:**
 
 ```bash
+# 1. R2 bucket + upload the model/runtime (both gitignored, never committed)
 npx wrangler r2 bucket create writinglint-models
 npm run download-model            # fetch the parser locally, if you haven't
 bash scripts/upload-model-to-r2.sh
 ```
 
-Then, in the Cloudflare dashboard → **Workers & Pages → Create → Pages →
-Connect to Git**, pick this repo and set:
+2. Add two **GitHub repo secrets** (Settings → Secrets and variables → Actions):
+   `CLOUDFLARE_API_TOKEN` (a token with *Edit Cloudflare Workers* + Workers R2 read)
+   and `CLOUDFLARE_ACCOUNT_ID`.
 
-| Setting | Value |
-|---|---|
-| Production branch | `main` |
-| Root directory | *(repo root)* |
-| Build command | `npm run build:cf` |
-| Build output directory | `packages/web/dist` |
-
-Bind the bucket under **Settings → Functions → R2 bindings**: variable `MODELS`
-→ `writinglint-models` (also declared in [`wrangler.toml`](wrangler.toml)); set
-`NODE_VERSION=20` (or newer). Every push to `main` then builds and deploys to
-`https://writinglint.pages.dev`.
+Every push to `main` then builds (`npm run build:cf`) and deploys the Worker —
+serving the static site from `packages/web/dist` and streaming the model from R2.
 
 ## Roadmap
 

@@ -16,7 +16,7 @@
     "copy-runtime": "npm run copy-runtime -w @writinglint/web",
     "cli": "tsx packages/cli/src/cli.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p packages/web/tsconfig.client.json",
-    "typecheck:functions": "tsc --noEmit -p functions/tsconfig.json",
+    "typecheck:worker": "tsc --noEmit -p worker/tsconfig.json",
     "test": "node --import tsx --test packages/*/test/*.test.ts",
     "eval": "tsx packages/rulepack-ai-style/eval/run-eval.ts",
     "train": "tsx packages/rulepack-ai-style/eval/train.ts",

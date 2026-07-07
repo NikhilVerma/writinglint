@@ -1,0 +1,37 @@
+/// <reference types="@cloudflare/workers-types" />
+/**
+ * WritingLint site Worker (Cloudflare Workers Static Assets — the modern
+ * replacement for Pages).
+ *
+ * The Astro build in packages/web/dist is served automatically by the assets
+ * layer; this Worker runs only for paths that aren't a built file. It streams the
+ * parser model (/model/*) and the onnxruntime-web WASM (/ort/*) from R2 at the
+ * same-origin URLs the browser already uses in local dev — they're too large to
+ * ship as static assets, so they live in R2 and are edge-cached here.
+ */
+interface Env {
+  MODELS: R2Bucket;
+  ASSETS: Fetcher;
+}
+
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+    const match = url.pathname.match(/^\/(model|ort)\/([\w.-]+)$/);
+    if (match) {
+      const [, kind, file] = match;
+      const key = `${kind === 'model' ? 'xsmall' : 'ort'}/${file}`;
+      const object = await env.MODELS.get(key);
+      if (!object) return new Response('not found', { status: 404 });
+
+      const headers = new Headers();
+      object.writeHttpMetadata(headers);
+      headers.set('etag', object.httpEtag);
+      headers.set('cache-control', 'public, max-age=31536000, immutable');
+      if (key.endsWith('.wasm')) headers.set('content-type', 'application/wasm');
+      return new Response(object.body, { headers });
+    }
+    // Everything else: the static site.
+    return env.ASSETS.fetch(request);
+  },
+};

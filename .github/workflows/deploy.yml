@@ -1,0 +1,29 @@
+name: Deploy
+
+# Builds the site and deploys the Worker (static assets + R2-backed /model & /ort)
+# to Cloudflare on every push to main. No dashboard "Connect to Git" — the first
+# `wrangler deploy` creates the Worker via the API token.
+#
+# Requires two repo secrets (Settings → Secrets and variables → Actions):
+#   CLOUDFLARE_API_TOKEN   — token with "Edit Cloudflare Workers" + Workers R2 read
+#   CLOUDFLARE_ACCOUNT_ID  — your account id
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm run build:cf
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy
