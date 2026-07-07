@@ -68,13 +68,17 @@ rules are worth it, and the parse runs off the main thread so your editor stays 
 
 ## Not just a demo — a library
 
-The editor above is one consumer. The engine is a **library** you can build on:
+The editor above is one consumer. The engine is a **library** you can build on, published on npm as
+[`writinglint-core`](https://www.npmjs.com/package/writinglint-core),
+[`writinglint-parser-node`](https://www.npmjs.com/package/writinglint-parser-node),
+[`writinglint-rulepack-ai-style`](https://www.npmjs.com/package/writinglint-rulepack-ai-style), and
+the [`writinglint`](https://www.npmjs.com/package/writinglint) CLI:
 
 - **Consume it** in your own tool: `new Linter(parser).lint(text, config)` → structured problems.
   See [Consume as a library](/guides/consume-library/).
 - **Author your own rules** with the ESLint-style `defineRule` API over the dependency graph.
   See [Author a rule](/guides/authoring-rules/).
-- **Run it from the CLI**: `writinglint lint README.md`. See [Command line](/guides/cli/).
+- **Run it from the CLI**: `npx writinglint lint README.md`. See [Command line](/guides/cli/).
 
 The AI-writing rulepack is just the first pack. The core knows nothing about AI prose — it's a general
 grammar-linting engine, and "AI style" is one rulepack among the ones you can write.

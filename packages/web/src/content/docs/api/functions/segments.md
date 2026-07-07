@@ -7,7 +7,7 @@ title: "segments"
 
 > **segments**(`text`, `lints`, `priority?`): [`Segment`](/api/interfaces/segment/)[]
 
-Defined in: [linter.ts:119](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/linter.ts#L119)
+Defined in: [linter.ts:119](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/linter.ts#L119)
 
 Flatten possibly-overlapping lints into non-overlapping segments, so a UI can
 wrap each in exactly one span/mark. When lints contend for a character, the

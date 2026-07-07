@@ -7,7 +7,7 @@ title: "root"
 
 > **root**(`s`): `DepToken` \| `undefined`
 
-Defined in: [graph.ts:70](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/graph.ts#L70)
+Defined in: [graph.ts:70](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/graph.ts#L70)
 
 ## Parameters
 

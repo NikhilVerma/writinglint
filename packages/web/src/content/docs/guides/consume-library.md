@@ -3,9 +3,11 @@ title: Consume as a library
 description: Use the WritingLint engine in your own tool — parse once, lint against a config, and read back structured problems.
 ---
 
-WritingLint is a library first, a demo second. The engine lives in `writinglint-core`; the parser
-loader for Node is `writinglint-parser-node`; the AI-writing rules and scorer are in
-`writinglint-rulepack-ai-style`.
+WritingLint is a library first, a demo second. The engine lives in
+[`writinglint-core`](https://www.npmjs.com/package/writinglint-core); the parser loader for Node is
+[`writinglint-parser-node`](https://www.npmjs.com/package/writinglint-parser-node); the AI-writing
+rules and scorer are in
+[`writinglint-rulepack-ai-style`](https://www.npmjs.com/package/writinglint-rulepack-ai-style).
 
 ## Install
 

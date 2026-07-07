@@ -3,6 +3,11 @@
 **A grammar linter for prose — like ESLint, but its rules match over a real
 dependency-parse + POS graph.**
 
+[![writinglint](https://img.shields.io/npm/v/writinglint?label=writinglint&color=2563eb)](https://www.npmjs.com/package/writinglint)
+[![writinglint-core](https://img.shields.io/npm/v/writinglint-core?label=writinglint-core&color=2563eb)](https://www.npmjs.com/package/writinglint-core)
+[![license](https://img.shields.io/npm/l/writinglint-core)](LICENSE)
+[![demo](https://img.shields.io/badge/demo-live-2563eb)](https://writinglint.nikhilv.workers.dev)
+
 WritingLint lints writing the way ESLint lints code: a small engine parses your
 text once, runs a set of **authorable rules** over it, and reports each problem
 with a location and a plain-language message. Rules are ordinary TypeScript that
@@ -13,6 +18,26 @@ construction's slots and still be caught.
 "AI-writing style" is just the **first rulepack**. The architecture is a general
 prose linter you can build on: write your own rules, ship your own rulepacks,
 and (soon) plug it into an editor over LSP.
+
+## Install
+
+On npm (unscoped — no org needed):
+[`writinglint`](https://www.npmjs.com/package/writinglint) (CLI) ·
+[`writinglint-core`](https://www.npmjs.com/package/writinglint-core) ·
+[`writinglint-parser-node`](https://www.npmjs.com/package/writinglint-parser-node) ·
+[`writinglint-rulepack-ai-style`](https://www.npmjs.com/package/writinglint-rulepack-ai-style)
+
+```bash
+# command line
+npm i -g writinglint
+npx nlpgraph download --model xsmall --dir ./models   # the parser model, once (~145 MB)
+writinglint essay.txt
+
+# or as a library
+npm i writinglint-core writinglint-parser-node writinglint-rulepack-ai-style
+```
+
+A runnable consumer lives in [`examples/node-lint`](examples/node-lint).
 
 ## Why a dependency graph
 

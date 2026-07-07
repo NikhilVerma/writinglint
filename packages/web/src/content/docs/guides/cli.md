@@ -3,8 +3,9 @@ title: Command line
 description: Lint prose from the terminal and score how AI-shaped it reads, with a writinglint.config.ts picked up automatically.
 ---
 
-The `writinglint` package installs a `writinglint` command. It lints prose against the ai-style
-rulepack (by default) and, separately, scores how AI-shaped a document reads.
+The [`writinglint`](https://www.npmjs.com/package/writinglint) package installs a `writinglint`
+command. It lints prose against the ai-style rulepack (by default) and, separately, scores how
+AI-shaped a document reads.
 
 ## Install
 

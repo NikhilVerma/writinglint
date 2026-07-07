@@ -5,7 +5,7 @@ prev: false
 title: "Category"
 ---
 
-Defined in: [pack.ts:11](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/pack.ts#L11)
+Defined in: [pack.ts:11](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/pack.ts#L11)
 
 A display grouping for rules (label, blurb, colour/weight hints).
 
@@ -15,7 +15,7 @@ A display grouping for rules (label, blurb, colour/weight hints).
 
 > **blurb**: `string`
 
-Defined in: [pack.ts:15](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/pack.ts#L15)
+Defined in: [pack.ts:15](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/pack.ts#L15)
 
 One-line description shown in the legend / tooltips.
 
@@ -25,7 +25,7 @@ One-line description shown in the legend / tooltips.
 
 > **id**: `string`
 
-Defined in: [pack.ts:12](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/pack.ts#L12)
+Defined in: [pack.ts:12](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/pack.ts#L12)
 
 ***
 
@@ -33,7 +33,7 @@ Defined in: [pack.ts:12](https://github.com/NikhilVerma/writinglint/blob/751f16f
 
 > **label**: `string`
 
-Defined in: [pack.ts:13](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/pack.ts#L13)
+Defined in: [pack.ts:13](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/pack.ts#L13)
 
 ***
 
@@ -41,6 +41,6 @@ Defined in: [pack.ts:13](https://github.com/NikhilVerma/writinglint/blob/751f16f
 
 > `optional` **weight?**: `number`
 
-Defined in: [pack.ts:17](https://github.com/NikhilVerma/writinglint/blob/751f16f855024b2d84b4139fa71b4f3cfdff15f5/packages/core/src/pack.ts#L17)
+Defined in: [pack.ts:17](https://github.com/NikhilVerma/writinglint/blob/65eaf2717483fea65019fabe0672678a5f3002f5/packages/core/src/pack.ts#L17)
 
 Rough display weight / order hint.
