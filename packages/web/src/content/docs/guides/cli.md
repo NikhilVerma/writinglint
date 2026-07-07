@@ -6,11 +6,16 @@ description: Lint prose from the terminal and score how AI-shaped it reads, with
 The `writinglint` package installs a `writinglint` command. It lints prose against the ai-style
 rulepack (by default) and, separately, scores how AI-shaped a document reads.
 
-From inside the repo you can run it via the workspace script:
+## Install
 
 ```bash
-npm run cli -- lint README.md
+npm install -g writinglint
+# the parser needs the model once (~145 MB):
+npx nlpgraph download --model xsmall --dir ./models
 ```
+
+Or run it without installing: `npx writinglint essay.txt`. Working inside this repo instead? Use
+the workspace script — `npm run cli -- lint README.md`.
 
 ## Usage
 
@@ -22,7 +27,11 @@ cat essay.txt | writinglint        # read from stdin
 writinglint --json essay.txt       # machine-readable output
 writinglint --quiet posts/*.md     # one summary line per doc
 writinglint --config writinglint.config.ts essay.txt
+writinglint --model ./models/xsmall essay.txt   # where the parser model lives
 ```
+
+The parser model is found automatically at `./models/xsmall` in the working directory (where
+`nlpgraph download --dir ./models` puts it); override with `--model <dir>` or `NLPGRAPH_MODEL_DIR`.
 
 Each lint prints its location, rule id, category, and message, followed by an inline colour
 reproduction of the text with the flagged spans highlighted — and, at the end, the document's

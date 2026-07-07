@@ -141,7 +141,7 @@ async function reportFile(
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   if (argv.includes('-h') || argv.includes('--help')) {
-    console.log('Usage: writinglint [lint|score] [--json] [--quiet] [--config <path>] [files…]   (reads stdin if no files)');
+    console.log('Usage: writinglint [lint|score] [--json] [--quiet] [--config <path>] [--model <dir>] [files…]   (reads stdin if no files)');
     return;
   }
   const mode: 'lint' | 'score' = argv[0] === 'score' ? 'score' : 'lint';
@@ -151,9 +151,33 @@ async function main(): Promise<void> {
   const quiet = rest.includes('--quiet');
   const cfgIdx = rest.indexOf('--config');
   const configPath = cfgIdx >= 0 ? rest[cfgIdx + 1] : undefined;
-  const files = rest.filter((a, i) => !a.startsWith('-') && !(cfgIdx >= 0 && i === cfgIdx + 1));
+  const modelIdx = rest.indexOf('--model');
+  const valueIdxs = new Set<number>();
+  if (cfgIdx >= 0) valueIdxs.add(cfgIdx + 1);
+  if (modelIdx >= 0) valueIdxs.add(modelIdx + 1);
+  const files = rest.filter((a, i) => !a.startsWith('-') && !valueIdxs.has(i));
 
-  const parser = await loadParser();
+  // Resolve the parser model: --model, then NLPGRAPH_MODEL_DIR, then ./models/xsmall
+  // in the cwd (where `nlpgraph download --dir ./models` puts it). Falling through to
+  // undefined lets loadParser use its in-repo default when run from the workspace.
+  const cwdModel = resolve('models', 'xsmall');
+  const modelDir =
+    (modelIdx >= 0 ? rest[modelIdx + 1] : undefined) ??
+    process.env.NLPGRAPH_MODEL_DIR ??
+    (existsSync(cwdModel) ? cwdModel : undefined);
+
+  let parser;
+  try {
+    parser = await loadParser(modelDir ? { modelDir } : undefined);
+  } catch {
+    console.error(
+      'Could not load the parser model. Download it once, then re-run:\n' +
+        '  npx nlpgraph download --model xsmall --dir ./models\n' +
+        '(or pass --model <dir>, or set NLPGRAPH_MODEL_DIR).',
+    );
+    process.exitCode = 1;
+    return;
+  }
   const linter = new Linter(parser);
   const config = resolveConfig(await loadConfig(configPath));
   const model: Model | undefined = loadModelNode();
