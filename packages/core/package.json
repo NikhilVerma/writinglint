@@ -42,7 +42,7 @@
     "README.md"
   ],
   "dependencies": {
-    "nlpgraph": "^0.3.0"
+    "nlpgraph": "^0.5.1"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

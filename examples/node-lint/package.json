@@ -11,6 +11,6 @@
     "writinglint-core": "^0.1.0",
     "writinglint-parser-node": "^0.1.0",
     "writinglint-rulepack-ai-style": "^0.1.0",
-    "nlpgraph": "^0.3.0"
+    "nlpgraph": "^0.5.1"
   }
 }

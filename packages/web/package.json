@@ -20,7 +20,7 @@
     "writinglint-rulepack-ai-style": "*",
     "@huggingface/transformers": "^4.2.0",
     "astro": "^5.18.2",
-    "nlpgraph": "^0.3.0",
+    "nlpgraph": "^0.5.1",
     "onnxruntime-web": "^1.27.0",
     "sharp": "^0.34.5",
     "starlight-typedoc": "^0.21.5",
