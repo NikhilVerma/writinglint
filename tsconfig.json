@@ -4,7 +4,7 @@
     "packages/core/src",
     "packages/parser-node/src",
     "packages/rulepack-ai-style/src",
-    "packages/rulepack-conviction/src",
+    "packages/rulepack-craft/src",
     "packages/cli/src",
     "packages/*/test",
     "packages/rulepack-ai-style/eval",

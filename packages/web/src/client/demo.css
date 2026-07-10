@@ -36,12 +36,14 @@
   --cat-ai-vocab: #ff7ac6;
   --cat-rule-of-three: #46c9b8;
   --cat-conjunctions: #6ec86e;
+  --cat-balance: #62b6cb;
   --cat-formatting: #9aa7b8;
 
-  /* conviction pack */
+  /* craft pack */
   --cat-hedging: #f2c14e;
   --cat-evidence: #64b5f6;
   --cat-posture: #f48fb1;
+  --cat-rhythm: #c8ad7f;
 }
 :root[data-theme='light'] .bw-demo {
   --bw-ink: #1a2430;
@@ -62,12 +64,14 @@
   --cat-ai-vocab: #c13d8f;
   --cat-rule-of-three: #1f9e8f;
   --cat-conjunctions: #3f9b3f;
+  --cat-balance: #2e8ca6;
   --cat-formatting: #6b7887;
 
-  /* conviction pack */
+  /* craft pack */
   --cat-hedging: #b8860b;
   --cat-evidence: #2a7fc9;
   --cat-posture: #c2185b;
+  --cat-rhythm: #8a7345;
 }
 
 /* Starlight styles everything inside .sl-markdown-content as prose and injects a
@@ -212,6 +216,8 @@
 .bw-tell--ai-vocab { --tell: var(--cat-ai-vocab); }
 .bw-tell--rule-of-three { --tell: var(--cat-rule-of-three); }
 .bw-tell--conjunctions { --tell: var(--cat-conjunctions); }
+.bw-tell--balance { --tell: var(--cat-balance); }
+.bw-tell--rhythm { --tell: var(--cat-rhythm); }
 .bw-tell--formatting { --tell: var(--cat-formatting); }
 
 .bw-drawin .bw-tell { animation: bw-draw 0.5s ease both; }
@@ -306,6 +312,8 @@
 .bw-dot--ai-vocab { --tell: var(--cat-ai-vocab); }
 .bw-dot--rule-of-three { --tell: var(--cat-rule-of-three); }
 .bw-dot--conjunctions { --tell: var(--cat-conjunctions); }
+.bw-dot--balance { --tell: var(--cat-balance); }
+.bw-dot--rhythm { --tell: var(--cat-rhythm); }
 .bw-dot--formatting { --tell: var(--cat-formatting); }
 
 @media (prefers-reduced-motion: reduce) {

@@ -61,7 +61,7 @@ import { recommended } from 'writinglint-rulepack-ai-style';
 const config = defineConfig({
   extends: [recommended],
   rules: {
-    'ai-style/markdown-bold': 'off',        // linting Markdown — silence format artifacts
+    'ai-style/emoji': 'off',                // casual prose — emoji are normal there
     'ai-style/corrective-antithesis': 'error',
   },
 });

@@ -1,5 +1,8 @@
 /**
- * Word / phrase lexicons distilled from Wikipedia's "Signs of AI writing".
+ * Word / phrase lexicons distilled from Wikipedia's "Signs of AI writing",
+ * cross-checked against the excess-vocabulary literature (Kobak et al. 2025,
+ * Science Advances; Juzek & Ward, COLING 2025; Liang et al. 2024) and 2024–26
+ * practitioner tell-lists.
  *
  * Everything here is matched case-insensitively on whole word/phrase
  * boundaries. Entries are grouped by the category they map to. Where a phrase
@@ -9,7 +12,17 @@
  * raise an eyebrow at, rather than every word that ever appears in AI output.
  */
 
-/** AI-favoured single words (the "high-density AI vocabulary" list). */
+/**
+ * AI-favoured single words (the "high-density AI vocabulary" list).
+ *
+ * Curation rule: only words that are RARE in human prose but hugely
+ * overrepresented in LLM text (excess ratios of 10–35x in the corpus studies)
+ * qualify. Deliberately ABSENT despite appearing on popular tell-lists —
+ * because they saturate ordinary human registers and would punish human
+ * writers: crucial, robust (engineering/stats), leverage (business/finance),
+ * landscape (ecology, "competitive landscape"), nuanced (criticism),
+ * comprehensive (legal/academic), notably, potential, findings.
+ */
 export const AI_VOCAB: string[] = [
   'delve',
   'delves',
@@ -35,27 +48,17 @@ export const AI_VOCAB: string[] = [
   'garnered',
   'pivotal',
   'vibrant',
-  'nuanced',
-  'nuance',
   'multifaceted',
   'realm',
   'realms',
-  'landscape',
-  'landscapes',
   'showcasing',
   'showcase',
   'showcases',
-  'leverage',
-  'leveraging',
-  'leverages',
   'holistic',
   'seamless',
   'seamlessly',
-  'robust',
   'myriad',
   'plethora',
-  'crucial',
-  'pivotal',
   'enduring',
   'burgeoning',
   'unwavering',
@@ -76,6 +79,17 @@ export const AI_VOCAB: string[] = [
   'paramount',
   'quintessential',
   'juncture',
+  // rare-but-unmistakable excess vocabulary (Kobak et al. 2025; Juzek & Ward
+  // 2025 "focal words"; Liang et al. 2024 — 10–35x overrepresented vs human
+  // baselines, yet uncommon enough in human prose to be safe per-hit flags)
+  'advancements',
+  'surpassing',
+  'excels',
+  'comprehending',
+  // Latinate upgrades — LLMs pick the formal variant where humans write "use"
+  'utilize',
+  'utilizes',
+  'utilizing',
   // marketing-skewed verbs/adjectives — heavily AI, rare in formal human prose
   // (deliberately avoids classic formal words like "profound"/"compelling"
   // that 19th-c. science essays legitimately use).
@@ -171,6 +185,13 @@ export const SIGNIFICANCE_PHRASES: string[] = [
   'continues to grow',
   'is home to',
   'plays host to',
+  // superficial-analysis connectives ("a testament to the" measures 163 ipm in
+  // instruction-tuned LLM corpora vs 0 in the human reference corpus)
+  'valuable insights',
+  'pave the way',
+  'paves the way',
+  'paving the way',
+  'paved the way',
 ];
 
 /** Promotional puffery / travel-brochure & press-release language. */
@@ -188,6 +209,7 @@ export const PROMO_PHRASES: string[] = [
   'picturesque',
   'state-of-the-art',
   'cutting-edge',
+  'groundbreaking',
   'world-class',
   'renowned for',
   'renowned',
@@ -278,6 +300,10 @@ export const OPENING_CONJUNCTIONS: string[] = [
   'moreover',
   'furthermore',
   'additionally',
+  // RLHF pushes enumerative openers hard (firstly +4,794% base→instruct)
+  'firstly',
+  'secondly',
+  'thirdly',
   'in addition',
   'consequently',
   'notably',
@@ -361,6 +387,20 @@ export const META_PHRASES: string[] = [
   'without further ado',
   'that being said',
   'needless to say',
+  // self-signposting fanfare + conversational-register tells (GPT-4o/5 era):
+  // the model narrates its own rhetoric, promising a payoff it rarely delivers
+  "here's the kicker",
+  "here's the thing",
+  "let's break it down",
+  "let's be real",
+  "let's be honest",
+  'the honest answer is',
+  'the bottom line is',
+  'no fluff',
+  "chef's kiss",
+  'it goes without saying',
+  'have you ever wondered',
+  'fast-paced world',
 ];
 
 /**
@@ -390,10 +430,15 @@ export const PHRASE_NOTES: Record<string, string> = {
   tapestry: 'A signature AI cliché. Describe the thing directly.',
   testament: 'Say what it demonstrates instead.',
   meticulous: 'Often padding. Show the care rather than asserting it.',
-  landscape: 'Vague metaphor. Name the actual field or set of things.',
   realm: 'Vague. Name the actual field.',
-  leverage: 'Prefer “use”.',
   showcasing: 'Prefer “showing” or just describe it.',
   vibrant: 'Puffery. Show it with detail instead.',
-  robust: 'Vague booster. Say what makes it strong.',
+  utilize: 'Prefer “use”.',
+  utilizes: 'Prefer “uses”.',
+  utilizing: 'Prefer “using”.',
+  advancements: 'Prefer “advances”, or name the specific progress.',
+  "here's the kicker": 'Self-signposting fanfare. Delete it and state the thing.',
+  "here's the thing": 'Self-signposting fanfare. Delete it and state the thing.',
+  'valuable insights': 'Name the insight. “Valuable insights” asserts value without showing any.',
+  'pave the way': 'Say what it actually enables.',
 };

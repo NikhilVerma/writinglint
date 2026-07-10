@@ -22,6 +22,7 @@ cannot express. The rest are lexical / idiom / formatting rules.
 | ★ `rule-of-three` | rule-of-three | Reflexive triads of coordinated adjectives or adverbs. |
 | ★ `vague-attribution` | vague | A bare, generic subject asserting a "that …" clause ("Studies suggest…"). |
 | ★ `throat-clearing` | meta | "It is important to note that …". If it matters, just say it. |
+| `hedging-seesaw` | balance | Relentless "While X… However, Y" balancing, density-gated — a position never taken. |
 
 ## Vocabulary & idioms
 
@@ -37,16 +38,17 @@ cannot express. The rest are lexical / idiom / formatting rules.
 
 | Rule | Category | What it catches |
 | --- | --- | --- |
-| `em-dash-overuse` | formatting | Heavy em-dash use relative to sentence count. |
-| `curly-quotes` | formatting | Curly "smart" quotes, common in chatbot output. |
-| `markdown-bold` | formatting | Markdown `**bold**` left in the text. |
-| `markdown-heading` | formatting | Markdown `#` headings in prose. |
+| `em-dash-overuse` | formatting | Heavy em-dash use relative to sentence count (density-gated — a few em dashes never fire). |
+| `mixed-quotes` | formatting | Straight and curly quotes mixed in one document — a paste seam. |
+| `generation-artifacts` | formatting | Leftover chatbot citation tokens (`oaicite`, `turn0search0`, `utm_source=chatgpt.com`). |
 | `emoji` | formatting | Decorative emoji in formal prose. |
 
-:::tip[Linting Markdown?]
-The formatting rules flag Markdown syntax as a "tell", which is wrong when you're *writing* Markdown.
-Turn them off in your config: `'ai-style/markdown-bold': 'off'`, `'ai-style/markdown-heading': 'off'`,
-`'ai-style/emoji': 'off'`.
+:::note[Why no Markdown or curly-quote rules?]
+Markdown syntax (`**bold**`, `#` headings) is not flagged: humans author Markdown all the
+time (READMEs, docs, notes), so it carries no AI signal on its own. Curly quotes alone
+aren't flagged either — Word, Google Docs, and iOS auto-curl typed quotes; only *mixing*
+straight and curly styles carries signal. Writing casual prose where emoji are normal?
+Turn that one off: `'ai-style/emoji': 'off'`.
 :::
 
 ## The score is not a rule

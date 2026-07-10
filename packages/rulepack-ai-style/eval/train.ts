@@ -128,9 +128,16 @@ for (let k = 0; k < K; k++) {
   for (const i of fold[k]) oof[i] = predict(m, feats[i]);
 }
 const cvAuc = aucProb(oof, labels);
-const cvBest = Array.from({ length: 99 }, (_, t) => (t + 1) / 100)
-  .map((thr) => ({ thr, ...metrics(oof, labels, thr) }))
-  .sort((a, b) => b.f1 - a.f1)[0];
+// Threshold = best F1 SUBJECT TO CV specificity ≥ CV_SPEC_MIN. Unconstrained
+// best-F1 is recall-biased, and for a writing checker a false "AI" verdict on
+// a human is worse than a miss. Selected on CV (out-of-fold) only — the blind
+// slice stays an honest gate. Falls back to unconstrained if nothing qualifies.
+const CV_SPEC_MIN = 0.8;
+const grid = Array.from({ length: 99 }, (_, t) => (t + 1) / 100)
+  .map((thr) => ({ thr, ...metrics(oof, labels, thr) }));
+const cvBest =
+  grid.filter((g) => g.spec >= CV_SPEC_MIN).sort((a, b) => b.f1 - a.f1)[0] ??
+  grid.sort((a, b) => b.f1 - a.f1)[0];
 
 function report(title: string, f: DocFeatures[], y: number[], m: Model, thr: number) {
   if (!y.length) return { auc: 1, f1: 1, p: 1, r: 1, spec: 1 };

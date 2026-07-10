@@ -33,6 +33,20 @@ test('a few structural + lexical rules still fire on their canonical tells', asy
   assert.ok(fired(await lint('Moreover, the results were clear.'), 'opening-conjunction'));
 });
 
+test('hedging-seesaw fires on relentless sentence-initial balancing', async () => {
+  const lints = await lint(
+    'While the tool is fast, it struggles with scale. However, the benchmarks look promising. ' +
+      'Although critics remain wary, adoption keeps growing. That said, the risks are real. ' +
+      'The market will decide the winner soon.',
+  );
+  assert.ok(fired(lints, 'hedging-seesaw'));
+});
+
+test('hedging-seesaw does NOT fire on a single ordinary concession', async () => {
+  const lints = await lint('While I was cooking, the phone rang. The rest of the evening was quiet.');
+  assert.ok(!fired(lints, 'hedging-seesaw'));
+});
+
 test('score() returns a 0–100 number with a verdict', async () => {
   const { doc, lints } = await linter.lint('In today’s world, this stands as a testament to innovation.', config);
   const s = score(doc, lints);

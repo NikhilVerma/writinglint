@@ -7,11 +7,11 @@
 import { Linter, resolveConfig, type Lint, type ResolvedConfig } from "writinglint-core";
 import { recommended as aiStyle, score } from "writinglint-rulepack-ai-style";
 import type { Model } from "writinglint-rulepack-ai-style";
-import { recommended as conviction } from "writinglint-rulepack-conviction";
+import { recommended as craft } from "writinglint-rulepack-craft";
 import { loadEngine } from "./parser-browser.js";
 
 /** The rulepacks the demo can lint with, keyed by the id the UI sends. */
-export type PackId = "ai-style" | "conviction";
+export type PackId = "ai-style" | "craft";
 
 // Messages the worker receives / sends.
 type InMsg = { type: "lint"; id: number; text: string; pack?: PackId };
@@ -45,7 +45,7 @@ async function init(): Promise<void> {
             post({ type: "progress", stage, loaded, total })
         );
         linter = new Linter(engine.parser);
-        configs = { "ai-style": resolveConfig(aiStyle), conviction: resolveConfig(conviction) };
+        configs = { "ai-style": resolveConfig(aiStyle), craft: resolveConfig(craft) };
         model = engine.model;
         post({ type: "ready" });
     } catch (err) {

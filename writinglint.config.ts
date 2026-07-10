@@ -10,17 +10,15 @@
  */
 import { defineConfig } from "writinglint-core";
 import { recommended as aiStyle } from "writinglint-rulepack-ai-style";
-import { recommended as conviction } from "writinglint-rulepack-conviction";
+import { recommended as craft } from "writinglint-rulepack-craft";
 
 export default defineConfig({
     // Layer both packs: ai-style catches what models do (overclaiming);
-    // conviction catches what people do (underclaiming). They compose cleanly.
-    extends: [aiStyle, conviction],
+    // craft catches what people do (underclaiming, flat rhythm). They compose cleanly.
+    extends: [aiStyle, craft],
 
     rules: {
-        // …then override. Linting Markdown? Silence the format-artifact rules:
-        // 'ai-style/markdown-bold': 'off',
-        // 'ai-style/markdown-heading': 'off',
+        // …then override. Writing casual prose? Silence the emoji rule:
         // 'ai-style/emoji': 'off',
 
         // Promote the construction that started this project to an error:

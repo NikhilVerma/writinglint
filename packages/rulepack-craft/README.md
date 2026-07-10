@@ -1,8 +1,9 @@
-# writinglint-rulepack-conviction
+# writinglint-rulepack-craft
 
-**Rules for writing that commits.** A rulepack for
+**Better-writing rules** (formerly `writinglint-rulepack-conviction`). A rulepack for
 [WritingLint](https://github.com/NikhilVerma/writinglint) that catches the
-tells of a writer who doesn't quite believe they're allowed to say the thing:
+science of bad writing — first the tells of a writer who doesn't quite believe
+they're allowed to say the thing, then the music of the prose itself:
 
 | Rule | Catches | Default |
 |---|---|---|
@@ -12,6 +13,7 @@ tells of a writer who doesn't quite believe they're allowed to say the thing:
 | `parenthetical-hedge` | "(not that important)" — a sentence undercut from inside a parenthesis | error |
 | `qualifier-softener` | "pretty good" — a dimmer switch on your own claim | warn |
 | `apology-reflex` | "sorry for the long post" — apologising to a reader who hasn't objected | error |
+| `uniform-rhythm` | metronome prose — every sentence near the same length (Gary Provost: "vary the sentence length, and I create music") | warn |
 
 The structural rules (`hedge-opener`, `qualifier-softener`) match on the
 dependency graph, so any words can fill the construction's slots: "This could
@@ -26,11 +28,11 @@ produced it** ("like what?").
 
 ```ts
 import { defineConfig } from 'writinglint-core';
-import { recommended } from 'writinglint-rulepack-conviction';
+import { recommended } from 'writinglint-rulepack-craft';
 
 export default defineConfig({
   extends: [recommended],
-  // rules: { 'conviction/verdict-word': 'error' },   // promote / demote / disable
+  // rules: { 'craft/verdict-word': 'error' },   // promote / demote / disable
 });
 ```
 

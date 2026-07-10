@@ -1,14 +1,14 @@
 {
-  "name": "writinglint-rulepack-conviction",
+  "name": "writinglint-rulepack-craft",
   "version": "0.1.0",
-  "description": "Conviction rulepack for the WritingLint grammar linter: catches writing that doesn't commit — hedged openers, verdict words with no evidence, self-undercutting asides, reflexive apologies.",
+  "description": "Craft rulepack for the WritingLint grammar linter: better-writing rules — hedged openers, verdict words with no evidence, self-undercutting asides, reflexive apologies, metronome sentence rhythm.",
   "type": "module",
   "license": "MIT",
   "author": "Nikhil Verma",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NikhilVerma/writinglint.git",
-    "directory": "packages/rulepack-conviction"
+    "directory": "packages/rulepack-craft"
   },
   "bugs": {
     "url": "https://github.com/NikhilVerma/writinglint/issues"
@@ -21,6 +21,7 @@
     "hedging",
     "weasel-words",
     "confident-writing",
+    "writing-style",
     "rulepack",
     "writinglint"
   ],

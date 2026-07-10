@@ -14,7 +14,7 @@
     "build": "npm run build -w writinglint-web",
     "build:cf": "node -e \"const fs=require('fs');for(const d of ['packages/web/public/model','packages/web/public/ort'])fs.rmSync(d,{recursive:true,force:true})\" && npm run build:site -w writinglint-web",
     "copy-runtime": "npm run copy-runtime -w writinglint-web",
-    "build:libs": "npm run build -w writinglint-core -w writinglint-parser-node -w writinglint-rulepack-ai-style -w writinglint-rulepack-conviction -w writinglint",
+    "build:libs": "npm run build -w writinglint-core -w writinglint-parser-node -w writinglint-rulepack-ai-style -w writinglint-rulepack-craft -w writinglint",
     "cli": "node --conditions=source --import tsx packages/cli/src/cli.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p packages/web/tsconfig.client.json",
     "typecheck:worker": "tsc --noEmit -p worker/tsconfig.json",

@@ -43,6 +43,12 @@ export const CATEGORIES: Record<string, Category> = {
     blurb: 'Words LLMs reach for far more often than people do.',
     weight: 2,
   },
+  balance: {
+    id: 'balance',
+    label: 'Hedging seesaw',
+    blurb: 'Relentless “While X… However, Y” — a position never taken.',
+    weight: 2,
+  },
   'rule-of-three': {
     id: 'rule-of-three',
     label: 'Rule of three',
@@ -58,7 +64,7 @@ export const CATEGORIES: Record<string, Category> = {
   formatting: {
     id: 'formatting',
     label: 'Formatting tells',
-    blurb: 'Em-dash spray, curly quotes, stray markdown, emoji.',
+    blurb: 'Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts.',
     weight: 1,
   },
 };
@@ -71,6 +77,7 @@ export const CATEGORY_ORDER: string[] = [
   'vague',
   'meta',
   'ai-vocab',
+  'balance',
   'rule-of-three',
   'conjunctions',
   'formatting',

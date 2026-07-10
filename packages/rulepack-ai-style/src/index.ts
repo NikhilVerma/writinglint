@@ -18,11 +18,13 @@ import { copulaAvoidance } from './rules/copula-avoidance.js';
 import { lightVerbRole } from './rules/light-verb-role.js';
 import { vagueAttribution } from './rules/vague-attribution.js';
 import { throatClearing } from './rules/throat-clearing.js';
+// document-level discourse rules
+import { hedgingSeesaw } from './rules/hedging-seesaw.js';
 // lexical rules
 import { significanceIdioms, promoIdioms, chatbotIdioms } from './rules/idioms.js';
 import { aiVocabulary } from './rules/ai-vocabulary.js';
 import { openingConjunction } from './rules/opening-conjunction.js';
-import { emDashOveruse, curlyQuotes, markdownBold, markdownHeading, emoji } from './rules/formatting.js';
+import { emDashOveruse, mixedQuotes, generationArtifacts, emoji } from './rules/formatting.js';
 
 const rules = {
   'rule-of-three': ruleOfThree,
@@ -33,15 +35,15 @@ const rules = {
   'light-verb-role': lightVerbRole,
   'vague-attribution': vagueAttribution,
   'throat-clearing': throatClearing,
+  'hedging-seesaw': hedgingSeesaw,
   'significance-idioms': significanceIdioms,
   'promo-idioms': promoIdioms,
   'chatbot-idioms': chatbotIdioms,
   'ai-vocabulary': aiVocabulary,
   'opening-conjunction': openingConjunction,
   'em-dash-overuse': emDashOveruse,
-  'curly-quotes': curlyQuotes,
-  'markdown-bold': markdownBold,
-  'markdown-heading': markdownHeading,
+  'mixed-quotes': mixedQuotes,
+  'generation-artifacts': generationArtifacts,
   emoji,
 };
 

@@ -5,17 +5,17 @@ import {
     CATEGORY_ORDER as AI_CATEGORY_ORDER
 } from "writinglint-rulepack-ai-style";
 import {
-    CATEGORIES as CONVICTION_CATEGORIES,
-    CATEGORY_ORDER as CONVICTION_CATEGORY_ORDER
-} from "writinglint-rulepack-conviction";
+    CATEGORIES as CRAFT_CATEGORIES,
+    CATEGORY_ORDER as CRAFT_CATEGORY_ORDER
+} from "writinglint-rulepack-craft";
 import { AI_PITCH, HUMAN_PITCH, HEDGED_PITCH, COMMITTED_PITCH } from "./examples.js";
 import { AI_LINTS, HUMAN_LINTS } from "./precomputed-lints.js";
 import type { PackId } from "./worker.js";
 
 // Category ids are globally unique across packs, so the UI can hold one merged
 // map and colour marks from either pack without knowing which is active.
-const CATEGORIES = { ...AI_CATEGORIES, ...CONVICTION_CATEGORIES };
-const CATEGORY_ORDER = [...AI_CATEGORY_ORDER, ...CONVICTION_CATEGORY_ORDER];
+const CATEGORIES = { ...AI_CATEGORIES, ...CRAFT_CATEGORIES };
+const CATEGORY_ORDER = [...AI_CATEGORY_ORDER, ...CRAFT_CATEGORY_ORDER];
 
 /** Everything pack-specific the demo swaps when the rulepack dropdown changes. */
 const PACKS: Record<
@@ -31,10 +31,10 @@ const PACKS: Record<
         clean: { label: "Human draft", text: HUMAN_PITCH },
         lead: "A grammar linter for prose. This manuscript is an <strong>AI-written pitch</strong> for the project itself — every underline is a structural tell WritingLint caught. Edit it, or switch to the human-edited draft and watch the marks fall away. Everything runs in your browser."
     },
-    conviction: {
+    craft: {
         flagged: { label: "Hedged draft", text: HEDGED_PITCH },
         clean: { label: "Committed draft", text: COMMITTED_PITCH },
-        lead: "The <strong>conviction</strong> rulepack catches writing that doesn’t commit — hedged openers, softened claims, verdicts with the evidence missing, apologies to a reader who hasn’t objected. Same argument in both drafts; only the posture changes."
+        lead: "The <strong>craft</strong> rulepack catches writing that doesn’t commit — hedged openers, softened claims, verdicts with the evidence missing, apologies to a reader who hasn’t objected. Same argument in both drafts; only the posture changes."
     }
 };
 
@@ -313,7 +313,7 @@ function boot(): void {
         })
     );
     packSel.addEventListener("change", () => {
-        applyPack(packSel.value === "conviction" ? "conviction" : "ai-style");
+        applyPack(packSel.value === "craft" ? "craft" : "ai-style");
         // A new pack means new rules: load its flagged draft so the switch shows something.
         loadDraft(
             PACKS[pack].flagged.text,

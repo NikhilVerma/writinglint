@@ -15,7 +15,7 @@ before(async () => {
 async function lint(text: string): Promise<Lint[]> {
     return (await linter.lint(text, config)).lints;
 }
-const fired = (lints: Lint[], rule: string) => lints.some((l) => l.ruleId === `conviction/${rule}`);
+const fired = (lints: Lint[], rule: string) => lints.some((l) => l.ruleId === `craft/${rule}`);
 
 // Each canonical tell below is a real draft that earned its rule.
 
@@ -100,4 +100,30 @@ test("hedge-phrase does NOT fire on literal or mid-sentence epistemic uses", asy
     assert.ok(!fired(await lint("A dependency parser is a kind of parser."), "hedge-phrase"));
     // mid-sentence "probably" is a real probability claim, not a claim-opener.
     assert.ok(!fired(await lint("The job will probably finish before midnight."), "hedge-phrase"));
+});
+
+test("uniform-rhythm fires on metronome prose, nine same-length sentences", async () => {
+    const drone = [
+        "The team finished the report on Monday morning.",
+        "The client approved the budget on Tuesday afternoon.",
+        "The designers shipped the mockups on Wednesday evening.",
+        "The engineers merged the feature on Thursday morning.",
+        "The testers verified the release on Friday afternoon.",
+        "The managers reviewed the metrics on Saturday morning.",
+        "The founders discussed the roadmap on Sunday evening.",
+        "The interns updated the documents on Monday afternoon.",
+        "The vendors delivered the hardware on Tuesday morning."
+    ].join(" ");
+    assert.ok(fired(await lint(drone), "uniform-rhythm"));
+});
+
+test("uniform-rhythm does NOT fire on varied, breathing prose", async () => {
+    const varied =
+        "The report was late. Nobody minded, because the client had spent the whole week " +
+        "arguing about a budget that everyone already knew would be approved in the end. " +
+        "Design shipped early. The engineers, cautious after last quarter's outage and the " +
+        "long postmortem that followed it, merged the feature behind a flag. Tests passed. " +
+        "The founders talked all Sunday. By Monday morning the roadmap looked different, and " +
+        "the interns quietly rewrote every document that mentioned the old plan. It worked.";
+    assert.ok(!fired(await lint(varied), "uniform-rhythm"));
 });

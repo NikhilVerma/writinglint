@@ -18,7 +18,7 @@ The trade-off is speed. The parser is a real model that runs on-device, so it is
 The AI-writing rulepack is one example of what that buys you: we turned the common tells of AI prose into rules. You can consume WritingLint as a library, run it from the command line, or write and ship your own rules.`;
 
 /**
- * The same idea, for the conviction pack: one draft written by a writer who
+ * The same idea, for the craft pack: one draft written by a writer who
  * doesn't quite believe they're allowed to say the thing, one that commits.
  * The argument is identical — only the posture changes.
  */

@@ -51,9 +51,7 @@ import { recommended } from 'writinglint-rulepack-ai-style';
 export default defineConfig({
   extends: [recommended],
   rules: {
-    // Linting Markdown? Silence the format-artifact rules:
-    'ai-style/markdown-bold': 'off',
-    'ai-style/markdown-heading': 'off',
+    // Writing casual prose? Silence the emoji rule:
     'ai-style/emoji': 'off',
     // Promote the construction that started this project to an error:
     'ai-style/corrective-antithesis': 'error',

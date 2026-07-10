@@ -136,7 +136,7 @@ export default defineConfig({
   extends: [recommended],
   rules: {
     'ai-style/corrective-antithesis': 'error',
-    'ai-style/markdown-bold': 'off',        // linting Markdown? silence format tells
+    'ai-style/emoji': 'off',                // casual prose? silence the emoji tell
   },
   // plugins: { house: myRulepack },        // register your own rules
 });

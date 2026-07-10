@@ -1,5 +1,5 @@
 /**
- * The categories the conviction rules group under. Like the ai-style pack's
+ * The categories the craft rules group under. Like the ai-style pack's
  * categories, these ids are stable identifiers — the web UI colours highlights
  * with them — not just labels.
  */
@@ -23,8 +23,14 @@ export const CATEGORIES: Record<string, Category> = {
         label: "Posture",
         blurb: "Flinching in print — apologising to a reader who hasn’t objected.",
         weight: 2
+    },
+    rhythm: {
+        id: "rhythm",
+        label: "Rhythm",
+        blurb: "Metronome prose — every sentence near the same length. Vary short and long.",
+        weight: 1.5
     }
 };
 
 /** Display / overlap-priority order (earlier = higher priority when marks collide). */
-export const CATEGORY_ORDER: string[] = ["hedging", "evidence", "posture"];
+export const CATEGORY_ORDER: string[] = ["hedging", "evidence", "posture", "rhythm"];
