@@ -5,7 +5,7 @@ prev: false
 title: "Rulepack"
 ---
 
-Defined in: [pack.ts:20](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/pack.ts#L20)
+Defined in: [pack.ts:20](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/pack.ts#L20)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [pack.ts:20](https://github.com/NikhilVerma/writinglint/blob/03fe406
 
 > `optional` **categories?**: `Record`\<`string`, [`Category`](/api/interfaces/category/)\>
 
-Defined in: [pack.ts:30](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/pack.ts#L30)
+Defined in: [pack.ts:30](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/pack.ts#L30)
 
 Category metadata keyed by category id.
 
@@ -23,7 +23,7 @@ Category metadata keyed by category id.
 
 > `optional` **configs?**: `Record`\<`string`, [`Config`](/api/interfaces/config/)\>
 
-Defined in: [pack.ts:32](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/pack.ts#L32)
+Defined in: [pack.ts:32](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/pack.ts#L32)
 
 Named preset configs consumers can `extends`, e.g. `configs.recommended`.
 
@@ -33,7 +33,7 @@ Named preset configs consumers can `extends`, e.g. `configs.recommended`.
 
 > **name**: `string`
 
-Defined in: [pack.ts:22](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/pack.ts#L22)
+Defined in: [pack.ts:22](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/pack.ts#L22)
 
 Namespace used to reference this pack's rules, e.g. 'ai-style'.
 
@@ -43,7 +43,7 @@ Namespace used to reference this pack's rules, e.g. 'ai-style'.
 
 > **rules**: `Record`\<`string`, [`Rule`](/api/interfaces/rule/)\<`any`\>\>
 
-Defined in: [pack.ts:28](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/pack.ts#L28)
+Defined in: [pack.ts:28](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/pack.ts#L28)
 
 Rules keyed by their short name (the part after 'name/'). Stored as
 `Rule<any>` because a pack holds rules with heterogeneous Options types;

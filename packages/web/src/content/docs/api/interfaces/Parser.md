@@ -5,7 +5,7 @@ prev: false
 title: "Parser"
 ---
 
-Defined in: [parser.ts:9](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/parser.ts#L9)
+Defined in: [parser.ts:9](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/parser.ts#L9)
 
 ## Methods
 
@@ -13,7 +13,7 @@ Defined in: [parser.ts:9](https://github.com/NikhilVerma/writinglint/blob/03fe40
 
 > **parse**(`text`): `Promise`\<`ParsedSentence`[]\>
 
-Defined in: [parser.ts:10](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/parser.ts#L10)
+Defined in: [parser.ts:10](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/parser.ts#L10)
 
 #### Parameters
 

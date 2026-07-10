@@ -1,0 +1,57 @@
+{
+  "name": "writinglint-rulepack-conviction",
+  "version": "0.1.0",
+  "description": "Conviction rulepack for the WritingLint grammar linter: catches writing that doesn't commit — hedged openers, verdict words with no evidence, self-undercutting asides, reflexive apologies.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
+    "directory": "packages/rulepack-conviction"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
+  },
+  "homepage": "https://github.com/NikhilVerma/writinglint#readme",
+  "keywords": [
+    "grammar",
+    "linter",
+    "prose",
+    "hedging",
+    "weasel-words",
+    "confident-writing",
+    "rulepack",
+    "writinglint"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "writinglint-core": "^0.1.0"
+  },
+  "devDependencies": {
+    "writinglint-parser-node": "^0.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

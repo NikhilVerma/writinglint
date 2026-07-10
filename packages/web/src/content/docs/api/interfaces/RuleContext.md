@@ -5,7 +5,7 @@ prev: false
 title: "RuleContext"
 ---
 
-Defined in: [rule.ts:65](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L65)
+Defined in: [rule.ts:65](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L65)
 
 Everything a rule sees while running, plus how it reports.
 
@@ -21,7 +21,7 @@ Everything a rule sees while running, plus how it reports.
 
 > `readonly` **category**: `string`
 
-Defined in: [rule.ts:67](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L67)
+Defined in: [rule.ts:67](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L67)
 
 ***
 
@@ -29,7 +29,7 @@ Defined in: [rule.ts:67](https://github.com/NikhilVerma/writinglint/blob/03fe406
 
 > `readonly` **doc**: [`Document`](/api/interfaces/document/)
 
-Defined in: [rule.ts:69](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L69)
+Defined in: [rule.ts:69](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L69)
 
 ***
 
@@ -37,7 +37,7 @@ Defined in: [rule.ts:69](https://github.com/NikhilVerma/writinglint/blob/03fe406
 
 > `readonly` **options**: `Options`
 
-Defined in: [rule.ts:68](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L68)
+Defined in: [rule.ts:68](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L68)
 
 ***
 
@@ -45,7 +45,7 @@ Defined in: [rule.ts:68](https://github.com/NikhilVerma/writinglint/blob/03fe406
 
 > `readonly` **ruleId**: `string`
 
-Defined in: [rule.ts:66](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L66)
+Defined in: [rule.ts:66](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L66)
 
 ## Methods
 
@@ -53,7 +53,7 @@ Defined in: [rule.ts:66](https://github.com/NikhilVerma/writinglint/blob/03fe406
 
 > **report**(`descriptor`): `void`
 
-Defined in: [rule.ts:70](https://github.com/NikhilVerma/writinglint/blob/03fe40665ab697d2127e29daf10ac265fe881981/packages/core/src/rule.ts#L70)
+Defined in: [rule.ts:70](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L70)
 
 #### Parameters
 

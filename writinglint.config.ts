@@ -8,24 +8,26 @@
  *
  * The CLI picks this file up automatically from the working directory.
  */
-import { defineConfig } from 'writinglint-core';
-import { recommended } from 'writinglint-rulepack-ai-style';
+import { defineConfig } from "writinglint-core";
+import { recommended as aiStyle } from "writinglint-rulepack-ai-style";
+import { recommended as conviction } from "writinglint-rulepack-conviction";
 
 export default defineConfig({
-  // Start from the ai-style pack's recommended rules…
-  extends: [recommended],
+    // Layer both packs: ai-style catches what models do (overclaiming);
+    // conviction catches what people do (underclaiming). They compose cleanly.
+    extends: [aiStyle, conviction],
 
-  rules: {
-    // …then override. Linting Markdown? Silence the format-artifact rules:
-    // 'ai-style/markdown-bold': 'off',
-    // 'ai-style/markdown-heading': 'off',
-    // 'ai-style/emoji': 'off',
+    rules: {
+        // …then override. Linting Markdown? Silence the format-artifact rules:
+        // 'ai-style/markdown-bold': 'off',
+        // 'ai-style/markdown-heading': 'off',
+        // 'ai-style/emoji': 'off',
 
-    // Promote the construction that started this project to an error:
-    'ai-style/corrective-antithesis': 'error',
-  },
+        // Promote the construction that started this project to an error:
+        "ai-style/corrective-antithesis": "error"
+    }
 
-  // Register your own rulepack and enable its rules the same way:
-  // plugins: { house: houseStyle },
-  // rules: { 'house/no-oxford-comma': 'warn' },
+    // Register your own rulepack and enable its rules the same way:
+    // plugins: { house: houseStyle },
+    // rules: { 'house/no-oxford-comma': 'warn' },
 });

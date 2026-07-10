@@ -37,6 +37,11 @@
   --cat-rule-of-three: #46c9b8;
   --cat-conjunctions: #6ec86e;
   --cat-formatting: #9aa7b8;
+
+  /* conviction pack */
+  --cat-hedging: #f2c14e;
+  --cat-evidence: #64b5f6;
+  --cat-posture: #f48fb1;
 }
 :root[data-theme='light'] .bw-demo {
   --bw-ink: #1a2430;
@@ -58,6 +63,11 @@
   --cat-rule-of-three: #1f9e8f;
   --cat-conjunctions: #3f9b3f;
   --cat-formatting: #6b7887;
+
+  /* conviction pack */
+  --cat-hedging: #b8860b;
+  --cat-evidence: #2a7fc9;
+  --cat-posture: #c2185b;
 }
 
 /* Starlight styles everything inside .sl-markdown-content as prose and injects a
@@ -109,6 +119,21 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 }
 .bw-seg:focus-visible { outline: none; box-shadow: var(--bw-ring); }
+
+/* ── rulepack selector ──────────────────────────────────────────────────── */
+.bw-packsel select {
+  appearance: none;
+  font: inherit; font-size: 0.8125rem; font-weight: 500; line-height: 1.2;
+  color: var(--bw-ink); cursor: pointer;
+  background: var(--bw-panel); border: 1px solid var(--bw-border);
+  border-radius: 999px; padding: 0.4rem 2rem 0.4rem 0.9rem;
+  /* an inline chevron so the pill matches the segmented control next to it */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23888' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.75rem center;
+}
+.bw-packsel select:hover { background-color: var(--bw-hover); }
+.bw-packsel select:focus-visible { outline: none; box-shadow: var(--bw-ring); }
+.bw-packsel select:disabled { opacity: 0.5; cursor: default; }
 
 .bw-demo__lead {
   color: var(--bw-ink-dim); font-size: var(--sl-text-base);
@@ -176,6 +201,9 @@
   transition: background 0.12s ease, border-color 0.12s ease;
 }
 .bw-tell.is-active { background: color-mix(in srgb, var(--tell) 22%, transparent); border-bottom-width: 2px; }
+.bw-tell--hedging { --tell: var(--cat-hedging); }
+.bw-tell--evidence { --tell: var(--cat-evidence); }
+.bw-tell--posture { --tell: var(--cat-posture); }
 .bw-tell--significance { --tell: var(--cat-significance); }
 .bw-tell--parallelism { --tell: var(--cat-parallelism); }
 .bw-tell--promo { --tell: var(--cat-promo); }
@@ -267,6 +295,9 @@
 .bw-diag__rule { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bw-diag__loc { flex: 0 0 auto; }
 
+.bw-dot--hedging { --tell: var(--cat-hedging); }
+.bw-dot--evidence { --tell: var(--cat-evidence); }
+.bw-dot--posture { --tell: var(--cat-posture); }
 .bw-dot--significance { --tell: var(--cat-significance); }
 .bw-dot--parallelism { --tell: var(--cat-parallelism); }
 .bw-dot--promo { --tell: var(--cat-promo); }
