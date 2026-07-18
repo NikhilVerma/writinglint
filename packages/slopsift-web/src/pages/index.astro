@@ -1,9 +1,11 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
 
-const sample = `In today's rapidly evolving digital landscape, it is important to note that effective communication is more crucial than ever. This revolutionary approach seamlessly empowers teams to unlock their full potential.
+const sample = `As an AI language model, let's delve into the load-bearing idea behind this solution.
 
-It's not merely a writing tool, it's a paradigm shift. Ultimately, the future of clear communication is here.`;
+The design is not only fast but also elegant. Studies suggest it is the fastest approach.
+
+The deadline was changed yesterday. Several safety concerns were ignored. It wasn't speed. It wasn't cost. It was trust.`;
 ---
 
 <SiteLayout>
@@ -22,32 +24,43 @@ It's not merely a writing tool, it's a paradigm shift. Ultimately, the future of
   <main id="top">
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero__copy">
-        <p class="kicker">The AI slop linter</p>
-        <h1 id="hero-title">Your AI<br />has a tell.</h1>
-        <p class="hero__summary">SlopSift catches the canned structure, borrowed certainty, and suspiciously polished filler that spellcheck misses.</p>
+        <p class="kicker">Natural-language processing. Local first.</p>
+        <h1 id="hero-title">Your AI<br />has a<br />tell.</h1>
+        <p class="hero__summary">SlopSift maps the grammatical structure beneath a draft—not just words or parts of speech—to catch canned arguments, borrowed certainty, and suspiciously polished filler.</p>
         <div class="hero__actions">
           <a class="button button--primary" href="#demo">Lint some text</a>
-          <button class="install-command" type="button" data-copy="bunx slopsift ." aria-label="Copy install command">
+          <button class="install-command" type="button" data-copy="bunx slopsift ." title="Copy install command">
             <code>bunx slopsift .</code><span>copy</span>
           </button>
         </div>
       </div>
 
-      <div class="proof-sheet" aria-label="An example paragraph marked up by SlopSift">
-        <div class="proof-sheet__top">
-          <span>draft_07.md</span><span>6 problems</span>
+      <div class="lint-demo" id="demo" data-slop-demo aria-label="Live SlopSift editor">
+        <span class="draft-stamp" aria-hidden="true">AI DRAFT</span>
+        <div class="lint-demo__editor">
+          <div class="panel-bar">
+            <span>EDITABLE DRAFT</span>
+            <span class="live-indicator"><i aria-hidden="true"></i>live NLP</span>
+          </div>
+          <div class="editor-surface">
+            <div class="editor-backdrop" data-backdrop aria-hidden="true"></div>
+            <textarea aria-label="Text to lint" spellcheck="true" autocomplete="off">{sample}</textarea>
+            <div class="editor-loading" data-loading>
+              <span data-loading-label>Starting the local parser…</span>
+              <span class="editor-loading__track"><i data-loading-bar></i></span>
+            </div>
+          </div>
+          <div class="demo-controls">
+            <p data-status>Loading the on-device NLP model…</p>
+            <span class="local-badge">never uploaded</span>
+          </div>
         </div>
-        <p>
-          <span class="proof proof--error">In today’s rapidly evolving landscape,<b>delete the canned opening</b></span>
-          clear writing is
-          <span class="proof proof--warning">more important than ever.<b>compared with what?</b></span>
-        </p>
-        <p>
-          This <span class="proof proof--note">revolutionary approach<b>promotional vocabulary</b></span>
-          <span class="proof proof--error">seamlessly empowers teams<b>say what it does</b></span>
-          to unlock their full potential.
-        </p>
-        <div class="proof-sheet__score"><strong>38</strong><span>Reads like a press release written by a toaster.</span></div>
+        <aside class="lint-demo__results" aria-label="Lint problems">
+          <div class="panel-bar"><span>PROBLEMS <b data-count>0</b></span><span data-totals>loading</span></div>
+          <div class="results-list" data-results aria-live="polite">
+            <p class="results-empty">The local parser is getting ready.</p>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -55,45 +68,22 @@ It's not merely a writing tool, it's a paradigm shift. Ultimately, the future of
       <span>corrective-antithesis</span><span>unsupported-certainty</span><span>mechanical-outline</span><span>vague-attribution</span><span>ai-vocabulary</span>
     </div>
 
-    <section class="demo-section" id="demo" aria-labelledby="demo-title">
-      <div class="section-heading">
-        <p class="kicker">No account. No upload.</p>
-        <h2 id="demo-title">Paste the evidence.</h2>
-        <p>The same compact parser used by the CLI runs in your browser. Your draft stays on your device.</p>
-      </div>
-
-      <div class="lint-demo" data-slop-demo>
-        <div class="lint-demo__editor">
-          <div class="panel-bar"><span>INPUT</span><span>plain text</span></div>
-          <textarea aria-label="Text to lint" spellcheck="true">{sample}</textarea>
-          <div class="demo-controls">
-            <p data-status>Ready when you are.</p>
-            <button class="button button--primary" type="button" data-run>Run SlopSift</button>
-          </div>
-        </div>
-        <div class="lint-demo__results">
-          <div class="panel-bar"><span>PROBLEMS</span><span data-totals>not linted yet</span></div>
-          <div class="results-list" data-results aria-live="polite">
-            <p class="results-empty">Run the sample to load the local parser.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <section class="method" aria-labelledby="method-title">
       <div class="method__intro">
+        <p class="kicker">More than a word list</p>
         <h2 id="method-title">It reads structure,<br />not vibes.</h2>
+        <p class="method__lede">Many writing tools stop at word matching and basic parts of speech. SlopSift follows the relationships between words, so rules can recognize how a sentence makes its claim—not only which vocabulary it uses.</p>
       </div>
       <ol class="method__steps">
-        <li><span>01</span><div><h3>Parse the sentence</h3><p>A small owned model maps words, parts of speech, and grammatical relationships.</p></div></li>
-        <li><span>02</span><div><h3>Run explainable rules</h3><p>Each finding names the construction it matched. No mystery score. No remote judge.</p></div></li>
-        <li><span>03</span><div><h3>Grade the suspicion</h3><p>Errors are strong tells. Warnings need attention. Notes are candidates, not convictions.</p></div></li>
+        <li><span>01</span><div><h3>Build a dependency graph</h3><p>A compact local model maps tokens, parts of speech, and the grammatical relationships holding the sentence together.</p></div></li>
+        <li><span>02</span><div><h3>Match the construction</h3><p>Authorable rules inspect the graph for structural tells. Every finding names what matched and the exact text that triggered it.</p></div></li>
+        <li><span>03</span><div><h3>Keep judgment with the writer</h3><p>Errors are strong tells. Warnings need attention. Notes are candidates—not a machine pretending to know who wrote the sentence.</p></div></li>
       </ol>
     </section>
 
     <section class="severity" aria-labelledby="severity-title">
       <div class="severity__title">
-        <h2 id="severity-title">Not every dash is a crime.</h2>
+        <h2 id="severity-title">Not every em dash is slop.</h2>
       </div>
       <div class="severity__examples">
         <article class="severity-row severity-row--error"><span>error</span><p>“As an AI language model...”</p><strong>caught red-handed</strong></article>
