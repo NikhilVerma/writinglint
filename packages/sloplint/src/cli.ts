@@ -1,15 +1,12 @@
 #!/usr/bin/env node
+import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { relative, sep } from 'node:path';
-import { Linter, resolveConfig, type Lint } from 'writinglint-core';
-import { loadParser } from 'writinglint-parser-node';
-import { extractInput, inputKind } from './extract.js';
+import { createSloplint, type MinimumLevel } from './index.js';
 import { findFiles } from './files.js';
 import { jsonResult, makeResult, stylish, type Result } from './format.js';
-import { ensureModel } from './model.js';
-import { profileFor, type ProfileName } from './profiles.js';
 
-const VERSION = '0.1.0';
+const VERSION = (JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version;
 const HELP = `sloplint — lint prose and code comments for AI slop
 
 Usage:
@@ -74,40 +71,22 @@ async function run(): Promise<void> {
   try {
     const files = await findFiles(options.patterns, { noIgnore: options.noIgnore, ignorePatterns: options.ignores, extensions: options.extensions });
     if (!files.length) throw new Error(`no supported files matched: ${options.patterns.join(', ')}`);
-    const modelDir = await ensureModel({ explicit: options.model, download: options.download, onProgress: (message) => { if (options.format === 'stylish') console.error(message); } });
-    const parser = await loadParser({ backend: 'onnx', onnxModelDir: modelDir });
-    const linter = new Linter(parser);
-    const profile: ProfileName = options.quiet || options.level === 'error'
-      ? 'ci'
-      : options.level === 'info' ? 'strict' : 'recommended';
-    const configs = {
-      prose: resolveConfig(profileFor('prose', profile)),
-      comments: resolveConfig(profileFor('comments', profile)),
-    };
+    const sloplint = await createSloplint({
+      explicit: options.model,
+      download: options.download,
+      onProgress: (message) => { if (options.format === 'stylish') console.error(message); },
+    });
+    const level: MinimumLevel = options.quiet ? 'error' : options.level;
     const results: Result[] = [];
     for (const file of files) {
       const source = await readFile(file, 'utf8');
-      const extracted = extractInput(file, source);
-      const kind = inputKind(file);
-      if (!kind) continue;
-      const { lints } = await linter.lint(extracted.text, configs[kind]);
-      const mapped: Lint[] = lints.map((lint) => {
-        const [start, end] = extracted.sourceRange(lint.start, lint.end);
-        const fixRange = lint.fix ? extracted.sourceRange(lint.fix.range[0], lint.fix.range[1]) : undefined;
-        return {
-          ...lint, start, end, text: source.slice(start, end),
-          fix: lint.fix ? {
-            ...lint.fix,
-            range: fixRange!,
-          } : undefined,
-        };
-      });
-      const visible = mapped;
+      const report = await sloplint.lintSource(file, source, { level });
+      if (!report) continue;
       const local = relative(process.cwd(), file);
       const label = local === '..' || local.startsWith(`..${sep}`)
         ? file
         : (local || file);
-      const result = makeResult(label, source, visible);
+      const result = makeResult(label, source, report.lints);
       results.push(result);
     }
     if (options.format === 'json') console.log(JSON.stringify(results.map(jsonResult), null, 2));

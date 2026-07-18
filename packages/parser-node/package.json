@@ -38,11 +38,18 @@
       "types": "./dist/tokenizer.d.ts",
       "source": "./src/tokenizer.ts",
       "default": "./dist/tokenizer.js"
+    },
+    "./onnx": {
+      "types": "./dist/onnx-parser.d.ts",
+      "source": "./src/onnx-parser.ts",
+      "default": "./dist/onnx-parser.js"
     }
   },
   "files": [
     "dist",
+    "src",
     "python",
+    "LICENSE",
     "README.md"
   ],
   "dependencies": {

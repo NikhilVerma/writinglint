@@ -5,11 +5,32 @@
   "type": "module",
   "license": "MIT",
   "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
+    "directory": "packages/sloplint"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
+  },
+  "homepage": "https://github.com/NikhilVerma/writinglint/tree/main/packages/sloplint#readme",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "bin": {
     "sloplint": "./dist/cli.js"
   },
   "files": [
     "dist",
+    "src",
+    "LICENSE",
     "README.md",
     "MODEL.md",
     "RELEASING.md",
@@ -24,7 +45,10 @@
     "linter",
     "markdown",
     "comments",
-    "cli"
+    "cli",
+    "prose",
+    "ai-writing",
+    "writinglint"
   ],
   "dependencies": {
     "ignore": "^7.0.5",

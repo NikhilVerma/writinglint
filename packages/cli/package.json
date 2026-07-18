@@ -30,6 +30,7 @@
   },
   "files": [
     "dist",
+    "LICENSE",
     "README.md"
   ],
   "dependencies": {

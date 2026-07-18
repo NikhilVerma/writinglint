@@ -15,6 +15,9 @@ or acceptance thresholds change.
 - User-facing download: `https://writinglint.nikhilv.workers.dev/model/*`
 - CLI cache: `$XDG_CACHE_HOME/sloplint/models/compact-int8-v1`, falling back to
   `~/.cache/sloplint/models/compact-int8-v1`
+- Integrity: the release manifest SHA-256 is pinned in the CLI; every ONNX and
+  tokenizer artifact is checked against the byte count and SHA-256 recorded in
+  that manifest before loading
 
 Required files:
 
@@ -99,7 +102,7 @@ long jobs in tmux.
 The pipeline entrypoints are under `training/parser/`:
 
 1. Prepare the UD and rule-sensitivity datasets.
-2. Train candidates with `train_parser.py`.
+2. Train candidates with `train.py`.
 3. Evaluate general UD metrics and strict downstream rule replay.
 4. Export the selected checkpoint with `export_onnx.py`.
 5. Prove PyTorch/ONNX parity.
@@ -108,7 +111,8 @@ The pipeline entrypoints are under `training/parser/`:
    smoke tests.
 8. Upload all versioned artifacts to R2 with
    `scripts/upload-model-to-r2.sh`.
-9. Bump the version in Sloplint's `src/model.ts` and browser parser together.
+9. Bump the version and pinned manifest SHA-256 in Sloplint's `src/model.ts`,
+   and update the browser parser together.
 
 Never overwrite an existing model version in place. Publish a new immutable
 version, validate it, then update clients. Keep the old R2 prefix available so

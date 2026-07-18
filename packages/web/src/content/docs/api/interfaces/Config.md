@@ -5,7 +5,7 @@ prev: false
 title: "Config"
 ---
 
-Defined in: [config.ts:13](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L13)
+Defined in: [config.ts:14](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/config.ts#L14)
 
 ## Properties
 
@@ -13,9 +13,19 @@ Defined in: [config.ts:13](https://github.com/NikhilVerma/writinglint/blob/ed446
 
 > `optional` **extends?**: `Config`[]
 
-Defined in: [config.ts:17](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L17)
+Defined in: [config.ts:18](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/config.ts#L18)
 
 Preset configs to layer in first; later `extends` and own `rules` win.
+
+***
+
+### minimumSeverity?
+
+> `optional` **minimumSeverity?**: [`ActiveSeverity`](/api/type-aliases/activeseverity/)
+
+Defined in: [config.ts:22](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/config.ts#L22)
+
+Lowest emitted severity. Later configs override extended configs.
 
 ***
 
@@ -23,7 +33,7 @@ Preset configs to layer in first; later `extends` and own `rules` win.
 
 > `optional` **plugins?**: `Record`\<`string`, [`Rulepack`](/api/interfaces/rulepack/)\>
 
-Defined in: [config.ts:15](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L15)
+Defined in: [config.ts:16](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/config.ts#L16)
 
 namespace → rulepack (e.g. { 'ai-style': aiStyle }).
 
@@ -33,6 +43,6 @@ namespace → rulepack (e.g. { 'ai-style': aiStyle }).
 
 > `optional` **rules?**: `Record`\<`string`, [`RuleSetting`](/api/type-aliases/rulesetting/)\>
 
-Defined in: [config.ts:19](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L19)
+Defined in: [config.ts:20](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/config.ts#L20)
 
 ruleId → setting, e.g. { 'ai-style/rule-of-three': ['warn', { min: 3 }] }.

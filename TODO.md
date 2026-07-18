@@ -223,6 +223,30 @@ with recognizable AI-slop constructions.
       revise only supported findings, rerun the CLI, and stop when clean.
 - [ ] Add a bounded iteration count and meaning-preservation guardrails.
 - [ ] Add fixtures demonstrating bad draft → revised draft → clean exit.
-- [ ] Give Sloplint its own repository, release workflow, changelog, domain, and
-      short landing page around “lint your AI before you ship it.”
-- [ ] Move model artifacts to a Sloplint-owned immutable host and add checksums.
+- [x] Build the standalone Sloplint landing page and on-device browser demo.
+- [x] Build a Manifest V3 Chrome extension MVP with local WASM inference,
+      editable-field diagnostics, and severity controls.
+- [x] Build a desktop VS Code extension MVP with Problems diagnostics,
+      debounced linting, commands, settings, and local native inference.
+- [ ] Give Sloplint its own repository, release workflow, changelog, and domain.
+- [ ] Complete manual Chrome QA across Gmail, Notion, GitHub, Google Docs, and
+      representative textarea and contenteditable editors.
+- [ ] Publish platform-specific VSIX builds and complete Marketplace metadata.
+- [x] Pin the release manifest and verify every downloaded model artifact by
+      byte count and SHA-256 before loading it.
+- [ ] Move model artifacts to a Sloplint-owned immutable host.
+
+### Open-source release blockers
+
+- [ ] Coordinate the Astro 5 → supported Astro/Starlight major upgrade for both
+      sites. The current production audit reports Astro XSS/SSRF advisories;
+      forcing the major in isolation risks breaking both builds.
+- [ ] Remove the `onnxruntime-node` install-time `adm-zip <0.6.0` advisory when
+      upstream accepts the patched range, or validate an ONNX Runtime downgrade.
+      npm did not apply a root override outside the dependency's declared
+      `^0.5.16` range, so an ineffective override was not retained.
+- [ ] Enable GitHub private vulnerability reporting, secret scanning with push
+      protection, Dependabot security updates, required CI/dependency-review
+      checks, tag protection, and approval on the `npm` environment.
+- [ ] Configure `publish.yml` as the trusted publisher for every public npm
+      package, perform the first OIDC publish, then disallow token publishing.

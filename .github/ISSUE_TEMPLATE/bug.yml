@@ -1,0 +1,68 @@
+name: Bug report
+description: Report reproducible incorrect behavior in a CLI, library, or editor integration.
+title: "bug: "
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report a bug. Please remove private text and credentials from reproductions.
+  - type: dropdown
+    id: product
+    attributes:
+      label: Product
+      options:
+        - Sloplint CLI
+        - WritingLint CLI
+        - Core or rulepack library
+        - Parser or model
+        - Chrome extension
+        - VS Code extension
+        - Website
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Package/extension version or commit SHA.
+      placeholder: sloplint 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, Node.js version, package manager, browser/editor version, as applicable.
+      placeholder: macOS 15, Node.js 22.14, npm 11.6
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include the command, a minimal non-sensitive input, and configuration.
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include complete output or a stack trace after removing sensitive data.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues for this problem.
+          required: true
+        - label: This report does not disclose a security vulnerability or private corpus text.
+          required: true

@@ -5,7 +5,7 @@ prev: false
 title: "DepToken"
 ---
 
-Defined in: parse-types.ts:8
+Defined in: [parse-types.ts:8](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/parse-types.ts#L8)
 
 Parser-neutral Universal Dependencies data consumed by WritingLint.
 
@@ -19,7 +19,7 @@ a head of 0 marks the root.
 
 > **deprel**: `string`
 
-Defined in: parse-types.ts:13
+Defined in: [parse-types.ts:13](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/parse-types.ts#L13)
 
 ***
 
@@ -27,7 +27,7 @@ Defined in: parse-types.ts:13
 
 > **end**: `number`
 
-Defined in: parse-types.ts:15
+Defined in: [parse-types.ts:15](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/parse-types.ts#L15)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: parse-types.ts:15
 
 > **form**: `string`
 
-Defined in: parse-types.ts:10
+Defined in: [parse-types.ts:10](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/parse-types.ts#L10)
 
 ***
 
@@ -43,7 +43,7 @@ Defined in: parse-types.ts:10
 
 > **head**: `number`
 
-Defined in: parse-types.ts:12
+Defined in: [parse-types.ts:12](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/parse-types.ts#L12)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: parse-types.ts:12
 
 > **id**: `number`
 
-Defined in: parse-types.ts:9
+Defined in: [parse-types.ts:9](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/parse-types.ts#L9)
 
 ***
 
@@ -59,7 +59,7 @@ Defined in: parse-types.ts:9
 
 > `optional` **lemma?**: `string`
 
-Defined in: parse-types.ts:16
+Defined in: [parse-types.ts:16](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/parse-types.ts#L16)
 
 ***
 
@@ -67,7 +67,7 @@ Defined in: parse-types.ts:16
 
 > **start**: `number`
 
-Defined in: parse-types.ts:14
+Defined in: [parse-types.ts:14](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/parse-types.ts#L14)
 
 ***
 
@@ -75,4 +75,4 @@ Defined in: parse-types.ts:14
 
 > **upos**: `string`
 
-Defined in: parse-types.ts:11
+Defined in: [parse-types.ts:11](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/parse-types.ts#L11)

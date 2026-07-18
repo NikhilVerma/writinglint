@@ -18,6 +18,7 @@ title: "writinglint-core"
 - [Document](/api/interfaces/document/)
 - [Lint](/api/interfaces/lint/)
 - [LintReport](/api/interfaces/lintreport/)
+- [Paragraph](/api/interfaces/paragraph/)
 - [ParsedSentence](/api/interfaces/parsedsentence/)
 - [Parser](/api/interfaces/parser/)
 - [ReportDescriptor](/api/interfaces/reportdescriptor/)
@@ -36,6 +37,8 @@ title: "writinglint-core"
 ## Type Aliases
 
 - [ActiveSeverity](/api/type-aliases/activeseverity/)
+- [Confidence](/api/type-aliases/confidence/)
+- [RuleLevel](/api/type-aliases/rulelevel/)
 - [RuleSetting](/api/type-aliases/rulesetting/)
 - [Severity](/api/type-aliases/severity/)
 

@@ -7,7 +7,7 @@ title: "lower"
 
 > **lower**(`t`): `string`
 
-Defined in: [graph.ts:112](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/graph.ts#L112)
+Defined in: [graph.ts:112](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/graph.ts#L112)
 
 ## Parameters
 

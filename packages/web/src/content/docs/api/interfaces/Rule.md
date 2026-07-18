@@ -5,7 +5,7 @@ prev: false
 title: "Rule"
 ---
 
-Defined in: [rule.ts:97](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L97)
+Defined in: [rule.ts:109](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/rule.ts#L109)
 
 ## Type Parameters
 
@@ -19,7 +19,7 @@ Defined in: [rule.ts:97](https://github.com/NikhilVerma/writinglint/blob/ed44679
 
 > **meta**: [`RuleMeta`](/api/interfaces/rulemeta/)
 
-Defined in: [rule.ts:98](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L98)
+Defined in: [rule.ts:110](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/rule.ts#L110)
 
 ## Methods
 
@@ -27,7 +27,7 @@ Defined in: [rule.ts:98](https://github.com/NikhilVerma/writinglint/blob/ed44679
 
 > **create**(`context`): [`RuleListener`](/api/interfaces/rulelistener/)
 
-Defined in: [rule.ts:99](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L99)
+Defined in: [rule.ts:111](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/rule.ts#L111)
 
 #### Parameters
 

@@ -5,6 +5,8 @@ dependency-parse + POS graph.**
 
 [![writinglint](https://img.shields.io/npm/v/writinglint?label=writinglint&color=2563eb)](https://www.npmjs.com/package/writinglint)
 [![writinglint-core](https://img.shields.io/npm/v/writinglint-core?label=writinglint-core&color=2563eb)](https://www.npmjs.com/package/writinglint-core)
+[![sloplint](https://img.shields.io/npm/v/sloplint?label=sloplint&color=7c3aed)](https://www.npmjs.com/package/sloplint)
+[![CI](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml/badge.svg)](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml)
 [![license](https://img.shields.io/npm/l/writinglint-core)](LICENSE)
 [![demo](https://img.shields.io/badge/demo-live-2563eb)](https://writinglint.nikhilv.workers.dev)
 
@@ -17,7 +19,7 @@ construction's slots and still be caught.
 
 "AI-writing style" is just the **first rulepack**. The architecture is a general
 prose linter you can build on: write your own rules, ship your own rulepacks,
-and (soon) plug it into an editor over LSP.
+or consume the same diagnostics from the CLI, Chrome, and VS Code.
 
 ## Install
 
@@ -28,11 +30,12 @@ On npm (unscoped — no org needed):
 [`writinglint-rulepack-ai-style`](https://www.npmjs.com/package/writinglint-rulepack-ai-style)
 
 ```bash
-# current local build (Stanza reference backend)
 npm install
-npm run setup-stanza
 npm run cli -- essay.txt
 npm run sloplint -- . --json
+
+# no checkout required
+bunx sloplint .
 ```
 
 A runnable consumer lives in [`examples/node-lint`](examples/node-lint).
@@ -94,7 +97,7 @@ packages/
     pack.ts            Rulepack + categories (definePack)
     config.ts          defineConfig / resolveConfig (extends, plugins, rules)
     linter.ts          Linter.lint(): parse → run rules → deduped, sorted lints
-  parser-node/         writinglint-parser-node — persistent local Stanza adapter
+  parser-node/         writinglint-parser-node — owned ONNX parser for Node
   rulepack-ai-style/   writinglint-rulepack-ai-style — the first rulepack
     rules/*.ts         16 rules (structural on the graph; lexical on words/chars)
     score/             the stylometric AI-style SCORE (separate from the lints)
@@ -102,7 +105,10 @@ packages/
     eval/              training + honest evaluation (data is private, gitignored)
   cli/                 general-purpose `writinglint` engine CLI
   sloplint/            independent AI-slop CLI product and engine consumer
-  web/                 browser editor; local dev calls the Stanza bridge
+  sloplint-chrome/     local-first Manifest V3 browser extension
+  sloplint-web/        standalone Sloplint product site + on-device demo
+  vscode-extension/    VS Code diagnostics extension
+  web/                 WritingLint docs + on-device browser editor
 ```
 
 Two independent outputs, deliberately decoupled:
@@ -244,7 +250,7 @@ npm run sloplint -- . --json          # exits 1 while AI-slop lints remain
 A `writinglint.config.ts` in the working directory is used automatically; otherwise the
 ai-style `recommended` config applies.
 
-### Web app
+### WritingLint web app
 
 A Hemingway-style editor that highlights constructions as you type. The compact
 INT8 dependency parser runs through ONNX Runtime WASM in a web worker; text never
@@ -253,6 +259,18 @@ leaves the device.
 ```bash
 npm run dev              # browser parser + client bundle + Astro dev server
 ```
+
+### Sloplint products
+
+```bash
+npm run dev -w sloplint-web
+npm run build -w sloplint-chrome-extension
+npm run compile -w sloplint-vscode
+```
+
+The Chrome and VS Code packages are local-first clients of the same Sloplint
+engine. Their package READMEs cover unpacked installation, VSIX packaging,
+permissions, model delivery, and current editor limitations.
 
 ## Deployment status
 
@@ -265,9 +283,19 @@ Assets and streams the gitignored model/runtime files from R2.
 1. ✅ Grammar-linter engine — authorable rules over a dependency graph.
 2. ✅ ai-style rulepack (16 rules) + stylometric score, evaluated on diverse data.
 3. ✅ Python-free CLI + deployable browser editor using the owned ONNX parser.
-4. **VSCode extension / LSP** (`packages/lsp`, `packages/vscode`) — lint in the editor.
+4. ✅ **VS Code and Chrome MVPs** — local diagnostics where writers work.
 5. **More rulepacks** — grammar, clarity, house-style; richer user-rule authoring.
 6. Lift specificity on modern human prose; per-lint autofixes; cross-source eval.
+
+## Contributing and security
+
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) for
+setup, tests, rule-calibration expectations, and the Changesets release process.
+Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+Please report vulnerabilities privately according to [SECURITY.md](SECURITY.md),
+not through a public issue. Package releases and npm trusted-publisher setup are
+documented in [RELEASING.md](RELEASING.md).
 
 ## Credits
 

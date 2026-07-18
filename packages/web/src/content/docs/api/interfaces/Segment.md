@@ -5,7 +5,7 @@ prev: false
 title: "Segment"
 ---
 
-Defined in: [linter.ts:106](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/linter.ts#L106)
+Defined in: [linter.ts:116](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/linter.ts#L116)
 
 A non-overlapping slice of text: either plain, or owned by one lint.
 
@@ -15,7 +15,7 @@ A non-overlapping slice of text: either plain, or owned by one lint.
 
 > **end**: `number`
 
-Defined in: [linter.ts:108](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/linter.ts#L108)
+Defined in: [linter.ts:118](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/linter.ts#L118)
 
 ***
 
@@ -23,7 +23,7 @@ Defined in: [linter.ts:108](https://github.com/NikhilVerma/writinglint/blob/ed44
 
 > `optional` **lint?**: [`Lint`](/api/interfaces/lint/)
 
-Defined in: [linter.ts:109](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/linter.ts#L109)
+Defined in: [linter.ts:119](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/linter.ts#L119)
 
 ***
 
@@ -31,4 +31,4 @@ Defined in: [linter.ts:109](https://github.com/NikhilVerma/writinglint/blob/ed44
 
 > **start**: `number`
 
-Defined in: [linter.ts:107](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/linter.ts#L107)
+Defined in: [linter.ts:117](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/linter.ts#L117)

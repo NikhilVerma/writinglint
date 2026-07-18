@@ -7,6 +7,10 @@ node_modules/
 dist/
 dist-cli/
 packages/*/dist/
+packages/vscode-extension/*.vsix
+packages/vscode-extension/bin/
+packages/sloplint-chrome/*.zip
+packages/sloplint-chrome/*.crx
 
 # Astro (packages/web) build + generated types
 packages/web/.astro/
@@ -25,6 +29,14 @@ packages/web/public/*.ttf
 scratch-*.ts
 scratch-*.mjs
 scratchpad/
+
+# Local corpus audits can contain absolute paths or unpublished writing.
+sloplint-blog-findings.jsonl
+
+# Local editor settings. Keep shared extension recommendations intentional.
+.idea/
+.vscode/*
+!.vscode/extensions.json
 
 # Cloudflare Wrangler local state (Pages/R2 dev + build cache)
 .wrangler/

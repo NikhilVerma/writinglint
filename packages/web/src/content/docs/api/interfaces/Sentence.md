@@ -5,7 +5,7 @@ prev: false
 title: "Sentence"
 ---
 
-Defined in: [document.ts:25](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L25)
+Defined in: [document.ts:25](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L25)
 
 A sentence: its global char anchor, its dependency graph, and word tokens.
 
@@ -15,7 +15,7 @@ A sentence: its global char anchor, its dependency graph, and word tokens.
 
 > **dep**: [`DepSentence`](/api/interfaces/depsentence/)
 
-Defined in: [document.ts:32](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L32)
+Defined in: [document.ts:32](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L32)
 
 Dependency graph for structural rules.
 
@@ -25,7 +25,7 @@ Dependency graph for structural rules.
 
 > **end**: `number`
 
-Defined in: [document.ts:28](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L28)
+Defined in: [document.ts:28](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L28)
 
 ***
 
@@ -33,7 +33,7 @@ Defined in: [document.ts:28](https://github.com/NikhilVerma/writinglint/blob/ed4
 
 > **index**: `number`
 
-Defined in: [document.ts:30](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L30)
+Defined in: [document.ts:30](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L30)
 
 Position of this sentence in the document.
 
@@ -43,7 +43,7 @@ Position of this sentence in the document.
 
 > **start**: `number`
 
-Defined in: [document.ts:27](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L27)
+Defined in: [document.ts:27](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L27)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: [document.ts:27](https://github.com/NikhilVerma/writinglint/blob/ed4
 
 > **text**: `string`
 
-Defined in: [document.ts:26](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L26)
+Defined in: [document.ts:26](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L26)
 
 ***
 
@@ -59,6 +59,6 @@ Defined in: [document.ts:26](https://github.com/NikhilVerma/writinglint/blob/ed4
 
 > **words**: [`Tok`](/api/interfaces/tok/)[]
 
-Defined in: [document.ts:34](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L34)
+Defined in: [document.ts:34](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L34)
 
 Non-punctuation tokens with global char offsets (for lexical rules).

@@ -5,7 +5,7 @@ prev: false
 title: "Tok"
 ---
 
-Defined in: [document.ts:12](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L12)
+Defined in: [document.ts:12](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L12)
 
 A word token with GLOBAL char offsets into the original text (lexical rules).
 
@@ -15,7 +15,7 @@ A word token with GLOBAL char offsets into the original text (lexical rules).
 
 > **end**: `number`
 
-Defined in: [document.ts:19](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L19)
+Defined in: [document.ts:19](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L19)
 
 ***
 
@@ -23,7 +23,7 @@ Defined in: [document.ts:19](https://github.com/NikhilVerma/writinglint/blob/ed4
 
 > **lower**: `string`
 
-Defined in: [document.ts:15](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L15)
+Defined in: [document.ts:15](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L15)
 
 lower-cased text, for matching.
 
@@ -33,7 +33,7 @@ lower-cased text, for matching.
 
 > **sentence**: `number`
 
-Defined in: [document.ts:21](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L21)
+Defined in: [document.ts:21](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L21)
 
 Index of the sentence this token belongs to.
 
@@ -43,7 +43,7 @@ Index of the sentence this token belongs to.
 
 > **start**: `number`
 
-Defined in: [document.ts:18](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L18)
+Defined in: [document.ts:18](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L18)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: [document.ts:18](https://github.com/NikhilVerma/writinglint/blob/ed4
 
 > **text**: `string`
 
-Defined in: [document.ts:13](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L13)
+Defined in: [document.ts:13](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L13)
 
 ***
 
@@ -59,6 +59,6 @@ Defined in: [document.ts:13](https://github.com/NikhilVerma/writinglint/blob/ed4
 
 > **upos**: `string`
 
-Defined in: [document.ts:17](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L17)
+Defined in: [document.ts:17](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L17)
 
 Universal POS tag from the parse ('NOUN', 'VERB', 'PUNCT', …).

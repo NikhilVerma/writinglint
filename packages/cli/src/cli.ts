@@ -22,6 +22,7 @@ import { loadParser } from 'writinglint-parser-node';
 import { recommended, score, CATEGORIES, CATEGORY_ORDER, type Model } from 'writinglint-rulepack-ai-style';
 import { loadModelNode } from 'writinglint-rulepack-ai-style/node';
 
+const VERSION = (JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version;
 const slopMode = basename(process.argv[1] ?? '').startsWith('sloplint') || process.env.SLOPLINT === '1';
 
 // ── tiny ANSI helpers (no deps) ──────────────────────────────────────────
@@ -142,6 +143,10 @@ async function reportFile(
 
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
+  if (argv.includes('-v') || argv.includes('--version')) {
+    console.log(VERSION);
+    return;
+  }
   if (argv.includes('-h') || argv.includes('--help')) {
     console.log(`Usage: ${slopMode ? 'sloplint' : 'writinglint'} [lint|score] [--json] [--quiet] [--config <path>] [--model <dir>] [files…]   (reads stdin if no files)`);
     if (slopMode) console.log('Exits 1 when any AI-slop lint remains, so agents can revise and retry.');

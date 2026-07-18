@@ -5,7 +5,7 @@ prev: false
 title: "TextFix"
 ---
 
-Defined in: [rule.ts:19](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L19)
+Defined in: [rule.ts:20](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/rule.ts#L20)
 
 A concrete text replacement a fixer could apply.
 
@@ -15,7 +15,7 @@ A concrete text replacement a fixer could apply.
 
 > **range**: \[`number`, `number`\]
 
-Defined in: [rule.ts:21](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L21)
+Defined in: [rule.ts:22](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/rule.ts#L22)
 
 [start, end) char range in the document to replace.
 
@@ -25,6 +25,6 @@ Defined in: [rule.ts:21](https://github.com/NikhilVerma/writinglint/blob/ed44679
 
 > **text**: `string`
 
-Defined in: [rule.ts:23](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L23)
+Defined in: [rule.ts:24](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/rule.ts#L24)
 
 Replacement text.

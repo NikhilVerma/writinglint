@@ -7,7 +7,7 @@ title: "defineConfig"
 
 > **defineConfig**(`config`): [`Config`](/api/interfaces/config/)
 
-Defined in: [config.ts:23](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L23)
+Defined in: [config.ts:26](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/config.ts#L26)
 
 Identity helper for authoring a config (typing + a stable call site).
 

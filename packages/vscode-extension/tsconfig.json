@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "customConditions": ["source"],
+    "noEmit": true,
+    "types": ["node", "vscode"]
+  },
+  "include": ["src", "test"]
+}

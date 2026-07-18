@@ -5,17 +5,27 @@ prev: false
 title: "Document"
 ---
 
-Defined in: [document.ts:38](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L38)
+Defined in: [document.ts:47](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L47)
 
 A parsed document: the text, its sentences, and a flat token stream.
 
 ## Properties
 
+### paragraphs
+
+> **paragraphs**: [`Paragraph`](/api/interfaces/paragraph/)[]
+
+Defined in: [document.ts:51](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L51)
+
+Blank-line-delimited blocks for paragraph-level rules and aggregation.
+
+***
+
 ### sentences
 
 > **sentences**: [`Sentence`](/api/interfaces/sentence/)[]
 
-Defined in: [document.ts:40](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L40)
+Defined in: [document.ts:49](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L49)
 
 ***
 
@@ -23,7 +33,7 @@ Defined in: [document.ts:40](https://github.com/NikhilVerma/writinglint/blob/ed4
 
 > **text**: `string`
 
-Defined in: [document.ts:39](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L39)
+Defined in: [document.ts:48](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L48)
 
 ***
 
@@ -31,6 +41,6 @@ Defined in: [document.ts:39](https://github.com/NikhilVerma/writinglint/blob/ed4
 
 > **tokens**: [`Tok`](/api/interfaces/tok/)[]
 
-Defined in: [document.ts:42](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L42)
+Defined in: [document.ts:53](https://github.com/NikhilVerma/writinglint/blob/a9e1a4eb6c8e8b01a9cfde5414d1167ac3240c7c/packages/core/src/document.ts#L53)
 
 Flat word-token stream across the whole document (lexical convenience).

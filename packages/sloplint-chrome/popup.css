@@ -1,0 +1,24 @@
+:root {
+  color: #282722;
+  background: #f7f6f2;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+body { width: 340px; margin: 0; background: #f7f6f2; }
+main { padding: 18px; }
+header { display: grid; grid-template-columns: 40px 1fr auto; gap: 11px; align-items: center; }
+.stamp { display: grid; place-items: center; width: 40px; height: 40px; border: 1px solid #d9d6ce; border-radius: 8px; background: #fff; font: 700 12px/1 "SF Mono", Menlo, monospace; letter-spacing: -.05em; }
+h1 { margin: 0 0 4px; font-size: 17px; line-height: 1; letter-spacing: -.035em; }
+p { margin: 0; color: #77736b; font-size: 11px; }
+.switch { position: relative; width: 34px; height: 20px; }
+.switch input { position: absolute; opacity: 0; }
+.switch span { display: block; width: 34px; height: 20px; border: 1px solid #d3d0c7; border-radius: 999px; background: #e6e3dc; cursor: pointer; transition: background .18s ease; }
+.switch span::after { content: ""; display: block; width: 14px; height: 14px; margin: 2px; border: 1px solid #cbc7bd; border-radius: 50%; background: #fff; transition: transform .18s ease; }
+.switch input:checked + span { background: #30302d; }
+.switch input:checked + span::after { transform: translateX(14px); border-color: #fff; }
+section { margin-top: 18px; padding: 15px; border: 1px solid #e2dfd7; border-radius: 8px; background: #fff; }
+section label { display: block; margin-bottom: 9px; color: #716e66; font: 600 10px/1 "SF Mono", Menlo, monospace; text-transform: uppercase; letter-spacing: .07em; }
+select { width: 100%; padding: 9px 31px 9px 10px; border: 1px solid #dedbd3; border-radius: 5px; color: #282722; background: #fbfaf7; font: 500 12px/1.2 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+footer { display: flex; align-items: center; gap: 7px; margin-top: 13px; color: #77736b; font-size: 10px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #719076; }
