@@ -28,6 +28,7 @@ await cp(source, consumer, { recursive: true });
 const manifestPath = join(consumer, 'package.json');
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const expected = JSON.parse(await readFile(join(root, `packages/${packageDirectory}/package.json`), 'utf8')).version;
+const expectedParser = JSON.parse(await readFile(join(root, 'packages/parser-node/package.json'), 'utf8')).version;
 
 function runNpm(args, options = {}) {
   return spawnSync('npm', args, {
@@ -37,6 +38,15 @@ function runNpm(args, options = {}) {
     timeout: 120_000,
     ...options,
   });
+}
+
+async function waitUntilPublished(name, version) {
+  for (let attempt = 1; attempt <= 20; attempt++) {
+    const lookup = runNpm(['view', `${name}@${version}`, 'version', '--json'], { timeout: 15_000 });
+    if (lookup.status === 0 && JSON.parse(lookup.stdout) === version) return;
+    await new Promise((resolveDelay) => setTimeout(resolveDelay, 3_000));
+  }
+  throw new Error(`${name}@${version} did not become visible on npm`);
 }
 
 try {
@@ -74,17 +84,8 @@ try {
   } else {
     manifest.dependencies = { [packageName]: expected };
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
-
-    let visible = false;
-    for (let attempt = 1; attempt <= 20; attempt++) {
-      const lookup = runNpm(['view', `${packageName}@${expected}`, 'version', '--json'], { timeout: 15_000 });
-      if (lookup.status === 0 && JSON.parse(lookup.stdout) === expected) {
-        visible = true;
-        break;
-      }
-      await new Promise((resolveDelay) => setTimeout(resolveDelay, 3_000));
-    }
-    if (!visible) throw new Error(`${packageName}@${expected} did not become visible on npm`);
+    await waitUntilPublished(packageName, expected);
+    await waitUntilPublished('writinglint-parser-node', expectedParser);
   }
 
   let installation;
@@ -111,6 +112,7 @@ try {
     env: {
       ...consumerNpmEnvironment,
       EXPECTED_PACKAGE_VERSION: expected,
+      EXPECTED_PARSER_VERSION: expectedParser,
     },
   });
   if (verification.status !== 0) {
