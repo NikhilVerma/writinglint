@@ -20,6 +20,7 @@ for file in tokenizer.json tokenizer_config.json; do
   put "$MODEL_VERSION/tokenizer/$file" "$MODEL/tokenizer/$file"
 done
 put "$MODEL_VERSION/classifier.json" "$CLASSIFIER"
+put "$MODEL_VERSION/MODEL_LICENSE.md" "$ROOT/packages/parser-node/MODEL_LICENSE.md"
 
 for file in ort-wasm-simd-threaded.wasm ort-wasm-simd-threaded.mjs; do
   put "onnxruntime-web/$ORT_VERSION/$file" "$ORT/$file"

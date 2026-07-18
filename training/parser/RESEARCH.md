@@ -290,6 +290,9 @@ agreement filtering, while the accessible teacher provides the soft targets.
 - UD explicitly warns that treebank licenses differ:
   https://universaldependencies.org/contributing/licensing.html
 
-Before distributing weights, obtain a specific determination on whether EWT's
-ShareAlike condition applies to trained parameters. Keep dataset, annotation,
-teacher, and checkpoint provenance machine-readable regardless.
+For `compact-int8-v1`, distribute the trained graphs under CC BY-SA 4.0 as a
+conservative compliance choice. The BERT-derived tokenizer retains its Apache
+2.0 lineage. The original training run did not record the exact EWT Git
+revision; future downloads require a fixed tag or commit and future manifests
+must keep dataset, annotation, teacher, and checkpoint provenance
+machine-readable.

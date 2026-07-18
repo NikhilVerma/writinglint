@@ -30,7 +30,7 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--treebank", choices=sorted(TREEBANKS), required=True)
     parser.add_argument("--data-root", type=Path, default=Path(__file__).parent / "data")
-    parser.add_argument("--revision", default="master")
+    parser.add_argument("--revision", required=True, help="Exact tag or commit; floating branches are not reproducible")
     args = parser.parse_args()
 
     treebank = TREEBANKS[args.treebank]

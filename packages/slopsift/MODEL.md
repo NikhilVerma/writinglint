@@ -12,6 +12,8 @@ or acceptance thresholds change.
 - Runtime artifacts: two opset-17 ONNX graphs
 - Runtime: ONNX Runtime Node for the CLI; ONNX Runtime Web/WASM for the site
 - Bundle size: approximately 16 MiB including tokenizer metadata
+- License boundary: trained ONNX graphs are CC BY-SA 4.0; BERT-derived
+  tokenizer files retain Apache 2.0 lineage; runtime source code is MIT
 - npm delivery: bundled once in `writinglint-parser-node/model`; WritingLint and
   SlopSift consume that dependency without duplicating the weights
 - editor delivery: copied into Chrome and platform-specific VS Code artifacts
@@ -128,10 +130,17 @@ installed CLIs remain reproducible.
 
 Non-public parser implementations are a hard clean-room boundary: no code,
 models, weights, fixtures, internal documentation, or derived internal behavior
-may enter this pipeline. Stanza is an offline reference only. Before a public
-model release, audit and record the license of every UD treebank and pretrained
-component used by that exact checkpoint. Do not assume that an earlier audit
-automatically covers new data.
+may enter this pipeline. Stanza is an offline reference only.
+
+For `compact-int8-v1`, UD English EWT is CC BY-SA 4.0, BERT-Mini is Apache 2.0,
+and the DeBERTa training teacher is MIT. The distributed graphs therefore use
+CC BY-SA 4.0 as a conservative compliance choice; the tokenizer retains its
+Apache 2.0 lineage. The package ships the complete attribution and file-level
+boundary in `writinglint-parser-node/MODEL_LICENSE.md`.
+
+The original run did not record the exact EWT Git revision. Future dataset
+downloads require a fixed tag or commit, and future manifests must record it.
+Do not assume that this audit automatically covers new data or checkpoints.
 
 Natural prose and third-party evaluation text must remain separated according
 to their licenses. Closed evaluation corpora are not published with the model.

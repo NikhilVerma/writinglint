@@ -267,5 +267,10 @@ the release guide rather than in application code.
 
 ## License
 
-Code and repository-owned model artifacts are available under the [MIT
-License](LICENSE). Third-party datasets are not distributed.
+WritingLint and SlopSift source code are available under the [MIT
+License](LICENSE). The bundled parser has a separate, explicit boundary:
+trained ONNX graphs are distributed under CC BY-SA 4.0 for conservative
+compliance with their UD English EWT lineage, and BERT-derived tokenizer files
+retain Apache 2.0 lineage. See the parser package's
+[`MODEL_LICENSE.md`](packages/parser-node/MODEL_LICENSE.md). Third-party
+datasets are not distributed.

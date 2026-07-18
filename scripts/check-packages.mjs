@@ -48,7 +48,8 @@ for (const name of packagedProjects) {
   if (Boolean(manifest.private) !== expectedPrivate) {
     fail(`${name} must be ${expectedPrivate ? 'private until its first npm release' : 'public'}`);
   }
-  if (manifest.license !== 'MIT') fail(`${name} must declare the MIT license`);
+  const expectedLicense = name === 'writinglint-parser-node' ? 'SEE LICENSE IN LICENSE' : 'MIT';
+  if (manifest.license !== expectedLicense) fail(`${name} must declare ${expectedLicense}`);
   if (manifest.repository?.url !== repository) fail(`${name} has an incorrect repository URL`);
   if (manifest.repository?.directory !== directory) fail(`${name} has an incorrect repository.directory`);
   if (manifest.bugs?.url !== 'https://github.com/NikhilVerma/writinglint/issues') fail(`${name} has an incorrect bugs URL`);
@@ -68,6 +69,7 @@ for (const name of packagedProjects) {
     if (!files.has(required)) fail(`${name} tarball is missing ${required}`);
   }
   if (name === 'writinglint-parser-node') {
+    if (!files.has('MODEL_LICENSE.md')) fail(`${name} tarball is missing MODEL_LICENSE.md`);
     const modelFiles = {
       'model/manifest.json': 2032,
       'model/parser.onnx': 11877081,

@@ -18,7 +18,7 @@ MiniLM checkpoint. Compare model bytes and CPU latency as well as UAS/LAS.
 Checkpoint selection uses development LAS excluding punctuation.
 
 ```bash
-python download_ud.py --treebank ewt
+python download_ud.py --treebank ewt --revision <exact-tag-or-commit>
 python train.py \
   --data-dir data/UD_English-EWT \
   --encoder google/electra-small-discriminator \
@@ -39,12 +39,16 @@ python evaluate_checkpoint.py \
 Every treebank must be explicitly allowlisted in `download_ud.py` with its
 license and upstream URL.
 
-- English EWT: CC BY-SA 4.0. It is suitable for research, but whether trained
-  weights trigger ShareAlike obligations must be reviewed before distribution.
+- English EWT: CC BY-SA 4.0. Distributed WritingLint graphs trained with EWT
+  use CC BY-SA 4.0 as a conservative compliance choice.
 - English GUM: CC BY-NC-SA 4.0. It is intentionally excluded from commercial
   model training.
 
 Do not silently combine all English UD treebanks.
+
+The `compact-int8-v1` run predates the required revision argument and did not
+record its exact EWT Git revision. Keep that limitation in its model notice;
+all future releases must pin and record the precise input revision.
 
 ## Evaluation order
 

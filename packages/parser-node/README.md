@@ -50,3 +50,11 @@ For non-workspace installs, configure:
 
 The parser output uses document-global UTF-16 offsets, matching JavaScript
 string indices exactly.
+
+## License
+
+Runtime source code is MIT. The bundled model has an explicit file-level
+license boundary: its trained ONNX graphs are distributed under CC BY-SA 4.0
+for conservative compliance with the UD English EWT training lineage, while
+the BERT-derived tokenizer retains its Apache 2.0 lineage. See
+[`MODEL_LICENSE.md`](./MODEL_LICENSE.md) for attribution and provenance.

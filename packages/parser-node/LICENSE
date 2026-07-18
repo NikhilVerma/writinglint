@@ -1,3 +1,14 @@
+WritingLint parser package licensing
+
+The TypeScript, JavaScript, and Python source code in this package is licensed
+under the MIT License below.
+
+The bundled parser model has separate terms. The trained ONNX graphs are
+distributed under CC BY-SA 4.0 as a conservative compliance choice for their
+UD English EWT training lineage. The tokenizer retains its Apache 2.0 lineage.
+See MODEL_LICENSE.md for the exact file boundary, attribution, sources,
+modifications, and known provenance limitation.
+
 MIT License
 
 Copyright (c) 2026 Nikhil Verma

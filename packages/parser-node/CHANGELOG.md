@@ -1,5 +1,12 @@
 # writinglint-parser-node
 
+## 0.1.3
+
+### Patch Changes
+
+- Ship explicit model licensing and attribution with the bundled parser, while
+  keeping the runtime code under MIT.
+
 ## 0.1.2
 
 ### Patch Changes
