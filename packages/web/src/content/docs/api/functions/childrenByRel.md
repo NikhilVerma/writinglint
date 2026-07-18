@@ -5,9 +5,9 @@ prev: false
 title: "childrenByRel"
 ---
 
-> **childrenByRel**(`s`, `id`, `rel`): `DepToken`[]
+> **childrenByRel**(`s`, `id`, `rel`): [`DepToken`](/api/interfaces/deptoken/)[]
 
-Defined in: [graph.ts:84](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/graph.ts#L84)
+Defined in: [graph.ts:76](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/graph.ts#L76)
 
 All children of `id` with deprel `rel` (or `rel:*`).
 
@@ -27,4 +27,4 @@ All children of `id` with deprel `rel` (or `rel:*`).
 
 ## Returns
 
-`DepToken`[]
+[`DepToken`](/api/interfaces/deptoken/)[]

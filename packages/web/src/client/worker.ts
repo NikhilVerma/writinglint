@@ -1,8 +1,6 @@
 /**
- * Linter worker — runs the heavy work (ONNX dependency parse + rules + score)
- * off the UI thread, so long documents no longer freeze the page. onnxruntime-web
- * and the transformers.js tokenizer both run fine in a worker (all asset loads are
- * same-origin fetches). The main thread only sends text and renders the result.
+ * Linter worker — runs the owned ONNX parser, rules, and scoring locally, then
+ * scoring off the UI thread. The main thread only sends text and renders results.
  */
 import { Linter, resolveConfig, type Lint, type ResolvedConfig } from "writinglint-core";
 import { recommended as aiStyle, score } from "writinglint-rulepack-ai-style";

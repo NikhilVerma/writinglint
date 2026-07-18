@@ -22,7 +22,7 @@ export const ruleOfThree = defineRule({
           if (h.upos !== 'ADJ' && h.upos !== 'ADV') continue;
           if (h.deprel !== 'amod' && h.deprel !== 'advmod' && h.deprel !== 'root' && h.deprel !== 'conj')
             continue;
-          const conj = childrenByRel(s, h.id, 'conj');
+          const conj = childrenByRel(s, h.id, 'conj').filter((token) => token.upos === h.upos);
           if (conj.length >= 2) {
             ctx.report({
               tokens: [h, ...conj],

@@ -14,8 +14,8 @@ compatibility_date = "2024-11-01"
 directory = "./packages/web/dist"
 binding = "ASSETS"
 
-# R2 bucket with the ~145 MB parser (xsmall/) and onnxruntime-web WASM (ort/), too
-# large to ship as static assets. Create + upload once:
+# R2 bucket with the compact INT8 parser (compact-int8/) and ONNX Runtime WASM
+# (ort/). Model files remain out of Git and are uploaded separately:
 #   npx wrangler r2 bucket create writinglint-models
 #   bash scripts/upload-model-to-r2.sh
 [[r2_buckets]]

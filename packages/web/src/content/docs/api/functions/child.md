@@ -5,9 +5,9 @@ prev: false
 title: "child"
 ---
 
-> **child**(`s`, `id`, `rel`): `DepToken` \| `undefined`
+> **child**(`s`, `id`, `rel`): [`DepToken`](/api/interfaces/deptoken/) \| `undefined`
 
-Defined in: [graph.ts:79](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/graph.ts#L79)
+Defined in: [graph.ts:71](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/graph.ts#L71)
 
 First child of `id` whose deprel is `rel` (or `rel:*`).
 
@@ -27,4 +27,4 @@ First child of `id` whose deprel is `rel` (or `rel:*`).
 
 ## Returns
 
-`DepToken` \| `undefined`
+[`DepToken`](/api/interfaces/deptoken/) \| `undefined`

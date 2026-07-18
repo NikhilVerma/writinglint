@@ -13,8 +13,7 @@ rules and scorer are in
 
 ```bash
 npm install writinglint-core writinglint-parser-node writinglint-rulepack-ai-style
-# the parser needs the model once (~145 MB):
-npx nlpgraph download --model xsmall --dir ./models
+# in this repository: npm run setup-stanza
 ```
 
 A runnable version of everything below is in
@@ -31,7 +30,7 @@ import { Linter } from 'writinglint-core';
 import { loadParser } from 'writinglint-parser-node';
 import { recommended } from 'writinglint-rulepack-ai-style';
 
-const linter = new Linter(await loadParser({ modelDir: './models/xsmall' }));
+const linter = new Linter(await loadParser());
 
 const { lints } = await linter.lint(
   "It's not just a linter, it's a paradigm shift.",
@@ -50,7 +49,9 @@ optional `fix`/`suggestion`).
 
 ## Pick and tune rules
 
-`recommended` turns on every ai-style rule at `warn`. To narrow or retune, build a config with
+`recommended` turns on every AI-style rule in confidence-aware `auto` mode and emits medium/high
+confidence findings. Use `strict` to include low-confidence information or `ci` for high-confidence
+errors only. To narrow or retune, build a config with
 `defineConfig` — ESLint-flat-config style: `extends` pulls in presets, `rules` overrides
 (`'off' | 'warn' | 'error'`).
 
@@ -86,7 +87,6 @@ console.log(`${s}/100 — reads as ${verdict}`);
 
 ## In the browser
 
-The engine is isomorphic. In the browser, swap `loadParser()` for a parser built on
-[`nlpgraph/browser`](https://github.com/NikhilVerma/nlpgraph) (onnxruntime-web on WASM) and run the
-whole thing in a Web Worker so long documents don't block the UI thread — that's exactly what this
-site's [live demo](/) does.
+The engine is isomorphic because it accepts any implementation of the owned `Parser` contract.
+This site's demo runs the owned compact parser through ONNX Runtime WASM in a web worker. Model
+download, tokenization, parsing, valid-tree decoding, rules, and scoring all stay on the device.

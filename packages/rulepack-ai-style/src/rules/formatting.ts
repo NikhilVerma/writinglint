@@ -14,9 +14,11 @@
  */
 import { defineRule } from 'writinglint-core';
 
-const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}️]/gu;
+// Extended_Pictographic excludes ordinary technical arrows and mathematical
+// symbols that broad Unicode "emoji" blocks incorrectly classify as decoration.
+const EMOJI_RE = /\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?/gu;
 
-/** Em-dash spray — flagged only past a per-sentence density (an LLM tell in bulk). */
+/** Em-dash use graded by density: possible signal at low levels, stronger in bulk. */
 export const emDashOveruse = defineRule({
   meta: {
     name: 'em-dash-overuse',
@@ -28,13 +30,19 @@ export const emDashOveruse = defineRule({
       Document(doc) {
         const emDashes = [...doc.text.matchAll(/—/g)];
         const sentenceCount = Math.max(1, doc.sentences.length);
-        if (emDashes.length >= 3 && emDashes.length / sentenceCount > 0.4) {
-          for (const m of emDashes)
-            ctx.report({
-              span: { start: m.index, end: m.index + 1 },
-              message: `Heavy em-dash use (${emDashes.length} in ${sentenceCount} sentences). LLMs over-reach for the em dash.`,
-            });
-        }
+        if (!emDashes.length) return;
+        const density = emDashes.length / sentenceCount;
+        const confidence = emDashes.length >= 6 && density > 0.5
+          ? 'medium'
+          : 'low';
+        const first = emDashes[0]!;
+        ctx.report({
+          span: { start: first.index, end: first.index + 1 },
+          confidence,
+          message: confidence === 'medium'
+            ? `Heavy em-dash use (${emDashes.length} in ${sentenceCount} sentences). LLMs often use dashes for formulaic punch-up.`
+            : `Em dash used here (${emDashes.length} in ${sentenceCount} sentences). Weak signal on its own; review whether a comma, colon, or full stop is plainer.`,
+        });
       },
     };
   },

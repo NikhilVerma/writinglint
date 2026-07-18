@@ -13,25 +13,28 @@ set -euo pipefail
 
 BUCKET="writinglint-models"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-XS="$ROOT/models/xsmall"
+MODEL="$ROOT/models/rule-family-50-onnx-int8"
 CLF="$ROOT/packages/rulepack-ai-style/model/classifier.json"
 ORT="$ROOT/node_modules/onnxruntime-web/dist"
 
 put() { npx wrangler r2 object put "$BUCKET/$1" --file "$2" --remote; }
 
-[ -f "$XS/model.fp16.onnx" ] || { echo "Missing $XS — run: npm run download-model"; exit 1; }
+[ -f "$MODEL/parser.onnx" ] || { echo "Missing $MODEL"; exit 1; }
 
-echo "→ parser model (xsmall/)"
-for f in config.json tokenizer.json tokenizer_config.json vocabs.json model.fp16.onnx; do
-  put "xsmall/$f" "$XS/$f"
+echo "→ compact INT8 parser (compact-int8/)"
+for f in parser.onnx relations.onnx manifest.json; do
+  put "compact-int8/$f" "$MODEL/$f"
+done
+for f in tokenizer.json tokenizer_config.json; do
+  put "compact-int8/tokenizer/$f" "$MODEL/tokenizer/$f"
 done
 
-echo "→ stylometric classifier (xsmall/classifier.json)"
-put "xsmall/classifier.json" "$CLF"
+echo "→ stylometric classifier (compact-int8/classifier.json)"
+put "compact-int8/classifier.json" "$CLF"
 
 echo "→ onnxruntime-web runtime (ort/)"
-for f in "$ORT"/*.wasm "$ORT"/*.mjs; do
-  put "ort/$(basename "$f")" "$f"
+for f in ort-wasm-simd-threaded.wasm ort-wasm-simd-threaded.mjs; do
+  put "ort/$f" "$ORT/$f"
 done
 
 echo "Done. Uploaded parser + runtime to r2://$BUCKET"

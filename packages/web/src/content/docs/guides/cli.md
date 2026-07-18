@@ -9,14 +9,12 @@ AI-shaped a document reads.
 
 ## Install
 
-```bash
-npm install -g writinglint
-# the parser needs the model once (~145 MB):
-npx nlpgraph download --model xsmall --dir ./models
-```
+The owned ONNX parser runs locally without Python:
 
-Or run it without installing: `npx writinglint essay.txt`. Working inside this repo instead? Use
-the workspace script — `npm run cli -- lint README.md`.
+```bash
+npm install
+npm run cli -- lint README.md
+```
 
 ## Usage
 
@@ -28,11 +26,12 @@ cat essay.txt | writinglint        # read from stdin
 writinglint --json essay.txt       # machine-readable output
 writinglint --quiet posts/*.md     # one summary line per doc
 writinglint --config writinglint.config.ts essay.txt
-writinglint --model ./models/xsmall essay.txt   # where the parser model lives
+writinglint --model /path/to/onnx/model essay.txt
+sloplint --json essay.txt           # exits 1 while findings remain
 ```
 
-The parser model is found automatically at `./models/xsmall` in the working directory (where
-`nlpgraph download --dir ./models` puts it); override with `--model <dir>` or `NLPGRAPH_MODEL_DIR`.
+In the workspace, the ONNX bundle is discovered automatically. Override it with
+`--model <dir>` or `WRITINGLINT_ONNX_MODEL`.
 
 Each lint prints its location, rule id, category, and message, followed by an inline colour
 reproduction of the text with the flagged spans highlighted — and, at the end, the document's
@@ -59,7 +58,8 @@ export default defineConfig({
 });
 ```
 
-With no config file, the CLI falls back to the ai-style `recommended` config (every rule at `warn`).
+With no config file, the CLI falls back to the AI-style `recommended` config. Findings derive their
+level from confidence: high is an error, medium is a warning, and low is informational.
 
 ## Exit code & CI
 

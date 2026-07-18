@@ -5,7 +5,7 @@ prev: false
 title: "Document"
 ---
 
-Defined in: [document.ts:40](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/document.ts#L40)
+Defined in: [document.ts:38](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L38)
 
 A parsed document: the text, its sentences, and a flat token stream.
 
@@ -15,7 +15,7 @@ A parsed document: the text, its sentences, and a flat token stream.
 
 > **sentences**: [`Sentence`](/api/interfaces/sentence/)[]
 
-Defined in: [document.ts:42](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/document.ts#L42)
+Defined in: [document.ts:40](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L40)
 
 ***
 
@@ -23,7 +23,7 @@ Defined in: [document.ts:42](https://github.com/NikhilVerma/writinglint/blob/d10
 
 > **text**: `string`
 
-Defined in: [document.ts:41](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/document.ts#L41)
+Defined in: [document.ts:39](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L39)
 
 ***
 
@@ -31,6 +31,6 @@ Defined in: [document.ts:41](https://github.com/NikhilVerma/writinglint/blob/d10
 
 > **tokens**: [`Tok`](/api/interfaces/tok/)[]
 
-Defined in: [document.ts:44](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/document.ts#L44)
+Defined in: [document.ts:42](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/document.ts#L42)
 
 Flat word-token stream across the whole document (lexical convenience).

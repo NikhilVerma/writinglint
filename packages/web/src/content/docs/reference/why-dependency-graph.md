@@ -10,8 +10,8 @@ Prose linters mostly work one of two ways:
 - **Linear POS matching** — Harper's Weir DSL matches on part-of-speech tags in sequence. Richer than
   regex, but still **linear**: it can't express which word governs which.
 
-WritingLint parses each sentence into a **Universal-Dependencies graph** with
-[nlpgraph](https://github.com/NikhilVerma/nlpgraph): every token linked to its syntactic **head** by a
+WritingLint parses each sentence into a **Universal-Dependencies graph** using an owned parser
+contract and the independent Stanza reference backend: every token linked to its syntactic **head** by a
 labeled **relation** (`nsubj`, `conj`, `advmod`, `amod`, …). Rules match on that structure.
 
 ## What that unlocks

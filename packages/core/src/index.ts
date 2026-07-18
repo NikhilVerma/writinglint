@@ -8,7 +8,7 @@
 
 // Document model + parser surface
 export { buildDocument } from './document.js';
-export type { Document, Sentence, Tok } from './document.js';
+export type { Document, Paragraph, Sentence, Tok } from './document.js';
 export type { Parser } from './parser.js';
 
 // Dependency-graph model + helpers (the toolkit rule authors match with)
@@ -27,7 +27,8 @@ export {
   lower,
 } from './graph.js';
 export type { DepSentence } from './graph.js';
-export type { DepToken, ParsedSentence } from 'nlpgraph';
+export type { DepToken, ParsedSentence } from './parse-types.js';
+export { decodeTree, isValidTree } from './decode.js';
 
 // Authoring a rule
 export { defineRule } from './rule.js';
@@ -41,6 +42,7 @@ export type {
   TextFix,
   Severity,
   ActiveSeverity,
+  Confidence,
 } from './rule.js';
 
 // Authoring a rulepack
@@ -49,7 +51,7 @@ export type { Rulepack, Category } from './pack.js';
 
 // Config
 export { defineConfig, resolveConfig } from './config.js';
-export type { Config, RuleSetting, ResolvedConfig, ResolvedRule } from './config.js';
+export type { Config, RuleLevel, RuleSetting, ResolvedConfig, ResolvedRule } from './config.js';
 
 // The engine
 export { Linter, segments } from './linter.js';

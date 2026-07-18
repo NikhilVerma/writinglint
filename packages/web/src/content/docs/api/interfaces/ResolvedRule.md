@@ -5,7 +5,7 @@ prev: false
 title: "ResolvedRule"
 ---
 
-Defined in: [config.ts:28](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/config.ts#L28)
+Defined in: [config.ts:28](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L28)
 
 One enabled rule, fully resolved and ready to instantiate.
 
@@ -15,7 +15,7 @@ One enabled rule, fully resolved and ready to instantiate.
 
 > **category**: `string`
 
-Defined in: [config.ts:31](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/config.ts#L31)
+Defined in: [config.ts:31](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L31)
 
 ***
 
@@ -23,7 +23,7 @@ Defined in: [config.ts:31](https://github.com/NikhilVerma/writinglint/blob/d1076
 
 > **options**: `unknown`
 
-Defined in: [config.ts:33](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/config.ts#L33)
+Defined in: [config.ts:33](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L33)
 
 ***
 
@@ -31,7 +31,7 @@ Defined in: [config.ts:33](https://github.com/NikhilVerma/writinglint/blob/d1076
 
 > **rule**: [`Rule`](/api/interfaces/rule/)\<`any`\>
 
-Defined in: [config.ts:30](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/config.ts#L30)
+Defined in: [config.ts:30](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L30)
 
 ***
 
@@ -39,7 +39,7 @@ Defined in: [config.ts:30](https://github.com/NikhilVerma/writinglint/blob/d1076
 
 > **ruleId**: `string`
 
-Defined in: [config.ts:29](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/config.ts#L29)
+Defined in: [config.ts:29](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L29)
 
 ***
 
@@ -47,4 +47,4 @@ Defined in: [config.ts:29](https://github.com/NikhilVerma/writinglint/blob/d1076
 
 > **severity**: [`ActiveSeverity`](/api/type-aliases/activeseverity/)
 
-Defined in: [config.ts:32](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/config.ts#L32)
+Defined in: [config.ts:32](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L32)

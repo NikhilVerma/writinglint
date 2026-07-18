@@ -1,7 +1,7 @@
 {
   "name": "writinglint",
   "version": "0.1.0",
-  "description": "Command-line interface for the WritingLint grammar linter — lint prose and score how AI-shaped it reads.",
+  "description": "Command-line interface for the general-purpose WritingLint engine.",
   "type": "module",
   "license": "MIT",
   "author": "Nikhil Verma",

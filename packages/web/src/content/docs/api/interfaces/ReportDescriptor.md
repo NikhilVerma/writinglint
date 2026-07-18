@@ -5,11 +5,11 @@ prev: false
 title: "ReportDescriptor"
 ---
 
-Defined in: [rule.ts:53](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L53)
+Defined in: [rule.ts:53](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L53)
 
 What a rule passes to `ctx.report`. Give a location as either an explicit
 `span` or a set of `tokens` (with the `sentence` they belong to, so the engine
-can resolve their byte offsets to a global char span). Give the message as a
+can resolve their global offsets to a span). Give the message as a
 literal `message`, or a `messageId` into `meta.messages` with `data` for
 `{{placeholder}}` interpolation.
 
@@ -19,7 +19,7 @@ literal `message`, or a `messageId` into `meta.messages` with `data` for
 
 > `optional` **data?**: `Record`\<`string`, `string` \| `number`\>
 
-Defined in: [rule.ts:59](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L59)
+Defined in: [rule.ts:59](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L59)
 
 ***
 
@@ -27,7 +27,7 @@ Defined in: [rule.ts:59](https://github.com/NikhilVerma/writinglint/blob/d10767b
 
 > `optional` **fix?**: [`TextFix`](/api/interfaces/textfix/)
 
-Defined in: [rule.ts:60](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L60)
+Defined in: [rule.ts:60](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L60)
 
 ***
 
@@ -35,7 +35,7 @@ Defined in: [rule.ts:60](https://github.com/NikhilVerma/writinglint/blob/d10767b
 
 > `optional` **message?**: `string`
 
-Defined in: [rule.ts:58](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L58)
+Defined in: [rule.ts:58](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L58)
 
 ***
 
@@ -43,7 +43,7 @@ Defined in: [rule.ts:58](https://github.com/NikhilVerma/writinglint/blob/d10767b
 
 > `optional` **messageId?**: `string`
 
-Defined in: [rule.ts:57](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L57)
+Defined in: [rule.ts:57](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L57)
 
 ***
 
@@ -51,7 +51,7 @@ Defined in: [rule.ts:57](https://github.com/NikhilVerma/writinglint/blob/d10767b
 
 > `optional` **sentence?**: [`DepSentence`](/api/interfaces/depsentence/)
 
-Defined in: [rule.ts:56](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L56)
+Defined in: [rule.ts:56](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L56)
 
 ***
 
@@ -59,7 +59,7 @@ Defined in: [rule.ts:56](https://github.com/NikhilVerma/writinglint/blob/d10767b
 
 > `optional` **span?**: `object`
 
-Defined in: [rule.ts:54](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L54)
+Defined in: [rule.ts:54](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L54)
 
 #### end
 
@@ -75,12 +75,12 @@ Defined in: [rule.ts:54](https://github.com/NikhilVerma/writinglint/blob/d10767b
 
 > `optional` **suggestion?**: `string`
 
-Defined in: [rule.ts:61](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L61)
+Defined in: [rule.ts:61](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L61)
 
 ***
 
 ### tokens?
 
-> `optional` **tokens?**: `DepToken`[]
+> `optional` **tokens?**: [`DepToken`](/api/interfaces/deptoken/)[]
 
-Defined in: [rule.ts:55](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L55)
+Defined in: [rule.ts:55](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L55)

@@ -7,6 +7,12 @@
 import type { Category } from 'writinglint-core';
 
 export const CATEGORIES: Record<string, Category> = {
+  evidence: {
+    id: 'evidence',
+    label: 'Combined evidence',
+    blurb: 'Several weak signals become persuasive when they cluster across a paragraph or document.',
+    weight: 4,
+  },
   significance: {
     id: 'significance',
     label: 'Inflated significance',
@@ -35,6 +41,12 @@ export const CATEGORIES: Record<string, Category> = {
     id: 'meta',
     label: 'Chatbot voice',
     blurb: 'Editorialising asides and reader-collaboration filler.',
+    weight: 2,
+  },
+  agency: {
+    id: 'agency',
+    label: 'Hidden or false agency',
+    blurb: 'Passive actor hiding and abstractions made to act like people.',
     weight: 2,
   },
   'ai-vocab': {
@@ -67,20 +79,29 @@ export const CATEGORIES: Record<string, Category> = {
     blurb: 'Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts.',
     weight: 1,
   },
+  rhythm: {
+    id: 'rhythm',
+    label: 'Uniform rhythm',
+    blurb: 'Sentence lengths and openings fall into a machine-like cadence.',
+    weight: 1.5,
+  },
 };
 
 /** Display / overlap-priority order (earlier = higher priority when marks collide). */
 export const CATEGORY_ORDER: string[] = [
+  'evidence',
   'significance',
   'parallelism',
   'promo',
   'vague',
   'meta',
   'ai-vocab',
+  'agency',
   'balance',
   'rule-of-three',
   'conjunctions',
   'formatting',
+  'rhythm',
 ];
 
 export const CATEGORY_WEIGHT = (c: string): number => CATEGORIES[c]?.weight ?? 1;

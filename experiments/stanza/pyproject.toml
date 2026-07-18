@@ -1,0 +1,11 @@
+[project]
+name = "writinglint-stanza-experiment"
+version = "0.1.0"
+description = "Evaluate Stanza as an independent Universal Dependencies reference parser."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "stanza>=1.10,<2",
+]
+
+[tool.uv]
+package = false

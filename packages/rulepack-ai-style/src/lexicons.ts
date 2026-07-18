@@ -316,7 +316,6 @@ export const OPENING_CONJUNCTIONS: string[] = [
   'overall',
   'all in all',
   'in essence',
-  'in short',
   'as a result',
   'that being said',
   'with that said',

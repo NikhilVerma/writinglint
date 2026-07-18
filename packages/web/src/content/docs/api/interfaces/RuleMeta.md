@@ -5,7 +5,7 @@ prev: false
 title: "RuleMeta"
 ---
 
-Defined in: [rule.ts:83](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L83)
+Defined in: [rule.ts:83](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L83)
 
 ## Properties
 
@@ -13,7 +13,7 @@ Defined in: [rule.ts:83](https://github.com/NikhilVerma/writinglint/blob/d10767b
 
 > **category**: `string`
 
-Defined in: [rule.ts:87](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L87)
+Defined in: [rule.ts:87](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L87)
 
 Category id this rule belongs to (defined by the rulepack).
 
@@ -23,7 +23,7 @@ Category id this rule belongs to (defined by the rulepack).
 
 > `optional` **defaultSeverity?**: [`ActiveSeverity`](/api/type-aliases/activeseverity/)
 
-Defined in: [rule.ts:92](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L92)
+Defined in: [rule.ts:92](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L92)
 
 Severity applied when the rule is turned on without an explicit level.
 
@@ -33,7 +33,7 @@ Severity applied when the rule is turned on without an explicit level.
 
 > **docs**: `object`
 
-Defined in: [rule.ts:88](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L88)
+Defined in: [rule.ts:88](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L88)
 
 #### description
 
@@ -49,7 +49,7 @@ Defined in: [rule.ts:88](https://github.com/NikhilVerma/writinglint/blob/d10767b
 
 > `optional` **fixable?**: `"text"`
 
-Defined in: [rule.ts:94](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L94)
+Defined in: [rule.ts:94](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L94)
 
 Present if the rule can emit an autofix.
 
@@ -59,7 +59,7 @@ Present if the rule can emit an autofix.
 
 > `optional` **messages?**: `Record`\<`string`, `string`\>
 
-Defined in: [rule.ts:90](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L90)
+Defined in: [rule.ts:90](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L90)
 
 messageId → template string, `{{key}}` interpolated from report `data`.
 
@@ -69,6 +69,6 @@ messageId → template string, `{{key}}` interpolated from report `data`.
 
 > **name**: `string`
 
-Defined in: [rule.ts:85](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/rule.ts#L85)
+Defined in: [rule.ts:85](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/rule.ts#L85)
 
 Short name, unique within its rulepack (e.g. 'corrective-antithesis').

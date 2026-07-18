@@ -14,14 +14,15 @@
     "build": "npm run build -w writinglint-web",
     "build:cf": "node -e \"const fs=require('fs');for(const d of ['packages/web/public/model','packages/web/public/ort'])fs.rmSync(d,{recursive:true,force:true})\" && npm run build:site -w writinglint-web",
     "copy-runtime": "npm run copy-runtime -w writinglint-web",
-    "build:libs": "npm run build -w writinglint-core -w writinglint-parser-node -w writinglint-rulepack-ai-style -w writinglint-rulepack-craft -w writinglint",
+    "build:libs": "npm run build -w writinglint-core -w writinglint-parser-node -w writinglint-rulepack-ai-style -w writinglint-rulepack-craft -w writinglint -w sloplint",
     "cli": "node --conditions=source --import tsx packages/cli/src/cli.ts",
+    "sloplint": "node --conditions=source --import tsx packages/sloplint/src/cli.ts",
     "typecheck": "tsc --noEmit && tsc --noEmit -p packages/web/tsconfig.client.json",
     "typecheck:worker": "tsc --noEmit -p worker/tsconfig.json",
     "test": "node --conditions=source --import tsx --test packages/*/test/*.test.ts",
     "eval": "node --conditions=source --import tsx packages/rulepack-ai-style/eval/run-eval.ts",
     "train": "node --conditions=source --import tsx packages/rulepack-ai-style/eval/train.ts",
-    "download-model": "nlpgraph download --model xsmall --dir ./models/xsmall",
+    "setup-stanza": "uv sync --project experiments/stanza && uv run --project experiments/stanza python packages/parser-node/python/download_stanza.py --model-dir experiments/stanza/.models",
     "gen:demo-lints": "node --conditions=source --import tsx scripts/gen-demo-lints.ts"
   },
   "devDependencies": {

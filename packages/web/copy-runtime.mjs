@@ -1,44 +1,35 @@
-/**
- * Stage the static runtime assets the browser app fetches at load time:
- *   public/model/  ← the vendored parser (models/xsmall) + our classifier.json
- *   public/ort/    ← onnxruntime-web WASM kernels + worker glue
- *
- * These are gitignored (public/model, public/ort) — regenerate with `npm run copy-runtime`.
- */
-import { mkdirSync, copyFileSync, readdirSync, existsSync } from 'node:fs';
+/** Stage the deployable INT8 parser, tokenizer, classifier, and WASM runtime. */
+import { copyFileSync, cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = dirname(fileURLToPath(import.meta.url)); // packages/web
+const root = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(root, '..', '..');
-const modelSrc = join(repoRoot, 'models', 'xsmall');
 const modelDst = join(root, 'public', 'model');
-const ortSrc = join(repoRoot, 'node_modules', 'onnxruntime-web', 'dist');
 const ortDst = join(root, 'public', 'ort');
+const classifier = join(repoRoot, 'packages', 'rulepack-ai-style', 'model', 'classifier.json');
+const parserModel = join(repoRoot, 'models', 'rule-family-50-onnx-int8');
+const ortDist = join(repoRoot, 'node_modules', 'onnxruntime-web', 'dist');
 
-if (!existsSync(modelSrc)) {
-  console.error(`Missing ${modelSrc}. Run: npm run download-model`);
+rmSync(modelDst, { recursive: true, force: true });
+rmSync(ortDst, { recursive: true, force: true });
+mkdirSync(modelDst, { recursive: true });
+mkdirSync(ortDst, { recursive: true });
+if (!existsSync(parserModel)) {
+  console.error('INT8 parser bundle not found at models/rule-family-50-onnx-int8.');
   process.exit(1);
 }
-
-mkdirSync(modelDst, { recursive: true });
-// The parser needs config + both tokenizer files + the ONNX weights.
-for (const f of ['model.fp16.onnx', 'config.json', 'tokenizer.json', 'tokenizer_config.json', 'vocabs.json']) {
-  const src = join(modelSrc, f);
-  if (existsSync(src)) copyFileSync(src, join(modelDst, f));
+for (const name of ['parser.onnx', 'relations.onnx', 'manifest.json']) {
+  copyFileSync(join(parserModel, name), join(modelDst, name));
 }
-// Our data-free stylometric model (fit by `npm run train`), shipped in the pack.
-const clf = join(repoRoot, 'packages', 'rulepack-ai-style', 'model', 'classifier.json');
-if (existsSync(clf)) copyFileSync(clf, join(modelDst, 'classifier.json'));
-else console.warn('classifier.json not found — run `npm run train` first (score will use the heuristic fallback).');
-
-mkdirSync(ortDst, { recursive: true });
-// Copy the WASM kernels + their .mjs worker glue (ort.env.wasm.wasmPaths='/ort/').
-let n = 0;
-for (const f of readdirSync(ortSrc)) {
-  if (f.endsWith('.wasm') || f.endsWith('.mjs')) {
-    copyFileSync(join(ortSrc, f), join(ortDst, f));
-    n++;
-  }
+cpSync(join(parserModel, 'tokenizer'), join(modelDst, 'tokenizer'), { recursive: true });
+for (const name of ['ort-wasm-simd-threaded.wasm', 'ort-wasm-simd-threaded.mjs']) {
+  copyFileSync(join(ortDist, name), join(ortDst, name));
 }
-console.log(`Staged public/model (parser + classifier) and public/ort (${n} runtime files).`);
+if (existsSync(classifier)) {
+  copyFileSync(classifier, join(modelDst, 'classifier.json'));
+  console.log('Staged the INT8 parser, tokenizer, WASM runtime, and classifier.');
+} else {
+  console.error('classifier.json not found — run `npm run train` first.');
+  process.exit(1);
+}

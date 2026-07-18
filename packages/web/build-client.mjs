@@ -1,6 +1,6 @@
 /**
  * Bundle the browser demo with esbuild (not Vite). Two entries: the UI (app.js) and
- * the linter worker (worker.js, the ONNX parse + rules + score). The demo renders its
+ * the linter worker (worker.js, local parsing + rules + score). The demo renders its
  * own annotated manuscript, so there's no code editor and no Monaco.
  */
 import { build } from 'esbuild';
@@ -28,8 +28,6 @@ export const options = {
   sourcemap: true,
   logLevel: 'info',
   define: { 'process.env.NODE_ENV': '"production"' },
-  // transformers.js references these node-only backends but never reaches them in
-  // the browser (we use only its tokenizer). Stub them so bundling succeeds.
   alias: {
     'onnxruntime-node': empty,
     sharp: empty,

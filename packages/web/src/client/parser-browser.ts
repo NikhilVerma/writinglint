@@ -1,104 +1,128 @@
-/**
- * Browser-side loader for the nlpgraph dependency parser + our classifier.
- *
- * Everything is served from our own origin (no runtime network calls, no CDN):
- *   /model/model.fp16.onnx  — the biaffine parser (~145 MB, fetched with progress)
- *   /model/config.json      — parser config (rel/pos vocabs)
- *   /model/tokenizer.json   — DeBERTa sub-word tokenizer (loaded by transformers.js)
- *   /ort/*.wasm             — onnxruntime-web WASM kernels
- *   /model/classifier.json  — our data-free stylometric model
- *
- * Follows nlpgraph's browser conventions: onnxruntime-web on WASM, a transformers.js
- * tokenizer instance passed straight to NlpGraph.load (so no HuggingFace-hub fetch).
- */
+/** Self-contained browser parser backed by the owned INT8 ONNX model. */
 import * as ort from 'onnxruntime-web';
-import { AutoTokenizer, env } from '@huggingface/transformers';
-import { NlpGraph } from 'nlpgraph/browser';
-import type { Parser } from 'writinglint-core';
+import { decodeTree, type Parser, type ParsedSentence } from 'writinglint-core';
+import { encodeWordPieces, splitSentences, tokenizeWords, type SentenceTokens } from 'writinglint-parser-node/tokenizer';
 import type { Model } from 'writinglint-rulepack-ai-style';
 
-export interface Progress {
-  (stage: string, loaded?: number, total?: number): void;
-}
+export interface Progress { (stage: string, loaded?: number, total?: number): void }
+export interface Loaded { parser: Parser; model: Model }
+interface Manifest { upos: string[]; relations: string[] }
+interface TokenizerFile { model: { vocab: Record<string, number> } }
 
-/** Fetch an ArrayBuffer while reporting byte progress (the 145 MB model). */
-async function fetchBytes(url: string, onProgress: Progress): Promise<Uint8Array> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
-  const total = Number(res.headers.get('content-length')) || 0;
-  if (!res.body) return new Uint8Array(await res.arrayBuffer());
-  const reader = res.body.getReader();
-  let loaded = 0;
-
-  // When the length is known, stream straight into one pre-sized buffer. The
-  // accumulate-then-concat path briefly holds two full copies (~2×145 MB); on a
-  // memory-constrained phone that alone can push the tab over its limit.
-  if (total > 0) {
-    const out = new Uint8Array(total);
-    for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      out.set(value, loaded);
-      loaded += value.length;
-      onProgress('model', loaded, total);
-    }
-    return out;
-  }
-
-  // Unknown length: accumulate chunks then concatenate.
+async function fetchBytes(url: string, stage: string, progress: Progress): Promise<Uint8Array> {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Could not load ${url}: ${response.status}`);
+  const total = Number(response.headers.get('content-length') ?? 0) || undefined;
+  if (!response.body) return new Uint8Array(await response.arrayBuffer());
+  const reader = response.body.getReader();
   const chunks: Uint8Array[] = [];
-  for (;;) {
+  let loaded = 0;
+  while (true) {
     const { done, value } = await reader.read();
     if (done) break;
     chunks.push(value);
     loaded += value.length;
-    onProgress('model', loaded, total);
+    progress(stage, loaded, total);
   }
-  const out = new Uint8Array(loaded);
-  let off = 0;
-  for (const c of chunks) {
-    out.set(c, off);
-    off += c.length;
-  }
-  return out;
+  const bytes = new Uint8Array(loaded);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
+  return bytes;
 }
 
-export interface Loaded {
-  parser: Parser;
-  model: Model;
+const int64 = (values: readonly number[], dimensions: readonly number[]) =>
+  new ort.Tensor('int64', BigInt64Array.from(values, BigInt), dimensions);
+const index3 = (row: number, item: number, width: number, items: number) => (row * items + item) * width;
+function argmax(values: Float32Array, start: number, count: number): number {
+  let best = 0;
+  for (let index = 1; index < count; index++) if (values[start + index]! > values[start + best]!) best = index;
+  return best;
+}
+
+class BrowserOnnxParser implements Parser {
+  constructor(
+    private parser: ort.InferenceSession,
+    private relationSession: ort.InferenceSession,
+    private manifest: Manifest,
+    private vocab: Record<string, number>,
+  ) {}
+
+  async parse(text: string): Promise<ParsedSentence[]> {
+    const sentences = splitSentences(text).map(tokenizeWords).filter((sentence) => sentence.words.length);
+    if (!sentences.length) return [];
+    const encoded = sentences.map((sentence) => encodeWordPieces(sentence.words, this.vocab));
+    if (encoded.some((item) => item.inputIds.length > 256)) throw new Error('A sentence exceeds 256 subwords.');
+    const batch = sentences.length;
+    const maxSubwords = Math.max(...encoded.map((item) => item.inputIds.length));
+    const maxWords = Math.max(...encoded.map((item) => item.wordStarts.length));
+    const inputIds = new Array<number>(batch * maxSubwords).fill(0);
+    const attention = new Array<number>(batch * maxSubwords).fill(0);
+    const starts = new Array<number>(batch * maxWords).fill(0);
+    const masks = new Uint8Array(batch * maxWords);
+    encoded.forEach((item, row) => {
+      item.inputIds.forEach((id, column) => { inputIds[row * maxSubwords + column] = id; attention[row * maxSubwords + column] = 1; });
+      item.wordStarts.forEach((value, column) => { starts[row * maxWords + column] = value; masks[row * maxWords + column] = 1; });
+    });
+    const output = await this.parser.run({
+      input_ids: int64(inputIds, [batch, maxSubwords]), attention_mask: int64(attention, [batch, maxSubwords]),
+      word_starts: int64(starts, [batch, maxWords]), word_mask: new ort.Tensor('bool', masks, [batch, maxWords]),
+    });
+    const arcs = output.arc_logits!.data as Float32Array;
+    const heads = new Array<number>(batch * maxWords).fill(0);
+    sentences.forEach((sentence, row) => {
+      const count = sentence.words.length;
+      const scores = Array.from({ length: count }, (_, dependent) => Array.from(
+        { length: count + 1 }, (_, head) => arcs[index3(row, dependent, maxWords + 1, maxWords) + head]!,
+      ));
+      decodeTree(scores).forEach((head, dependent) => { heads[row * maxWords + dependent] = head; });
+    });
+    const relationOutput = await this.relationSession.run({
+      relation_dependent: output.relation_dependent!, relation_heads: output.relation_heads!,
+      selected_heads: int64(heads, [batch, maxWords]),
+    });
+    return sentences.map((sentence, row) => this.build(
+      sentence, row, maxWords, heads, output.upos_logits!.data as Float32Array,
+      relationOutput.relation_logits!.data as Float32Array,
+    ));
+  }
+
+  private build(sentence: SentenceTokens, row: number, maxWords: number, heads: number[], upos: Float32Array, relations: Float32Array): ParsedSentence {
+    const uposWidth = this.manifest.upos.length, relationWidth = this.manifest.relations.length;
+    return { text: sentence.text, start: sentence.start, end: sentence.end, tokens: sentence.words.map((word, index) => ({
+      id: index + 1, form: word.form, lemma: word.form.toLowerCase(),
+      upos: this.manifest.upos[argmax(upos, index3(row, index, uposWidth, maxWords), uposWidth)]!,
+      head: heads[row * maxWords + index]!,
+      deprel: this.manifest.relations[argmax(relations, index3(row, index, relationWidth, maxWords), relationWidth)]!,
+      start: word.start, end: word.end,
+    })) };
+  }
 }
 
 let cached: Promise<Loaded> | undefined;
-
-export function loadEngine(onProgress: Progress = () => {}): Promise<Loaded> {
+export function loadEngine(progress: Progress = () => {}): Promise<Loaded> {
   return (cached ??= (async () => {
-    // Deterministic single-threaded WASM; serve kernels from our own /ort/.
+    const version = 'compact-int8-v1';
+    ort.env.wasm.wasmPaths = {
+      wasm: `/ort/ort-wasm-simd-threaded.wasm?v=${version}`,
+      mjs: `/ort/ort-wasm-simd-threaded.mjs?v=${version}`,
+    };
     ort.env.wasm.numThreads = 1;
-    ort.env.wasm.wasmPaths = '/ort/';
-
-    // transformers.js: local-only, load the tokenizer from /model/ (no hub call).
-    env.allowRemoteModels = false;
-    env.allowLocalModels = true;
-    env.localModelPath = '/';
-
-    onProgress('tokenizer');
-    const tokenizer = await AutoTokenizer.from_pretrained('model');
-
-    onProgress('classifier');
-    const model = (await (await fetch('/model/classifier.json')).json()) as Model;
-
-    onProgress('model', 0, 1);
-    const bytes = await fetchBytes('/model/model.fp16.onnx', onProgress);
-
-    onProgress('compiling');
-    const nlp = await NlpGraph.load({
-      model: bytes,
-      config: '/model/config.json',
-      tokenizer: tokenizer as unknown as Parameters<typeof NlpGraph.load>[0]['tokenizer'],
-      executionProviders: ['wasm'],
-    });
-
-    onProgress('ready');
-    return { parser: nlp as unknown as Parser, model };
+    const [manifestResponse, tokenizerResponse, classifierResponse, parserBytes, relationBytes] = await Promise.all([
+      fetch(`/model/manifest.json?v=${version}`), fetch(`/model/tokenizer/tokenizer.json?v=${version}`),
+      fetch(`/model/classifier.json?v=${version}`),
+      fetchBytes(`/model/parser.onnx?v=${version}`, 'parser', progress),
+      fetchBytes(`/model/relations.onnx?v=${version}`, 'relations', progress),
+    ]);
+    if (!manifestResponse.ok || !tokenizerResponse.ok || !classifierResponse.ok) throw new Error('Browser model assets are incomplete.');
+    progress('runtime');
+    const [parser, relationSession] = await Promise.all([
+      ort.InferenceSession.create(parserBytes, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }),
+      ort.InferenceSession.create(relationBytes, { executionProviders: ['wasm'], graphOptimizationLevel: 'all' }),
+    ]);
+    const manifest = await manifestResponse.json() as Manifest;
+    const tokenizer = await tokenizerResponse.json() as TokenizerFile;
+    const model = await classifierResponse.json() as Model;
+    progress('ready');
+    return { parser: new BrowserOnnxParser(parser, relationSession, manifest, tokenizer.model.vocab), model };
   })());
 }

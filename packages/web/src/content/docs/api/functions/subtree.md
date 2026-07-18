@@ -5,9 +5,9 @@ prev: false
 title: "subtree"
 ---
 
-> **subtree**(`s`, `id`): `DepToken`[]
+> **subtree**(`s`, `id`): [`DepToken`](/api/interfaces/deptoken/)[]
 
-Defined in: [graph.ts:93](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/graph.ts#L93)
+Defined in: [graph.ts:85](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/graph.ts#L85)
 
 All tokens in the subtree rooted at `id` (inclusive).
 
@@ -23,4 +23,4 @@ All tokens in the subtree rooted at `id` (inclusive).
 
 ## Returns
 
-`DepToken`[]
+[`DepToken`](/api/interfaces/deptoken/)[]

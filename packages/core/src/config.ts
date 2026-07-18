@@ -7,8 +7,9 @@
 import type { Rulepack, Category } from './pack.js';
 import type { ActiveSeverity, Rule, Severity } from './rule.js';
 
-/** A rule setting: a severity, or a `[severity, options]` tuple. */
-export type RuleSetting = Severity | [Severity, unknown];
+export type RuleLevel = Severity | 'auto';
+/** A rule setting: a fixed severity, confidence-derived `auto`, or a tuple with options. */
+export type RuleSetting = RuleLevel | [RuleLevel, unknown];
 
 export interface Config {
   /** namespace → rulepack (e.g. { 'ai-style': aiStyle }). */
@@ -17,6 +18,8 @@ export interface Config {
   extends?: Config[];
   /** ruleId → setting, e.g. { 'ai-style/rule-of-three': ['warn', { min: 3 }] }. */
   rules?: Record<string, RuleSetting>;
+  /** Lowest emitted severity. Later configs override extended configs. */
+  minimumSeverity?: ActiveSeverity;
 }
 
 /** Identity helper for authoring a config (typing + a stable call site). */
@@ -29,7 +32,7 @@ export interface ResolvedRule {
   ruleId: string;
   rule: Rule<any>;
   category: string;
-  severity: ActiveSeverity;
+  severity: ActiveSeverity | 'auto';
   options: unknown;
 }
 
@@ -39,9 +42,10 @@ export interface ResolvedConfig {
   rules: Map<string, ResolvedRule>;
   /** Merged category metadata from every referenced pack, keyed by category id. */
   categories: Record<string, Category>;
+  minimumSeverity: ActiveSeverity;
 }
 
-function severityOf(setting: RuleSetting): Severity {
+function severityOf(setting: RuleSetting): RuleLevel {
   return Array.isArray(setting) ? setting[0] : setting;
 }
 
@@ -101,5 +105,15 @@ export function resolveConfig(config: Config): ResolvedConfig {
     });
   }
 
-  return { rules, categories };
+  return { rules, categories, minimumSeverity: resolveMinimumSeverity(config) };
+}
+
+function resolveMinimumSeverity(config: Config): ActiveSeverity {
+  return collectMinimumSeverity(config, 'info');
+}
+
+function collectMinimumSeverity(config: Config, current: ActiveSeverity): ActiveSeverity {
+  let minimum = current;
+  for (const ext of config.extends ?? []) minimum = collectMinimumSeverity(ext, minimum);
+  return config.minimumSeverity ?? minimum;
 }

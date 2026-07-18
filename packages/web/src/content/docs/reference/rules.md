@@ -3,7 +3,8 @@ title: The AI-style rulepack
 description: Every rule in writinglint-rulepack-ai-style, grouped by category — the structural ones match over the dependency graph.
 ---
 
-`writinglint-rulepack-ai-style` is the first rulepack. `recommended` enables every rule below at
+`writinglint-rulepack-ai-style` is the first rulepack. `recommended` enables every rule below in
+confidence-aware `auto` mode, reporting medium- and high-confidence findings by default.
 `warn`. Rules are namespaced `ai-style/<name>`, so you override any of them in a config, e.g.
 `'ai-style/rule-of-three': 'off'`.
 

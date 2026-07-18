@@ -5,21 +5,21 @@ prev: false
 title: "spanOf"
 ---
 
-> **spanOf**(`s`, `toks`): `object`
+> **spanOf**(`_s`, `toks`): `object`
 
-Defined in: [graph.ts:106](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/graph.ts#L106)
+Defined in: [graph.ts:101](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/graph.ts#L101)
 
 Global char span covering a set of tokens (min start … max end).
 
 ## Parameters
 
-### s
+### \_s
 
 [`DepSentence`](/api/interfaces/depsentence/)
 
 ### toks
 
-`DepToken`[]
+[`DepToken`](/api/interfaces/deptoken/)[]
 
 ## Returns
 

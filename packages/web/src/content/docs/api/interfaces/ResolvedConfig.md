@@ -5,7 +5,7 @@ prev: false
 title: "ResolvedConfig"
 ---
 
-Defined in: [config.ts:37](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/config.ts#L37)
+Defined in: [config.ts:37](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L37)
 
 A flattened, ready-to-run config.
 
@@ -15,7 +15,7 @@ A flattened, ready-to-run config.
 
 > **categories**: `Record`\<`string`, [`Category`](/api/interfaces/category/)\>
 
-Defined in: [config.ts:41](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/config.ts#L41)
+Defined in: [config.ts:41](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L41)
 
 Merged category metadata from every referenced pack, keyed by category id.
 
@@ -25,6 +25,6 @@ Merged category metadata from every referenced pack, keyed by category id.
 
 > **rules**: `Map`\<`string`, [`ResolvedRule`](/api/interfaces/resolvedrule/)\>
 
-Defined in: [config.ts:39](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/config.ts#L39)
+Defined in: [config.ts:39](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/config.ts#L39)
 
 ruleId → the resolved, enabled rule. Disabled rules are absent.

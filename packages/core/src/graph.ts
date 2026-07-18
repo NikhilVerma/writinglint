@@ -1,5 +1,5 @@
 /**
- * Dependency-graph helpers over nlpgraph's parse output.
+ * Dependency-graph helpers over WritingLint's parser-neutral UD output.
  *
  * This is the engine the detector judges writing with: the Wikipedia "signs of
  * AI writing" that are *constructions* (significance inflation, parallelism,
@@ -7,28 +7,20 @@
  * in the dependency graph — `nsubj`, `conj`, `amod`, `advcl`, `case` — so any
  * words can fill the slots. No phrase lists.
  *
- * nlpgraph gives 1-indexed tokens (`id`, `head`; head 0 = ROOT) with UTF-8 byte
- * offsets *within the sentence*. We wrap that with child lookups and a byte→char
- * converter so findings land at exact global character positions.
+ * Parsers provide 1-indexed tokens (`id`, `head`; head 0 = ROOT) with
+ * document-global UTF-16 offsets. We add graph indices for rule authors.
  */
-import type { DepToken, ParsedSentence } from 'nlpgraph';
+import type { DepToken, ParsedSentence } from './parse-types.js';
 
-/** A parsed sentence plus its graph indices and a byte→char offset converter. */
+/** A parsed sentence plus its graph indices. */
 export interface DepSentence {
   text: string;
   tokens: DepToken[];
   /** children.get(headId) → dependents of that token. */
   children: Map<number, DepToken[]>;
-  /** Convert a DOCUMENT-GLOBAL UTF-8 byte offset (nlpgraph 0.3.0) to a char index. */
-  toGlobal: (byteOffset: number) => number;
 }
 
-/**
- * Build a document-level UTF-8-byte → UTF-16-char-index converter for the
- * original text. nlpgraph 0.3.0 reports token offsets as document-global byte
- * offsets, so one converter over the whole doc replaces all sentence
- * re-anchoring — highlighting is now a direct `text.slice(start, end)`.
- */
+/** Convert a document-global UTF-8 byte offset to a UTF-16 index. @deprecated */
 export function byteToChar(s: string): (byte: number) => number {
   const prefixByte: number[] = [0];
   const prefixChar: number[] = [0];
@@ -52,15 +44,15 @@ export function byteToChar(s: string): (byte: number) => number {
   };
 }
 
-/** Wrap a ParsedSentence with graph indices, using a doc-level byte→char map. */
-export function makeSentence(ps: ParsedSentence, toGlobal: (byte: number) => number): DepSentence {
+/** Wrap a parsed sentence with graph indices. */
+export function makeSentence(ps: ParsedSentence): DepSentence {
   const children = new Map<number, DepToken[]>();
   for (const t of ps.tokens) {
     const arr = children.get(t.head);
     if (arr) arr.push(t);
     else children.set(t.head, [t]);
   }
-  return { text: ps.text, tokens: ps.tokens, children, toGlobal };
+  return { text: ps.text, tokens: ps.tokens, children };
 }
 
 // ── graph queries ────────────────────────────────────────────────────────────
@@ -93,8 +85,11 @@ export const hasChild = (s: DepSentence, id: number, rel: string): boolean =>
 export function subtree(s: DepSentence, id: number): DepToken[] {
   const out: DepToken[] = [];
   const stack = [id];
+  const visited = new Set<number>();
   while (stack.length) {
     const cur = stack.pop()!;
+    if (visited.has(cur)) continue;
+    visited.add(cur);
     const tok = byId(s, cur);
     if (tok) out.push(tok);
     for (const c of childrenOf(s, cur)) stack.push(c.id);
@@ -103,12 +98,12 @@ export function subtree(s: DepSentence, id: number): DepToken[] {
 }
 
 /** Global char span covering a set of tokens (min start … max end). */
-export function spanOf(s: DepSentence, toks: DepToken[]): { start: number; end: number } {
+export function spanOf(_s: DepSentence, toks: DepToken[]): { start: number; end: number } {
   let start = Infinity;
   let end = -Infinity;
   for (const t of toks) {
-    start = Math.min(start, s.toGlobal(t.start));
-    end = Math.max(end, s.toGlobal(t.end));
+    start = Math.min(start, t.start);
+    end = Math.max(end, t.end);
   }
   return { start, end };
 }

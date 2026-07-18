@@ -330,24 +330,22 @@ function boot(): void {
     // ── boot the linter worker ────────────────────────────────────────────────
     const FMT = (n: number) => `${(n / 1_000_000).toFixed(0)} MB`;
     const STAGE: Record<string, string> = {
-        tokenizer: "Loading tokenizer",
-        classifier: "Loading detector",
-        model: "Downloading parser",
-        compiling: "Compiling parser",
+        parser: "Downloading compact parser",
+        relations: "Downloading syntax labels",
+        runtime: "Starting local inference",
         ready: "Ready"
     };
     function onProgress(stage: string, loaded?: number, total?: number): void {
         loadMsg.textContent =
-            stage === "model" && total
+            (stage === "parser" || stage === "relations") && total
                 ? `Downloading parser · ${FMT(loaded ?? 0)} / ${FMT(total)}`
                 : (STAGE[stage] ?? stage);
         const pct =
-            stage === "model" && total ? (loaded ?? 0) / total : stage === "ready" ? 1 : undefined;
+            (stage === "parser" || stage === "relations") && total ? (loaded ?? 0) / total : stage === "ready" ? 1 : undefined;
         if (pct !== undefined) loadBar.style.width = `${Math.round(pct * 100)}%`;
     }
 
-    // Spin up the real engine worker and go live. Called immediately on desktop, or
-    // on explicit opt-in on iOS (where auto-loading the 145 MB model kills the tab).
+    // Spin up the self-contained ONNX parser and lint engine worker.
     function startLive(): void {
         if (live) return;
         live = true;
@@ -386,47 +384,6 @@ function boot(): void {
     input.value = AI_PITCH;
     segButtons.find((b) => b.dataset.draft === "flagged")?.setAttribute("aria-pressed", "true");
 
-    // iOS Safari OOM-kills the tab when onnxruntime instantiates the 145 MB model
-    // (it works on desktop Safari, which has far more per-tab memory). So on iOS we
-    // don't auto-load: show the manuscript with precomputed marks (read-only) plus an
-    // explicit opt-in to try the live engine anyway.
-    const IS_IOS =
-        /iP(hone|od|ad)/.test(navigator.userAgent) ||
-        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-
-    if (IS_IOS) {
-        host?.classList.add("bw-demo--static");
-        const eyebrow = host?.querySelector(".bw-eyebrow");
-        if (eyebrow) eyebrow.textContent = "Preview · desktop for live";
-        // Precomputed lints exist only for the ai-style drafts, so the static
-        // preview can't switch packs. "Run it live anyway" re-enables it.
-        packSel.disabled = true;
-        input.readOnly = true;
-        loading.classList.add("done"); // hide the loader overlay so the marks show
-        sentText = AI_PITCH;
-        lastLints = AI_LINTS;
-        paintBackdrop(AI_PITCH, AI_LINTS);
-        renderRail(AI_LINTS);
-        showStaticNotice(startLive);
-    } else {
-        paintBackdrop(AI_PITCH, []);
-        startLive();
-    }
-
-    // A non-blocking banner above the manuscript, injected only on the static path.
-    function showStaticNotice(onRun: () => void): void {
-        if (!host || host.querySelector(".bw-note")) return;
-        const note = document.createElement("div");
-        note.className = "bw-note";
-        note.innerHTML =
-            `<span class="bw-note__txt"><strong>Desktop&#8209;only live demo.</strong> The in&#8209;browser parser is ~145&nbsp;MB — more than iOS&nbsp;Safari allows, so it crashes the tab here. Below is a captured run; edit it live on a desktop browser, or run <code>npx&nbsp;writinglint</code>.</span>` +
-            `<button type="button" class="bw-note__run">Run it live anyway</button>`;
-        const bar = host.querySelector(".bw-demo__bar");
-        if (bar) bar.after(note);
-        else host.prepend(note);
-        note.querySelector<HTMLButtonElement>(".bw-note__run")?.addEventListener("click", () => {
-            note.remove();
-            onRun();
-        });
-    }
+    paintBackdrop(AI_PITCH, []);
+    startLive();
 }

@@ -7,7 +7,7 @@ import { buildDocument, type Document } from './document.js';
 import type { Parser } from './parser.js';
 import { resolveConfig, type Config, type ResolvedConfig, type ResolvedRule } from './config.js';
 import type { Category } from './pack.js';
-import type { Lint, ReportDescriptor, RuleContext } from './rule.js';
+import type { ActiveSeverity, Confidence, Lint, ReportDescriptor, RuleContext } from './rule.js';
 import { spanOf } from './graph.js';
 
 export interface LintReport {
@@ -43,12 +43,16 @@ export class Linter {
 
     // Single walk: Document once, then every Sentence, then every Token.
     for (const { listener } of listeners) listener.Document?.(doc);
+    for (const p of doc.paragraphs) for (const { listener } of listeners) listener.Paragraph?.(p);
     for (const s of doc.sentences) for (const { listener } of listeners) listener.Sentence?.(s);
     for (const t of doc.tokens) for (const { listener } of listeners) listener.Token?.(t);
+    for (const { listener } of listeners) listener.DocumentExit?.(doc);
 
     return {
       doc,
-      lints: dedupe(lints).sort((a, b) => a.start - b.start || b.end - a.end),
+      lints: dedupe(lints)
+        .filter((lint) => severityRank(lint.severity) >= severityRank(resolved.minimumSeverity))
+        .sort((a, b) => a.start - b.start || b.end - a.end),
       categories: resolved.categories,
     };
   }
@@ -61,6 +65,7 @@ function makeContext(rr: ResolvedRule, doc: Document, sink: Lint[]): RuleContext
     category: rr.category,
     options: rr.options,
     doc,
+    get findings() { return sink; },
     report(d: ReportDescriptor): void {
       let start: number;
       let end: number;
@@ -72,10 +77,12 @@ function makeContext(rr: ResolvedRule, doc: Document, sink: Lint[]): RuleContext
         throw new Error(`${rr.ruleId}: report() needs either 'span' or 'tokens' + 'sentence'`);
       }
       const template = d.message ?? rr.rule.meta.messages?.[d.messageId ?? ''] ?? d.messageId ?? '';
+      const confidence = d.confidence ?? rr.rule.meta.defaultConfidence ?? 'medium';
       sink.push({
         ruleId: rr.ruleId,
         category: rr.category,
-        severity: rr.severity,
+        severity: rr.severity === 'auto' ? severityFor(confidence) : rr.severity,
+        confidence,
         start,
         end,
         text: doc.text.slice(start, end),
@@ -86,6 +93,9 @@ function makeContext(rr: ResolvedRule, doc: Document, sink: Lint[]): RuleContext
     },
   };
 }
+
+const severityRank = (severity: ActiveSeverity): number => ({ info: 0, warn: 1, error: 2 })[severity];
+const severityFor = (confidence: Confidence): ActiveSeverity => ({ low: 'info', medium: 'warn', high: 'error' })[confidence] as ActiveSeverity;
 
 /** Drop exact-duplicate spans from the same rule (rules can double-hit). */
 function dedupe(lints: Lint[]): Lint[] {

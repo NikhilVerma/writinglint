@@ -1,5 +1,5 @@
 /**
- * Local dev: stage the runtime assets (model + ort), run esbuild in watch mode for
+ * Local dev: stage the browser runtime, run esbuild in watch mode for
  * the demo client (public/app.js + worker.js + editor.worker.js + app.css), and run
  * Astro's dev server together. Astro serves public/ statically, so the model/WASM and
  * the esbuild bundles are all same-origin — no proxy, no Cloudflare Functions.
@@ -29,4 +29,7 @@ const shutdown = async () => {
 };
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
-astro.on('exit', (code) => { ctx.dispose(); process.exit(code ?? 0); });
+astro.on('exit', (code) => {
+  ctx.dispose();
+  process.exit(code ?? 0);
+});

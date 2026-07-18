@@ -28,13 +28,11 @@ On npm (unscoped — no org needed):
 [`writinglint-rulepack-ai-style`](https://www.npmjs.com/package/writinglint-rulepack-ai-style)
 
 ```bash
-# command line
-npm i -g writinglint
-npx nlpgraph download --model xsmall --dir ./models   # the parser model, once (~145 MB)
-writinglint essay.txt
-
-# or as a library
-npm i writinglint-core writinglint-parser-node writinglint-rulepack-ai-style
+# current local build (Stanza reference backend)
+npm install
+npm run setup-stanza
+npm run cli -- essay.txt
+npm run sloplint -- . --json
 ```
 
 A runnable consumer lives in [`examples/node-lint`](examples/node-lint).
@@ -96,14 +94,15 @@ packages/
     pack.ts            Rulepack + categories (definePack)
     config.ts          defineConfig / resolveConfig (extends, plugins, rules)
     linter.ts          Linter.lint(): parse → run rules → deduped, sorted lints
-  parser-node/         writinglint-parser-node — Node nlpgraph loader
+  parser-node/         writinglint-parser-node — persistent local Stanza adapter
   rulepack-ai-style/   writinglint-rulepack-ai-style — the first rulepack
     rules/*.ts         16 rules (structural on the graph; lexical on words/chars)
     score/             the stylometric AI-style SCORE (separate from the lints)
     model/             classifier.json — data-free weights, shipped
     eval/              training + honest evaluation (data is private, gitignored)
-  cli/                 writinglint — `writinglint lint | score`
-  web/                 writinglint-web — the browser editor (one consumer)
+  cli/                 general-purpose `writinglint` engine CLI
+  sloplint/            independent AI-slop CLI product and engine consumer
+  web/                 browser editor; local dev calls the Stanza bridge
 ```
 
 Two independent outputs, deliberately decoupled:
@@ -213,7 +212,7 @@ classifier lifts subtle-AI recall from **33% (rules alone) → ~89%**.
 
 **Honest limitations.** (a) Specificity ~0.75 is the weak spot — clean *modern*
 human prose still trips it. (b) Cross-source generalisation is untested. (c)
-Highlight offsets are exact (nlpgraph 0.3.0 doc-global byte ranges).
+Highlight offsets are exact document-global UTF-16 ranges.
 
 > **⚠ Eval data is CLOSED-SOURCE / private.** It contains third-party text, so
 > `eval/data/` is **gitignored** and never enters this repo. The code, the trained
@@ -225,7 +224,7 @@ Highlight offsets are exact (nlpgraph 0.3.0 doc-global byte ranges).
 
 ```bash
 npm install
-npm run download-model   # fetch the xsmall ONNX parser (~145 MB, once) → ./models
+npm run setup-stanza     # isolated Python 3.12 env + English UD models
 npm run typecheck        # tsc across all packages
 npm test                 # core engine + rulepack rule tests
 npm run train            # fit + GUARDED honest eval (needs private eval data)
@@ -239,6 +238,7 @@ npm run cli -- lint posts/*.md        # lint many docs
 npm run cli -- score posts/*.md       # just the score per doc
 cat essay.txt | npm run cli           # stdin
 npm run cli -- --json essay.txt       # machine-readable
+npm run sloplint -- . --json          # exits 1 while AI-slop lints remain
 ```
 
 A `writinglint.config.ts` in the working directory is used automatically; otherwise the
@@ -246,58 +246,32 @@ ai-style `recommended` config applies.
 
 ### Web app
 
-A Hemingway-style editor that highlights constructions as you type — **runs
-entirely in your browser**, no server, nothing uploaded. The dependency parser
-(~145 MB, one-time) and the classifier load on-device (onnxruntime-web on WASM +
-a transformers.js tokenizer).
+A Hemingway-style editor that highlights constructions as you type. The compact
+INT8 dependency parser runs through ONNX Runtime WASM in a web worker; text never
+leaves the device.
 
 ```bash
-npm run dev              # stage assets, bundle (esbuild), serve localhost:5173
-# or a static, self-hostable bundle:
-npm run copy-runtime && npm run build:client   # → packages/web/public/
+npm run dev              # browser parser + client bundle + Astro dev server
 ```
 
-## Deploy (Cloudflare Workers)
+## Deployment status
 
-The docs + demo site deploys to **Cloudflare Workers** (Static Assets — the modern
-replacement for the now-deprecated Pages) via the GitHub Action in
-[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): every push to `main`
-runs `wrangler deploy`. There's no dashboard "Connect to Git" step — the first
-deploy creates the Worker via the API token.
-
-The ~145 MB parser and the onnxruntime-web WASM are too large to ship as static
-assets, so they live in an **R2 bucket** and stream same-origin through the Worker
-([`worker/index.ts`](worker/index.ts)) at `/model/*` and `/ort/*` — the same URLs
-the browser uses in local dev (`[assets]` serves everything else).
-
-**One-time setup:**
-
-```bash
-# 1. R2 bucket + upload the model/runtime (both gitignored, never committed)
-npx wrangler r2 bucket create writinglint-models
-npm run download-model            # fetch the parser locally, if you haven't
-bash scripts/upload-model-to-r2.sh
-```
-
-2. Add two **GitHub repo secrets** (Settings → Secrets and variables → Actions):
-   `CLOUDFLARE_API_TOKEN` (a token with *Edit Cloudflare Workers* + Workers R2 read)
-   and `CLOUDFLARE_ACCOUNT_ID`.
-
-Every push to `main` then builds (`npm run build:cf`) and deploys the Worker —
-serving the static site from `packages/web/dist` and streaming the model from R2.
+The hosted demo uses the owned TypeScript tokenizer and decoder with the compact
+INT8 ONNX model. Production serves the site through Cloudflare Workers Static
+Assets and streams the gitignored model/runtime files from R2.
 
 ## Roadmap
 
 1. ✅ Grammar-linter engine — authorable rules over a dependency graph.
 2. ✅ ai-style rulepack (16 rules) + stylometric score, evaluated on diverse data.
-3. ✅ CLI + browser editor as consumers of the library.
+3. ✅ Python-free CLI + deployable browser editor using the owned ONNX parser.
 4. **VSCode extension / LSP** (`packages/lsp`, `packages/vscode`) — lint in the editor.
 5. **More rulepacks** — grammar, clarity, house-style; richer user-rule authoring.
 6. Lift specificity on modern human prose; per-lint autofixes; cross-source eval.
 
 ## Credits
 
-- Engine: [`nlpgraph`](https://www.npmjs.com/package/nlpgraph) dependency parser (MIT).
+- Reference parser: [Stanza](https://stanfordnlp.github.io/stanza/) (Apache 2.0).
 - ai-style taxonomy: Wikipedia, *[Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)* (CC BY-SA).
 - Method: dependency-relation + POS features for structural AI-text detection.
 - Prior art in prose linting: [textlint](https://textlint.org), [Vale](https://vale.sh), [proselint](https://github.com/amperser/proselint), [Harper](https://github.com/automattic/harper).

@@ -7,13 +7,13 @@ title: "isGerund"
 
 > **isGerund**(`t`): `boolean`
 
-Defined in: [graph.ts:116](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/graph.ts#L116)
+Defined in: [graph.ts:111](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/graph.ts#L111)
 
 ## Parameters
 
 ### t
 
-`DepToken`
+[`DepToken`](/api/interfaces/deptoken/)
 
 ## Returns
 

@@ -5,9 +5,9 @@ prev: false
 title: "childrenOf"
 ---
 
-> **childrenOf**(`s`, `id`): `DepToken`[]
+> **childrenOf**(`s`, `id`): [`DepToken`](/api/interfaces/deptoken/)[]
 
-Defined in: [graph.ts:68](https://github.com/NikhilVerma/writinglint/blob/d10767b4924bdcb7ea89bef9452a52cf8ffbc6f8/packages/core/src/graph.ts#L68)
+Defined in: [graph.ts:60](https://github.com/NikhilVerma/writinglint/blob/ed446792b9bccc06592b119c29821c9764b456a8/packages/core/src/graph.ts#L60)
 
 ## Parameters
 
@@ -21,4 +21,4 @@ Defined in: [graph.ts:68](https://github.com/NikhilVerma/writinglint/blob/d10767
 
 ## Returns
 
-`DepToken`[]
+[`DepToken`](/api/interfaces/deptoken/)[]

@@ -52,9 +52,8 @@ part-of-speech stream** (Harper's Weir). That's enough for "avoid the word *util
 see *relationships between words*.
 
 WritingLint parses each sentence into a **Universal-Dependencies graph** — every word linked to its
-syntactic head with a labeled relation (`nsubj`, `conj`, `advmod`, …) — using
-[nlpgraph](https://github.com/NikhilVerma/nlpgraph), an offline ONNX parser that runs in Node and the
-browser. A rule can then match on **structure**: *"a `conj` dependent coordinated by the word 'not'"*
+syntactic head with a labeled relation (`nsubj`, `conj`, `advmod`, …). The current independent
+reference backend is Stanza. A rule can then match on **structure**: *"a `conj` dependent coordinated by the word 'not'"*
 catches "Trust the graph, not the vibes" **and** "Choose clarity, not cleverness" — one rule, no
 word list, and it holds up when the sentence is reworded.
 

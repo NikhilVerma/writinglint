@@ -6,6 +6,6 @@ published artifacts.
 
 ```bash
 npm install                                    # writinglint-* from npm
-npm run setup                                  # download the parser model (~145 MB, once)
+# configure STANZA_MODEL_DIR and WRITINGLINT_PYTHON for the current backend
 npm start -- "Choose clarity, not cleverness." # lint some text
 ```

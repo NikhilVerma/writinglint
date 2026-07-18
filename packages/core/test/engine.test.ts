@@ -1,6 +1,5 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import type { ParsedSentence, DepToken } from 'nlpgraph';
 import {
   Linter,
   defineRule,
@@ -9,6 +8,8 @@ import {
   resolveConfig,
   segments,
   type Parser,
+  type ParsedSentence,
+  type DepToken,
 } from '../src/index.js';
 
 // ── a fake parser: one hand-built sentence, ASCII so byte offset == char offset ─
@@ -73,6 +74,25 @@ test('Linter runs rules over the document and reports exact spans', async () => 
   assert.equal(lints[0].text, 'cat');
   assert.equal(lints[0].start, 4);
   assert.equal(lints[0].end, 7);
+  assert.equal(lints[0].confidence, 'medium');
+});
+
+test('auto severity follows per-finding confidence and minimumSeverity filters output', async () => {
+  const confidenceRule = defineRule({
+    meta: { name: 'confidence', category: 'demo', docs: { description: 'Confidence test.' }, defaultConfidence: 'low' },
+    create(ctx) {
+      return { Document() {
+        ctx.report({ span: { start: 0, end: 3 }, message: 'low' });
+        ctx.report({ span: { start: 4, end: 7 }, message: 'high', confidence: 'high' });
+      } };
+    },
+  });
+  const pack = definePack({ name: 'confidence', rules: { check: confidenceRule } });
+  const config = defineConfig({ plugins: { confidence: pack }, rules: { 'confidence/check': 'auto' }, minimumSeverity: 'warn' });
+  const { lints } = await new Linter(fakeParser).lint('the cat sat', config);
+  assert.deepEqual(lints.map(({ severity, confidence }) => ({ severity, confidence })), [
+    { severity: 'error', confidence: 'high' },
+  ]);
 });
 
 test('segments flattens lints into non-overlapping slices', async () => {
@@ -83,4 +103,16 @@ test('segments flattens lints into non-overlapping slices', async () => {
   assert.equal(segs.length, 3);
   assert.equal(segs[1].lint?.text, 'cat');
   assert.equal(segs.map((s) => 'the cat sat'.slice(s.start, s.end)).join(''), 'the cat sat');
+});
+
+test('Document exposes blank-line paragraphs for cross-sentence rules', async () => {
+  const parser: Parser = { parse: async () => [
+    { ...SENTENCE, start: 0, end: 11 },
+    { ...SENTENCE, text: 'the dog ran', start: 13, end: 24, tokens: [
+      tok(1, 'the', 'DET', 2, 'det', 13), tok(2, 'dog', 'NOUN', 3, 'nsubj', 17), tok(3, 'ran', 'VERB', 0, 'root', 21),
+    ] },
+  ] };
+  const { doc } = await new Linter(parser).lint('the cat sat\n\nthe dog ran', defineConfig({}));
+  assert.equal(doc.paragraphs.length, 2);
+  assert.deepEqual(doc.paragraphs.map((paragraph) => paragraph.text), ['the cat sat', 'the dog ran']);
 });

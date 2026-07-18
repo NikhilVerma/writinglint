@@ -1,0 +1,32 @@
+{
+  "sensitiveSeeds": 386,
+  "heldOut": 80,
+  "availableTraining": 306,
+  "sizes": [
+    50,
+    100,
+    250
+  ],
+  "split": "sha256(family + NUL + text)",
+  "familyHeldOut": 299,
+  "familyTraining": 87,
+  "familySizes": [
+    25,
+    50,
+    80
+  ],
+  "familyHeldOutNames": [
+    "copula-avoidance/expanded",
+    "corrective-antithesis/expanded",
+    "light-verb/expanded",
+    "negative-parallelism/expanded",
+    "participial/expanded",
+    "rule-of-three/expanded",
+    "rule-of-three/expanded-pair",
+    "stop-slop/false-agency",
+    "stop-slop/passive",
+    "throat-clearing/expanded",
+    "vague-attribution/expanded-bare",
+    "vague-attribution/expanded-specific"
+  ]
+}

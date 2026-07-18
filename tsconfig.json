@@ -6,6 +6,7 @@
     "packages/rulepack-ai-style/src",
     "packages/rulepack-craft/src",
     "packages/cli/src",
+    "packages/sloplint/src",
     "packages/*/test",
     "packages/rulepack-ai-style/eval",
     "writinglint.config.ts"

@@ -1,7 +1,7 @@
 {
   "name": "writinglint-parser-node",
   "version": "0.1.0",
-  "description": "Node-side nlpgraph parser loader for the WritingLint linter (CLI, eval, tests).",
+  "description": "Node adapter for WritingLint's local Stanza dependency parser backend.",
   "type": "module",
   "license": "MIT",
   "author": "Nikhil Verma",
@@ -18,7 +18,7 @@
     "grammar",
     "linter",
     "prose",
-    "nlpgraph",
+    "stanza",
     "dependency-parser",
     "node"
   ],
@@ -33,15 +33,21 @@
       "types": "./dist/index.d.ts",
       "source": "./src/index.ts",
       "default": "./dist/index.js"
+    },
+    "./tokenizer": {
+      "types": "./dist/tokenizer.d.ts",
+      "source": "./src/tokenizer.ts",
+      "default": "./dist/tokenizer.js"
     }
   },
   "files": [
     "dist",
+    "python",
     "README.md"
   ],
   "dependencies": {
-    "writinglint-core": "^0.1.0",
-    "nlpgraph": "^0.5.1"
+    "onnxruntime-node": "^1.27.0",
+    "writinglint-core": "^0.1.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

@@ -15,12 +15,14 @@
  * otherwise the ai-style `recommended` config is used.
  */
 import { readFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { Linter, resolveConfig, segments, type Config, type Lint } from 'writinglint-core';
 import { loadParser } from 'writinglint-parser-node';
 import { recommended, score, CATEGORIES, CATEGORY_ORDER, type Model } from 'writinglint-rulepack-ai-style';
 import { loadModelNode } from 'writinglint-rulepack-ai-style/node';
+
+const slopMode = basename(process.argv[1] ?? '').startsWith('sloplint') || process.env.SLOPLINT === '1';
 
 // ── tiny ANSI helpers (no deps) ──────────────────────────────────────────
 const useColor = process.stdout.isTTY && !process.env.NO_COLOR;
@@ -141,7 +143,8 @@ async function reportFile(
 async function main(): Promise<void> {
   const argv = process.argv.slice(2);
   if (argv.includes('-h') || argv.includes('--help')) {
-    console.log('Usage: writinglint [lint|score] [--json] [--quiet] [--config <path>] [--model <dir>] [files…]   (reads stdin if no files)');
+    console.log(`Usage: ${slopMode ? 'sloplint' : 'writinglint'} [lint|score] [--json] [--quiet] [--config <path>] [--model <dir>] [files…]   (reads stdin if no files)`);
+    if (slopMode) console.log('Exits 1 when any AI-slop lint remains, so agents can revise and retry.');
     return;
   }
   const mode: 'lint' | 'score' = argv[0] === 'score' ? 'score' : 'lint';
@@ -157,23 +160,20 @@ async function main(): Promise<void> {
   if (modelIdx >= 0) valueIdxs.add(modelIdx + 1);
   const files = rest.filter((a, i) => !a.startsWith('-') && !valueIdxs.has(i));
 
-  // Resolve the parser model: --model, then NLPGRAPH_MODEL_DIR, then ./models/xsmall
-  // in the cwd (where `nlpgraph download --dir ./models` puts it). Falling through to
-  // undefined lets loadParser use its in-repo default when run from the workspace.
-  const cwdModel = resolve('models', 'xsmall');
+  // Resolve the owned ONNX bundle from --model, the environment, or workspace default.
   const modelDir =
     (modelIdx >= 0 ? rest[modelIdx + 1] : undefined) ??
-    process.env.NLPGRAPH_MODEL_DIR ??
-    (existsSync(cwdModel) ? cwdModel : undefined);
+    process.env.WRITINGLINT_ONNX_MODEL;
 
   let parser;
   try {
-    parser = await loadParser(modelDir ? { modelDir } : undefined);
-  } catch {
+    parser = await loadParser(modelDir ? { backend: 'onnx', onnxModelDir: modelDir } : undefined);
+  } catch (error) {
     console.error(
-      'Could not load the parser model. Download it once, then re-run:\n' +
-        '  npx nlpgraph download --model xsmall --dir ./models\n' +
-        '(or pass --model <dir>, or set NLPGRAPH_MODEL_DIR).',
+      'Could not start the local parser. Provide the exported ONNX bundle with\n' +
+        '  --model <ONNX model dir>\n' +
+        '(or set WRITINGLINT_ONNX_MODEL; Stanza remains available through the parser API).\n' +
+        `Cause: ${error instanceof Error ? error.message : String(error)}`,
     );
     process.exitCode = 1;
     return;
@@ -200,6 +200,10 @@ async function main(): Promise<void> {
       const warn = r.words < MIN_CONFIDENT_WORDS ? dim(' ⚠short') : '';
       console.log(`  ${colour(String(r.score).padStart(3))}/100  ${r.label}  ${dim(`${r.flags} flags`)}${warn}`);
     }
+  }
+
+  if (slopMode && mode === 'lint' && summary.some((result) => result.flags > 0)) {
+    process.exitCode = 1;
   }
 }
 
