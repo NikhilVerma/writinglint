@@ -3,6 +3,16 @@
 An opinionated CLI that flags AI-writing slop in prose and source-code comments.
 It is a separate product built on the WritingLint engine and AI-style rulepack.
 
+[![npm version](https://img.shields.io/npm/v/slopsift?label=npm&color=111111)](https://www.npmjs.com/package/slopsift)
+[![CI](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml/badge.svg)](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml)
+[![GitHub stars](https://img.shields.io/github/stars/NikhilVerma/writinglint?label=stars&color=111111)](https://github.com/NikhilVerma/writinglint/stargazers)
+[![Code license: MIT](https://img.shields.io/badge/code-MIT-2563eb)](https://github.com/NikhilVerma/writinglint/blob/main/LICENSE)
+[![Model license: CC BY-SA 4.0](https://img.shields.io/badge/model-CC_BY--SA_4.0-2563eb)](https://github.com/NikhilVerma/writinglint/blob/main/packages/parser-node/MODEL_LICENSE.md)
+
+[Website](https://slopsift.dev) · [Documentation](https://slopsift.dev/docs/) ·
+[GitHub](https://github.com/NikhilVerma/writinglint) ·
+[npm](https://www.npmjs.com/package/slopsift)
+
 ```bash
 bunx slopsift .
 bunx slopsift "docs/**/*.md" "src/**/*.{ts,tsx}"
@@ -57,6 +67,11 @@ pass `--model` to override it; the versioned cache is an emergency fallback.
 See [MODEL.md](./MODEL.md) for model provenance, training, evaluation,
 quantization, artifact release, licensing boundaries, and the reproducibility
 runbook.
+
+SlopSift's source code is MIT licensed. The ONNX graphs bundled by its
+`writinglint-parser-node` dependency are distributed under CC BY-SA 4.0; the
+tokenizer retains its Apache 2.0 lineage. See the parser's
+[model license and attribution](https://github.com/NikhilVerma/writinglint/blob/main/packages/parser-node/MODEL_LICENSE.md).
 
 SlopSift has independent versioning and product ergonomics even while developed
 in this monorepo. See [RELEASING.md](./RELEASING.md) for its release boundary and

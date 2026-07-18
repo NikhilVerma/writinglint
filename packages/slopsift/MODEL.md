@@ -47,12 +47,14 @@ word, and a dependency label for the selected head. Stanza was used offline as
 a teacher/reference during experimentation; it is not shipped and is not a
 runtime dependency.
 
-The distinguishing training step is **rule-aware distillation**. In addition to
-general dependency data, controlled construction families exercise structures
-that affect WritingLint rules, including coordination, negation, clausal
-attachments, passive agents, subjects, objects, modifiers, and complements. A
-strict holdout keeps expanded lexical families entirely out of training so the
-model must learn structure rather than memorize phrases.
+The distinguishing training step combines structured distillation with
+rule-sensitive supervision. In addition to general dependency data, controlled
+construction families exercise structures that affect WritingLint rules,
+including coordination, negation, clausal attachments, passive agents,
+subjects, objects, modifiers, and complements. A strict holdout reserves
+expanded template families for evaluation, reducing lexical-template leakage
+and testing transfer to unseen variants. It does not by itself establish broad
+generalization or prove the absence of lexical shortcuts.
 
 The selected checkpoint used 50 canonical rule-sensitivity examples. On 299
 strict family-heldout sentences (2,886 tokens), it raised critical-relation LAS

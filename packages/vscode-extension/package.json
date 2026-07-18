@@ -107,7 +107,7 @@
   "homepage": "https://github.com/NikhilVerma/writinglint/tree/main/packages/vscode-extension#readme",
   "dependencies": {
     "onnxruntime-node": "^1.27.0",
-    "slopsift": "^0.1.1"
+    "slopsift": "^0.1.2"
   },
   "devDependencies": {
     "@types/node": "^22.20.0",

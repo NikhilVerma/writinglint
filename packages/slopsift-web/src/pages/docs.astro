@@ -114,8 +114,9 @@ const skillInstall = `bunx skills add NikhilVerma/slopsift`;
       <section id="model">
         <p class="docs-index">07 / Model</p>
         <h2>Yes, it is a model we trained.</h2>
-        <p>More precisely: SlopSift starts from a compact pretrained BERT-Mini English encoder, then fine-tunes it for Universal Dependencies outputs: word-level parts of speech, syntactic heads, and dependency relations. The custom step is rule-aware distillation over constructions that matter to the linter, with strict lexical-family holdouts designed to reward structural learning instead of phrase memorization.</p>
-        <p>We quantize the selected checkpoint into an approximately 16 MiB ONNX bundle. The same weights run through ONNX Runtime Node in the CLI and ONNX Runtime Web/WASM in the browser. We used Stanza offline as a teacher and reference during experimentation. The runtime neither ships nor calls Stanza.</p>
+        <p>More precisely: SlopSift starts from a compact pretrained BERT-Mini English encoder and trains it for Universal Dependencies outputs: word-level parts of speech, syntactic heads, and dependency relations. Training combines UD English EWT supervision, structured distillation from a larger DeBERTa parser, and 50 controlled examples targeting grammatical relationships used by the linter.</p>
+        <p>We excluded separate lexicalized template families from training and reserved them for evaluation. That reduces template leakage and tests transfer to unseen variants; it does not prove broad generalization or rule out every lexical shortcut.</p>
+        <p>We quantize the selected checkpoint into an approximately 16 MiB ONNX bundle. The same weights run through ONNX Runtime Node in the CLI and ONNX Runtime Web/WASM in the browser. We used Stanza offline to label controlled examples and as an independent reference during experimentation. The runtime neither ships nor calls Stanza.</p>
         <aside class="docs-note"><strong>What it is not:</strong> SlopSift is not a classifier that guesses whether AI wrote a document. The parser builds a dependency graph; deterministic, named rules report the constructions they find.</aside>
         <a class="docs-source-link" href="https://github.com/NikhilVerma/writinglint/blob/main/packages/slopsift/MODEL.md">Read the full model card and reproducibility notes →</a>
       </section>

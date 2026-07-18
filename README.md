@@ -5,7 +5,9 @@ authorable TypeScript rules.
 
 [![SlopSift on npm](https://img.shields.io/npm/v/slopsift?label=slopsift&color=111111)](https://www.npmjs.com/package/slopsift)
 [![CI](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml/badge.svg)](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-2563eb)](LICENSE)
+[![GitHub stars](https://img.shields.io/github/stars/NikhilVerma/writinglint?label=stars&color=111111)](https://github.com/NikhilVerma/writinglint/stargazers)
+[![Code license: MIT](https://img.shields.io/badge/code-MIT-2563eb)](LICENSE)
+[![Model license: CC BY-SA 4.0](https://img.shields.io/badge/model-CC_BY--SA_4.0-2563eb)](packages/parser-node/MODEL_LICENSE.md)
 [![SlopSift demo](https://img.shields.io/badge/demo-slopsift.dev-111111)](https://slopsift.dev)
 
 WritingLint is the reusable engine. It parses text once, runs rulepacks over a

@@ -1,5 +1,12 @@
 # writinglint-parser-node
 
+## 0.1.4
+
+### Patch Changes
+
+- Ignore inherited JavaScript object properties during WordPiece vocabulary
+  lookup so words such as `constructor` cannot be mistaken for native functions.
+
 ## 0.1.3
 
 ### Patch Changes

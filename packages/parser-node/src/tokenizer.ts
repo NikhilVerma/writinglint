@@ -80,15 +80,19 @@ function normalize(value: string): string {
   return value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 }
 
+function vocabId(vocab: Readonly<Record<string, number>>, piece: string): number | undefined {
+  return Object.prototype.hasOwnProperty.call(vocab, piece) ? vocab[piece] : undefined;
+}
+
 /** Exact greedy BERT WordPiece encoding for an already segmented word sequence. */
 export function encodeWordPieces(words: readonly WordToken[], vocab: Readonly<Record<string, number>>): EncodedWords {
-  const inputIds = [vocab['[CLS]'] ?? 101];
+  const inputIds = [vocabId(vocab, '[CLS]') ?? 101];
   const wordStarts: number[] = [];
   for (const word of words) {
     wordStarts.push(inputIds.length);
     const normalized = normalize(word.form);
     if ([...normalized].length > 100) {
-      inputIds.push(vocab['[UNK]'] ?? 100);
+      inputIds.push(vocabId(vocab, '[UNK]') ?? 100);
       continue;
     }
     const pieces: number[] = [];
@@ -98,13 +102,13 @@ export function encodeWordPieces(words: readonly WordToken[], vocab: Readonly<Re
       let id: number | undefined;
       while (end > start) {
         const piece = `${start === 0 ? '' : '##'}${normalized.slice(start, end)}`;
-        id = vocab[piece];
+        id = vocabId(vocab, piece);
         if (id !== undefined) break;
         end--;
       }
       if (id === undefined) {
         pieces.length = 0;
-        pieces.push(vocab['[UNK]'] ?? 100);
+        pieces.push(vocabId(vocab, '[UNK]') ?? 100);
         break;
       }
       pieces.push(id);
@@ -112,6 +116,6 @@ export function encodeWordPieces(words: readonly WordToken[], vocab: Readonly<Re
     }
     inputIds.push(...pieces);
   }
-  inputIds.push(vocab['[SEP]'] ?? 102);
+  inputIds.push(vocabId(vocab, '[SEP]') ?? 102);
   return { inputIds, wordStarts };
 }

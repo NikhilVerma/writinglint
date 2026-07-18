@@ -1,5 +1,7 @@
 # Launch strategy
 
+The constructor accepts a parser and configuration.
+
 The real bottleneck is not tooling. It is organizational courage.
 
 This is the load-bearing idea in the entire strategy. In today's rapidly
