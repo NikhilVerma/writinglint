@@ -28,6 +28,10 @@ npm run setup-model
 npm run check
 ```
 
+`npm ci` installs the Husky hooks. Before each push, the repository builds the
+public tarballs and installs SlopSift in a fresh consumer project. You can run
+the same gate directly with `npm run check:push`.
+
 The parser training experiments use `uv`; they are not required for ordinary
 TypeScript contributions. See `training/parser/README.md` before changing the
 model or training pipeline.
@@ -37,8 +41,9 @@ model or training pipeline.
 1. Create a branch from `main`.
 2. Add or update focused tests with behavior changes.
 3. Run `npm run check`.
-4. Run `npm run pack:check` when changing a public package, its manifest, or a
-   CLI entry point.
+4. Run `npm run check:push` when changing a public package, its manifest, or a
+   CLI entry point. The Husky pre-push hook runs it automatically as a final
+   package-boundary check.
 5. Add a Changeset for a user-visible change to a published package:
 
    ```sh

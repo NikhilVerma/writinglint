@@ -35,13 +35,17 @@ export const correctiveAntithesis = defineRule({
           for (const y of s.tokens) {
             const coordinated = y.deprel === 'conj' || y.deprel === 'appos' || y.deprel === 'parataxis';
             const relativeClause = y.deprel === 'acl:relcl';
-            // The broad coordinated form needs a rhetorical frame so ordinary
-            // instructions such as "Use names, not IDs" remain unflagged. A
-            // relative clause is already a much narrower grammatical shape.
-            if ((!coordinated || !rhetoricalFrame) && !relativeClause) continue;
-
             const not = childrenOf(s, y.id).find((c) => lower(c) === 'not');
             if (!not) continue;
+            const whSubject = childrenOf(s, y.id).some((child) =>
+              (child.deprel === 'nsubj' || child.deprel.startsWith('nsubj:'))
+              && /^(?:who|what|which)$/.test(lower(child)),
+            );
+            // The broad coordinated form needs a rhetorical frame so ordinary
+            // instructions such as "Use names, not IDs" remain unflagged. A
+            // relative clause, including a compact-parser `conj` with an
+            // explicit wh-subject, is already a much narrower graph shape.
+            if ((!coordinated || (!rhetoricalFrame && !whSubject)) && !relativeClause) continue;
             const before = byId(s, not.id - 1);
             if (!before || before.form !== ',') continue;
 

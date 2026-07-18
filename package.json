@@ -15,6 +15,7 @@
     "packages/*"
   ],
   "scripts": {
+    "prepare": "husky",
     "dev": "npm run dev -w writinglint-web",
     "build": "npm run build -w writinglint-web",
     "build:cf": "node -e \"const fs=require('fs');for(const d of ['packages/web/public/model','packages/web/public/ort'])fs.rmSync(d,{recursive:true,force:true})\" && npm run build:site -w writinglint-web",
@@ -36,6 +37,7 @@
     "smoke:packed": "node scripts/smoke-cli-install.mjs packed",
     "smoke:published": "node scripts/smoke-cli-install.mjs published",
     "smoke:published:writinglint": "node scripts/smoke-cli-install.mjs published-writinglint",
+    "check:push": "npm run smoke:packed",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "npm run check && npm run pack:check && changeset publish"
@@ -45,6 +47,7 @@
     "@cloudflare/workers-types": "^4.20241106.0",
     "@types/node": "^22.20.0",
     "esbuild": "^0.24.2",
+    "husky": "^9.1.7",
     "tsx": "^4.23.0",
     "typescript": "^5.9.3"
   }

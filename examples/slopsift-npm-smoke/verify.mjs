@@ -3,6 +3,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 
 const root = dirname(fileURLToPath(import.meta.url));
 const installed = JSON.parse(await readFile(join(root, 'node_modules/slopsift/package.json'), 'utf8'));
@@ -15,7 +16,9 @@ if (process.env.EXPECTED_PARSER_VERSION) {
   assert.equal(installedParser.version, process.env.EXPECTED_PARSER_VERSION);
 }
 
-const installedRulepack = JSON.parse(await readFile(join(root, 'node_modules/writinglint-rulepack-ai-style/package.json'), 'utf8'));
+const requireFromSlopSift = createRequire(join(root, 'node_modules/slopsift/package.json'));
+const rulepackEntry = requireFromSlopSift.resolve('writinglint-rulepack-ai-style');
+const installedRulepack = JSON.parse(await readFile(join(dirname(rulepackEntry), '..', 'package.json'), 'utf8'));
 if (process.env.EXPECTED_RULEPACK_VERSION) {
   assert.equal(installedRulepack.version, process.env.EXPECTED_RULEPACK_VERSION);
 }
@@ -43,18 +46,19 @@ const result = spawnSync(process.execPath, [
 assert.ok(result.status === 0 || result.status === 1, result.stderr || `unexpected exit ${result.status}`);
 const reports = JSON.parse(result.stdout);
 assert.equal(reports.length, 1);
+const rules = reports[0].messages.map((message) => message.ruleId);
 const emerging = reports[0].messages.filter((message) => message.ruleId === 'ai-style/emerging-slop-phrases');
 assert.equal(emerging.length, 2, 'expected the emerging phrases, but not the literal load-bearing wall');
 assert.ok(emerging.every((message) => message.level === 'info' && message.confidence === 'low'));
 assert.equal(
   reports[0].messages.filter((message) => message.ruleId === 'ai-style/corrective-antithesis').length,
   1,
-  'expected the clause-level "X, not Y" construction',
+  `expected the clause-level "X, not Y" construction from rulepack ${installedRulepack.version}; received ${JSON.stringify(rules)}`,
 );
 assert.equal(
   reports[0].messages.filter((message) => message.ruleId === 'ai-style/stepwise-sequencing').length,
   1,
-  'expected the graph-backed "X then Y" construction',
+  `expected the graph-backed "X then Y" construction; received ${JSON.stringify(rules)}`,
 );
 
 console.log(`Verified slopsift@${installed.version} as an isolated npm consumer (${reports[0].messages.length} findings).`);

@@ -25,6 +25,13 @@ test('corrective-antithesis fires on the "X, not Y" construction', async () => {
     finding(await lint('It checks the writing, not who wrote it.'), 'corrective-antithesis')?.confidence,
     'low',
   );
+  assert.equal(
+    finding(
+      await lint('A prior sentence changes the parser batch. It checks the writing, not who wrote it.'),
+      'corrective-antithesis',
+    )?.confidence,
+    'low',
+  );
 });
 
 test('stepwise sequencing catches formulaic “X then Y” cadence', async () => {

@@ -1,5 +1,14 @@
 # slopsift
 
+## 0.1.3
+
+### Patch Changes
+
+- Catch formulaic "X then Y" sequencing, clause-level "X, not Y" contrasts,
+  and balanced three-clause slogans.
+- Updated dependencies
+  - writinglint-rulepack-ai-style@0.1.4
+
 ## 0.1.2
 
 ### Patch Changes
