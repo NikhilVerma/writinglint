@@ -16,10 +16,10 @@ import SiteLayout from '../layouts/SiteLayout.astro';
       <h2>Data handling</h2>
       <ul>
         <li>Draft text moves from the page content script to SlopSift’s own extension service worker for local analysis.</li>
-        <li>The parser and rules are packaged with the extension. Inference does not call a remote API.</li>
-        <li>Drafts, findings, page contents, and browsing history are not stored.</li>
+        <li>The extension packages the parser and rules. Inference does not call a remote API.</li>
+        <li>The extension does not store drafts, findings, page contents, or browsing history.</li>
         <li>There is no analytics, telemetry, advertising, or account system.</li>
-        <li>Only the enabled state and minimum severity are kept in Chrome’s local extension storage.</li>
+        <li>Chrome’s local extension storage keeps only the enabled state and minimum severity.</li>
       </ul>
     </section>
 
@@ -30,7 +30,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 
     <section>
       <h2>Changes and contact</h2>
-      <p>Material changes will be published here and recorded in the repository before a new extension release. Report privacy or security concerns through the private process in <a href="https://github.com/NikhilVerma/writinglint/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+      <p>We will publish material changes here and record them in the repository before a new extension release. Report privacy or security concerns through the private process in <a href="https://github.com/NikhilVerma/writinglint/blob/main/SECURITY.md">SECURITY.md</a>.</p>
     </section>
   </main>
   <footer><a class="wordmark" href="/"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a><p>Open source. Local first. Opinionated by design.</p></footer>

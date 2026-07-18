@@ -1,0 +1,130 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const flags = [
+  ['--level info|warning|error', 'Choose the minimum finding level. The default is warning.'],
+  ['--quiet', 'Show errors only. Equivalent to --level error.'],
+  ['--format stylish|json|json-lines', 'Choose human-readable or machine-readable output.'],
+  ['--ext .md,.txt,.ts', 'Limit the file extensions SlopSift reads.'],
+  ['--ignore-pattern <glob>', 'Add an ignore pattern. Repeat the flag for more than one.'],
+  ['--no-ignore', 'Do not read patterns from .gitignore.'],
+  ['--max-warnings <n>', 'Exit 1 when the warning count is above this number.'],
+  ['--exit-zero', 'Report findings without failing the command. Runtime failures still exit 2.'],
+  ['--no-error-on-unmatched-pattern', 'Allow an optional glob to match no supported files.'],
+  ['--model <directory>', 'Use an explicit SlopSift ONNX model bundle.'],
+  ['--no-download', 'Fail instead of using the emergency model download fallback.'],
+];
+const quickStart = `bunx slopsift .
+bunx slopsift "docs/**/*.md" "src/**/*.{ts,tsx}"
+npx slopsift . --level info`;
+const ciExamples = `# High-confidence findings only
+bunx slopsift . --quiet
+
+# Fail when any warning appears
+bunx slopsift . --max-warnings 0
+
+# Machine-readable report without failing on prose
+bunx slopsift . --format json --exit-zero`;
+const skillInstall = `bunx skills add NikhilVerma/slopsift`;
+---
+
+<SiteLayout title="Docs | SlopSift" description="A concise guide to the SlopSift CLI, output levels, CI usage, supported files, and custom-trained parser model.">
+  <header class="site-header">
+    <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
+    <nav aria-label="Documentation navigation"><a href="/">Home</a><a href="/#demo">Live editor</a><a href="https://github.com/NikhilVerma/writinglint">Source</a><a class="nav-install" href="#quick-start">Start here</a></nav>
+  </header>
+
+  <main class="docs-page">
+    <header class="docs-hero">
+      <p class="kicker">SlopSift documentation</p>
+      <h1>The short<br />manual.</h1>
+      <p>Enough to run SlopSift locally, understand what it reports, and wire it into CI. No account, API key, Python environment, or remote inference service required.</p>
+    </header>
+
+    <nav class="docs-toc" aria-label="On this page">
+      <span>On this page</span>
+      <a href="#quick-start">Quick start</a>
+      <a href="#inputs">What it reads</a>
+      <a href="#findings">Findings and output</a>
+      <a href="#flags">CLI flags</a>
+      <a href="#ci">Using it in CI</a>
+      <a href="#agent-skill">Agent skill</a>
+      <a href="#model">The parser model</a>
+    </nav>
+
+    <div class="docs-content">
+      <section id="quick-start">
+        <p class="docs-index">01 / Quick start</p>
+        <h2>Run it where the writing lives.</h2>
+        <p>The package and executable share the same name. Use Bun or npm without installing a separate binary.</p>
+        <pre><code>{quickStart}</code></pre>
+        <p>The npm package includes the compact parser weights. After npm installs the package, SlopSift works offline and does not download a second runtime.</p>
+      </section>
+
+      <section id="inputs">
+        <p class="docs-index">02 / Inputs</p>
+        <h2>Prose, pages, and code comments.</h2>
+        <ul>
+          <li><strong>Markdown and text:</strong> SlopSift reads the full document as prose.</li>
+          <li><strong>HTML:</strong> SlopSift reads rendered text and skips scripts, styles, templates, SVG, metadata, and code blocks.</li>
+          <li><strong>Source files:</strong> SlopSift extracts line and block comments, then maps each finding back to its original file location.</li>
+          <li><strong>Ignored paths:</strong> SlopSift skips dependencies, generated directories, <code>.git</code>, and anything covered by <code>.gitignore</code>.</li>
+        </ul>
+      </section>
+
+      <section id="findings">
+        <p class="docs-index">03 / Findings</p>
+        <h2>Findings need a human.</h2>
+        <div class="docs-levels">
+          <article><span>error</span><p>A high-confidence, specific signature. Errors fail the command.</p></article>
+          <article><span>warning</span><p>Likely slop that still needs editorial judgment. Shown by default.</p></article>
+          <article><span>info</span><p>A low-confidence signal worth reviewing. Use <code>--level info</code> to include it.</p></article>
+        </div>
+        <p>Stylish output is for people. JSON follows ESLint’s numeric severity shape while retaining SlopSift’s level, confidence, exact range, word count, and findings per thousand words.</p>
+      </section>
+
+      <section id="flags">
+        <p class="docs-index">04 / CLI flags</p>
+        <h2>The useful switches.</h2>
+        <div class="docs-table-wrap">
+          <table>
+            <thead><tr><th>Flag</th><th>What it does</th></tr></thead>
+            <tbody>{flags.map(([flag, meaning]) => <tr><td><code>{flag}</code></td><td>{meaning}</td></tr>)}</tbody>
+          </table>
+        </div>
+        <p>Run <code>slopsift --help</code> for the canonical list shipped with your installed version.</p>
+      </section>
+
+      <section id="ci">
+        <p class="docs-index">05 / CI</p>
+        <h2>Decide how strict the gate should be.</h2>
+        <pre><code>{ciExamples}</code></pre>
+        <div class="docs-exits"><span><b>0</b> clean</span><span><b>1</b> lint threshold failed</span><span><b>2</b> arguments, configuration, model, or runtime failed</span></div>
+      </section>
+
+      <section id="agent-skill">
+        <p class="docs-index">06 / Agent skill</p>
+        <h2>Give your agent an editor.</h2>
+        <p>Add the SlopSift skill with the open skills CLI. It works with Codex, Claude Code, Cursor, OpenCode, and other agents that support the Agent Skills format.</p>
+        <pre><code>{skillInstall}</code></pre>
+        <p>The skill tells an agent to run the real SlopSift CLI, inspect exact ranges, and prioritize errors over weaker signals. It also tells the agent to preserve the writer's voice, leave legitimate findings alone, and reject authorship claims based on a lint result.</p>
+        <aside class="docs-note"><strong>Editor integrations:</strong> The VS Code extension and Chrome extension are still coming soon. The CLI, browser editor, and agent skill are available first.</aside>
+      </section>
+
+      <section id="model">
+        <p class="docs-index">07 / Model</p>
+        <h2>Yes, it is a model we trained.</h2>
+        <p>More precisely: SlopSift starts from a compact pretrained BERT-Mini English encoder, then fine-tunes it for Universal Dependencies outputs: word-level parts of speech, syntactic heads, and dependency relations. The custom step is rule-aware distillation over constructions that matter to the linter, with strict lexical-family holdouts designed to reward structural learning instead of phrase memorization.</p>
+        <p>We quantize the selected checkpoint into an approximately 16 MiB ONNX bundle. The same weights run through ONNX Runtime Node in the CLI and ONNX Runtime Web/WASM in the browser. We used Stanza offline as a teacher and reference during experimentation. The runtime neither ships nor calls Stanza.</p>
+        <aside class="docs-note"><strong>What it is not:</strong> SlopSift is not a classifier that guesses whether AI wrote a document. The parser builds a dependency graph; deterministic, named rules report the constructions they find.</aside>
+        <a class="docs-source-link" href="https://github.com/NikhilVerma/writinglint/blob/main/packages/slopsift/MODEL.md">Read the full model card and reproducibility notes →</a>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <a class="wordmark" href="/"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
+    <p>Open source. Local first. Opinionated by design.</p>
+    <div><a href="/">Home</a><a href="/privacy/">Privacy</a><a href="https://github.com/NikhilVerma/writinglint">GitHub</a></div>
+  </footer>
+</SiteLayout>

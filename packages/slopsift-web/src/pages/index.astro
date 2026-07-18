@@ -15,7 +15,7 @@ The deadline was changed yesterday. Several safety concerns were ignored. It was
     </a>
     <nav aria-label="Primary navigation">
       <a href="#demo">Try it</a>
-      <a href="#surfaces">Tools</a>
+      <a href="/docs/">Docs</a>
       <a href="https://github.com/NikhilVerma/writinglint">GitHub</a>
       <a class="nav-install" href="#install">Install</a>
     </nav>
@@ -26,7 +26,7 @@ The deadline was changed yesterday. Several safety concerns were ignored. It was
       <div class="hero__copy">
         <p class="kicker">Natural-language processing. Local first.</p>
         <h1 id="hero-title">Your AI<br />has a<br />tell.</h1>
-        <p class="hero__summary">SlopSift maps the grammatical structure beneath a draft—not just words or parts of speech—to catch canned arguments, borrowed certainty, and suspiciously polished filler.</p>
+        <p class="hero__summary">SlopSift uses our custom-trained dependency parser to map the grammatical structure beneath a draft—not just words or parts of speech—and catch canned arguments, borrowed certainty, and suspiciously polished filler.</p>
         <div class="hero__actions">
           <a class="button button--primary" href="#demo">Lint some text</a>
           <button class="install-command" type="button" data-copy="bunx slopsift ." title="Copy install command">
@@ -39,12 +39,16 @@ The deadline was changed yesterday. Several safety concerns were ignored. It was
         <span class="draft-stamp" aria-hidden="true">AI DRAFT</span>
         <div class="lint-demo__editor">
           <div class="panel-bar">
-            <span>EDITABLE DRAFT</span>
+            <span class="editor-file">draft.txt <b>editable</b></span>
             <span class="live-indicator"><i aria-hidden="true"></i>live NLP</span>
           </div>
+          <label class="editor-invitation" for="slopsift-draft">
+            <span class="editor-invitation__mark" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m4 14.7-.7 2.9 2.9-.7L16.4 6.7l-2.2-2.2L4 14.7Z"/><path d="m12.8 5.9 2.2 2.2"/></svg></span>
+            <span><strong>Try it here.</strong> Click the text and type—SlopSift updates as you pause.</span>
+          </label>
           <div class="editor-surface">
             <div class="editor-backdrop" data-backdrop aria-hidden="true"></div>
-            <textarea aria-label="Text to lint" spellcheck="true" autocomplete="off">{sample}</textarea>
+            <textarea id="slopsift-draft" aria-label="Editable text to lint" spellcheck="true" autocomplete="off">{sample}</textarea>
             <div class="editor-loading" data-loading>
               <span data-loading-label>Starting the local parser…</span>
               <span class="editor-loading__track"><i data-loading-bar></i></span>
@@ -52,7 +56,7 @@ The deadline was changed yesterday. Several safety concerns were ignored. It was
           </div>
           <div class="demo-controls">
             <p data-status>Loading the on-device NLP model…</p>
-            <span class="local-badge">never uploaded</span>
+            <div class="editor-meta"><span data-cursor>Ln 1, Col 1</span><span class="local-badge">stays local</span></div>
           </div>
         </div>
         <aside class="lint-demo__results" aria-label="Lint problems">
@@ -75,10 +79,26 @@ The deadline was changed yesterday. Several safety concerns were ignored. It was
         <p class="method__lede">Many writing tools stop at word matching and basic parts of speech. SlopSift follows the relationships between words, so rules can recognize how a sentence makes its claim—not only which vocabulary it uses.</p>
       </div>
       <ol class="method__steps">
-        <li><span>01</span><div><h3>Build a dependency graph</h3><p>A compact local model maps tokens, parts of speech, and the grammatical relationships holding the sentence together.</p></div></li>
+        <li><span>01</span><div><h3>Build a dependency graph</h3><p>Our custom-trained compact model maps tokens, parts of speech, and the grammatical relationships holding the sentence together.</p></div></li>
         <li><span>02</span><div><h3>Match the construction</h3><p>Authorable rules inspect the graph for structural tells. Every finding names what matched and the exact text that triggered it.</p></div></li>
         <li><span>03</span><div><h3>Keep judgment with the writer</h3><p>Errors are strong tells. Warnings need attention. Notes are candidates—not a machine pretending to know who wrote the sentence.</p></div></li>
       </ol>
+    </section>
+
+    <section class="model-story" id="model" aria-labelledby="model-title">
+      <div class="model-story__heading">
+        <p class="kicker">Not an API wrapper</p>
+        <h2 id="model-title">We trained the parser for this.</h2>
+      </div>
+      <div class="model-story__body">
+        <p>SlopSift starts with a compact pretrained English encoder, then fine-tunes it for parts of speech and dependency parsing. Our rule-aware distillation adds the constructions the linter actually needs to understand, with lexical families held out so the model has to learn structure instead of memorizing phrases.</p>
+        <div class="model-facts">
+          <article><span>16 MiB</span><div><h3>Small enough to ship</h3><p>Quantized ONNX weights run locally in Node and browser WebAssembly.</p></div></article>
+          <article><span>3 heads</span><div><h3>Built for syntax</h3><p>UPOS, dependency arcs, and dependency relations—not a generic text score.</p></div></article>
+          <article><span>0 uploads</span><div><h3>Your draft stays yours</h3><p>The model and deterministic rules run on-device. No remote judge reads the text.</p></div></article>
+        </div>
+        <a class="model-story__link" href="/docs/#model">Read how the model and CLI work <span aria-hidden="true">→</span></a>
+      </div>
     </section>
 
     <section class="severity" aria-labelledby="severity-title">
@@ -97,10 +117,10 @@ The deadline was changed yesterday. Several safety concerns were ignored. It was
         <h2 id="surfaces-title">Meet writers where they write.</h2>
       </div>
       <div class="surface-list">
-        <article><div class="surface-mark">$</div><div><h3>CLI</h3><p>Glob files, lint Markdown, inspect code comments, and emit ESLint-shaped JSON in CI.</p></div><code>bunx slopsift .</code></article>
-        <article><div class="surface-mark">VS</div><div><h3>VS Code</h3><p>Diagnostics appear beside the sentence, with the same severity and rule name as the terminal.</p></div><span>local</span></article>
-        <article><div class="surface-mark">CR</div><div><h3>Chrome</h3><p>Review text boxes and editable pages before the draft escapes into the internet.</p></div><span>private</span></article>
-        <article><div class="surface-mark">AI</div><div><h3>Agent skill</h3><p>Let coding agents lint their own prose before they hand it back to a human.</p></div><span>coming next</span></article>
+        <article><div class="surface-mark">$</div><div><h3>CLI</h3><p>Glob files, lint Markdown, inspect code comments, and emit ESLint-shaped JSON in CI.</p></div><a class="surface-link" href="/docs/#quick-start">CLI docs →</a></article>
+        <article><div class="surface-mark">VS</div><div><h3>VS Code</h3><p>Diagnostics beside the sentence, with the same severity and rule name as the terminal.</p></div><span>coming soon</span></article>
+        <article><div class="surface-mark">CR</div><div><h3>Chrome</h3><p>Review text boxes and editable pages before the draft escapes into the internet.</p></div><span>coming soon</span></article>
+        <article><div class="surface-mark">AI</div><div><h3>Agent skill</h3><p>Let coding agents run the real linter, interpret its findings, and edit without flattening your voice.</p></div><a class="surface-link" href="/docs/#agent-skill">Add the skill →</a></article>
       </div>
     </section>
 
@@ -108,7 +128,7 @@ The deadline was changed yesterday. Several safety concerns were ignored. It was
       <p class="manifesto__aside">Yes, AI helped build this.</p>
       <div>
         <h2>Built by AI.<br /><span>Edited on purpose.</span></h2>
-        <p>That is the point. SlopSift is not an AI detector and it does not pretend to know who typed a sentence. It catches habits that make writing vague, inflated, repetitive, or weirdly certain. Human beings do those things too.</p>
+        <p>That is the point. SlopSift is not an AI detector and it does not pretend to know who typed a sentence. It catches vague or inflated writing. It also catches repetition and borrowed certainty. Human beings do those things too.</p>
       </div>
     </section>
 
@@ -127,7 +147,7 @@ The deadline was changed yesterday. Several safety concerns were ignored. It was
   <footer>
     <a class="wordmark" href="#top"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
     <p>Open source. Local first. Opinionated by design.</p>
-    <div><a href="/privacy/">Privacy</a><a href="https://github.com/NikhilVerma/writinglint">GitHub</a><a href="https://www.npmjs.com/package/slopsift">npm</a></div>
+    <div><a href="/docs/">Docs</a><a href="/privacy/">Privacy</a><a href="https://github.com/NikhilVerma/writinglint">GitHub</a><a href="https://www.npmjs.com/package/slopsift">npm</a></div>
   </footer>
 
   <script is:inline>

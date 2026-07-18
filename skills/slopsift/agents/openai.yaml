@@ -1,0 +1,4 @@
+interface:
+  display_name: "SlopSift"
+  short_description: "Lint prose for structural AI writing tells"
+  default_prompt: "Use $slopsift to lint this prose and fix the strongest findings without flattening my voice."

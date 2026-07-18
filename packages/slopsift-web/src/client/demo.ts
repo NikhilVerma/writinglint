@@ -14,6 +14,7 @@ if (host) {
   const loading = demo.querySelector<HTMLElement>('[data-loading]')!;
   const loadingLabel = demo.querySelector<HTMLElement>('[data-loading-label]')!;
   const loadingBar = demo.querySelector<HTMLElement>('[data-loading-bar]')!;
+  const cursor = demo.querySelector<HTMLElement>('[data-cursor]')!;
 
   const severityRank = { error: 0, warn: 1, info: 2 } as const;
   const categoryRank = new Map(CATEGORY_ORDER.map((category, index) => [category, index]));
@@ -43,6 +44,11 @@ if (host) {
       }
     }
     return { line, column };
+  }
+
+  function updateCursor(): void {
+    const location = lineColOf(input.value, input.selectionStart);
+    cursor.textContent = `Ln ${location.line}, Col ${location.column}`;
   }
 
   function paint(text: string, lints: Lint[]): void {
@@ -167,6 +173,7 @@ if (host) {
 
   input.addEventListener('input', () => {
     paint(input.value, []);
+    updateCursor();
     window.clearTimeout(editTimer);
     if (!input.value.trim()) {
       clear();
@@ -180,6 +187,11 @@ if (host) {
     backdrop.scrollTop = input.scrollTop;
     backdrop.scrollLeft = input.scrollLeft;
   });
+  input.addEventListener('focus', () => demo.classList.add('is-editing'));
+  input.addEventListener('blur', () => demo.classList.remove('is-editing'));
+  input.addEventListener('click', updateCursor);
+  input.addEventListener('keyup', updateCursor);
+  input.addEventListener('select', updateCursor);
 
   const marksFor = (index: number) => backdrop.querySelectorAll<HTMLElement>(`[data-lint-index="${index}"]`);
   results.addEventListener('mouseover', (event) => {
@@ -208,8 +220,10 @@ if (host) {
     }
     input.focus();
     input.setSelectionRange(start, end);
+    updateCursor();
   });
 
   paint(input.value, []);
+  updateCursor();
   start();
 }
