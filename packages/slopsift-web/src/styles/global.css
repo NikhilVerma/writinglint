@@ -204,6 +204,26 @@
     color: var(--ink);
     font-size: 9px;
   }
+  .results-toolbar { min-width: 0; display: flex; align-items: center; gap: 12px; }
+  .results-toolbar > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .results-toolbar button {
+    flex: 0 0 auto;
+    border: 1px solid var(--ink);
+    padding: 4px 7px 3px;
+    background: var(--paper-raised);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: .04em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .results-toolbar button:hover:not(:disabled) { border-color: var(--red); color: var(--red-dark); }
+  .results-toolbar button:active:not(:disabled) { transform: translateY(1px); }
+  .results-toolbar button:disabled { opacity: .42; cursor: not-allowed; }
   .editor-file { display: inline-flex; align-items: center; gap: 9px; }
   .editor-file b {
     width: auto;
@@ -578,6 +598,7 @@
     .lint-demo__editor { border-right: 0; border-bottom: 1px solid var(--ink); }
     .editor-surface { min-height: 390px; }
     .lint-demo__results { height: 430px; }
+    .results-toolbar > span { display: none; }
     .draft-stamp { right: 18px; }
     .rule-ticker { justify-content: flex-start; }
     .surfaces { padding-block: 100px; }

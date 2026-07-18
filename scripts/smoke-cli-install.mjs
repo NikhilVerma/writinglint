@@ -29,6 +29,7 @@ const manifestPath = join(consumer, 'package.json');
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const expected = JSON.parse(await readFile(join(root, `packages/${packageDirectory}/package.json`), 'utf8')).version;
 const expectedParser = JSON.parse(await readFile(join(root, 'packages/parser-node/package.json'), 'utf8')).version;
+const expectedRulepack = JSON.parse(await readFile(join(root, 'packages/rulepack-ai-style/package.json'), 'utf8')).version;
 
 function runNpm(args, options = {}) {
   return spawnSync('npm', args, {
@@ -86,6 +87,7 @@ try {
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
     await waitUntilPublished(packageName, expected);
     await waitUntilPublished('writinglint-parser-node', expectedParser);
+    await waitUntilPublished('writinglint-rulepack-ai-style', expectedRulepack);
   }
 
   let installation;
@@ -113,6 +115,7 @@ try {
       ...consumerNpmEnvironment,
       EXPECTED_PACKAGE_VERSION: expected,
       EXPECTED_PARSER_VERSION: expectedParser,
+      EXPECTED_RULEPACK_VERSION: expectedRulepack,
     },
   });
   if (verification.status !== 0) {

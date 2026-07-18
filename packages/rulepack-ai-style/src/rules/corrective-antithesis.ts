@@ -4,10 +4,12 @@
  * while adding no information; a signature modern-LLM cadence (and, ironically,
  * the one this project's own copy first tripped on).
  *
- * This is the rule that justifies a dependency graph. Its shape is a `conj`/`appos`/`parataxis`
- * dependent Y whose COORDINATOR is the negator "not" (a child of Y, immediately
- * preceded by a comma) — a head/child relation no linear token/POS DSL can express
- * without over-firing on ordinary sentential negation ("I did not see the number").
+ * This is the rule that justifies a dependency graph. Its usual shape is a
+ * `conj`/`appos`/`parataxis` dependent Y whose coordinator is the negator "not".
+ * It also covers a negated relative clause attached to X ("the writing, not who
+ * wrote it"). In both cases, "not" must be a child of Y and immediately preceded
+ * by a comma — a relation no linear token/POS DSL can express without over-firing
+ * on ordinary sentential negation ("I did not see the number").
  *
  * Kept distinct from `negative-parallelism`, which owns the "not only X but also Y"
  * form (coordinator "but", with an only/just/also marker). No overlap.
@@ -30,24 +32,24 @@ export const correctiveAntithesis = defineRule({
           const s: DepSentence = sentence.dep;
           const rhetoricalFrame = /\b(?:am|is|are|was|were|be|been|being)\b[^.!?]{0,100},\s*not\b/i.test(sentence.text)
             || /^\s*(?:trust|choose)\b[^.!?]{0,100},\s*not\b/i.test(sentence.text);
-          if (!rhetoricalFrame) continue;
           for (const y of s.tokens) {
-          // Y is coordinated with, apposed to, or a corrective parataxis of X.
-          if (y.deprel !== 'conj' && y.deprel !== 'appos' && y.deprel !== 'parataxis') continue;
-          // Its coordinator is the negator "not", attached to Y (cc / advmod / etc).
-          const not = childrenOf(s, y.id).find((c) => lower(c) === 'not');
-          if (!not) continue;
-          // Guard: require the ", not" comma so we match the corrective contrast,
-          // not sentential negation that happens to sit under a coordinated verb.
-          const before = byId(s, not.id - 1);
-          if (!before || before.form !== ',') continue;
-          // Highlight the whole "X, not Y" — the subtree of the head X (= Y.head),
-          // which spans X and its coordinated Y plus the negator.
-          const head = byId(s, y.head);
-          const contrastHead = byId(s, before.id - 1);
-          const toks = y.deprel === 'parataxis'
-            ? [...(contrastHead ? subtree(s, contrastHead.id) : []), ...subtree(s, y.id)]
-            : head ? subtree(s, head.id) : subtree(s, y.id);
+            const coordinated = y.deprel === 'conj' || y.deprel === 'appos' || y.deprel === 'parataxis';
+            const relativeClause = y.deprel === 'acl:relcl';
+            // The broad coordinated form needs a rhetorical frame so ordinary
+            // instructions such as "Use names, not IDs" remain unflagged. A
+            // relative clause is already a much narrower grammatical shape.
+            if ((!coordinated || !rhetoricalFrame) && !relativeClause) continue;
+
+            const not = childrenOf(s, y.id).find((c) => lower(c) === 'not');
+            if (!not) continue;
+            const before = byId(s, not.id - 1);
+            if (!before || before.form !== ',') continue;
+
+            const head = byId(s, y.head);
+            const contrastHead = byId(s, before.id - 1);
+            const toks = y.deprel === 'parataxis'
+              ? [...(contrastHead ? subtree(s, contrastHead.id) : []), ...subtree(s, y.id)]
+              : head ? subtree(s, head.id) : subtree(s, y.id);
             matches.push({ s, tokens: toks });
           }
         }

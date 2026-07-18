@@ -1,5 +1,12 @@
 # writinglint-rulepack-ai-style
 
+## 0.1.4
+
+### Patch Changes
+
+- Catch negated relative-clause contrasts, formulaic "X then Y" sequencing, and
+  balanced three-clause slogans while keeping single occurrences informational.
+
 ## 0.1.3
 
 ### Patch Changes

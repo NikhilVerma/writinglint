@@ -11,6 +11,7 @@ if (host) {
   const results = demo.querySelector<HTMLElement>('[data-results]')!;
   const totals = demo.querySelector<HTMLElement>('[data-totals]')!;
   const count = demo.querySelector<HTMLElement>('[data-count]')!;
+  const copyErrors = demo.querySelector<HTMLButtonElement>('[data-copy-errors]')!;
   const loading = demo.querySelector<HTMLElement>('[data-loading]')!;
   const loadingLabel = demo.querySelector<HTMLElement>('[data-loading-label]')!;
   const loadingBar = demo.querySelector<HTMLElement>('[data-loading-bar]')!;
@@ -29,6 +30,7 @@ if (host) {
   let pending = false;
   let request = 0;
   let sentText = input.value;
+  let lastLints: Lint[] = [];
   let editTimer = 0;
   let firstResult = true;
 
@@ -61,9 +63,11 @@ if (host) {
   }
 
   function render(lints: Lint[]): void {
+    lastLints = lints;
     const counts = { error: 0, warn: 0, info: 0 };
     for (const lint of lints) counts[lint.severity]++;
     count.textContent = String(lints.length);
+    copyErrors.disabled = lints.length === 0;
     totals.textContent = `${counts.error} errors · ${counts.warn} warnings · ${counts.info} notes`;
 
     const ordered = lints
@@ -221,6 +225,45 @@ if (host) {
     input.focus();
     input.setSelectionRange(start, end);
     updateCursor();
+  });
+
+  copyErrors.addEventListener('click', async () => {
+    if (!lastLints.length) return;
+    const messages = [...lastLints]
+      .sort((a, b) => a.start - b.start)
+      .map(({ severity, ...lint }) => {
+        const start = lineColOf(sentText, lint.start);
+        const end = lineColOf(sentText, lint.end);
+        return {
+          ...lint,
+          line: start.line,
+          column: start.column,
+          endLine: end.line,
+          endColumn: end.column,
+          severity: severity === 'error' ? 2 : severity === 'warn' ? 1 : 0,
+          level: severity,
+        };
+      });
+    const wordCount = sentText.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+    const output = JSON.stringify({
+      filePath: 'draft.txt',
+      messages,
+      errorCount: lastLints.filter((lint) => lint.severity === 'error').length,
+      warningCount: lastLints.filter((lint) => lint.severity === 'warn').length,
+      infoCount: lastLints.filter((lint) => lint.severity === 'info').length,
+      wordCount,
+      findingsPerThousandWords: wordCount
+        ? Number(((lastLints.length / wordCount) * 1000).toFixed(1))
+        : 0,
+    });
+    try {
+      await navigator.clipboard.writeText(`${output}\n`);
+      copyErrors.textContent = 'copied';
+      window.setTimeout(() => { copyErrors.textContent = 'copy errors'; }, 1200);
+    } catch {
+      copyErrors.textContent = 'copy failed';
+      window.setTimeout(() => { copyErrors.textContent = 'copy errors'; }, 1200);
+    }
   });
 
   paint(input.value, []);

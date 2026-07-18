@@ -13,6 +13,7 @@ import { CATEGORIES } from './categories.js';
 import { ruleOfThree } from './rules/rule-of-three.js';
 import { negativeParallelism } from './rules/negative-parallelism.js';
 import { correctiveAntithesis } from './rules/corrective-antithesis.js';
+import { stepwiseSequencing } from './rules/stepwise-sequencing.js';
 import { negativeContrast } from './rules/negative-contrast.js';
 import { participialAppendage } from './rules/participial-appendage.js';
 import { copulaAvoidance } from './rules/copula-avoidance.js';
@@ -48,6 +49,7 @@ const rawRules = {
   'rule-of-three': ruleOfThree,
   'negative-parallelism': negativeParallelism,
   'corrective-antithesis': correctiveAntithesis,
+  'stepwise-sequencing': stepwiseSequencing,
   'negative-contrast': negativeContrast,
   'participial-appendage': participialAppendage,
   'copula-avoidance': copulaAvoidance,
@@ -88,6 +90,7 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'rule-of-three': 'low',
   'negative-parallelism': 'medium',
   'corrective-antithesis': 'medium',
+  'stepwise-sequencing': 'low',
   'negative-contrast': 'medium',
   'participial-appendage': 'low',
   'copula-avoidance': 'medium',

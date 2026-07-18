@@ -1,14 +1,16 @@
 /**
- * Rule of three — a head with ≥2 `conj` siblings of its OWN part of speech,
- * restricted to ADJ/ADV so we flag rhetorical triads, not itemised noun lists.
+ * Rule of three — either a head with ≥2 coordinated adjective/adverb siblings,
+ * or three balanced finite clauses with their own subjects and a negated beat.
+ * The latter catches polished corporate triptychs without matching ordinary
+ * shared-subject lists such as "we build, test, and deploy".
  */
-import { childrenByRel, defineRule } from 'writinglint-core';
+import { childrenByRel, childrenOf, defineRule, lower } from 'writinglint-core';
 
 export const ruleOfThree = defineRule({
   meta: {
     name: 'rule-of-three',
     category: 'rule-of-three',
-    docs: { description: 'Reflexive triads of coordinated adjectives or adverbs.' },
+    docs: { description: 'Reflexive triads of modifiers or balanced independent clauses.' },
   },
   create(ctx) {
     return {
@@ -33,6 +35,31 @@ export const ruleOfThree = defineRule({
                 ' — a reflexive triad. Two usually do the work of three.',
             });
           }
+        }
+
+        const predicates = s.tokens.filter((token) =>
+          token.upos === 'VERB'
+          && childrenOf(s, token.id).some((child) => child.deprel === 'nsubj' || child.deprel.startsWith('nsubj:')),
+        );
+        const negated = predicates.some((predicate) =>
+          childrenOf(s, predicate.id).some((child) => /^(?:not|n['’]t)$/.test(lower(child))),
+        );
+        const commas = s.tokens.filter((token) => token.form === ',').length;
+        const coordinated = s.tokens.some((token) => token.upos === 'CCONJ');
+        if (predicates.length === 3 && negated && commas >= 2 && coordinated) {
+          const spine = predicates.flatMap((predicate) => [
+            ...childrenOf(s, predicate.id).filter((child) =>
+              child.deprel === 'nsubj' || child.deprel.startsWith('nsubj:')
+              || /^(?:not|n['’]t)$/.test(lower(child)),
+            ),
+            predicate,
+          ]).sort((a, b) => a.id - b.id);
+          ctx.report({
+            tokens: spine,
+            sentence: s,
+            confidence: 'low',
+            message: 'Three complete clauses form a polished claim, denial, and payoff. Split the sentence if the three-part cadence is doing more work than the facts.',
+          });
         }
       },
     };

@@ -84,7 +84,7 @@ const productSchema = {
           </div>
           <label class="editor-invitation" for="slopsift-draft">
             <span class="editor-invitation__mark" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m4 14.7-.7 2.9 2.9-.7L16.4 6.7l-2.2-2.2L4 14.7Z"/><path d="m12.8 5.9 2.2 2.2"/></svg></span>
-            <span><strong>Try it here.</strong> Click the text and type—SlopSift updates as you pause.</span>
+            <span><strong>Try it here.</strong> Click the text and type. SlopSift updates as you pause.</span>
           </label>
           <div class="editor-surface">
             <div class="editor-backdrop" data-backdrop aria-hidden="true"></div>
@@ -100,7 +100,13 @@ const productSchema = {
           </div>
         </div>
         <aside class="lint-demo__results" aria-label="Lint problems">
-          <div class="panel-bar"><span>PROBLEMS <b data-count>0</b></span><span data-totals>loading</span></div>
+          <div class="panel-bar">
+            <span>PROBLEMS <b data-count>0</b></span>
+            <span class="results-toolbar">
+              <span data-totals>loading</span>
+              <button type="button" data-copy-errors disabled title="Copy all findings as JSON Lines">copy errors</button>
+            </span>
+          </div>
           <div class="results-list" data-results aria-live="polite">
             <p class="results-empty">The local parser is getting ready.</p>
           </div>
@@ -116,12 +122,12 @@ const productSchema = {
       <div class="method__intro">
         <p class="kicker">More than a word list</p>
         <h2 id="method-title">It reads structure,<br />not vibes.</h2>
-        <p class="method__lede">Many writing tools stop at word matching and basic parts of speech. SlopSift follows the relationships between words, so rules can recognize how a sentence makes its claim—not only which vocabulary it uses.</p>
+        <p class="method__lede">Many writing tools stop at word matching and basic parts of speech. SlopSift follows the relationships between words. Those links let each rule inspect a sentence's claim and vocabulary.</p>
       </div>
       <ol class="method__steps">
         <li><span>01</span><div><h3>Build a dependency graph</h3><p>Our custom-trained compact model maps tokens, parts of speech, and the grammatical relationships holding the sentence together.</p></div></li>
         <li><span>02</span><div><h3>Match the construction</h3><p>Authorable rules inspect the graph for structural tells. Every finding names what matched and the exact text that triggered it.</p></div></li>
-        <li><span>03</span><div><h3>Keep judgment with the writer</h3><p>Errors are strong tells. Warnings need attention. Notes are candidates—not a machine pretending to know who wrote the sentence.</p></div></li>
+        <li><span>03</span><div><h3>Keep judgment with the writer</h3><p>Errors are strong tells. Warnings need attention. Notes are candidates for the writer to review.</p></div></li>
       </ol>
     </section>
 
@@ -134,7 +140,7 @@ const productSchema = {
         <p>SlopSift starts with a compact pretrained English encoder and trains it for parts of speech and dependency parsing. Training combines structured distillation from a larger parser with 50 controlled examples targeting grammatical relationships used by the linter. We reserved separate template families for evaluation.</p>
         <div class="model-facts">
           <article><span>16 MiB</span><div><h3>Small enough to ship</h3><p>Quantized ONNX weights run locally in Node and browser WebAssembly.</p></div></article>
-          <article><span>3 heads</span><div><h3>Built for syntax</h3><p>UPOS, dependency arcs, and dependency relations—not a generic text score.</p></div></article>
+          <article><span>3 heads</span><div><h3>Built for syntax</h3><p>The model predicts parts of speech and the grammatical links between words.</p></div></article>
           <article><span>0 uploads</span><div><h3>Your draft stays yours</h3><p>The model and deterministic rules run on-device. No remote judge reads the text.</p></div></article>
         </div>
         <a class="model-story__link" href="/docs/#model">Read how the model and CLI work <span aria-hidden="true">→</span></a>

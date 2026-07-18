@@ -15,6 +15,11 @@ if (process.env.EXPECTED_PARSER_VERSION) {
   assert.equal(installedParser.version, process.env.EXPECTED_PARSER_VERSION);
 }
 
+const installedRulepack = JSON.parse(await readFile(join(root, 'node_modules/writinglint-rulepack-ai-style/package.json'), 'utf8'));
+if (process.env.EXPECTED_RULEPACK_VERSION) {
+  assert.equal(installedRulepack.version, process.env.EXPECTED_RULEPACK_VERSION);
+}
+
 const parser = join(root, 'node_modules/writinglint-parser-node/model/parser.onnx');
 assert.equal((await stat(parser)).size, 11_877_081, 'the transitive npm package must contain the parser');
 
@@ -41,5 +46,15 @@ assert.equal(reports.length, 1);
 const emerging = reports[0].messages.filter((message) => message.ruleId === 'ai-style/emerging-slop-phrases');
 assert.equal(emerging.length, 2, 'expected the emerging phrases, but not the literal load-bearing wall');
 assert.ok(emerging.every((message) => message.level === 'info' && message.confidence === 'low'));
+assert.equal(
+  reports[0].messages.filter((message) => message.ruleId === 'ai-style/corrective-antithesis').length,
+  1,
+  'expected the clause-level "X, not Y" construction',
+);
+assert.equal(
+  reports[0].messages.filter((message) => message.ruleId === 'ai-style/stepwise-sequencing').length,
+  1,
+  'expected the graph-backed "X then Y" construction',
+);
 
 console.log(`Verified slopsift@${installed.version} as an isolated npm consumer (${reports[0].messages.length} findings).`);

@@ -21,6 +21,30 @@ const finding = (lints: Lint[], rule: string) => lints.find((l) => l.ruleId === 
 test('corrective-antithesis fires on the "X, not Y" construction', async () => {
   const repeated = await lint('Trust the flags, not the number. The prompt is a request, not a contract.');
   assert.ok(fired(repeated, 'corrective-antithesis'));
+  assert.equal(
+    finding(await lint('It checks the writing, not who wrote it.'), 'corrective-antithesis')?.confidence,
+    'low',
+  );
+});
+
+test('stepwise sequencing catches formulaic “X then Y” cadence', async () => {
+  assert.equal(
+    finding(
+      await lint('Deterministic rules then flag canned arguments, unsupported claims, and filler.'),
+      'stepwise-sequencing',
+    )?.confidence,
+    'low',
+  );
+  const repeated = await lint(
+    'The parser then maps how the words relate. The rules then flag canned arguments and filler.',
+  );
+  assert.equal(finding(repeated, 'stepwise-sequencing')?.confidence, 'medium');
+});
+
+test('stepwise sequencing leaves ordinary instructions and chronology alone', async () => {
+  assert.ok(!fired(await lint('Run the migration, then deploy the worker.'), 'stepwise-sequencing'));
+  assert.ok(!fired(await lint('She finished lunch, then returned to work.'), 'stepwise-sequencing'));
+  assert.ok(!fired(await lint('If the test passes, then deploy the worker.'), 'stepwise-sequencing'));
 });
 
 test('corrective-antithesis does NOT fire on plain sentential negation', async () => {
@@ -52,6 +76,14 @@ test('dramatic fragments are graded without matching ordinary transitions', asyn
 test('a few structural + lexical rules still fire on their canonical tells', async () => {
   assert.ok(fired(await lint('The design is not only fast but also elegant.'), 'negative-parallelism'));
   assert.ok(fired(await lint('The city was vibrant, bustling, and diverse.'), 'rule-of-three'));
+  assert.equal(
+    finding(
+      await lint('At Stance we consume models, we don’t train them, and customers bring their own.'),
+      'rule-of-three',
+    )?.confidence,
+    'low',
+  );
+  assert.ok(!fired(await lint('At Stance we build, test, and deploy models.'), 'rule-of-three'));
   assert.ok(fired(await lint('Moreover, the results were clear.'), 'opening-conjunction'));
 });
 
