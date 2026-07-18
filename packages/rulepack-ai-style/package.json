@@ -1,0 +1,67 @@
+{
+  "name": "writinglint-rulepack-ai-style",
+  "version": "0.1.2",
+  "description": "AI-writing-style rulepack for the WritingLint grammar linter: authorable rules over the dependency graph, plus a stylometric document scorer.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
+    "directory": "packages/rulepack-ai-style"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
+  },
+  "homepage": "https://github.com/NikhilVerma/writinglint#readme",
+  "keywords": [
+    "grammar",
+    "linter",
+    "prose",
+    "ai-writing",
+    "ai-detection",
+    "rulepack",
+    "stylometry",
+    "writinglint"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./node": {
+      "types": "./dist/score/model-node.d.ts",
+      "source": "./src/score/model-node.ts",
+      "default": "./dist/score/model-node.js"
+    },
+    "./model/classifier.json": "./model/classifier.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "model/classifier.json",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "writinglint-core": "^0.1.1"
+  },
+  "devDependencies": {
+    "writinglint-parser-node": "^0.1.1"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

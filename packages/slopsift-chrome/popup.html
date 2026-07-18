@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>SlopSift</title>
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="stamp">SL</div>
+        <div>
+          <h1>slopsift</h1>
+          <p id="status">Starting locally</p>
+        </div>
+        <label class="switch" title="Enable SlopSift">
+          <input id="enabled" type="checkbox">
+          <span aria-hidden="true"></span>
+        </label>
+      </header>
+      <section>
+        <label for="minimumSeverity">Show diagnostics</label>
+        <select id="minimumSeverity">
+          <option value="error">Guaranteed slop only</option>
+          <option value="warn">Suspected slop</option>
+          <option value="info">Possible slop too</option>
+        </select>
+      </section>
+      <footer>
+        <span class="dot"></span>
+        <span>Your drafts never leave this browser.</span>
+      </footer>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,37 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+
+<SiteLayout title="Privacy | SlopSift" description="How the SlopSift Chrome extension handles text and settings.">
+  <header class="site-header">
+    <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
+    <nav aria-label="Privacy navigation"><a href="/">Home</a><a href="https://github.com/NikhilVerma/writinglint">Source</a></nav>
+  </header>
+  <main class="policy-page">
+    <p class="kicker">Last updated July 18, 2026</p>
+    <h1>Privacy without<br />the theatre.</h1>
+    <p class="policy-page__lead">SlopSift analyzes writing locally. The Chrome extension does not sell, share, transmit, or retain the text you lint.</p>
+
+    <section>
+      <h2>Data handling</h2>
+      <ul>
+        <li>Draft text moves from the page content script to SlopSift’s own extension service worker for local analysis.</li>
+        <li>The parser and rules are packaged with the extension. Inference does not call a remote API.</li>
+        <li>Drafts, findings, page contents, and browsing history are not stored.</li>
+        <li>There is no analytics, telemetry, advertising, or account system.</li>
+        <li>Only the enabled state and minimum severity are kept in Chrome’s local extension storage.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Permissions</h2>
+      <p>SlopSift uses the <code>storage</code> permission for those two settings. Its content script runs on HTTP and HTTPS pages so it can lint editable fields. It does not inspect a field until it receives focus and contains enough text to lint.</p>
+    </section>
+
+    <section>
+      <h2>Changes and contact</h2>
+      <p>Material changes will be published here and recorded in the repository before a new extension release. Report privacy or security concerns through the private process in <a href="https://github.com/NikhilVerma/writinglint/blob/main/SECURITY.md">SECURITY.md</a>.</p>
+    </section>
+  </main>
+  <footer><a class="wordmark" href="/"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a><p>Open source. Local first. Opinionated by design.</p></footer>
+</SiteLayout>

@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+  <head><meta charset="utf-8"><title>SlopSift extension harness</title></head>
+  <body>
+    <label for="draft">Draft</label>
+    <textarea id="draft" rows="8" cols="72">In conclusion, it is important to note that this revolutionary framework seamlessly unlocks the future. It is not just useful, it is essential.</textarea>
+    <script>
+      setTimeout(() => {
+        const draft = document.querySelector('#draft');
+        draft.focus();
+        draft.dispatchEvent(new InputEvent('input', { bubbles: true, inputType: 'insertText' }));
+      }, 1_000);
+    </script>
+  </body>
+</html>

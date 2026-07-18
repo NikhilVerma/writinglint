@@ -1,0 +1,30 @@
+{
+  "name": "slopsift-chrome-extension",
+  "version": "0.1.0",
+  "description": "Local-first Chrome extension for SlopSift diagnostics in web editors.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "private": true,
+  "scripts": {
+    "build": "npm run setup-model && node build.mjs",
+    "build:offline": "node build.mjs",
+    "check": "npm run check-types && npm test && npm run smoke:source",
+    "check-types": "tsc --noEmit -p tsconfig.json",
+    "setup-model": "node setup-model.mjs",
+    "smoke": "node smoke.mjs",
+    "smoke:source": "node source-smoke.mjs",
+    "test": "node --import tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "onnxruntime-web": "^1.27.0",
+    "writinglint-core": "*",
+    "writinglint-parser-node": "*",
+    "writinglint-rulepack-ai-style": "*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2",
+    "tsx": "^4.23.0",
+    "typescript": "^5.9.3"
+  }
+}

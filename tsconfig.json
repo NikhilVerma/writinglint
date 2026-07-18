@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "packages/core/src",
+    "packages/parser-node/src",
+    "packages/rulepack-ai-style/src",
+    "packages/rulepack-craft/src",
+    "packages/cli/src",
+    "packages/slopsift/src",
+    "packages/*/test",
+    "packages/rulepack-ai-style/eval",
+    "writinglint.config.ts"
+  ],
+  "comment": "packages/web is an Astro package with its own (astro strict) tsconfig — checked via `astro build`, not the root tsc.",
+  "exclude": ["node_modules", "**/dist", "packages/web"]
+}

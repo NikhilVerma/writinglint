@@ -1,0 +1,41 @@
+# This Worker keeps its original internal deployment name so the existing
+# Cloudflare Workers Builds connection continues to deploy on every push.
+# Public branding and all public routes are SlopSift.
+name = "sloplint"
+main = "worker.ts"
+compatibility_date = "2026-07-18"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = true
+
+[[r2_buckets]]
+binding = "MODELS"
+bucket_name = "slopsift-models"
+
+[[routes]]
+pattern = "slopsift.dev"
+custom_domain = true
+
+[[routes]]
+pattern = "www.slopsift.dev"
+custom_domain = true
+
+[[routes]]
+pattern = "models.slopsift.dev"
+custom_domain = true
+
+# Legacy hosts remain attached only to issue permanent redirects.
+[[routes]]
+pattern = "sloplint.dev"
+custom_domain = true
+
+[[routes]]
+pattern = "www.sloplint.dev"
+custom_domain = true
+
+[[routes]]
+pattern = "models.sloplint.dev"
+custom_domain = true

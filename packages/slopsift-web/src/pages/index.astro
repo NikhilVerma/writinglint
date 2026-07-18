@@ -1,0 +1,160 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+
+const sample = `In today's rapidly evolving digital landscape, it is important to note that effective communication is more crucial than ever. This revolutionary approach seamlessly empowers teams to unlock their full potential.
+
+It's not merely a writing tool, it's a paradigm shift. Ultimately, the future of clear communication is here.`;
+---
+
+<SiteLayout>
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="SlopSift home">
+      <span>slop</span><span>sift</span><i aria-hidden="true"></i>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#demo">Try it</a>
+      <a href="#surfaces">Tools</a>
+      <a href="https://github.com/NikhilVerma/writinglint">GitHub</a>
+      <a class="nav-install" href="#install">Install</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero__copy">
+        <p class="kicker">The AI slop linter</p>
+        <h1 id="hero-title">Your AI<br />has a tell.</h1>
+        <p class="hero__summary">SlopSift catches the canned structure, borrowed certainty, and suspiciously polished filler that spellcheck misses.</p>
+        <div class="hero__actions">
+          <a class="button button--primary" href="#demo">Lint some text</a>
+          <button class="install-command" type="button" data-copy="bunx slopsift ." aria-label="Copy install command">
+            <code>bunx slopsift .</code><span>copy</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="proof-sheet" aria-label="An example paragraph marked up by SlopSift">
+        <div class="proof-sheet__top">
+          <span>draft_07.md</span><span>6 problems</span>
+        </div>
+        <p>
+          <span class="proof proof--error">In today’s rapidly evolving landscape,<b>delete the canned opening</b></span>
+          clear writing is
+          <span class="proof proof--warning">more important than ever.<b>compared with what?</b></span>
+        </p>
+        <p>
+          This <span class="proof proof--note">revolutionary approach<b>promotional vocabulary</b></span>
+          <span class="proof proof--error">seamlessly empowers teams<b>say what it does</b></span>
+          to unlock their full potential.
+        </p>
+        <div class="proof-sheet__score"><strong>38</strong><span>Reads like a press release written by a toaster.</span></div>
+      </div>
+    </section>
+
+    <div class="rule-ticker" aria-label="Examples of SlopSift rules">
+      <span>corrective-antithesis</span><span>unsupported-certainty</span><span>mechanical-outline</span><span>vague-attribution</span><span>ai-vocabulary</span>
+    </div>
+
+    <section class="demo-section" id="demo" aria-labelledby="demo-title">
+      <div class="section-heading">
+        <p class="kicker">No account. No upload.</p>
+        <h2 id="demo-title">Paste the evidence.</h2>
+        <p>The same compact parser used by the CLI runs in your browser. Your draft stays on your device.</p>
+      </div>
+
+      <div class="lint-demo" data-slop-demo>
+        <div class="lint-demo__editor">
+          <div class="panel-bar"><span>INPUT</span><span>plain text</span></div>
+          <textarea aria-label="Text to lint" spellcheck="true">{sample}</textarea>
+          <div class="demo-controls">
+            <p data-status>Ready when you are.</p>
+            <button class="button button--primary" type="button" data-run>Run SlopSift</button>
+          </div>
+        </div>
+        <div class="lint-demo__results">
+          <div class="panel-bar"><span>PROBLEMS</span><span data-totals>not linted yet</span></div>
+          <div class="results-list" data-results aria-live="polite">
+            <p class="results-empty">Run the sample to load the local parser.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="method" aria-labelledby="method-title">
+      <div class="method__intro">
+        <h2 id="method-title">It reads structure,<br />not vibes.</h2>
+      </div>
+      <ol class="method__steps">
+        <li><span>01</span><div><h3>Parse the sentence</h3><p>A small owned model maps words, parts of speech, and grammatical relationships.</p></div></li>
+        <li><span>02</span><div><h3>Run explainable rules</h3><p>Each finding names the construction it matched. No mystery score. No remote judge.</p></div></li>
+        <li><span>03</span><div><h3>Grade the suspicion</h3><p>Errors are strong tells. Warnings need attention. Notes are candidates, not convictions.</p></div></li>
+      </ol>
+    </section>
+
+    <section class="severity" aria-labelledby="severity-title">
+      <div class="severity__title">
+        <h2 id="severity-title">Not every dash is a crime.</h2>
+      </div>
+      <div class="severity__examples">
+        <article class="severity-row severity-row--error"><span>error</span><p>“As an AI language model...”</p><strong>caught red-handed</strong></article>
+        <article class="severity-row severity-row--warning"><span>warning</span><p>Three paragraphs use the same canned outline.</p><strong>probably slop</strong></article>
+        <article class="severity-row severity-row--note"><span>note</span><p>An actorless passive may be hiding responsibility.</p><strong>worth a look</strong></article>
+      </div>
+    </section>
+
+    <section class="surfaces" id="surfaces" aria-labelledby="surfaces-title">
+      <div class="section-heading section-heading--compact">
+        <h2 id="surfaces-title">Meet writers where they write.</h2>
+      </div>
+      <div class="surface-list">
+        <article><div class="surface-mark">$</div><div><h3>CLI</h3><p>Glob files, lint Markdown, inspect code comments, and emit ESLint-shaped JSON in CI.</p></div><code>bunx slopsift .</code></article>
+        <article><div class="surface-mark">VS</div><div><h3>VS Code</h3><p>Diagnostics appear beside the sentence, with the same severity and rule name as the terminal.</p></div><span>local</span></article>
+        <article><div class="surface-mark">CR</div><div><h3>Chrome</h3><p>Review text boxes and editable pages before the draft escapes into the internet.</p></div><span>private</span></article>
+        <article><div class="surface-mark">AI</div><div><h3>Agent skill</h3><p>Let coding agents lint their own prose before they hand it back to a human.</p></div><span>coming next</span></article>
+      </div>
+    </section>
+
+    <section class="manifesto">
+      <p class="manifesto__aside">Yes, AI helped build this.</p>
+      <div>
+        <h2>Built by AI.<br /><span>Edited on purpose.</span></h2>
+        <p>That is the point. SlopSift is not an AI detector and it does not pretend to know who typed a sentence. It catches habits that make writing vague, inflated, repetitive, or weirdly certain. Human beings do those things too.</p>
+      </div>
+    </section>
+
+    <section class="install" id="install" aria-labelledby="install-title">
+      <div>
+        <h2 id="install-title">One command.<br />Several opinions.</h2>
+      </div>
+      <div class="terminal" role="group" aria-label="Install SlopSift">
+        <div class="terminal__bar"><span>terminal</span><span>~/your-writing</span></div>
+        <button type="button" data-copy="bunx slopsift ."><span>$</span><code>bunx slopsift .</code><b>copy</b></button>
+        <p>Use <code>--format json</code> for machines, <code>--level info</code> for the full suspicious pile.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="wordmark" href="#top"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
+    <p>Open source. Local first. Opinionated by design.</p>
+    <div><a href="/privacy/">Privacy</a><a href="https://github.com/NikhilVerma/writinglint">GitHub</a><a href="https://www.npmjs.com/package/slopsift">npm</a></div>
+  </footer>
+
+  <script is:inline>
+    document.querySelectorAll('[data-copy]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(button.dataset.copy);
+        } catch {
+          return;
+        }
+        const label = button.querySelector('span:last-child, b');
+        if (!label) return;
+        const before = label.textContent;
+        label.textContent = 'copied';
+        window.setTimeout(() => { label.textContent = before; }, 1200);
+      });
+    });
+  </script>
+  <script type="module" src="/demo.js"></script>
+</SiteLayout>

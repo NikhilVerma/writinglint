@@ -1,0 +1,129 @@
+{
+  "name": "slopsift-vscode",
+  "displayName": "SlopSift",
+  "version": "0.1.0",
+  "description": "ESLint-like diagnostics for AI slop in prose and code comments.",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "publisher": "nikhilverma",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Linters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "ai slop",
+    "linter",
+    "markdown",
+    "prose",
+    "comments"
+  ],
+  "extensionKind": [
+    "workspace"
+  ],
+  "main": "./dist/extension.cjs",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": {
+      "supported": false,
+      "description": "SlopSift's native local ONNX runtime requires a filesystem-backed extension host."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "slopsift.lintDocument",
+        "title": "Lint Active Document",
+        "category": "SlopSift"
+      },
+      {
+        "command": "slopsift.showOutput",
+        "title": "Show Output",
+        "category": "SlopSift"
+      }
+    ],
+    "configuration": {
+      "title": "SlopSift",
+      "properties": {
+        "slopsift.enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable local SlopSift diagnostics."
+        },
+        "slopsift.minimumLevel": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "error"
+          ],
+          "enumDescriptions": [
+            "Show possible, suspected, and high-confidence slop.",
+            "Show suspected and high-confidence slop.",
+            "Show only high-confidence slop."
+          ],
+          "default": "warning",
+          "description": "Minimum finding level shown in the Problems panel."
+        },
+        "slopsift.modelPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine-overridable",
+          "description": "Optional absolute path to a SlopSift ONNX model bundle."
+        },
+        "slopsift.downloadModel": {
+          "type": "boolean",
+          "default": false,
+          "scope": "machine-overridable",
+          "description": "Allow a model download only when the bundled or configured model cannot be used. Inference is always local."
+        },
+        "slopsift.debounceMilliseconds": {
+          "type": "number",
+          "default": 450,
+          "minimum": 100,
+          "maximum": 5000,
+          "description": "Delay after edits before linting the document."
+        }
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NikhilVerma/writinglint.git",
+    "directory": "packages/vscode-extension"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
+  },
+  "homepage": "https://github.com/NikhilVerma/writinglint/tree/main/packages/vscode-extension#readme",
+  "dependencies": {
+    "onnxruntime-node": "^1.27.0",
+    "slopsift": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "@types/vscode": "^1.96.0",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.24.2",
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "setup-model": "node ../../scripts/setup-model.mjs",
+    "check-types": "tsc --noEmit",
+    "compile": "npm run check-types && node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "package": "npm run setup-model && npm run check-types && node esbuild.mjs --production",
+    "vscode:prepublish": "npm run package",
+    "vsix": "node package-vsix.mjs",
+    "test": "node --conditions=source --import tsx --test test/*.test.ts"
+  }
+}

@@ -1,0 +1,29 @@
+---
+/**
+ * The one button primitive for the demo UI. Every clickable control routes through
+ * here so size, radius, type scale, and focus ring stay consistent.
+ *
+ *   variant: 'primary' | 'secondary' | 'ghost'
+ *   size:    'md' (default) | 'sm'
+ */
+interface Props {
+  id?: string;
+  variant?: 'primary' | 'secondary' | 'ghost';
+  size?: 'md' | 'sm';
+  type?: 'button' | 'submit';
+  title?: string;
+  disabled?: boolean;
+  class?: string;
+}
+const { id, variant = 'secondary', size = 'md', type = 'button', title, disabled, class: cls } = Astro.props;
+---
+
+<button
+  id={id}
+  type={type}
+  title={title}
+  disabled={disabled}
+  class:list={['bw-btn', `bw-btn--${variant}`, `bw-btn--${size}`, cls]}
+>
+  <slot />
+</button>
