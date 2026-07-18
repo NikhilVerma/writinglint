@@ -1,0 +1,23 @@
+# Cloudflare Workers config for the WritingLint docs + demo site.
+#
+# Deployed by the GitHub Action in .github/workflows/deploy.yml, which runs
+# `wrangler deploy` on every push to main using an API token in repo secrets — no
+# dashboard "Connect to Git" step (the first deploy creates the Worker via the API).
+# Uses Workers Static Assets (the modern replacement for the deprecated Pages).
+name = "writinglint"
+main = "worker/index.ts"
+compatibility_date = "2024-11-01"
+
+# The Astro build output, served by Workers Static Assets. worker/index.ts runs
+# only for non-asset paths (/model/*, /ort/*) and falls back to these assets.
+[assets]
+directory = "./packages/web/dist"
+binding = "ASSETS"
+
+# R2 bucket with the compact INT8 parser (compact-int8/) and ONNX Runtime WASM
+# (ort/). Model files remain out of Git and are uploaded separately:
+#   npx wrangler r2 bucket create writinglint-models
+#   bash scripts/upload-model-to-r2.sh
+[[r2_buckets]]
+binding = "MODELS"
+bucket_name = "writinglint-models"

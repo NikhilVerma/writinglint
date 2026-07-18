@@ -1,0 +1,8 @@
+.astro/
+dist/
+public/demo.js
+public/demo.js.map
+public/slop-worker.js
+public/slop-worker.js.map
+public/model/
+public/ort/

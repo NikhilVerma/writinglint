@@ -1,0 +1,14 @@
+{
+  "name": "writinglint-npm-smoke",
+  "version": "0.0.0",
+  "private": true,
+  "description": "An isolated consumer project that verifies the real WritingLint npm package.",
+  "type": "module",
+  "packageManager": "npm@11.6.1",
+  "scripts": {
+    "test": "node verify.mjs"
+  },
+  "dependencies": {
+    "writinglint": "0.1.2"
+  }
+}

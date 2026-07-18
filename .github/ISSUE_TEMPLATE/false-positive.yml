@@ -1,0 +1,57 @@
+name: False positive or missed slop
+description: Help calibrate a rule that fired incorrectly or missed an actionable problem.
+title: "rule: "
+body:
+  - type: dropdown
+    id: direction
+    attributes:
+      label: Report type
+      options:
+        - False positive
+        - Missed finding
+        - Incorrect severity
+    validations:
+      required: true
+  - type: input
+    id: rule
+    attributes:
+      label: Rule ID and severity
+      placeholder: ai-style/corrective-antithesis, warning
+    validations:
+      required: true
+  - type: textarea
+    id: text
+    attributes:
+      label: Minimal text sample
+      description: Share only text you are allowed to publish. Reduce it to the smallest example that preserves the behavior.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Sloplint output
+      description: Prefer `sloplint <file> --format json` and remove absolute paths.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: reasoning
+    attributes:
+      label: Why should the result change?
+      description: Explain the writing context and the severity you expect.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Sloplint version
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: permission
+    attributes:
+      label: Data permission
+      options:
+        - label: I have permission to publish this sample under the repository's MIT license.
+          required: true

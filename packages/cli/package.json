@@ -1,0 +1,49 @@
+{
+  "name": "writinglint",
+  "version": "0.1.2",
+  "description": "Command-line interface for the general-purpose WritingLint engine.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
+    "directory": "packages/cli"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
+  },
+  "homepage": "https://github.com/NikhilVerma/writinglint#readme",
+  "keywords": [
+    "grammar",
+    "linter",
+    "prose",
+    "cli",
+    "ai-writing",
+    "writinglint"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "writinglint": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "writinglint-core": "^0.1.1",
+    "writinglint-parser-node": "^0.1.1",
+    "writinglint-rulepack-ai-style": "^0.1.2"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').chmodSync('dist/cli.js', 0o755)\"",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "sloplint-web",
+  "version": "0.1.0",
+  "description": "The Sloplint product site and private, on-device browser demo.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "setup-model": "node ../../scripts/setup-model.mjs",
+    "dev": "npm run setup-model && npm run copy-runtime && npm run build:client && astro dev",
+    "check-types": "tsc --noEmit -p tsconfig.client.json && tsc --noEmit -p tsconfig.worker.json",
+    "build:client": "node build-client.mjs",
+    "copy-runtime": "node copy-runtime.mjs",
+    "clean-runtime": "node clean-runtime.mjs",
+    "build": "npm run clean-runtime && npm run build:site",
+    "build:local": "npm run setup-model && npm run copy-runtime && npm run build:client && astro build",
+    "build:site": "npm run build:client && astro build",
+    "preview": "astro preview",
+    "r2:create": "wrangler r2 bucket create sloplint-models",
+    "deploy": "wrangler deploy",
+    "deploy:dry": "wrangler deploy --dry-run"
+  },
+  "dependencies": {
+    "astro": "^5.18.2",
+    "onnxruntime-web": "^1.27.0",
+    "writinglint-core": "*",
+    "writinglint-parser-node": "*",
+    "writinglint-rulepack-ai-style": "*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.2",
+    "wrangler": "^4.0.0"
+  }
+}

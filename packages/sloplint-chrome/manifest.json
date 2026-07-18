@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Sloplint",
+  "short_name": "Sloplint",
+  "version": "0.1.0",
+  "description": "Underline likely AI-writing slop while you write. All analysis stays on this device.",
+  "minimum_chrome_version": "105",
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "Sloplint",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle",
+      "all_frames": true
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+  }
+}

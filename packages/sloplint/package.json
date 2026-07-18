@@ -1,0 +1,66 @@
+{
+  "name": "sloplint",
+  "version": "0.1.2",
+  "private": true,
+  "description": "Lint Markdown, prose, and source-code comments for AI writing slop.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
+    "directory": "packages/sloplint"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
+  },
+  "homepage": "https://sloplint.dev",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "sloplint": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md",
+    "MODEL.md",
+    "RELEASING.md",
+    "CALIBRATION.md",
+    "AUDIT.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "ai-slop",
+    "linter",
+    "markdown",
+    "comments",
+    "cli",
+    "prose",
+    "ai-writing",
+    "writinglint"
+  ],
+  "dependencies": {
+    "ignore": "^7.0.5",
+    "tinyglobby": "^0.2.17",
+    "writinglint-core": "^0.1.1",
+    "writinglint-parser-node": "^0.1.1",
+    "writinglint-rulepack-ai-style": "^0.1.2"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').chmodSync('dist/cli.js', 0o755)\"",
+    "prepack": "npm run build"
+  }
+}

@@ -1,0 +1,20 @@
+name = "sloplint"
+main = "worker.ts"
+compatibility_date = "2026-07-18"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[[r2_buckets]]
+binding = "MODELS"
+bucket_name = "sloplint-models"
+
+[[routes]]
+pattern = "sloplint.dev"
+custom_domain = true
+
+[[routes]]
+pattern = "models.sloplint.dev"
+custom_domain = true

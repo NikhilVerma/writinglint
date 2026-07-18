@@ -1,0 +1,14 @@
+{
+  "comment": "Standalone config for the site Worker. Checked via `npm run typecheck:worker` (Workers runtime types), separate from the Node-typed root typecheck.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022"],
+    "types": ["@cloudflare/workers-types"],
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["**/*.ts"]
+}

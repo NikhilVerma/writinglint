@@ -1,0 +1,523 @@
+{"family":"vague-attribution/bare","text":"Studies suggest that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The studies suggest that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Studies argue that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The studies argue that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Studies claim that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The studies claim that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Studies report that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The studies report that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Studies predict that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The studies predict that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Experts suggest that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The experts suggest that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Experts argue that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The experts argue that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Experts claim that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The experts claim that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Experts report that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The experts report that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Experts predict that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The experts predict that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Researchers suggest that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The researchers suggest that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Researchers argue that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The researchers argue that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Researchers claim that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The researchers claim that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Researchers report that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The researchers report that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Researchers predict that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The researchers predict that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Critics suggest that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The critics suggest that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Critics argue that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The critics argue that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Critics claim that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The critics claim that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Critics report that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The critics report that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Critics predict that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The critics predict that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Observers suggest that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The observers suggest that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Observers argue that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The observers argue that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Observers claim that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The observers claim that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Observers report that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The observers report that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Observers predict that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The observers predict that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Analysts suggest that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The analysts suggest that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Analysts argue that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The analysts argue that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Analysts claim that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The analysts claim that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Analysts report that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The analysts report that the policy will fail."}
+{"family":"vague-attribution/bare","text":"Analysts predict that the policy will fail."}
+{"family":"vague-attribution/determined","text":"The analysts predict that the policy will fail."}
+{"family":"participial/editorial","text":"The museum reopened, showcasing the city's industrial heritage."}
+{"family":"participial/narrative","text":"The mechanic stayed late, trying to repair the engine."}
+{"family":"participial/editorial","text":"The museum reopened, highlighting the city's industrial heritage."}
+{"family":"participial/editorial","text":"The museum reopened, underscoring the city's industrial heritage."}
+{"family":"participial/editorial","text":"The museum reopened, reflecting the city's industrial heritage."}
+{"family":"participial/editorial","text":"The museum reopened, demonstrating the city's industrial heritage."}
+{"family":"light-verb/positive","text":"The system plays a crucial role in daily operations."}
+{"family":"light-verb/direct","text":"The system directly improves daily operations."}
+{"family":"light-verb/positive","text":"The system plays a crucial impact in daily operations."}
+{"family":"light-verb/positive","text":"The system plays a crucial contribution in daily operations."}
+{"family":"light-verb/positive","text":"The system plays a crucial influence in daily operations."}
+{"family":"throat-clearing/positive","text":"It is important to note that the deadline moved."}
+{"family":"throat-clearing/direct","text":"The deadline moved to Friday."}
+{"family":"throat-clearing/positive","text":"It is essential to note that the deadline moved."}
+{"family":"throat-clearing/positive","text":"It is notable to note that the deadline moved."}
+{"family":"throat-clearing/positive","text":"It is clear to note that the deadline moved."}
+{"family":"copula-avoidance/positive","text":"The design serves as a symbol of resilience."}
+{"family":"copula-avoidance/plain","text":"The design is a symbol of resilience."}
+{"family":"copula-avoidance/positive","text":"The building serves as a symbol of resilience."}
+{"family":"copula-avoidance/plain","text":"The building is a symbol of resilience."}
+{"family":"copula-avoidance/positive","text":"The interface serves as a symbol of resilience."}
+{"family":"copula-avoidance/plain","text":"The interface is a symbol of resilience."}
+{"family":"copula-avoidance/positive","text":"The garden serves as a symbol of resilience."}
+{"family":"copula-avoidance/plain","text":"The garden is a symbol of resilience."}
+{"family":"rule-of-three/positive","text":"The product is fast, clear, and reliable."}
+{"family":"rule-of-three/positive","text":"The product is vibrant, busy, and diverse."}
+{"family":"rule-of-three/positive","text":"The product is small, quiet, and precise."}
+{"family":"rule-of-three/positive","text":"The product is warm, open, and welcoming."}
+{"family":"rule-of-three/pair","text":"The product is fast and clear."}
+{"family":"rule-of-three/pair","text":"The product is small and reliable."}
+{"family":"rule-of-three/pair","text":"The product is warm and open."}
+{"family":"corrective-antithesis/positive","text":"Choose clarity, not cleverness."}
+{"family":"corrective-antithesis/negation","text":"I did not choose cleverness."}
+{"family":"corrective-antithesis/positive","text":"Choose evidence, not instinct."}
+{"family":"corrective-antithesis/negation","text":"I did not choose instinct."}
+{"family":"corrective-antithesis/positive","text":"Choose people, not metrics."}
+{"family":"corrective-antithesis/negation","text":"I did not choose metrics."}
+{"family":"negative-parallelism/positive","text":"The tool is not only fast but also reliable."}
+{"family":"negative-parallelism/positive","text":"The tool is not only elegant but also reliable."}
+{"family":"negative-parallelism/positive","text":"The tool is not only useful but also reliable."}
+{"family":"negative-parallelism/positive","text":"The tool is not only accurate but also reliable."}
+{"family":"light-verb/expanded","text":"The platform plays an important role in the final result."}
+{"family":"light-verb/expanded","text":"The platform plays an central role in the final result."}
+{"family":"light-verb/expanded","text":"The platform plays an critical role in the final result."}
+{"family":"light-verb/expanded","text":"The platform plays an significant role in the final result."}
+{"family":"light-verb/expanded","text":"The platform has an important impact in the final result."}
+{"family":"light-verb/expanded","text":"The platform has an central impact in the final result."}
+{"family":"light-verb/expanded","text":"The platform has an critical impact in the final result."}
+{"family":"light-verb/expanded","text":"The platform has an significant impact in the final result."}
+{"family":"light-verb/expanded","text":"The platform makes an important contribution in the final result."}
+{"family":"light-verb/expanded","text":"The platform makes an central contribution in the final result."}
+{"family":"light-verb/expanded","text":"The platform makes an critical contribution in the final result."}
+{"family":"light-verb/expanded","text":"The platform makes an significant contribution in the final result."}
+{"family":"light-verb/expanded","text":"The platform exerts an important influence in the final result."}
+{"family":"light-verb/expanded","text":"The platform exerts an central influence in the final result."}
+{"family":"light-verb/expanded","text":"The platform exerts an critical influence in the final result."}
+{"family":"light-verb/expanded","text":"The platform exerts an significant influence in the final result."}
+{"family":"light-verb/expanded","text":"This method plays an important role in the final result."}
+{"family":"light-verb/expanded","text":"This method plays an central role in the final result."}
+{"family":"light-verb/expanded","text":"This method plays an critical role in the final result."}
+{"family":"light-verb/expanded","text":"This method plays an significant role in the final result."}
+{"family":"light-verb/expanded","text":"This method has an important impact in the final result."}
+{"family":"light-verb/expanded","text":"This method has an central impact in the final result."}
+{"family":"light-verb/expanded","text":"This method has an critical impact in the final result."}
+{"family":"light-verb/expanded","text":"This method has an significant impact in the final result."}
+{"family":"light-verb/expanded","text":"This method makes an important contribution in the final result."}
+{"family":"light-verb/expanded","text":"This method makes an central contribution in the final result."}
+{"family":"light-verb/expanded","text":"This method makes an critical contribution in the final result."}
+{"family":"light-verb/expanded","text":"This method makes an significant contribution in the final result."}
+{"family":"light-verb/expanded","text":"This method exerts an important influence in the final result."}
+{"family":"light-verb/expanded","text":"This method exerts an central influence in the final result."}
+{"family":"light-verb/expanded","text":"This method exerts an critical influence in the final result."}
+{"family":"light-verb/expanded","text":"This method exerts an significant influence in the final result."}
+{"family":"light-verb/expanded","text":"The redesign plays an important role in the final result."}
+{"family":"light-verb/expanded","text":"The redesign plays an central role in the final result."}
+{"family":"light-verb/expanded","text":"The redesign plays an critical role in the final result."}
+{"family":"light-verb/expanded","text":"The redesign plays an significant role in the final result."}
+{"family":"light-verb/expanded","text":"The redesign has an important impact in the final result."}
+{"family":"light-verb/expanded","text":"The redesign has an central impact in the final result."}
+{"family":"light-verb/expanded","text":"The redesign has an critical impact in the final result."}
+{"family":"light-verb/expanded","text":"The redesign has an significant impact in the final result."}
+{"family":"light-verb/expanded","text":"The redesign makes an important contribution in the final result."}
+{"family":"light-verb/expanded","text":"The redesign makes an central contribution in the final result."}
+{"family":"light-verb/expanded","text":"The redesign makes an critical contribution in the final result."}
+{"family":"light-verb/expanded","text":"The redesign makes an significant contribution in the final result."}
+{"family":"light-verb/expanded","text":"The redesign exerts an important influence in the final result."}
+{"family":"light-verb/expanded","text":"The redesign exerts an central influence in the final result."}
+{"family":"light-verb/expanded","text":"The redesign exerts an critical influence in the final result."}
+{"family":"light-verb/expanded","text":"The redesign exerts an significant influence in the final result."}
+{"family":"light-verb/expanded","text":"The proposal plays an important role in the final result."}
+{"family":"light-verb/expanded","text":"The proposal plays an central role in the final result."}
+{"family":"light-verb/expanded","text":"The proposal plays an critical role in the final result."}
+{"family":"light-verb/expanded","text":"The proposal plays an significant role in the final result."}
+{"family":"light-verb/expanded","text":"The proposal has an important impact in the final result."}
+{"family":"light-verb/expanded","text":"The proposal has an central impact in the final result."}
+{"family":"light-verb/expanded","text":"The proposal has an critical impact in the final result."}
+{"family":"light-verb/expanded","text":"The proposal has an significant impact in the final result."}
+{"family":"light-verb/expanded","text":"The proposal makes an important contribution in the final result."}
+{"family":"light-verb/expanded","text":"The proposal makes an central contribution in the final result."}
+{"family":"light-verb/expanded","text":"The proposal makes an critical contribution in the final result."}
+{"family":"light-verb/expanded","text":"The proposal makes an significant contribution in the final result."}
+{"family":"light-verb/expanded","text":"The proposal exerts an important influence in the final result."}
+{"family":"light-verb/expanded","text":"The proposal exerts an central influence in the final result."}
+{"family":"light-verb/expanded","text":"The proposal exerts an critical influence in the final result."}
+{"family":"light-verb/expanded","text":"The proposal exerts an significant influence in the final result."}
+{"family":"light-verb/expanded","text":"The program plays an important role in the final result."}
+{"family":"light-verb/expanded","text":"The program plays an central role in the final result."}
+{"family":"light-verb/expanded","text":"The program plays an critical role in the final result."}
+{"family":"light-verb/expanded","text":"The program plays an significant role in the final result."}
+{"family":"light-verb/expanded","text":"The program has an important impact in the final result."}
+{"family":"light-verb/expanded","text":"The program has an central impact in the final result."}
+{"family":"light-verb/expanded","text":"The program has an critical impact in the final result."}
+{"family":"light-verb/expanded","text":"The program has an significant impact in the final result."}
+{"family":"light-verb/expanded","text":"The program makes an important contribution in the final result."}
+{"family":"light-verb/expanded","text":"The program makes an central contribution in the final result."}
+{"family":"light-verb/expanded","text":"The program makes an critical contribution in the final result."}
+{"family":"light-verb/expanded","text":"The program makes an significant contribution in the final result."}
+{"family":"light-verb/expanded","text":"The program exerts an important influence in the final result."}
+{"family":"light-verb/expanded","text":"The program exerts an central influence in the final result."}
+{"family":"light-verb/expanded","text":"The program exerts an critical influence in the final result."}
+{"family":"light-verb/expanded","text":"The program exerts an significant influence in the final result."}
+{"family":"throat-clearing/expanded","text":"It is important to note that the deadline moved."}
+{"family":"throat-clearing/direct-expanded","text":"The deadline moved."}
+{"family":"throat-clearing/expanded","text":"It is essential to note that the deadline moved."}
+{"family":"throat-clearing/expanded","text":"It is useful to note that the deadline moved."}
+{"family":"throat-clearing/expanded","text":"It is worthwhile to note that the deadline moved."}
+{"family":"throat-clearing/expanded","text":"It is necessary to note that the deadline moved."}
+{"family":"throat-clearing/expanded","text":"It is important to note that the first test failed."}
+{"family":"throat-clearing/direct-expanded","text":"The first test failed."}
+{"family":"throat-clearing/expanded","text":"It is essential to note that the first test failed."}
+{"family":"throat-clearing/expanded","text":"It is useful to note that the first test failed."}
+{"family":"throat-clearing/expanded","text":"It is worthwhile to note that the first test failed."}
+{"family":"throat-clearing/expanded","text":"It is necessary to note that the first test failed."}
+{"family":"throat-clearing/expanded","text":"It is important to note that the budget was cut."}
+{"family":"throat-clearing/direct-expanded","text":"The budget was cut."}
+{"family":"throat-clearing/expanded","text":"It is essential to note that the budget was cut."}
+{"family":"throat-clearing/expanded","text":"It is useful to note that the budget was cut."}
+{"family":"throat-clearing/expanded","text":"It is worthwhile to note that the budget was cut."}
+{"family":"throat-clearing/expanded","text":"It is necessary to note that the budget was cut."}
+{"family":"throat-clearing/expanded","text":"It is important to note that the customer left."}
+{"family":"throat-clearing/direct-expanded","text":"The customer left."}
+{"family":"throat-clearing/expanded","text":"It is essential to note that the customer left."}
+{"family":"throat-clearing/expanded","text":"It is useful to note that the customer left."}
+{"family":"throat-clearing/expanded","text":"It is worthwhile to note that the customer left."}
+{"family":"throat-clearing/expanded","text":"It is necessary to note that the customer left."}
+{"family":"throat-clearing/expanded","text":"It is important to note that the parser missed the relation."}
+{"family":"throat-clearing/direct-expanded","text":"The parser missed the relation."}
+{"family":"throat-clearing/expanded","text":"It is essential to note that the parser missed the relation."}
+{"family":"throat-clearing/expanded","text":"It is useful to note that the parser missed the relation."}
+{"family":"throat-clearing/expanded","text":"It is worthwhile to note that the parser missed the relation."}
+{"family":"throat-clearing/expanded","text":"It is necessary to note that the parser missed the relation."}
+{"family":"throat-clearing/expanded","text":"It is important to note that the team changed course."}
+{"family":"throat-clearing/direct-expanded","text":"The team changed course."}
+{"family":"throat-clearing/expanded","text":"It is essential to note that the team changed course."}
+{"family":"throat-clearing/expanded","text":"It is useful to note that the team changed course."}
+{"family":"throat-clearing/expanded","text":"It is worthwhile to note that the team changed course."}
+{"family":"throat-clearing/expanded","text":"It is necessary to note that the team changed course."}
+{"family":"copula-avoidance/expanded","text":"The monument serves as a symbol of trust."}
+{"family":"copula-avoidance/plain-expanded","text":"The monument is a symbol of trust."}
+{"family":"copula-avoidance/expanded","text":"The monument serves as a testament to endurance."}
+{"family":"copula-avoidance/plain-expanded","text":"The monument is a testament to endurance."}
+{"family":"copula-avoidance/expanded","text":"The monument serves as a reflection of local values."}
+{"family":"copula-avoidance/plain-expanded","text":"The monument is a reflection of local values."}
+{"family":"copula-avoidance/expanded","text":"The monument serves as a bridge between generations."}
+{"family":"copula-avoidance/plain-expanded","text":"The monument is a bridge between generations."}
+{"family":"copula-avoidance/expanded","text":"The interface serves as a symbol of trust."}
+{"family":"copula-avoidance/plain-expanded","text":"The interface is a symbol of trust."}
+{"family":"copula-avoidance/expanded","text":"The interface serves as a testament to endurance."}
+{"family":"copula-avoidance/plain-expanded","text":"The interface is a testament to endurance."}
+{"family":"copula-avoidance/expanded","text":"The interface serves as a reflection of local values."}
+{"family":"copula-avoidance/plain-expanded","text":"The interface is a reflection of local values."}
+{"family":"copula-avoidance/expanded","text":"The interface serves as a bridge between generations."}
+{"family":"copula-avoidance/plain-expanded","text":"The interface is a bridge between generations."}
+{"family":"copula-avoidance/expanded","text":"The ritual serves as a symbol of trust."}
+{"family":"copula-avoidance/plain-expanded","text":"The ritual is a symbol of trust."}
+{"family":"copula-avoidance/expanded","text":"The ritual serves as a testament to endurance."}
+{"family":"copula-avoidance/plain-expanded","text":"The ritual is a testament to endurance."}
+{"family":"copula-avoidance/expanded","text":"The ritual serves as a reflection of local values."}
+{"family":"copula-avoidance/plain-expanded","text":"The ritual is a reflection of local values."}
+{"family":"copula-avoidance/expanded","text":"The ritual serves as a bridge between generations."}
+{"family":"copula-avoidance/plain-expanded","text":"The ritual is a bridge between generations."}
+{"family":"copula-avoidance/expanded","text":"The policy serves as a symbol of trust."}
+{"family":"copula-avoidance/plain-expanded","text":"The policy is a symbol of trust."}
+{"family":"copula-avoidance/expanded","text":"The policy serves as a testament to endurance."}
+{"family":"copula-avoidance/plain-expanded","text":"The policy is a testament to endurance."}
+{"family":"copula-avoidance/expanded","text":"The policy serves as a reflection of local values."}
+{"family":"copula-avoidance/plain-expanded","text":"The policy is a reflection of local values."}
+{"family":"copula-avoidance/expanded","text":"The policy serves as a bridge between generations."}
+{"family":"copula-avoidance/plain-expanded","text":"The policy is a bridge between generations."}
+{"family":"copula-avoidance/expanded","text":"The archive serves as a symbol of trust."}
+{"family":"copula-avoidance/plain-expanded","text":"The archive is a symbol of trust."}
+{"family":"copula-avoidance/expanded","text":"The archive serves as a testament to endurance."}
+{"family":"copula-avoidance/plain-expanded","text":"The archive is a testament to endurance."}
+{"family":"copula-avoidance/expanded","text":"The archive serves as a reflection of local values."}
+{"family":"copula-avoidance/plain-expanded","text":"The archive is a reflection of local values."}
+{"family":"copula-avoidance/expanded","text":"The archive serves as a bridge between generations."}
+{"family":"copula-avoidance/plain-expanded","text":"The archive is a bridge between generations."}
+{"family":"copula-avoidance/expanded","text":"The garden serves as a symbol of trust."}
+{"family":"copula-avoidance/plain-expanded","text":"The garden is a symbol of trust."}
+{"family":"copula-avoidance/expanded","text":"The garden serves as a testament to endurance."}
+{"family":"copula-avoidance/plain-expanded","text":"The garden is a testament to endurance."}
+{"family":"copula-avoidance/expanded","text":"The garden serves as a reflection of local values."}
+{"family":"copula-avoidance/plain-expanded","text":"The garden is a reflection of local values."}
+{"family":"copula-avoidance/expanded","text":"The garden serves as a bridge between generations."}
+{"family":"copula-avoidance/plain-expanded","text":"The garden is a bridge between generations."}
+{"family":"participial/expanded","text":"The library reopened, showcasing its lasting importance."}
+{"family":"participial/expanded","text":"The library reopened, highlighting its lasting importance."}
+{"family":"participial/expanded","text":"The library reopened, underscoring its lasting importance."}
+{"family":"participial/expanded","text":"The library reopened, reflecting its lasting importance."}
+{"family":"participial/expanded","text":"The library reopened, demonstrating its lasting importance."}
+{"family":"participial/expanded","text":"The library reopened, embodying its lasting importance."}
+{"family":"participial/expanded","text":"The company published the report, showcasing its lasting importance."}
+{"family":"participial/expanded","text":"The company published the report, highlighting its lasting importance."}
+{"family":"participial/expanded","text":"The company published the report, underscoring its lasting importance."}
+{"family":"participial/expanded","text":"The company published the report, reflecting its lasting importance."}
+{"family":"participial/expanded","text":"The company published the report, demonstrating its lasting importance."}
+{"family":"participial/expanded","text":"The company published the report, embodying its lasting importance."}
+{"family":"participial/expanded","text":"The city restored the station, showcasing its lasting importance."}
+{"family":"participial/expanded","text":"The city restored the station, highlighting its lasting importance."}
+{"family":"participial/expanded","text":"The city restored the station, underscoring its lasting importance."}
+{"family":"participial/expanded","text":"The city restored the station, reflecting its lasting importance."}
+{"family":"participial/expanded","text":"The city restored the station, demonstrating its lasting importance."}
+{"family":"participial/expanded","text":"The city restored the station, embodying its lasting importance."}
+{"family":"participial/expanded","text":"The team shipped the release, showcasing its lasting importance."}
+{"family":"participial/expanded","text":"The team shipped the release, highlighting its lasting importance."}
+{"family":"participial/expanded","text":"The team shipped the release, underscoring its lasting importance."}
+{"family":"participial/expanded","text":"The team shipped the release, reflecting its lasting importance."}
+{"family":"participial/expanded","text":"The team shipped the release, demonstrating its lasting importance."}
+{"family":"participial/expanded","text":"The team shipped the release, embodying its lasting importance."}
+{"family":"participial/expanded","text":"The gallery acquired the collection, showcasing its lasting importance."}
+{"family":"participial/expanded","text":"The gallery acquired the collection, highlighting its lasting importance."}
+{"family":"participial/expanded","text":"The gallery acquired the collection, underscoring its lasting importance."}
+{"family":"participial/expanded","text":"The gallery acquired the collection, reflecting its lasting importance."}
+{"family":"participial/expanded","text":"The gallery acquired the collection, demonstrating its lasting importance."}
+{"family":"participial/expanded","text":"The gallery acquired the collection, embodying its lasting importance."}
+{"family":"participial/expanded","text":"The council approved the plan, showcasing its lasting importance."}
+{"family":"participial/expanded","text":"The council approved the plan, highlighting its lasting importance."}
+{"family":"participial/expanded","text":"The council approved the plan, underscoring its lasting importance."}
+{"family":"participial/expanded","text":"The council approved the plan, reflecting its lasting importance."}
+{"family":"participial/expanded","text":"The council approved the plan, demonstrating its lasting importance."}
+{"family":"participial/expanded","text":"The council approved the plan, embodying its lasting importance."}
+{"family":"vague-attribution/expanded-bare","text":"Analysts maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent analysts maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Analysts assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent analysts assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Analysts warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent analysts warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Analysts indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent analysts indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Analysts conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent analysts conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Analysts observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent analysts observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Reviewers maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent reviewers maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Reviewers assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent reviewers assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Reviewers warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent reviewers warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Reviewers indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent reviewers indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Reviewers conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent reviewers conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Reviewers observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent reviewers observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Commentators maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent commentators maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Commentators assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent commentators assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Commentators warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent commentators warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Commentators indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent commentators indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Commentators conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent commentators conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Commentators observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent commentators observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Officials maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent officials maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Officials assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent officials assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Officials warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent officials warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Officials indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent officials indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Officials conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent officials conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Officials observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent officials observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Economists maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent economists maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Economists assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent economists assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Economists warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent economists warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Economists indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent economists indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Economists conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent economists conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Economists observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent economists observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Engineers maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent engineers maintain that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Engineers assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent engineers assert that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Engineers warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent engineers warn that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Engineers indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent engineers indicate that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Engineers conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent engineers conclude that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-bare","text":"Engineers observe that the current approach cannot scale."}
+{"family":"vague-attribution/expanded-specific","text":"The independent engineers observe that the current approach cannot scale."}
+{"family":"rule-of-three/expanded","text":"The service is fast, clear, and reliable."}
+{"family":"rule-of-three/expanded-pair","text":"The service is fast and clear."}
+{"family":"rule-of-three/expanded","text":"The service is simple, stable, and predictable."}
+{"family":"rule-of-three/expanded-pair","text":"The service is simple and stable."}
+{"family":"rule-of-three/expanded","text":"The service is bold, modern, and accessible."}
+{"family":"rule-of-three/expanded-pair","text":"The service is bold and modern."}
+{"family":"rule-of-three/expanded","text":"The service is careful, specific, and useful."}
+{"family":"rule-of-three/expanded-pair","text":"The service is careful and specific."}
+{"family":"rule-of-three/expanded","text":"The interface is fast, clear, and reliable."}
+{"family":"rule-of-three/expanded-pair","text":"The interface is fast and clear."}
+{"family":"rule-of-three/expanded","text":"The interface is simple, stable, and predictable."}
+{"family":"rule-of-three/expanded-pair","text":"The interface is simple and stable."}
+{"family":"rule-of-three/expanded","text":"The interface is bold, modern, and accessible."}
+{"family":"rule-of-three/expanded-pair","text":"The interface is bold and modern."}
+{"family":"rule-of-three/expanded","text":"The interface is careful, specific, and useful."}
+{"family":"rule-of-three/expanded-pair","text":"The interface is careful and specific."}
+{"family":"rule-of-three/expanded","text":"The process is fast, clear, and reliable."}
+{"family":"rule-of-three/expanded-pair","text":"The process is fast and clear."}
+{"family":"rule-of-three/expanded","text":"The process is simple, stable, and predictable."}
+{"family":"rule-of-three/expanded-pair","text":"The process is simple and stable."}
+{"family":"rule-of-three/expanded","text":"The process is bold, modern, and accessible."}
+{"family":"rule-of-three/expanded-pair","text":"The process is bold and modern."}
+{"family":"rule-of-three/expanded","text":"The process is careful, specific, and useful."}
+{"family":"rule-of-three/expanded-pair","text":"The process is careful and specific."}
+{"family":"rule-of-three/expanded","text":"The report is fast, clear, and reliable."}
+{"family":"rule-of-three/expanded-pair","text":"The report is fast and clear."}
+{"family":"rule-of-three/expanded","text":"The report is simple, stable, and predictable."}
+{"family":"rule-of-three/expanded-pair","text":"The report is simple and stable."}
+{"family":"rule-of-three/expanded","text":"The report is bold, modern, and accessible."}
+{"family":"rule-of-three/expanded-pair","text":"The report is bold and modern."}
+{"family":"rule-of-three/expanded","text":"The report is careful, specific, and useful."}
+{"family":"rule-of-three/expanded-pair","text":"The report is careful and specific."}
+{"family":"rule-of-three/expanded","text":"The proposal is fast, clear, and reliable."}
+{"family":"rule-of-three/expanded-pair","text":"The proposal is fast and clear."}
+{"family":"rule-of-three/expanded","text":"The proposal is simple, stable, and predictable."}
+{"family":"rule-of-three/expanded-pair","text":"The proposal is simple and stable."}
+{"family":"rule-of-three/expanded","text":"The proposal is bold, modern, and accessible."}
+{"family":"rule-of-three/expanded-pair","text":"The proposal is bold and modern."}
+{"family":"rule-of-three/expanded","text":"The proposal is careful, specific, and useful."}
+{"family":"rule-of-three/expanded-pair","text":"The proposal is careful and specific."}
+{"family":"rule-of-three/expanded","text":"The campaign is fast, clear, and reliable."}
+{"family":"rule-of-three/expanded-pair","text":"The campaign is fast and clear."}
+{"family":"rule-of-three/expanded","text":"The campaign is simple, stable, and predictable."}
+{"family":"rule-of-three/expanded-pair","text":"The campaign is simple and stable."}
+{"family":"rule-of-three/expanded","text":"The campaign is bold, modern, and accessible."}
+{"family":"rule-of-three/expanded-pair","text":"The campaign is bold and modern."}
+{"family":"rule-of-three/expanded","text":"The campaign is careful, specific, and useful."}
+{"family":"rule-of-three/expanded-pair","text":"The campaign is careful and specific."}
+{"family":"corrective-antithesis/expanded","text":"Choose clarity, not cleverness."}
+{"family":"corrective-antithesis/expanded","text":"Choose evidence, not instinct."}
+{"family":"corrective-antithesis/expanded","text":"Choose people, not metrics."}
+{"family":"corrective-antithesis/expanded","text":"Choose durability, not novelty."}
+{"family":"corrective-antithesis/expanded","text":"Choose specifics, not slogans."}
+{"family":"corrective-antithesis/expanded","text":"Trust clarity, not cleverness."}
+{"family":"corrective-antithesis/expanded","text":"Trust evidence, not instinct."}
+{"family":"corrective-antithesis/expanded","text":"Trust people, not metrics."}
+{"family":"corrective-antithesis/expanded","text":"Trust durability, not novelty."}
+{"family":"corrective-antithesis/expanded","text":"Trust specifics, not slogans."}
+{"family":"corrective-antithesis/expanded","text":"Reward clarity, not cleverness."}
+{"family":"corrective-antithesis/expanded","text":"Reward evidence, not instinct."}
+{"family":"corrective-antithesis/expanded","text":"Reward people, not metrics."}
+{"family":"corrective-antithesis/expanded","text":"Reward durability, not novelty."}
+{"family":"corrective-antithesis/expanded","text":"Reward specifics, not slogans."}
+{"family":"corrective-antithesis/expanded","text":"Measure clarity, not cleverness."}
+{"family":"corrective-antithesis/expanded","text":"Measure evidence, not instinct."}
+{"family":"corrective-antithesis/expanded","text":"Measure people, not metrics."}
+{"family":"corrective-antithesis/expanded","text":"Measure durability, not novelty."}
+{"family":"corrective-antithesis/expanded","text":"Measure specifics, not slogans."}
+{"family":"corrective-antithesis/expanded","text":"Build clarity, not cleverness."}
+{"family":"corrective-antithesis/expanded","text":"Build evidence, not instinct."}
+{"family":"corrective-antithesis/expanded","text":"Build people, not metrics."}
+{"family":"corrective-antithesis/expanded","text":"Build durability, not novelty."}
+{"family":"corrective-antithesis/expanded","text":"Build specifics, not slogans."}
+{"family":"corrective-antithesis/expanded","text":"Protect clarity, not cleverness."}
+{"family":"corrective-antithesis/expanded","text":"Protect evidence, not instinct."}
+{"family":"corrective-antithesis/expanded","text":"Protect people, not metrics."}
+{"family":"corrective-antithesis/expanded","text":"Protect durability, not novelty."}
+{"family":"corrective-antithesis/expanded","text":"Protect specifics, not slogans."}
+{"family":"negative-parallelism/expanded","text":"The tool is not only fast but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The tool is not only accurate but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The tool is not only clear but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The tool is not only flexible but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The tool is not only cheap but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The tool is not only robust but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The method is not only fast but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The method is not only accurate but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The method is not only clear but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The method is not only flexible but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The method is not only cheap but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The method is not only robust but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The interface is not only fast but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The interface is not only accurate but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The interface is not only clear but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The interface is not only flexible but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The interface is not only cheap but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The interface is not only robust but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The report is not only fast but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The report is not only accurate but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The report is not only clear but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The report is not only flexible but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The report is not only cheap but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The report is not only robust but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The policy is not only fast but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The policy is not only accurate but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The policy is not only clear but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The policy is not only flexible but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The policy is not only cheap but also dependable."}
+{"family":"negative-parallelism/expanded","text":"The policy is not only robust but also dependable."}
+{"family":"personal/imperative-condition","text":"Give it nothing and you get its usual style."}
+{"family":"personal/if-condition","text":"If you give it nothing, you get its usual style."}
+{"family":"personal/imperative-condition","text":"Give it weak instructions and you get generic prose."}
+{"family":"personal/if-condition","text":"If you give it weak instructions, you get generic prose."}
+{"family":"personal/imperative-condition","text":"Give it no examples and you get the default rhythm."}
+{"family":"personal/if-condition","text":"If you give it no examples, you get the default rhythm."}
+{"family":"personal/imperative-condition","text":"Give it vague context and you get a vague answer."}
+{"family":"personal/if-condition","text":"If you give it vague context, you get a vague answer."}
+{"family":"personal/modal-omitted","text":"You can smash your head through a brick wall or hire a wrecking ball; both give you an opening."}
+{"family":"personal/modal-explicit","text":"You can smash your head through a brick wall or hire a wrecking ball; both will give you an opening."}
+{"family":"personal/modal-omitted","text":"You can rewrite every line by hand or hire an editor; both give you a cleaner draft."}
+{"family":"personal/modal-explicit","text":"You can rewrite every line by hand or hire an editor; both will give you a cleaner draft."}
+{"family":"personal/modal-omitted","text":"You can trace every call yourself or run the profiler; both give you the bottleneck."}
+{"family":"personal/modal-explicit","text":"You can trace every call yourself or run the profiler; both will give you the bottleneck."}
+{"family":"personal/modal-omitted","text":"You can inspect every arc manually or train a diagnostic; both give you the failure."}
+{"family":"personal/modal-explicit","text":"You can inspect every arc manually or train a diagnostic; both will give you the failure."}
+{"family":"personal/coordination","text":"I use all of these rules together. The model fails less, and I still have to supply the taste and catch what gets through."}
+{"family":"personal/subordination","text":"When I use all of these rules, the model fails less. I still have to supply the taste and catch what gets through."}
+{"family":"personal/coordination","text":"I use all of these checks together. The model fails less, and I still have to supply the taste and catch what gets through."}
+{"family":"personal/subordination","text":"When I use all of these checks, the model fails less. I still have to supply the taste and catch what gets through."}
+{"family":"personal/coordination","text":"I use all of these prompts together. The model fails less, and I still have to supply the taste and catch what gets through."}
+{"family":"personal/subordination","text":"When I use all of these prompts, the model fails less. I still have to supply the taste and catch what gets through."}
+{"family":"personal/coordination","text":"I use all of these tools together. The model fails less, and I still have to supply the taste and catch what gets through."}
+{"family":"personal/subordination","text":"When I use all of these tools, the model fails less. I still have to supply the taste and catch what gets through."}
+{"family":"stop-slop/false-agency","text":"The data tells us which option works."}
+{"family":"stop-slop/named-agency","text":"The analysts found which option works."}
+{"family":"stop-slop/false-agency","text":"The market rewards speed."}
+{"family":"stop-slop/named-agency","text":"Buyers pay more for speed."}
+{"family":"stop-slop/false-agency","text":"The decision refuses to die."}
+{"family":"stop-slop/named-agency","text":"The council refuses to reverse its decision."}
+{"family":"stop-slop/false-agency","text":"The culture embraces experimentation."}
+{"family":"stop-slop/named-agency","text":"The managers reward experimentation."}
+{"family":"stop-slop/false-agency","text":"The research argues for a smaller model."}
+{"family":"stop-slop/named-agency","text":"The researchers argue for a smaller model."}
+{"family":"stop-slop/passive","text":"The system was created in June."}
+{"family":"stop-slop/active","text":"The engineering team created the system in June."}
+{"family":"stop-slop/passive","text":"The decision was reached yesterday."}
+{"family":"stop-slop/active","text":"The board decided yesterday."}
+{"family":"stop-slop/passive","text":"Several mistakes were made."}
+{"family":"stop-slop/active","text":"The reviewers made several mistakes."}
+{"family":"stop-slop/passive","text":"The deadline was changed."}
+{"family":"stop-slop/active","text":"The client changed the deadline."}

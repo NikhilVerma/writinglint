@@ -1,0 +1,54 @@
+{
+  "name": "writinglint-core",
+  "version": "0.1.1",
+  "description": "Grammar-linter engine: a Document model over a dependency-parse + POS graph, an authorable Rule API, config resolution, and the Linter.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
+    "directory": "packages/core"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
+  },
+  "homepage": "https://github.com/NikhilVerma/writinglint#readme",
+  "keywords": [
+    "grammar",
+    "linter",
+    "prose",
+    "writing",
+    "dependency-parser",
+    "nlp",
+    "eslint-for-prose",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

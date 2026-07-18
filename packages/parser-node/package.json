@@ -1,0 +1,70 @@
+{
+  "name": "writinglint-parser-node",
+  "version": "0.1.1",
+  "description": "WritingLint's local ONNX dependency parser for Node, including compact INT8 weights.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
+    "directory": "packages/parser-node"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
+  },
+  "homepage": "https://github.com/NikhilVerma/writinglint#readme",
+  "keywords": [
+    "grammar",
+    "linter",
+    "prose",
+    "onnx",
+    "machine-learning",
+    "dependency-parser",
+    "node"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./tokenizer": {
+      "types": "./dist/tokenizer.d.ts",
+      "source": "./src/tokenizer.ts",
+      "default": "./dist/tokenizer.js"
+    },
+    "./onnx": {
+      "types": "./dist/onnx-parser.d.ts",
+      "source": "./src/onnx-parser.ts",
+      "default": "./dist/onnx-parser.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "model",
+    "python",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "onnxruntime-node": "^1.27.0",
+    "writinglint-core": "^0.1.1"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "stage-model": "node ../../scripts/setup-model.mjs",
+    "prepack": "npm run stage-model && npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
