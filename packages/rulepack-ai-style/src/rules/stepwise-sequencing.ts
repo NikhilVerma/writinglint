@@ -18,7 +18,9 @@ interface Match {
   tokens: DepToken[];
 }
 
-const isVerb = (token: DepToken | undefined): token is DepToken =>
+type VerbToken = DepToken & { upos: 'VERB' | 'AUX' };
+
+const isVerb = (token: DepToken | undefined): token is VerbToken =>
   token?.upos === 'VERB' || token?.upos === 'AUX';
 
 const isSubject = (token: DepToken): boolean =>
@@ -29,7 +31,13 @@ function candidateFor(sentence: DepSentence, then: DepToken): DepToken[] | undef
   const adjacentFallback = (): DepToken[] | undefined => {
     const previous = byId(sentence, then.id - 1);
     const following = byId(sentence, then.id + 1);
-    return previous?.upos === 'NOUN' && isVerb(following)
+    const predicateLike = isVerb(following)
+      || (following != null
+        && (following.deprel === 'root'
+          || following.deprel === 'conj'
+          || following.deprel === 'compound'
+          || following.deprel === 'parataxis'));
+    return previous?.upos === 'NOUN' && predicateLike
       ? [previous, then, following]
       : undefined;
   };
@@ -64,7 +72,7 @@ export const stepwiseSequencing = defineRule({
       Document(doc) {
         for (const { dep: sentence } of doc.sentences) {
           for (const then of sentence.tokens) {
-            if (lower(then) !== 'then' || then.upos !== 'ADV') continue;
+            if (lower(then) !== 'then' || (then.upos !== 'ADV' && then.deprel !== 'advmod')) continue;
             const tokens = candidateFor(sentence, then);
             if (tokens) matches.push({ sentence, tokens });
           }

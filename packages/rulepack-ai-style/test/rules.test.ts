@@ -54,6 +54,25 @@ test('stepwise sequencing leaves ordinary instructions and chronology alone', as
   assert.ok(!fired(await lint('If the test passes, then deploy the worker.'), 'stepwise-sequencing'));
 });
 
+test('stepwise sequencing tolerates a compact-parser predicate mistag', async () => {
+  const parser = {
+    async parse() {
+      return [{
+        text: 'Rules then flag claims.', start: 0, end: 22,
+        tokens: [
+          { id: 1, form: 'Rules', lemma: 'rules', upos: 'NOUN', head: 4, deprel: 'nsubj', start: 0, end: 5 },
+          { id: 2, form: 'then', lemma: 'then', upos: 'PART', head: 4, deprel: 'advmod', start: 6, end: 10 },
+          { id: 3, form: 'flag', lemma: 'flag', upos: 'NOUN', head: 4, deprel: 'compound', start: 11, end: 15 },
+          { id: 4, form: 'claims', lemma: 'claim', upos: 'NOUN', head: 0, deprel: 'root', start: 16, end: 22 },
+        ],
+      }];
+    },
+  };
+  const variantLinter = new Linter(parser);
+  const result = await variantLinter.lint('Rules then flag claims.', config);
+  assert.equal(finding(result.lints, 'stepwise-sequencing')?.confidence, 'low');
+});
+
 test('corrective-antithesis does NOT fire on plain sentential negation', async () => {
   assert.ok(!fired(await lint('I did not see the number on the screen.'), 'corrective-antithesis'));
   assert.ok(!fired(await lint('She was not at home yesterday.'), 'corrective-antithesis'));
