@@ -9,17 +9,21 @@ Use the real SlopSift CLI to find writing tells, then apply editorial judgment. 
 
 ## Lint files
 
-Run SlopSift from the repository root. Quote globs so SlopSift, rather than the shell, expands them.
+Run SlopSift from the repository root. Match the runner to the existing environment:
+
+- Bun repository: `bunx slopsift`.
+- Node/npm repository: `npx slopsift`.
+- An explicit user choice overrides lockfile inference. Do not install another runtime or switch package managers for the lint run.
+
+Quote globs so SlopSift, rather than the shell, expands them.
 
 ```bash
 bunx slopsift . --level info
 bunx slopsift "docs/**/*.md" --level info
-bunx slopsift "src/**/*.{ts,tsx}" --level info
+npx slopsift "src/**/*.{ts,tsx}" --level info
 ```
 
-Use `npx slopsift` when Bun is unavailable. Respect the user's package manager when the project establishes one.
-
-For machine-readable analysis, use:
+For machine-readable analysis, keep the same runtime choice and use:
 
 ```bash
 bunx slopsift . --level info --format json --exit-zero

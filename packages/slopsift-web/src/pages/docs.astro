@@ -107,7 +107,7 @@ const skillInstall = `bunx skills add NikhilVerma/slopsift`;
         <h2>Give your agent an editor.</h2>
         <p>Add the SlopSift skill with the open skills CLI. It works with Codex, Claude Code, Cursor, OpenCode, and other agents that support the Agent Skills format.</p>
         <pre><code>{skillInstall}</code></pre>
-        <p>The skill tells an agent to run the real SlopSift CLI, inspect exact ranges, and prioritize errors over weaker signals. It also tells the agent to preserve the writer's voice, leave legitimate findings alone, and reject authorship claims based on a lint result.</p>
+        <p>The skill tells an agent to use the project's existing Bun or Node environment, run the real SlopSift CLI, inspect exact ranges, and prioritize errors over weaker signals. It does not switch runtimes just to run the linter. It also preserves the writer's voice, leaves legitimate findings alone, and rejects authorship claims based on a lint result.</p>
         <aside class="docs-note"><strong>Editor integrations:</strong> The VS Code extension and Chrome extension are still coming soon. The CLI, browser editor, and agent skill are available first.</aside>
       </section>
 
