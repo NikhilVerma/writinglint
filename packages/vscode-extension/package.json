@@ -110,7 +110,7 @@
     "sloplint": "^0.1.0"
   },
   "devDependencies": {
-    "@types/node": "^22.20.0",
+    "@types/node": "^26.1.1",
     "@types/vscode": "^1.96.0",
     "@vscode/vsce": "^3.7.1",
     "esbuild": "^0.24.2",
