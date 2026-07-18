@@ -44,7 +44,10 @@ function collectTargets(value, targets = new Set()) {
 
 for (const name of packagedProjects) {
   const { directory, manifest } = packageManifest(name);
-  if (manifest.private) fail(`${name} is unexpectedly private`);
+  const expectedPrivate = name === 'writinglint';
+  if (Boolean(manifest.private) !== expectedPrivate) {
+    fail(`${name} must be ${expectedPrivate ? 'private until its first npm release' : 'public'}`);
+  }
   if (manifest.license !== 'MIT') fail(`${name} must declare the MIT license`);
   if (manifest.repository?.url !== repository) fail(`${name} has an incorrect repository URL`);
   if (manifest.repository?.directory !== directory) fail(`${name} has an incorrect repository.directory`);

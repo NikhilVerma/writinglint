@@ -1,6 +1,7 @@
 {
   "name": "writinglint",
   "version": "0.1.2",
+  "private": true,
   "description": "Command-line interface for the general-purpose WritingLint engine.",
   "type": "module",
   "license": "MIT",
@@ -42,8 +43,5 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').chmodSync('dist/cli.js', 0o755)\"",
     "prepack": "npm run build"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }
