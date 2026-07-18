@@ -283,3 +283,8 @@ with recognizable AI-slop constructions.
       checks, tag protection, and approval on the `npm` environment.
 - [ ] Configure `publish.yml` as the trusted publisher for every public npm
       package, perform the first OIDC publish, then disallow token publishing.
+- [ ] Bootstrap the unscoped `writinglint` npm package, configure its trusted
+      publisher, remove it from Changesets' ignore list, and restore its
+      published-package smoke test. Until then, only the source preview is
+      available; SlopSift and the reusable WritingLint libraries publish
+      independently.

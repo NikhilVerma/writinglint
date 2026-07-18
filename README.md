@@ -4,7 +4,6 @@ Deterministic linting for prose, powered by an owned dependency parser and
 authorable TypeScript rules.
 
 [![SlopSift on npm](https://img.shields.io/npm/v/slopsift?label=slopsift&color=111111)](https://www.npmjs.com/package/slopsift)
-[![WritingLint on npm](https://img.shields.io/npm/v/writinglint?label=writinglint&color=2563eb)](https://www.npmjs.com/package/writinglint)
 [![CI](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml/badge.svg)](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2563eb)](LICENSE)
 [![SlopSift demo](https://img.shields.io/badge/demo-slopsift.dev-111111)](https://slopsift.dev)
@@ -128,7 +127,7 @@ release procedures are documented in
 | Package | Purpose |
 | --- | --- |
 | [`slopsift`](https://www.npmjs.com/package/slopsift) | Focused AI-slop CLI and in-process API |
-| [`writinglint`](https://www.npmjs.com/package/writinglint) | General-purpose prose-lint CLI |
+| `writinglint` (source preview) | General-purpose prose-lint CLI; npm publication is pending |
 | [`writinglint-core`](https://www.npmjs.com/package/writinglint-core) | Document model, parser contract, rule API, configuration, and linter |
 | [`writinglint-parser-node`](https://www.npmjs.com/package/writinglint-parser-node) | Local ONNX parser and bundled compact model |
 | [`writinglint-rulepack-ai-style`](https://www.npmjs.com/package/writinglint-rulepack-ai-style) | AI-writing-style rules and scoring features |

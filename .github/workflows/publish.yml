@@ -33,8 +33,6 @@ jobs:
         run: npm run smoke:packed
       - name: Verify and publish unpublished versions
         run: npm run release
-      - name: Install and run the published WritingLint package
-        run: npm run smoke:published:writinglint
       - name: Install and run the published SlopSift package
         run: npm run smoke:published
       - name: Push verified package tags

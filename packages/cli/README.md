@@ -1,10 +1,10 @@
 # writinglint
 
-Command line for [WritingLint](https://github.com/NikhilVerma/writinglint) — lint
-prose and score how AI-shaped it reads.
+Development preview of the general-purpose
+[WritingLint](https://github.com/NikhilVerma/writinglint) command line. The
+unscoped `writinglint` npm package has not been published yet.
 
-The published CLI includes the compact INT8 parser and works offline. In a
-source checkout, stage that same verified model before running it:
+In a source checkout, stage the verified compact INT8 parser before running it:
 
 ```bash
 npm install
