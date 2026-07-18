@@ -1,15 +1,15 @@
 {
-  "sensitiveSeeds": 386,
+  "sensitiveSeeds": 185,
   "heldOut": 80,
-  "availableTraining": 306,
+  "availableTraining": 105,
   "sizes": [
     50,
     100,
     250
   ],
   "split": "sha256(family + NUL + text)",
-  "familyHeldOut": 299,
-  "familyTraining": 87,
+  "familyHeldOut": 115,
+  "familyTraining": 70,
   "familySizes": [
     25,
     50,

@@ -1,7 +1,7 @@
 [project]
-name = "better-write-parser-training"
+name = "writinglint-parser-training"
 version = "0.1.0"
-description = "Train and evaluate Better Write's compact owned UD parser."
+description = "Train and evaluate WritingLint's compact owned UD parser."
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "conllu>=6,<7",

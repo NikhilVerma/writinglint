@@ -31,6 +31,24 @@ test('corrective-antithesis does NOT fire on plain sentential negation', async (
   assert.equal(finding(await lint('The prompt is a request, not a contract.'), 'corrective-antithesis')?.confidence, 'low');
 });
 
+test('negative contrast catches a staged two-sentence redefinition', async () => {
+  assert.equal(
+    finding(await lint("Controls are not documents. They're commitments."), 'negative-contrast')?.confidence,
+    'medium',
+  );
+  assert.equal(
+    finding(await lint("A strategy isn't a slogan. It's a sequence of choices."), 'negative-contrast')?.confidence,
+    'medium',
+  );
+  assert.ok(!fired(await lint('Controls are not documents stored in this directory.'), 'negative-contrast'));
+});
+
+test('dramatic fragments are graded without matching ordinary transitions', async () => {
+  assert.equal(finding(await lint('The old workflow required a manual review. Until now. The new job automates it.'), 'dramatic-fragment')?.confidence, 'medium');
+  assert.equal(finding(await lint('The team repeated that process. For years. The new job automates it.'), 'dramatic-fragment')?.confidence, 'low');
+  assert.ok(!fired(await lint('Until now, the workflow required a manual review.'), 'dramatic-fragment'));
+});
+
 test('a few structural + lexical rules still fire on their canonical tells', async () => {
   assert.ok(fired(await lint('The design is not only fast but also elegant.'), 'negative-parallelism'));
   assert.ok(fired(await lint('The city was vibrant, bustling, and diverse.'), 'rule-of-three'));
@@ -144,7 +162,12 @@ test('nearby repeated paragraphs emit a semantic redundancy candidate', async ()
 
 test('false agency is narrow and asks for the human interpreter', async () => {
   assert.ok(fired(await lint('The data tells us which option to choose.'), 'false-agency'));
+  assert.equal(finding(await lint('The complaint becomes a fix.'), 'false-agency')?.confidence, 'medium');
+  assert.equal(finding(await lint('The feedback evolves into a strategy.'), 'false-agency')?.confidence, 'medium');
+  assert.equal(finding(await lint('The decision emerges.'), 'false-agency')?.confidence, 'low');
   assert.ok(!fired(await lint('The analyst tells us which option to choose.'), 'false-agency'));
+  assert.ok(!fired(await lint('The caterpillar becomes a butterfly.'), 'false-agency'));
+  assert.ok(!fired(await lint('The “superficial analysis” tell appears in this example.'), 'false-agency'));
 });
 
 test('rhetorical scaffolding catches canned setup but not a direct claim', async () => {
@@ -159,11 +182,11 @@ test('negative listing requires a repeated run', async () => {
 
 test('modal redundancy removes only the duplicated future modal', async () => {
   assert.ok(fired(
-    await lint('You can smash through the wall or hire a wrecking ball; both will give you an opening.'),
+    await lint('You can rewrite every line or hire an editor; both will give you a cleaner draft.'),
     'modal-redundancy',
   ));
   assert.ok(!fired(
-    await lint('You can smash through the wall or hire a wrecking ball; both give you an opening.'),
+    await lint('You can rewrite every line or hire an editor; both give you a cleaner draft.'),
     'modal-redundancy',
   ));
 });

@@ -25,7 +25,7 @@ wheels = [
 ]
 
 [[package]]
-name = "better-write-parser-training"
+name = "writinglint-parser-training"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

@@ -138,27 +138,27 @@ function seeds(): Seed[] {
       add('negative-parallelism/expanded', `${subject} is not only ${adjective} but also dependable.`);
   }
 
-  // Inspiration families that probe gaps in today's rulepack. These are kept
-  // even when they yield no sensitivity entries: absence is a coverage result.
+  // Synthetic gap probes are retained even when they yield no sensitivity
+  // entries: absence is itself a coverage result.
   for (const [input, result] of [
-    ['nothing', 'its usual style'], ['weak instructions', 'generic prose'],
-    ['no examples', 'the default rhythm'], ['vague context', 'a vague answer'],
+    ['weak instructions', 'generic prose'], ['no examples', 'the default rhythm'],
+    ['vague context', 'a vague answer'], ['no constraints', 'an unfocused draft'],
   ]) {
-    add('personal/imperative-condition', `Give it ${input} and you get ${result}.`);
-    add('personal/if-condition', `If you give it ${input}, you get ${result}.`);
+    add('gap/imperative-condition', `Give it ${input} and you get ${result}.`);
+    add('gap/if-condition', `If you give it ${input}, you get ${result}.`);
   }
   for (const [left, right, outcome] of [
-    ['smash your head through a brick wall', 'hire a wrecking ball', 'an opening'],
     ['rewrite every line by hand', 'hire an editor', 'a cleaner draft'],
     ['trace every call yourself', 'run the profiler', 'the bottleneck'],
     ['inspect every arc manually', 'train a diagnostic', 'the failure'],
+    ['check every source manually', 'run the audit', 'a verdict'],
   ]) {
-    add('personal/modal-omitted', `You can ${left} or ${right}; both give you ${outcome}.`);
-    add('personal/modal-explicit', `You can ${left} or ${right}; both will give you ${outcome}.`);
+    add('gap/modal-omitted', `You can ${left} or ${right}; both give you ${outcome}.`);
+    add('gap/modal-explicit', `You can ${left} or ${right}; both will give you ${outcome}.`);
   }
   for (const object of ['these rules', 'these checks', 'these prompts', 'these tools']) {
-    add('personal/coordination', `I use all of ${object} together. The model fails less, and I still have to supply the taste and catch what gets through.`);
-    add('personal/subordination', `When I use all of ${object}, the model fails less. I still have to supply the taste and catch what gets through.`);
+    add('gap/coordination', `The editor uses all of ${object} together. The draft improves, and final review still matters.`);
+    add('gap/subordination', `When the editor uses all of ${object}, the draft improves. Final review still matters.`);
   }
   for (const [falseAgency, namedAgency] of [
     ['The data tells us which option works.', 'The analysts found which option works.'],

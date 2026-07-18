@@ -11,11 +11,12 @@ if (process.env.EXPECTED_PACKAGE_VERSION) {
   assert.equal(installed.version, process.env.EXPECTED_PACKAGE_VERSION);
 }
 
-for (const name of ['writinglint-core', 'writinglint-parser-node']) {
+for (const name of ['writinglint', 'writinglint-core', 'writinglint-parser-node']) {
   const manifest = JSON.parse(await readFile(join(modules, name, 'package.json'), 'utf8'));
-  assert.ok(!manifest.dependencies?.nlpgraph, `${name} must not depend on nlpgraph`);
+  for (const specifier of Object.values(manifest.dependencies ?? {})) {
+    assert.doesNotMatch(specifier, /^(?:file:|link:|workspace:)/, `${name} must use registry dependencies`);
+  }
 }
-await assert.rejects(stat(join(modules, 'nlpgraph')), { code: 'ENOENT' });
 assert.equal((await stat(join(modules, 'writinglint-parser-node/model/parser.onnx'))).size, 11_877_081);
 
 const executable = join(modules, '.bin', process.platform === 'win32' ? 'writinglint.cmd' : 'writinglint');
@@ -29,4 +30,4 @@ const report = JSON.parse(result.stdout);
 assert.equal(report.file, 'sloppy.md');
 assert.ok(report.lints.some((lint) => lint.ruleId === 'ai-style/emerging-slop-phrases'));
 
-console.log(`Verified writinglint@${installed.version} from npm with a clean dependency graph (${report.lints.length} findings).`);
+console.log(`Verified writinglint@${installed.version} from npm with registry-only dependencies (${report.lints.length} findings).`);

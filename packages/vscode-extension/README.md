@@ -1,11 +1,15 @@
 # SlopSift for VS Code
 
+> **Experimental and untested.** This extension is a development prototype. It
+> has not completed cross-platform manual QA and is not published in the VS Code
+> Marketplace. Do not present it as an available SlopSift product.
+
 SlopSift puts local, ESLint-like AI-slop diagnostics in VS Code's Problems
 panel. It lints Markdown and plain text as prose, and extracts comments from
 supported source files. The parser and rules run inside the extension host; no
 document text is sent to a service.
 
-## Use it
+## Development preview
 
 Open a supported document. SlopSift runs when the document opens, after edits,
 and on save. Findings use the same levels as the CLI:

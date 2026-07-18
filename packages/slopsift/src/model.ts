@@ -17,7 +17,7 @@ const FILES = [
   'relations.onnx',
 ];
 const DEFAULT_BASE = `https://models.slopsift.dev/${VERSION}`;
-const MANIFEST_SHA256 = '251dac348734b9fa2f7ae8db96255deacefb260db15cdef136696cd0e7d83f8f';
+const MANIFEST_SHA256 = '6861b0a45090754aef9509139a77881616ec4f20a2e4d821c4375aa3644b6c92';
 
 interface ModelManifest {
   artifacts?: Record<string, { bytes?: number; sha256?: string }>;

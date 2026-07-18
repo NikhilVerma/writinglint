@@ -1,6 +1,6 @@
 {
   "name": "writinglint-parser-node",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "WritingLint's local ONNX dependency parser for Node, including compact INT8 weights.",
   "type": "module",
   "license": "MIT",

@@ -8,6 +8,7 @@ bunx slopsift .
 bunx slopsift "docs/**/*.md" "src/**/*.{ts,tsx}"
 bunx slopsift . --format json
 bunx slopsift . --level info
+bunx slopsift . --exit-zero
 ```
 
 The `slopsift` package and executable deliberately share a name, so both
@@ -24,7 +25,14 @@ SlopSift grades every finding by detector confidence:
 The default `--level warning` reports errors and warnings. Use `--level info` for
 the strict editorial view, `--level error` (or `--quiet`) for high-confidence CI,
 and `--max-warnings 0` when warnings should fail CI. JSON format uses ESLint's
-numeric severities (`2`, `1`, `0`) and retains `level` plus `confidence` fields.
+numeric severities (`2`, `1`, `0`), retains `level` plus `confidence`, and adds
+`wordCount` plus `findingsPerThousandWords` for length-aware comparison. Raw
+finding totals are not comparable across documents of different lengths.
+
+Use `--exit-zero` for report-only pipelines: lint findings remain visible but do
+not fail the command. Configuration and runtime failures still exit `2`.
+Unmatched patterns fail with `2` by default so a typo cannot silently pass CI;
+`--no-error-on-unmatched-pattern` makes deliberately optional globs exit `0`.
 
 SlopSift is not limited to isolated sentences. The parser-backed document model
 preserves paragraphs, document-level rules measure repetition and structure,
@@ -54,4 +62,4 @@ SlopSift has independent versioning and product ergonomics even while developed
 in this monorepo. See [RELEASING.md](./RELEASING.md) for its release boundary and
 checklist, and [CALIBRATION.md](./CALIBRATION.md) for the real-prose precision
 method and current regression results. [AUDIT.md](./AUDIT.md) records the blind
-blog review, newly covered families, and the semantic-model boundary.
+corpus review, newly covered families, and the semantic-model boundary.

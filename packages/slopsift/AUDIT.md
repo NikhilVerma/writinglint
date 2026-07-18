@@ -1,7 +1,7 @@
-# Blind blog audit
+# Blind corpus audit
 
-On 17 July 2026, an independent review examined 18 posts from a private,
-non-redistributed technical-blog corpus before looking at SlopSift output or
+On 17 July 2026, a blind review examined 18 documents from a maintainer-held,
+non-redistributed technical-prose corpus before looking at SlopSift output or
 rule implementations. Confidence in this document means confidence that prose
 needs editorial review, not confidence about who authored it.
 
@@ -19,11 +19,9 @@ review found these recurring families:
 - stacked metaphors and manufactured punch cadence
 - internal contradictions and confident causal stories that do not cohere
 
-Representative examples included an enum constraint described as making
-hallucination impossible, a table assigning “Complete” and “Very high” outcomes
-without measurements, multiple sequences of bold “Why this works / When to use
-this / Pro tip” labels, and conclusions that restated the same harness-over-model
-claim three times.
+Representative cases included an absolute technical guarantee, comparative
+outcomes without measurements, repeated tutorial-label sequences, and a
+conclusion that restated the same claim several times.
 
 ## What is now deterministic
 
@@ -54,7 +52,7 @@ rule signals rather than judge authorship from raw prose.
 
 ## False-positive boundary
 
-Blog prose legitimately uses headings, second person, anecdotes, rhetorical
+Technical prose legitimately uses headings, second person, anecdotes, rhetorical
 questions, metaphor, bold labels, and fragments. A singleton is informational
 at most. Promotion requires repetition, a strong template, or independent
 co-signals. Messages critique the writing and ask for scope or evidence; they do

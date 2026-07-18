@@ -1,357 +1,272 @@
 # WritingLint
 
-**A grammar linter for prose — like ESLint, but its rules match over a real
-dependency-parse + POS graph.**
+Deterministic linting for prose, powered by an owned dependency parser and
+authorable TypeScript rules.
 
-[![writinglint](https://img.shields.io/npm/v/writinglint?label=writinglint&color=2563eb)](https://www.npmjs.com/package/writinglint)
-[![writinglint-core](https://img.shields.io/npm/v/writinglint-core?label=writinglint-core&color=2563eb)](https://www.npmjs.com/package/writinglint-core)
+[![SlopSift on npm](https://img.shields.io/npm/v/slopsift?label=slopsift&color=111111)](https://www.npmjs.com/package/slopsift)
+[![WritingLint on npm](https://img.shields.io/npm/v/writinglint?label=writinglint&color=2563eb)](https://www.npmjs.com/package/writinglint)
 [![CI](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml/badge.svg)](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml)
-[![license](https://img.shields.io/npm/l/writinglint-core)](LICENSE)
-[![demo](https://img.shields.io/badge/demo-live-2563eb)](https://writinglint.nikhilv.workers.dev)
+[![License: MIT](https://img.shields.io/badge/license-MIT-2563eb)](LICENSE)
+[![SlopSift demo](https://img.shields.io/badge/demo-slopsift.dev-111111)](https://slopsift.dev)
 
-WritingLint lints writing the way ESLint lints code: a small engine parses your
-text once, runs a set of **authorable rules** over it, and reports each problem
-with a location and a plain-language message. Rules are ordinary TypeScript that
-match on the **dependency graph** of each sentence — head/child/`deprel` shapes,
-not just word lists or linear token patterns — so *any* words can fill a
-construction's slots and still be caught.
+WritingLint is the reusable engine. It parses text once, runs rulepacks over a
+dependency graph and document structure, and returns exact source ranges with
+plain-language diagnostics. Rules can inspect tokens, parts of speech,
+dependency relations, sentences, paragraphs, and whole documents.
 
-"AI-writing style" is just the **first rulepack**. The architecture is a general
-prose linter you can build on: write your own rules, ship your own rulepacks,
-or consume the same diagnostics from the CLI, Chrome, and VS Code.
+[SlopSift](https://slopsift.dev) is the focused product built on top. It packages
+WritingLint's parser and AI-style rulepack as a zero-config CLI for finding
+recognizable AI-writing habits in prose and source-code comments.
+
+## Try SlopSift
+
+SlopSift is published on npm and requires Node.js 20 or newer. No global install
+is required:
+
+```bash
+bunx slopsift .
+npx slopsift "docs/**/*.md"
+```
+
+Or install it in a project:
+
+```bash
+npm install --save-dev slopsift
+npx slopsift .
+```
+
+Useful modes:
+
+```bash
+slopsift . --level info
+slopsift . --quiet
+slopsift . --exit-zero
+slopsift . --format json
+slopsift . --format json-lines
+slopsift . --max-warnings 0
+```
+
+The default view reports errors and warnings. `--level info` includes broad
+editorial review candidates, while `--quiet` reports high-confidence errors
+only. Errors exit with status `1`; warnings can be made fatal with
+`--max-warnings`. `--exit-zero` keeps findings visible without failing the run.
+Invalid arguments, unmatched patterns, configuration failures, and runtime/model
+failures exit with status `2`; use `--no-error-on-unmatched-pattern` only for
+intentionally optional globs.
+
+Run `slopsift --help` for glob, extension, ignore, model, and output options.
 
 ## WritingLint and SlopSift
 
-**WritingLint is the platform. SlopSift is a product built with it.**
-
-WritingLint owns the parser contract, document model, rule API, configuration,
-general-purpose CLI, and reusable rulepacks. It can enforce house style,
-personal writing preferences, editorial conventions, or any other prose rule a
-team can encode. The core has no special knowledge of "AI slop."
-
-SlopSift combines the WritingLint parser and AI-style rulepack into a narrower
-experience: a zero-config CLI and editor integrations for catching recognizable
-AI-writing habits before they ship.
+The dependency direction is deliberate:
 
 ```text
-SlopSift CLI / Chrome / VS Code / website
-                    │
-                    ▼
-       WritingLint AI-style rulepack
-                    │
-                    ▼
-WritingLint core + owned parser contract/runtime
+SlopSift CLI
+    -> WritingLint AI-style rulepack
+        -> WritingLint core + parser contract
+            -> compact ONNX parser runtime
 ```
 
-That dependency direction is intentional. SlopSift may add focused defaults,
-reporting, and product UX, but reusable parsing and lint behavior belongs in
-WritingLint packages so other products and private rulepacks can use it too.
+WritingLint owns reusable parsing, configuration, rule execution, graph helpers,
+and rulepacks. It can support house style, personal preferences, grammar,
+clarity, or any other prose policy a team can encode.
 
-### Model distribution
+SlopSift owns the narrower AI-slop experience: file discovery, prose/comment
+extraction, confidence defaults, ESLint-like output, JSON contracts, and product
+ergonomics. It consumes WritingLint rather than existing as a mode inside the
+general WritingLint CLI.
 
-The compact INT8 parser is one immutable release with three delivery paths:
+## What SlopSift reads
 
-- `writinglint-parser-node` includes the weights for npm consumers, so both
-  WritingLint and SlopSift work offline immediately after installation;
-- Chrome and platform-specific VS Code packages copy that same verified bundle
-  into the extension artifact;
-- browser demos stream it from the `slopsift-models` R2 bucket through
-  `slopsift.dev`, with direct immutable artifacts under
-  `models.slopsift.dev/compact-int8-v1/`.
+- Markdown, MDX, reStructuredText, AsciiDoc, and plain text are linted as prose.
+- HTML is linted as rendered text; metadata, scripts, styles, templates, SVG,
+  code blocks, and comments are excluded.
+- JavaScript, TypeScript, Python, Ruby, shell, YAML, TOML, SQL, Rust, Go, Java,
+  C/C++, C#, Swift, Kotlin, PHP, CSS, Vue, Svelte, Astro, and other supported
+  source formats are linted through their comments.
+- Dependencies, generated output, Git metadata, and paths matched by
+  `.gitignore` are skipped by default.
 
-Git contains the model card, manifest identity, checksums, and packaging logic,
-but not the binary weights or training checkpoints.
+Extracted ranges are mapped back to original UTF-16 source locations so CLI and
+editor diagnostics point to the right text.
 
-## Install
+## Confidence, not authorship claims
 
-On npm (unscoped — no org needed):
-[`slopsift`](https://www.npmjs.com/package/slopsift) (focused AI-slop CLI) ·
-[`writinglint`](https://www.npmjs.com/package/writinglint) (general CLI) ·
-[`writinglint-core`](https://www.npmjs.com/package/writinglint-core) ·
-[`writinglint-parser-node`](https://www.npmjs.com/package/writinglint-parser-node) ·
-[`writinglint-rulepack-ai-style`](https://www.npmjs.com/package/writinglint-rulepack-ai-style)
+SlopSift grades writing patterns; it does not claim to determine who or what
+wrote a document.
 
-```bash
-npm install
-npm run cli -- essay.txt
-npm run slopsift -- . --json
-```
+| Level | Meaning | Default exit behavior |
+| --- | --- | --- |
+| `error` | High-confidence, specific slop signature | exits `1` |
+| `warning` | Likely issue that needs editorial judgment | reported; use `--max-warnings` to fail |
+| `info` | Possible signal worth reviewing in context | hidden by default |
 
-The SlopSift CLI is runnable from this checkout and its packed artifact is tested
-in an isolated consumer. Once published, run it without a global install with
-`bunx slopsift .` or `npx slopsift .`.
+Rules can operate at sentence, paragraph, and document scale. A weak phrase may
+stay informational on its own but become more important when it repeats or
+clusters with independent signals nearby.
 
-A runnable consumer lives in [`examples/node-lint`](examples/node-lint).
+Raw finding counts grow with document length and should not be compared across
+files as a quality score. JSON and JSON Lines results include `wordCount` and
+`findingsPerThousandWords` for the extracted prose or comments at the selected
+`--level`.
 
-## Why a dependency graph
+## Local model and privacy
 
-The prose-linter landscape already has good tools — but none match on syntax:
+The published `writinglint-parser-node` package includes the compact INT8 parser
+and tokenizer. A normal npm or `bunx` run does not need Python, a hosted model,
+or an API call. Text and source comments are processed locally.
 
-| Tool | Rules are… | Syntax layer |
-|---|---|---|
-| [textlint](https://textlint.org) | TS/JS code (pluggable) | ❌ text/markdown AST — regex fallback for structure |
-| [Vale](https://vale.sh) | YAML patterns | ❌ markup-aware, not syntax-aware |
-| [proselint](https://github.com/amperser/proselint) | fixed Python rules | ❌ |
-| [Harper](https://github.com/automattic/harper) | Rust + **Weir** DSL | ✅ POS + token sequences, ❌ **no dependency relations** |
-| **WritingLint** | **TS code** | ✅ **full dependency graph (head/child/`deprel`)** |
+The browser demo runs the corresponding ONNX model on-device through WebAssembly
+and serves immutable model artifacts from `models.slopsift.dev`.
 
-Harper's Weir is authorable and POS-aware — but it's linear token/POS matching
-only. The one thing no incumbent can express is a **dependency relation**, and
-that's exactly what the hard constructions need. The flagship example:
+Model architecture, training, evaluation, quantization, provenance, hashes, and
+release procedures are documented in
+[`packages/slopsift/MODEL.md`](packages/slopsift/MODEL.md).
 
-> *"Trust the flags, not the number."* — **corrective antithesis** ("X, not Y")
+## Packages
 
-That's a `conj`/`appos` dependent whose coordinator is the negator *"not"* — a
-head/child relation. A linear DSL can't tell it apart from ordinary negation
-(*"I did not see the number"*) without over-firing. A dependency rule can:
+| Package | Purpose |
+| --- | --- |
+| [`slopsift`](https://www.npmjs.com/package/slopsift) | Focused AI-slop CLI and in-process API |
+| [`writinglint`](https://www.npmjs.com/package/writinglint) | General-purpose prose-lint CLI |
+| [`writinglint-core`](https://www.npmjs.com/package/writinglint-core) | Document model, parser contract, rule API, configuration, and linter |
+| [`writinglint-parser-node`](https://www.npmjs.com/package/writinglint-parser-node) | Local ONNX parser and bundled compact model |
+| [`writinglint-rulepack-ai-style`](https://www.npmjs.com/package/writinglint-rulepack-ai-style) | AI-writing-style rules and scoring features |
+| [`writinglint-rulepack-craft`](https://www.npmjs.com/package/writinglint-rulepack-craft) | General writing-craft rules |
+
+The repository also contains the on-device SlopSift web demo.
+
+## Programmatic SlopSift API
 
 ```ts
-// packages/rulepack-ai-style/src/rules/corrective-antithesis.ts
-export const correctiveAntithesis = defineRule({
-  meta: { name: 'corrective-antithesis', category: 'parallelism', docs: { … } },
-  create(ctx) {
+import { createSlopSift } from 'slopsift';
+
+const slopsift = await createSlopSift();
+const result = await slopsift.lintSource(
+  'draft.md',
+  'Moreover, this groundbreaking platform stands as a testament to innovation.',
+  { level: 'warning' },
+);
+
+for (const lint of result?.lints ?? []) {
+  console.log(lint.ruleId, lint.start, lint.end, lint.message);
+}
+```
+
+A `SlopSift` instance reuses its parser sessions across documents. Tests and
+alternate hosts can inject any parser that implements WritingLint's public
+`Parser` contract.
+
+## Authoring WritingLint rules
+
+Rules are ordinary TypeScript. A rule declares metadata and returns listeners
+for document events:
+
+```ts
+import { defineRule } from 'writinglint-core';
+
+export const repeatedSetup = defineRule({
+  meta: {
+    name: 'repeated-setup',
+    category: 'structure',
+    docs: { description: 'Find repeated setup language.' },
+  },
+  create(context) {
     return {
       Sentence(sentence) {
-        const s = sentence.dep;                       // the dependency graph
-        for (const y of s.tokens) {
-          if (y.deprel !== 'conj' && y.deprel !== 'appos') continue;
-          const not = childrenOf(s, y.id).find((c) => lower(c) === 'not');
-          if (!not) continue;
-          if (byId(s, not.id - 1)?.form !== ',') continue;   // the ", not" comma
-          ctx.report({ tokens: subtree(s, y.head), sentence: s, message: … });
-        }
+        if (!sentence.text.startsWith('The key is')) return;
+        context.report({
+          sentence: sentence.dep,
+          span: { start: sentence.start, end: sentence.end },
+          message: 'State the point directly.',
+        });
       },
     };
   },
 });
 ```
 
-## Architecture
+See [`writinglint-core`](packages/core/README.md) for the parser, document, and
+rule APIs. Existing rulepacks under `packages/` provide complete examples of
+token-, graph-, paragraph-, and document-level rules.
 
-A workspaces monorepo. The engine knows nothing about AI writing; the rules live
-in a pack that plugs in.
+## Repository development
 
-```
-packages/
-  core/                writinglint-core
-    document.ts        parse-once Document model over the dependency graph
-    graph.ts           dependency helpers (child, subtree, spanOf …) for rule authors
-    rule.ts            the authorable Rule API (defineRule, RuleContext, Lint)
-    pack.ts            Rulepack + categories (definePack)
-    config.ts          defineConfig / resolveConfig (extends, plugins, rules)
-    linter.ts          Linter.lint(): parse → run rules → deduped, sorted lints
-  parser-node/         writinglint-parser-node — owned ONNX parser for Node
-  rulepack-ai-style/   writinglint-rulepack-ai-style — the first rulepack
-    rules/*.ts         16 rules (structural on the graph; lexical on words/chars)
-    score/             the stylometric AI-style SCORE (separate from the lints)
-    model/             classifier.json — data-free weights, shipped
-    eval/              training + honest evaluation (data is private, gitignored)
-  cli/                 general-purpose `writinglint` engine CLI
-  slopsift/            independent AI-slop CLI product and engine consumer
-  slopsift-chrome/     local-first Manifest V3 browser extension
-  slopsift-web/        standalone SlopSift product site + on-device demo
-  vscode-extension/    VS Code diagnostics extension
-  web/                 WritingLint docs + on-device browser editor
-```
-
-Two independent outputs, deliberately decoupled:
-
-1. **Lints** — each rule flags a specific construction with a location + message.
-   This is the linter proper; authorable, configurable, per-rule.
-2. **Score** — a stylometric classifier rates how AI-shaped the whole document
-   reads (0–100). *Not* a rule — a text can score low with a few flags, or high
-   with none. Shipped in the ai-style pack as `score(doc, lints, model)`.
-
-## Authoring a rule
-
-A rule is a `meta` block plus `create(ctx)` returning a listener the engine
-visits once per document: `Document(doc)`, `Sentence(s)` (with `s.dep`, the
-graph), and `Token(t)`. Report a problem with `ctx.report({ tokens | span, … })`.
-The dependency-graph toolkit (`childrenOf`, `child`, `childrenByRel`, `subtree`,
-`spanOf`, `hasChild`, `lower`, …) is exported from `writinglint-core`.
-
-## Config
-
-`defineConfig` layers rulepacks and rule settings (ESLint-flat-config style;
-Harper's Weir "base pack + override layer" is the same idea). A `writinglint.config.ts` in
-the working directory is picked up automatically by the CLI:
-
-```ts
-import { defineConfig } from 'writinglint-core';
-import { recommended } from 'writinglint-rulepack-ai-style';
-
-export default defineConfig({
-  extends: [recommended],
-  rules: {
-    'ai-style/corrective-antithesis': 'error',
-    'ai-style/emoji': 'off',                // casual prose? silence the emoji tell
-  },
-  // plugins: { house: myRulepack },        // register your own rules
-});
-```
-
-## The ai-style rulepack
-
-Its structural rules match Wikipedia's
-[**Signs of AI writing**](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)
-as *constructions* in the parse — word-agnostic:
-
-| Sign (a "hollow" construction) | dependency signature |
-|---|---|
-| **Corrective antithesis** ("X, not Y") | `conj`/`appos` dependent coordinated by "not" |
-| **Copula avoidance** ("X stands as a testament…") | non-`be` root verb + `obl` noun with `case`="as" |
-| **Vague attribution** ("Experts argue that…") | bare (no-`det`) common-noun `nsubj` + saying-verb + `ccomp` |
-| **Participial appendage** ("…, showcasing its value") | trailing `advcl` gerund after the main clause |
-| **Negative parallelism** ("not only X but also Y") | `conj` with `cc`="but" + "only/also" markers |
-| **Rule of three** ("bustling, vibrant, and diverse") | ADJ/ADV head with ≥2 `conj` children |
-| **Light-verb inflation** ("plays a pivotal role") | play/occupy + `obj`=role + `amod` adjective |
-
-Where a slot is irreducibly *semantic* (a parser can't tell an *importance*
-adjective from any adjective), a **small closed seed** narrows it — but the
-structure always comes from the parse. Inherently lexical signs (the "AI
-vocabulary" list; em-dash / curly-quote / markdown / emoji formatting) stay lists
-*by nature*, split into individually-toggleable rules.
-
-### The score (SOTA with POS + graph)
-
-We follow the literature and extend it:
-
-- **Base — dependency-relation n-gram TF-IDF → a linear classifier** (the shape
-  recent structural AI-text detectors converge on).
-- **Extensions:** + POS (UPOS) n-grams; + interpretable **stylometric scalars**
-  (burstiness, type-token ratio, copula ratio, POS/deprel ratios, mean dependency
-  distance, tree depth…); + our **hollowness-rule rates** (which also make the
-  score explainable).
-- **Model:** an L2-regularised logistic regression (deterministic, calibrated).
-  It serialises to a **data-free** JSON
-  (`packages/rulepack-ai-style/model/classifier.json`, vocabulary + weights only),
-  so the model ships open-source while the training data stays closed.
-
-True SOTA overall is neural/perplexity-based (fine-tuned DeBERTa; Binoculars), but
-that needs an LLM at runtime and generalises poorly under paraphrase. This is the
-strongest *offline, deterministic, no-LLM* score we can build.
-
-## Evaluation
-
-Measured with a **maker≠checker** discipline (`packages/rulepack-ai-style/eval/`),
-and with the two rules this project learned the hard way:
-
-1. **We never author the data.** The tool is an AI; any text *it* writes is AI
-   text. Early on, maintainer-written "human-voice" samples poisoned the human
-   class — the classifier correctly flagged them, which is *how we found the bug*.
-   Human data must be **real, fetched** writing; AI data must be **real model
-   output**.
-2. **Don't trust a number from one distribution.** An early model scored
-   **AUC 0.997** on same-distribution held-out — then **0.65** on varied data. It
-   had learned *one narrow stylistic slice vs everything else*, and flagged
-   out-of-slice human writing as AI. The fix was a **diverse** training pool.
-
-The training pool spans **real human** writing across many authors and eras and
-**real AI** output from many model families; a stratified blind slice is held out
-and never trained on.
-
-| eval | ROC-AUC | F1 | precision | recall | specificity |
-|---|---|---|---|---|---|
-| 5-fold CV (diverse pool) | 0.879 | 0.834 | 0.813 | 0.856 | 0.799 |
-| **blind test** (held-out slice) | **0.899** | 0.833 | 0.786 | 0.887 | 0.754 |
-| OOD probe (out-of-distribution) | 0.923 | 0.811 | 0.789 | 0.833 | 0.778 |
-
-**AUC ~0.90 that holds across CV, a blind slice, *and* out-of-distribution.** The
-classifier lifts subtle-AI recall from **33% (rules alone) → ~89%**.
-
-**Honest limitations.** (a) Specificity ~0.75 is the weak spot — clean *modern*
-human prose still trips it. (b) Cross-source generalisation is untested. (c)
-Highlight offsets are exact document-global UTF-16 ranges.
-
-> **⚠ Eval data is CLOSED-SOURCE / private.** It contains third-party text, so
-> `eval/data/` is **gitignored** and never enters this repo. The code, the trained
-> model (data-free), and the metrics are open source; only the corpus is private,
-> documented privately alongside it. `npm run train` / `npm run eval` degrade
-> gracefully with a pointer if the data isn't present.
-
-## Getting started
+The monorepo uses npm workspaces. Repository development requires the Node and
+npm versions declared in [`package.json`](package.json).
 
 ```bash
-npm install
-npm run setup-model      # stage the checksum-verified INT8 parser for development
-npm run typecheck        # tsc across all packages
-npm test                 # core engine + rulepack rule tests
-npm run train            # fit + GUARDED honest eval (needs private eval data)
+npm ci
+npm run check
+npm run pack:check
+npm run smoke:packed
 ```
 
-Published Node packages include the compact model and work offline after
-installation. `npm run setup-model` reproduces that package layout in a source
-checkout. Stanza is an optional research oracle installed with
-`npm run setup-stanza`; it is not part of the user runtime.
-
-### CLI
+Important commands:
 
 ```bash
-npm run cli -- essay.txt              # lint one doc (+ AI-style score)
-npm run cli -- lint posts/*.md        # lint many docs
-npm run cli -- score posts/*.md       # just the score per doc
-cat essay.txt | npm run cli           # stdin
-npm run cli -- --json essay.txt       # machine-readable
-npm run slopsift -- . --json          # exits 1 while AI-slop lints remain
-```
-
-A `writinglint.config.ts` in the working directory is used automatically; otherwise the
-ai-style `recommended` config applies.
-
-### WritingLint web app
-
-A Hemingway-style editor that highlights constructions as you type. The compact
-INT8 dependency parser runs through ONNX Runtime WASM in a web worker; text never
-leaves the device.
-
-```bash
-npm run dev              # browser parser + client bundle + Astro dev server
-```
-
-### SlopSift products
-
-```bash
+npm run slopsift -- . --format json
+npm run cli -- essay.md
 npm run dev -w slopsift-web
-npm run build -w slopsift-chrome-extension
-npm run compile -w slopsift-vscode
 ```
 
-The Chrome and VS Code packages are local-first clients of the same SlopSift
-engine. Their package READMEs cover unpacked installation, VSIX packaging,
-permissions, model delivery, and current editor limitations.
+`npm run check` typechecks, tests, and builds the libraries and applications.
+`npm run smoke:packed` installs packed artifacts into a temporary project that
+is not a workspace member, preventing local symlinks from hiding missing files
+or dependencies. The publish workflow repeats the smoke test against the public
+npm registry after a release.
 
-## Deployment status
+## Research data and reproducibility
 
-The hosted demo uses the owned TypeScript tokenizer and decoder with the compact
-INT8 ONNX model. Production serves the site through Cloudflare Workers Static
-Assets and streams the gitignored model/runtime files from R2.
+The repository includes synthetic rule-sensitivity fixtures, generation code,
+training code, model manifests, checksums, and reported experiment results.
+Third-party and maintainer-held prose corpora are not distributed: they may
+contain copyrighted or unpublished text and are excluded by `.gitignore`.
 
-## Roadmap
+This means the shipped runtime and deterministic-rule tests are reproducible
+from the public repository, while corpus-dependent classifier metrics require
+independently sourced data. Calibration notes report aggregate behavior without
+redistributing source documents.
 
-1. ✅ Grammar-linter engine — authorable rules over a dependency graph.
-2. ✅ ai-style rulepack (16 rules) + stylometric score, evaluated on diverse data.
-3. ✅ Python-free CLI + deployable browser editor using the owned ONNX parser.
-4. ✅ **VS Code and Chrome MVPs** — local diagnostics where writers work.
-5. **More rulepacks** — grammar, clarity, house-style; richer user-rule authoring.
-6. Lift specificity on modern human prose; per-lint autofixes; cross-source eval.
+## Limitations
 
-## Contributing and security
+- A lint is an editorial signal, not proof that text was generated by AI.
+- Low-confidence rules intentionally trade precision for review coverage.
+- Dependency parsing is bounded by the compact model's English training data and
+  maximum sequence length.
+- Semantic questions such as factual support, contradiction, or whether a
+  comparison is justified cannot be settled by syntax rules alone.
 
-Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) for
-setup, tests, rule-calibration expectations, and the Changesets release process.
-Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+Please file false positives through the dedicated
+[issue template](https://github.com/NikhilVerma/writinglint/issues/new/choose)
+with the smallest text sample that reproduces the behavior.
 
-Please report vulnerabilities privately according to [SECURITY.md](SECURITY.md),
-not through a public issue. Package releases and npm trusted-publisher setup are
-documented in [RELEASING.md](RELEASING.md).
+## Contributing, releases, and security
 
-## Credits
+- [Contributing guide](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security policy](SECURITY.md)
+- [Release process](RELEASING.md)
+- [Roadmap](TODO.md)
 
-- Reference parser: [Stanza](https://stanfordnlp.github.io/stanza/) (Apache 2.0).
-- ai-style taxonomy: Wikipedia, *[Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing)* (CC BY-SA).
-- Method: dependency-relation + POS features for structural AI-text detection.
-- Prior art in prose linting: [textlint](https://textlint.org), [Vale](https://vale.sh), [proselint](https://github.com/amperser/proselint), [Harper](https://github.com/automattic/harper).
+Release workflows run isolated packed-package and public-registry consumer tests
+before tags are pushed. Trusted-publisher setup and maintainer steps are kept in
+the release guide rather than in application code.
+
+## Acknowledgements
+
+- [Universal Dependencies](https://universaldependencies.org/) for the public
+  dependency-representation standard and English treebanks used in research.
+- [Stanza](https://stanfordnlp.github.io/stanza/) for the independent reference
+  parser used during development.
+- Wikipedia's [Signs of AI
+  writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) for part
+  of the public rule taxonomy.
+- [textlint](https://textlint.org), [Vale](https://vale.sh),
+  [proselint](https://github.com/amperser/proselint), and
+  [Harper](https://github.com/automattic/harper) for prior work in prose linting.
 
 ## License
 
-MIT (code + model). Eval data is not distributed.
+Code and repository-owned model artifacts are available under the [MIT
+License](LICENSE). Third-party datasets are not distributed.

@@ -233,14 +233,41 @@ with recognizable AI-slop constructions.
       editable-field diagnostics, and severity controls.
 - [x] Build a desktop VS Code extension MVP with Problems diagnostics,
       debounced linting, commands, settings, and local native inference.
+- [ ] Keep both extensions labeled experimental and untested until their manual
+      QA matrices pass; do not advertise them on the SlopSift landing page.
 - [ ] Give SlopSift its own repository, release workflow, changelog, and domain.
 - [ ] Complete manual Chrome QA across Gmail, Notion, GitHub, Google Docs, and
       representative textarea and contenteditable editors.
+- [ ] Complete manual VS Code QA on macOS, Linux, Windows, local workspaces,
+      remote workspaces, Markdown, plaintext, and supported source comments.
 - [ ] Publish platform-specific VSIX builds and complete Marketplace metadata.
 - [x] Pin the release manifest and verify every downloaded model artifact by
       byte count and SHA-256 before loading it.
 - [x] Define immutable SlopSift R2 paths and bundle the compact model in npm,
       Chrome, and VS Code release artifacts.
+
+### CI and GitHub integration
+
+- [ ] Publish a dedicated guide for running `slopsift` in GitHub Actions on
+      Markdown, prose, and source-code comments, including pull requests from
+      forks and changed-file-only workflows.
+- [ ] Document the existing exit-code contract with copy-pasteable CI examples:
+      `0` for an accepted lint result, `1` when configured findings fail the run,
+      and `2` for invalid arguments, configuration, model, or runtime failures.
+- [ ] Document `--level`, `--quiet`, and `--max-warnings` as separate controls
+      for visibility and enforcement, with examples for advisory, warning-gated,
+      and errors-only pipelines.
+- [x] Add `--exit-zero` as an explicit report-only mode. It returns `0`
+      when lint findings exist while preserving exit `2` for configuration or
+      runtime failures; do not overload `--quiet`, which controls output only.
+- [ ] Add tests covering clean input, warnings, errors, `--max-warnings`,
+      `--quiet`, `--exit-zero`, malformed configuration, and missing models.
+- [ ] Add a GitHub-native formatter or problem-matcher example so annotations
+      appear on changed lines while retaining the stable JSON/JSON Lines output
+      for other CI systems.
+- [ ] Add an isolated example workflow that installs the public npm package,
+      runs without workspace links or network model downloads, and verifies the
+      expected exit status.
 
 ### Open-source release blockers
 

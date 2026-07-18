@@ -11,7 +11,7 @@ const legacyBase = 'https://writinglint.nikhilv.workers.dev/model';
 const source = resolve(process.env.WRITINGLINT_MODEL_SOURCE ?? join(root, 'models/rule-family-50-onnx-int8'));
 const packageModel = join(root, 'packages/parser-node/model');
 const artifacts = {
-  'manifest.json': { bytes: 2033, sha256: '251dac348734b9fa2f7ae8db96255deacefb260db15cdef136696cd0e7d83f8f' },
+  'manifest.json': { bytes: 2032, sha256: '6861b0a45090754aef9509139a77881616ec4f20a2e4d821c4375aa3644b6c92' },
   'parser.onnx': { bytes: 11877081, sha256: '587890637ce93a12762c36cfcb6c567e13288a4da34c0110767575d9ba74258b' },
   'relations.onnx': { bytes: 3400279, sha256: '8d822c25c62e9df424b9367bb5707ccee00acb4b5d08c1f1eaa985a6b634b0de' },
   'tokenizer/tokenizer.json': { bytes: 711396, sha256: 'd241a60d5e8f04cc1b2b3e9ef7a4921b27bf526d9f6050ab90f9267a1f9e5c66' }, // gitleaks:allow

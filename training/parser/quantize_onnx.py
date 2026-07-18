@@ -37,7 +37,7 @@ def main() -> None:
     source = json.loads((args.model / "manifest.json").read_text())
     paths = [args.output / "parser.onnx", args.output / "relations.onnx", *sorted(tokenizer_output.iterdir())]
     source.update({
-        "format": "better-write-compact-parser-onnx-int8-v1",
+        "format": "writinglint-compact-parser-onnx-int8-v1",
         "quantization": {"mode": "dynamic", "weightType": "QInt8", "perChannel": True},
         "source_manifest_sha256": sha256(args.model / "manifest.json"),
         "artifacts": {

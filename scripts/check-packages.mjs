@@ -66,7 +66,7 @@ for (const name of packagedProjects) {
   }
   if (name === 'writinglint-parser-node') {
     const modelFiles = {
-      'model/manifest.json': 2033,
+      'model/manifest.json': 2032,
       'model/parser.onnx': 11877081,
       'model/relations.onnx': 3400279,
       'model/tokenizer/tokenizer.json': 711396,

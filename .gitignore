@@ -31,7 +31,8 @@ scratch-*.mjs
 scratchpad/
 
 # Local corpus audits can contain absolute paths or unpublished writing.
-slopsift-blog-findings.jsonl
+*blog-findings*.jsonl
+*.slopsift.jsonl
 
 # Local editor settings. Keep shared extension recommendations intentional.
 .idea/

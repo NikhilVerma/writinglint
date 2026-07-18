@@ -15,7 +15,7 @@ Outputs are written to:
 - `out/pilot.jsonl`: interventions that changed a rule decision;
 - `out/summary.json`: coverage, balance, and zero-sensitivity families.
 
-The expanded pilot includes original rule templates, the user's paired notes,
-and structural categories inspired by the MIT-licensed `stop-slop` project.
-External examples are used as category inspiration; generated sentences are
-new templates rather than copied reference examples.
+The expanded pilot includes original rule templates, synthetic gap probes, and
+structural categories inspired by the MIT-licensed `stop-slop` project.
+External examples are used as category inspiration; generated sentences are new
+templates rather than copied reference examples.

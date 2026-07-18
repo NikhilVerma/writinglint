@@ -1,5 +1,9 @@
 # SlopSift for Chrome
 
+> **Experimental and untested.** This extension is a development prototype. It
+> has not completed the manual browser/editor test matrix and is not published
+> in the Chrome Web Store. Do not present it as an available SlopSift product.
+
 An early Manifest V3 extension that puts SlopSift diagnostics into web editors.
 It analyzes text locally with the same rulepack and owned INT8 ONNX dependency
 parser as the CLI. Draft text is sent only from the content script to the

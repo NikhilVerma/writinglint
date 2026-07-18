@@ -21,8 +21,8 @@ test('result counts all three levels and stylish reports them', () => {
     lint('info', 'low', 10),
   ]);
   assert.deepEqual(
-    { errors: result.errorCount, warnings: result.warningCount, info: result.infoCount },
-    { errors: 1, warnings: 1, info: 1 },
+    { errors: result.errorCount, warnings: result.warningCount, info: result.infoCount, words: result.wordCount, density: result.findingsPerThousandWords },
+    { errors: 1, warnings: 1, info: 1, words: 3, density: 1000 },
   );
   assert.match(stylish([result]), /3 findings \(1 errors, 1 warnings, 1 info\)/);
 });
@@ -30,8 +30,12 @@ test('result counts all three levels and stylish reports them', () => {
 test('JSON uses ESLint numeric severity while retaining level and confidence', () => {
   const result = jsonResult(makeResult('sample.md', 'slop', [lint('error', 'high', 0)])) as {
     messages: Array<{ severity: number; level: string; confidence: string }>;
+    wordCount: number;
+    findingsPerThousandWords: number;
   };
   assert.equal(result.messages[0]?.severity, 2);
   assert.equal(result.messages[0]?.level, 'error');
   assert.equal(result.messages[0]?.confidence, 'high');
+  assert.equal(result.wordCount, 1);
+  assert.equal(result.findingsPerThousandWords, 1000);
 });

@@ -6,7 +6,19 @@ export interface Message extends Lint {
   endLine: number;
   endColumn: number;
 }
-export interface Result { filePath: string; messages: Message[]; errorCount: number; warningCount: number; infoCount: number }
+export interface Result {
+  filePath: string;
+  messages: Message[];
+  errorCount: number;
+  warningCount: number;
+  infoCount: number;
+  wordCount: number;
+  findingsPerThousandWords: number;
+}
+
+export function countWords(text: string): number {
+  return text.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
+}
 
 function location(text: string, offset: number): { line: number; column: number } {
   let line = 1, column = 1;
@@ -16,7 +28,7 @@ function location(text: string, offset: number): { line: number; column: number 
   return { line, column };
 }
 
-export function makeResult(filePath: string, source: string, lints: Lint[]): Result {
+export function makeResult(filePath: string, source: string, lints: Lint[], analyzedWordCount = countWords(source)): Result {
   const messages = lints.map((lint) => ({
     ...lint,
     ...location(source, lint.start),
@@ -28,6 +40,10 @@ export function makeResult(filePath: string, source: string, lints: Lint[]): Res
     errorCount: messages.filter((message) => message.severity === 'error').length,
     warningCount: messages.filter((message) => message.severity === 'warn').length,
     infoCount: messages.filter((message) => message.severity === 'info').length,
+    wordCount: analyzedWordCount,
+    findingsPerThousandWords: analyzedWordCount
+      ? Number(((messages.length / analyzedWordCount) * 1000).toFixed(1))
+      : 0,
   };
 }
 

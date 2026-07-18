@@ -13,6 +13,7 @@ import { CATEGORIES } from './categories.js';
 import { ruleOfThree } from './rules/rule-of-three.js';
 import { negativeParallelism } from './rules/negative-parallelism.js';
 import { correctiveAntithesis } from './rules/corrective-antithesis.js';
+import { negativeContrast } from './rules/negative-contrast.js';
 import { participialAppendage } from './rules/participial-appendage.js';
 import { copulaAvoidance } from './rules/copula-avoidance.js';
 import { lightVerbRole } from './rules/light-verb-role.js';
@@ -25,6 +26,7 @@ import { negativeListBuildup } from './rules/negative-list-buildup.js';
 import { modalRedundancy } from './rules/modal-redundancy.js';
 // document-level discourse rules
 import { hedgingSeesaw } from './rules/hedging-seesaw.js';
+import { dramaticFragment } from './rules/dramatic-fragment.js';
 // lexical rules
 import { significanceIdioms, promoIdioms, chatbotIdioms } from './rules/idioms.js';
 import { aiVocabulary } from './rules/ai-vocabulary.js';
@@ -46,6 +48,7 @@ const rawRules = {
   'rule-of-three': ruleOfThree,
   'negative-parallelism': negativeParallelism,
   'corrective-antithesis': correctiveAntithesis,
+  'negative-contrast': negativeContrast,
   'participial-appendage': participialAppendage,
   'copula-avoidance': copulaAvoidance,
   'light-verb-role': lightVerbRole,
@@ -57,6 +60,7 @@ const rawRules = {
   'negative-list-buildup': negativeListBuildup,
   'modal-redundancy': modalRedundancy,
   'hedging-seesaw': hedgingSeesaw,
+  'dramatic-fragment': dramaticFragment,
   'significance-idioms': significanceIdioms,
   'promo-idioms': promoIdioms,
   'chatbot-idioms': chatbotIdioms,
@@ -84,6 +88,7 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'rule-of-three': 'low',
   'negative-parallelism': 'medium',
   'corrective-antithesis': 'medium',
+  'negative-contrast': 'medium',
   'participial-appendage': 'low',
   'copula-avoidance': 'medium',
   'light-verb-role': 'low',
@@ -95,6 +100,7 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'negative-list-buildup': 'medium',
   'modal-redundancy': 'medium',
   'hedging-seesaw': 'low',
+  'dramatic-fragment': 'low',
   'significance-idioms': 'medium',
   'promo-idioms': 'medium',
   'chatbot-idioms': 'high',

@@ -4,8 +4,8 @@
 
 ### Patch Changes
 
-- Require the clean-room WritingLint parser dependency chain and remove every
-  registry path that could resolve the retired `nlpgraph` packages.
+- Require the public WritingLint parser dependency chain and verify release
+  artifacts through an isolated registry install.
 - Updated dependencies
   - writinglint-core@0.1.1
   - writinglint-parser-node@0.1.1

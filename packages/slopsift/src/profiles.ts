@@ -12,6 +12,7 @@ export function profileFor(kind: InputKind, profile: ProfileName = 'recommended'
     rules: {
       'ai-style/emoji': 'off',
       'ai-style/passive-actor-hiding': 'off',
+      'ai-style/semantic-redundancy': 'off',
     },
   });
 }

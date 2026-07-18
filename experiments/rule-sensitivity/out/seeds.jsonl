@@ -479,30 +479,30 @@
 {"family":"negative-parallelism/expanded","text":"The policy is not only flexible but also dependable."}
 {"family":"negative-parallelism/expanded","text":"The policy is not only cheap but also dependable."}
 {"family":"negative-parallelism/expanded","text":"The policy is not only robust but also dependable."}
-{"family":"personal/imperative-condition","text":"Give it nothing and you get its usual style."}
-{"family":"personal/if-condition","text":"If you give it nothing, you get its usual style."}
-{"family":"personal/imperative-condition","text":"Give it weak instructions and you get generic prose."}
-{"family":"personal/if-condition","text":"If you give it weak instructions, you get generic prose."}
-{"family":"personal/imperative-condition","text":"Give it no examples and you get the default rhythm."}
-{"family":"personal/if-condition","text":"If you give it no examples, you get the default rhythm."}
-{"family":"personal/imperative-condition","text":"Give it vague context and you get a vague answer."}
-{"family":"personal/if-condition","text":"If you give it vague context, you get a vague answer."}
-{"family":"personal/modal-omitted","text":"You can smash your head through a brick wall or hire a wrecking ball; both give you an opening."}
-{"family":"personal/modal-explicit","text":"You can smash your head through a brick wall or hire a wrecking ball; both will give you an opening."}
-{"family":"personal/modal-omitted","text":"You can rewrite every line by hand or hire an editor; both give you a cleaner draft."}
-{"family":"personal/modal-explicit","text":"You can rewrite every line by hand or hire an editor; both will give you a cleaner draft."}
-{"family":"personal/modal-omitted","text":"You can trace every call yourself or run the profiler; both give you the bottleneck."}
-{"family":"personal/modal-explicit","text":"You can trace every call yourself or run the profiler; both will give you the bottleneck."}
-{"family":"personal/modal-omitted","text":"You can inspect every arc manually or train a diagnostic; both give you the failure."}
-{"family":"personal/modal-explicit","text":"You can inspect every arc manually or train a diagnostic; both will give you the failure."}
-{"family":"personal/coordination","text":"I use all of these rules together. The model fails less, and I still have to supply the taste and catch what gets through."}
-{"family":"personal/subordination","text":"When I use all of these rules, the model fails less. I still have to supply the taste and catch what gets through."}
-{"family":"personal/coordination","text":"I use all of these checks together. The model fails less, and I still have to supply the taste and catch what gets through."}
-{"family":"personal/subordination","text":"When I use all of these checks, the model fails less. I still have to supply the taste and catch what gets through."}
-{"family":"personal/coordination","text":"I use all of these prompts together. The model fails less, and I still have to supply the taste and catch what gets through."}
-{"family":"personal/subordination","text":"When I use all of these prompts, the model fails less. I still have to supply the taste and catch what gets through."}
-{"family":"personal/coordination","text":"I use all of these tools together. The model fails less, and I still have to supply the taste and catch what gets through."}
-{"family":"personal/subordination","text":"When I use all of these tools, the model fails less. I still have to supply the taste and catch what gets through."}
+{"family":"gap/imperative-condition","text":"Give it weak instructions and you get generic prose."}
+{"family":"gap/if-condition","text":"If you give it weak instructions, you get generic prose."}
+{"family":"gap/imperative-condition","text":"Give it no examples and you get the default rhythm."}
+{"family":"gap/if-condition","text":"If you give it no examples, you get the default rhythm."}
+{"family":"gap/imperative-condition","text":"Give it vague context and you get a vague answer."}
+{"family":"gap/if-condition","text":"If you give it vague context, you get a vague answer."}
+{"family":"gap/imperative-condition","text":"Give it no constraints and you get an unfocused draft."}
+{"family":"gap/if-condition","text":"If you give it no constraints, you get an unfocused draft."}
+{"family":"gap/modal-omitted","text":"You can rewrite every line by hand or hire an editor; both give you a cleaner draft."}
+{"family":"gap/modal-explicit","text":"You can rewrite every line by hand or hire an editor; both will give you a cleaner draft."}
+{"family":"gap/modal-omitted","text":"You can trace every call yourself or run the profiler; both give you the bottleneck."}
+{"family":"gap/modal-explicit","text":"You can trace every call yourself or run the profiler; both will give you the bottleneck."}
+{"family":"gap/modal-omitted","text":"You can inspect every arc manually or train a diagnostic; both give you the failure."}
+{"family":"gap/modal-explicit","text":"You can inspect every arc manually or train a diagnostic; both will give you the failure."}
+{"family":"gap/modal-omitted","text":"You can check every source manually or run the audit; both give you a verdict."}
+{"family":"gap/modal-explicit","text":"You can check every source manually or run the audit; both will give you a verdict."}
+{"family":"gap/coordination","text":"The editor uses all of these rules together. The draft improves, and final review still matters."}
+{"family":"gap/subordination","text":"When the editor uses all of these rules, the draft improves. Final review still matters."}
+{"family":"gap/coordination","text":"The editor uses all of these checks together. The draft improves, and final review still matters."}
+{"family":"gap/subordination","text":"When the editor uses all of these checks, the draft improves. Final review still matters."}
+{"family":"gap/coordination","text":"The editor uses all of these prompts together. The draft improves, and final review still matters."}
+{"family":"gap/subordination","text":"When the editor uses all of these prompts, the draft improves. Final review still matters."}
+{"family":"gap/coordination","text":"The editor uses all of these tools together. The draft improves, and final review still matters."}
+{"family":"gap/subordination","text":"When the editor uses all of these tools, the draft improves. Final review still matters."}
 {"family":"stop-slop/false-agency","text":"The data tells us which option works."}
 {"family":"stop-slop/named-agency","text":"The analysts found which option works."}
 {"family":"stop-slop/false-agency","text":"The market rewards speed."}

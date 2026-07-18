@@ -19,7 +19,9 @@ Options:
   --ext .md,.txt,.ts                  Extensions to include
   --ignore-pattern <glob>             Additional ignore pattern (repeatable)
   --no-ignore                         Do not read .gitignore
+  --no-error-on-unmatched-pattern     Exit 0 when no supported files match
   --quiet                             Report errors only
+  --exit-zero                         Report findings without failing the run
   --level info|warning|error          Minimum level to report (default: warning)
   --max-warnings <n>                  Exit 1 above this warning count
   --model <directory>                 Use an explicit ONNX model bundle
@@ -33,17 +35,21 @@ interface Options {
   patterns: string[]; format: 'stylish' | 'json' | 'json-lines'; extensions?: string[];
   ignores: string[]; noIgnore: boolean; quiet: boolean; maxWarnings: number;
   model?: string; download: boolean; level: 'info' | 'warning' | 'error';
+  errorOnUnmatchedPattern: boolean;
+  exitZero: boolean;
 }
 
 function parse(argv: string[]): Options | 'help' | 'version' {
-  const options: Options = { patterns: [], format: 'stylish', ignores: [], noIgnore: false, quiet: false, maxWarnings: -1, download: true, level: 'warning' };
+  const options: Options = { patterns: [], format: 'stylish', ignores: [], noIgnore: false, quiet: false, maxWarnings: -1, download: true, level: 'warning', errorOnUnmatchedPattern: true, exitZero: false };
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index]!;
     if (arg === '-h' || arg === '--help') return 'help';
     if (arg === '-v' || arg === '--version') return 'version';
     if (arg === '--json') options.format = 'json';
     else if (arg === '--no-ignore') options.noIgnore = true;
+    else if (arg === '--no-error-on-unmatched-pattern') options.errorOnUnmatchedPattern = false;
     else if (arg === '--quiet') options.quiet = true;
+    else if (arg === '--exit-zero') options.exitZero = true;
     else if (arg === '--no-download') options.download = false;
     else if (arg === '-f' || arg === '--format') options.format = argv[++index] as Options['format'];
     else if (arg === '--ext') options.extensions = (argv[++index] ?? '').split(',').filter(Boolean);
@@ -70,7 +76,13 @@ async function run(): Promise<void> {
 
   try {
     const files = await findFiles(options.patterns, { noIgnore: options.noIgnore, ignorePatterns: options.ignores, extensions: options.extensions });
-    if (!files.length) throw new Error(`no supported files matched: ${options.patterns.join(', ')}`);
+    if (!files.length) {
+      if (options.errorOnUnmatchedPattern) {
+        throw new Error(`no supported files matched: ${options.patterns.join(', ')} (use --no-error-on-unmatched-pattern to allow an empty match)`);
+      }
+      if (options.format === 'json') console.log('[]');
+      return;
+    }
     const slopsift = await createSlopSift({
       explicit: options.model,
       download: options.download,
@@ -86,7 +98,7 @@ async function run(): Promise<void> {
       const label = local === '..' || local.startsWith(`..${sep}`)
         ? file
         : (local || file);
-      const result = makeResult(label, source, report.lints);
+      const result = makeResult(label, source, report.lints, report.wordCount);
       results.push(result);
     }
     if (options.format === 'json') console.log(JSON.stringify(results.map(jsonResult), null, 2));
@@ -94,7 +106,7 @@ async function run(): Promise<void> {
     else { const output = stylish(results); if (output) console.log(output); }
     const warnings = results.reduce((sum, result) => sum + result.warningCount, 0);
     const errors = results.reduce((sum, result) => sum + result.errorCount, 0);
-    if (errors || (options.maxWarnings >= 0 && warnings > options.maxWarnings)) process.exitCode = 1;
+    if (!options.exitZero && (errors || (options.maxWarnings >= 0 && warnings > options.maxWarnings))) process.exitCode = 1;
   } catch (error) {
     console.error(`slopsift: ${(error as Error).message}`);
     process.exitCode = 2;

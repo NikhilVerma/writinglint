@@ -181,7 +181,7 @@ def main() -> None:
     result = validate(model, args.checkpoint, args.validation_data, parser_path, relation_path, args.batch_size)
     artifact_paths = [parser_path, relation_path, *sorted((args.output / "tokenizer").iterdir())]
     manifest = {
-        "format": "better-write-compact-parser-onnx-v1", "opset": 17,
+        "format": "writinglint-compact-parser-onnx-v1", "opset": 17,
         "checkpoint": str(args.checkpoint), "encoder": config["encoder"],
         "source_checkpoint_sha256": sha256(args.checkpoint / "model.pt"),
         "upos": config["upos"], "relations": config["relations"],

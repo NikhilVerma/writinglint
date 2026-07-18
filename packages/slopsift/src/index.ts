@@ -3,6 +3,7 @@ import { OnnxParser } from 'writinglint-parser-node/onnx';
 import { extractInput, inputKind, type InputKind } from './extract.js';
 import { ensureModel, type ModelOptions } from './model.js';
 import { profileFor, type ProfileName } from './profiles.js';
+import { countWords } from './format.js';
 
 export type MinimumLevel = 'info' | 'warning' | 'error';
 
@@ -19,6 +20,8 @@ export interface LintSourceOptions {
 export interface SlopSiftResult {
   kind: InputKind;
   lints: Lint[];
+  /** Words in the extracted prose/comments that were actually analyzed. */
+  wordCount: number;
 }
 
 const profileForLevel = (level: MinimumLevel): ProfileName =>
@@ -48,6 +51,7 @@ export class SlopSift {
     const { lints } = await this.linter.lint(extracted.text, config);
     return {
       kind,
+      wordCount: countWords(extracted.text),
       lints: lints.map((lint) => {
         const [start, end] = extracted.sourceRange(lint.start, lint.end);
         const fixRange = lint.fix ? extracted.sourceRange(lint.fix.range[0], lint.fix.range[1]) : undefined;

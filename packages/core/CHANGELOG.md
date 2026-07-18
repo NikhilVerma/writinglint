@@ -4,4 +4,5 @@
 
 ### Patch Changes
 
-- Remove the retired `nlpgraph` runtime dependency from the public package.
+- Publish the owned parser contract and graph utilities without private runtime
+  dependencies.

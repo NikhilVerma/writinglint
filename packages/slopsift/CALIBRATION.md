@@ -7,10 +7,11 @@ or `error`.
 
 ## July 2026 real-prose calibration
 
-Two private, non-redistributed corpora were used as adversarial regression sets:
+Two maintainer-held, non-redistributed corpora were used as adversarial
+regression sets:
 
-- 18 Markdown posts from a personal technical blog
-- 16 HTML pages from a product blog
+- 18 Markdown technical-prose documents
+- 16 rendered HTML technical-prose documents
 
 These texts are evaluation inputs, not redistributed training data. Re-run them
 locally when changing extraction, source mapping, or the default rulepack.
@@ -39,7 +40,7 @@ discarded.
 ### Phase 2: confidence-aware recall
 
 A blind review was completed without looking at SlopSift output first. It found
-clear weak-writing passages in five posts where the 12-finding build emitted
+clear weak-writing passages in five documents where the 12-finding build emitted
 nothing, including unsupported absolutes, repeated conclusions, mechanical
 bold-label outlines, canned tutorial framing, and technically confident claims
 without evidence.
@@ -53,18 +54,19 @@ The rules now retain those weak candidates and grade them:
 - dense mechanical templates, repeated canonical corrective antithesis, and
   unmistakable chatbot artifacts can become `error`
 
-On the 18-post Markdown corpus, the audited strict run emits 360 findings:
+On the 18-document Markdown corpus, the release-candidate strict run emits 363
+findings:
 
 - 30 errors
-- 29 warnings
-- 301 informational review candidates
+- 30 warnings
+- 303 informational review candidates
 
 Every error and warning was inspected against its source context. That review
 demoted a legitimate action checklist, cited and weak comparisons, scoped
 technical absolutes, procedural-list vocabulary overlap, and ordinary uses such
 as “write clearly.” The large informational tier is intentional. It is the broad
 candidate surface for editors and for future classifier training, not a claim
-that 301 passages must be changed. The default warning-level view emits 59
+that 303 passages must be changed. The default warning-level view emits 60
 findings.
 
 ### Multi-scale evidence
@@ -88,8 +90,8 @@ aggregation.
 The initial comment-only HTML run produced 50 noisy findings. The first rendered
 text run produced 74, dominated by ordinary passive voice and technical arrows.
 HTML extraction now preserves block boundaries as blank lines so an entire page
-cannot be mistaken for one paragraph. The strict run produces 95 findings: zero
-errors, eight warnings, and 87 informational candidates. The three decorative
+cannot be mistaken for one paragraph. The strict run produces 94 findings: zero
+errors, four warnings, and 90 informational candidates. The three decorative
 emoji remain correctly ranged.
 
 ## Decisions encoded from the review
