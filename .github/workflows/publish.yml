@@ -35,7 +35,13 @@ jobs:
         run: npm run release
       - name: Install and run the published SlopSift package
         run: npm run smoke:published
+      - name: Ensure verified package tags exist
+        run: node scripts/ensure-release-tags.mjs
       - name: Push verified package tags
-        # Changesets creates lightweight tags; --follow-tags only pushes
-        # annotated tags and can report success while leaving these behind.
+        # The packed and public-registry gates have already passed. Avoid
+        # rerunning the local pre-push package build for this tag-only push.
+        env:
+          HUSKY: 0
         run: git push origin --tags
+      - name: Verify release tags reached GitHub
+        run: node scripts/ensure-release-tags.mjs --verify-remote
