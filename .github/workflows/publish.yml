@@ -36,4 +36,6 @@ jobs:
       - name: Install and run the published SlopSift package
         run: npm run smoke:published
       - name: Push verified package tags
-        run: git push --follow-tags
+        # Changesets creates lightweight tags; --follow-tags only pushes
+        # annotated tags and can report success while leaving these behind.
+        run: git push origin --tags
