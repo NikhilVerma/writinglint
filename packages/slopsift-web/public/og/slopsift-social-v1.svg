@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f2f0e9"/>
+  <path d="M0 0h1200v12H0z" fill="#171716"/>
+  <path d="M0 618h1200v12H0z" fill="#d93a2f"/>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <g transform="translate(70 66)">
+      <text x="0" y="0" dominant-baseline="hanging" fill="#171716" font-size="36" font-weight="800" letter-spacing="-2">slop<tspan fill="#d93a2f">sift</tspan></text>
+      <path d="M1 48q7-9 14 0t14 0t14 0t14 0t14 0t14 0" fill="none" stroke="#d93a2f" stroke-width="5"/>
+      <text x="0" y="91" fill="#9e211a" font-family="monospace" font-size="16" font-weight="700" letter-spacing="2">LOCAL-FIRST NLP LINTER</text>
+      <text x="0" y="162" fill="#171716" font-size="82" font-weight="900" letter-spacing="-5">
+        <tspan x="0" dy="0">Your AI</tspan>
+        <tspan x="0" dy="77">has a tell.</tspan>
+      </text>
+      <text x="3" y="355" fill="#55534d" font-size="23">
+        <tspan x="3" dy="0">Exact, explainable findings.</tspan>
+        <tspan x="3" dy="35">Your draft never leaves your device.</tspan>
+      </text>
+    </g>
+
+    <g transform="translate(665 74) rotate(2 225 226)">
+      <rect x="12" y="14" width="450" height="455" fill="#d93a2f"/>
+      <rect x="0" y="0" width="450" height="455" fill="#faf9f5" stroke="#171716" stroke-width="3"/>
+      <rect x="0" y="0" width="450" height="47" fill="#e8e5dc" stroke="#171716" stroke-width="3"/>
+      <text x="20" y="29" fill="#55534d" font-family="monospace" font-size="13" font-weight="700">DRAFT.TXT / EDITABLE</text>
+      <circle cx="413" cy="23" r="6" fill="#d93a2f"/>
+      <text x="328" y="28" fill="#55534d" font-family="monospace" font-size="11">LIVE NLP</text>
+
+      <rect x="288" y="69" width="138" height="45" fill="#faf9f5" stroke="#d93a2f" stroke-width="3" transform="rotate(-4 357 91)"/>
+      <text x="310" y="97" fill="#9e211a" font-family="monospace" font-size="14" font-weight="700" letter-spacing="2" transform="rotate(-4 357 91)">AI DRAFT</text>
+
+      <text x="25" y="151" fill="#171716" font-size="24">
+        <tspan x="25" dy="0">Let’s delve into the</tspan>
+        <tspan x="25" dy="39">load-bearing idea.</tspan>
+        <tspan x="25" dy="65">Studies suggest this</tspan>
+        <tspan x="25" dy="39">seamlessly empowers us.</tspan>
+      </text>
+      <path d="M79 160h58M25 199h148" stroke="#d93a2f" stroke-width="5"/>
+      <path d="M25 264h172" stroke="#c58b18" stroke-width="5"/>
+      <path d="M25 303h118M154 303h115" stroke="#d93a2f" stroke-width="5"/>
+
+      <line x1="0" y1="348" x2="450" y2="348" stroke="#171716" stroke-width="2"/>
+      <text x="24" y="379" fill="#686760" font-family="monospace" font-size="11" font-weight="700">PROBLEMS</text>
+      <circle cx="29" cy="407" r="6" fill="#d93a2f"/>
+      <text x="46" y="412" fill="#171716" font-size="15">Word LLMs over-use.</text>
+      <circle cx="29" cy="435" r="6" fill="#c58b18"/>
+      <text x="46" y="440" fill="#171716" font-size="15">Name the source.</text>
+    </g>
+
+    <text x="70" y="586" fill="#171716" font-family="monospace" font-size="15" font-weight="700" letter-spacing="1.4">CUSTOM-TRAINED PARSER  ·  BROWSER + CLI  ·  OPEN SOURCE</text>
+    <text x="1130" y="586" text-anchor="end" fill="#9e211a" font-family="monospace" font-size="15" font-weight="700">slopsift.dev</text>
+  </g>
+</svg>

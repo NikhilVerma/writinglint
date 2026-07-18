@@ -523,6 +523,20 @@
   .docs-note strong { color: var(--ink); }
   .docs-source-link { font-size: 14px; }
 
+  .not-found-page section {
+    min-height: calc(100dvh - 76px);
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 70px 100px;
+  }
+  .not-found-page h1 { max-width: 780px; margin: 18px 0 30px; }
+  .not-found-page section > p:not(.kicker) { max-width: 590px; color: var(--muted); font-size: 19px; }
+  .not-found-page .hero__actions { margin-top: 38px; }
+  .not-found-page__docs { border: 1px solid var(--ink); background: transparent; }
+  .not-found-page__docs:hover { border-color: var(--red); color: var(--red-dark); }
+
   @keyframes editor-in {
     from { opacity: 0; transform: translateY(26px) rotate(2.2deg); }
     to { opacity: 1; transform: translateY(0) rotate(.65deg); }

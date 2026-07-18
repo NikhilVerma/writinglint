@@ -29,6 +29,20 @@ export default {
     }
     const runtimeMatch = url.pathname.match(/^\/(model|ort)\/(.+)$/);
     const releaseMatch = url.pathname.match(new RegExp(`^/${MODEL_VERSION}/(.+)$`));
+    if (url.hostname === 'models.slopsift.dev') {
+      if (url.pathname === '/robots.txt') {
+        return new Response('User-agent: *\nDisallow: /\n', {
+          headers: {
+            'content-type': 'text/plain; charset=utf-8',
+            'cache-control': 'public, max-age=3600',
+          },
+        });
+      }
+      if (!releaseMatch) {
+        url.hostname = 'slopsift.dev';
+        return Response.redirect(url.toString(), 301);
+      }
+    }
     if (!runtimeMatch && !releaseMatch) return env.ASSETS.fetch(request);
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       return new Response('method not allowed', { status: 405, headers: { allow: 'GET, HEAD' } });
@@ -41,12 +55,17 @@ export default {
       ? `${MODEL_VERSION}/${file}`
       : `onnxruntime-web/${ORT_VERSION}/${file}`;
     const object = await env.MODELS.get(key);
-    if (!object) return new Response('not found', { status: 404 });
+    if (!object) return new Response('not found', {
+      status: 404,
+      headers: { 'x-robots-tag': 'noindex, nofollow, nosnippet' },
+    });
 
     const headers = new Headers();
     object.writeHttpMetadata(headers);
     headers.set('etag', object.httpEtag);
     headers.set('cache-control', 'public, max-age=31536000, immutable');
+    headers.set('x-content-type-options', 'nosniff');
+    headers.set('x-robots-tag', 'noindex, nofollow, nosnippet');
     const type = contentType(file);
     if (type) headers.set('content-type', type);
     return new Response(request.method === 'HEAD' ? null : object.body, { headers });

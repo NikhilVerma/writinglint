@@ -1,0 +1,23 @@
+{
+  "name": "SlopSift — local-first writing linter",
+  "short_name": "SlopSift",
+  "description": "Catch AI writing tells with a custom-trained NLP parser that runs on your device.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f2f0e9",
+  "theme_color": "#f2f0e9",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

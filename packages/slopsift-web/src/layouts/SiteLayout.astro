@@ -4,13 +4,57 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  imageAlt?: string;
+  noindex?: boolean;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
-  title = 'SlopSift | A linter for AI writing tells',
-  description = 'Catch formulaic AI writing, unsupported certainty, canned structure, and suspiciously polished filler from the command line or your editor.',
+  title = 'SlopSift — An NLP linter for AI writing tells',
+  description = 'Catch AI writing tells with a custom-trained NLP parser—not a word list. SlopSift runs locally in your browser or CLI, with exact, explainable findings.',
+  image = '/og/slopsift-social-v1.png',
+  imageAlt = 'SlopSift live editor marking AI writing tells with exact, explainable findings.',
+  noindex = false,
+  structuredData = [],
 } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const socialImage = new URL(image, Astro.site);
+const siteUrl = new URL('/', Astro.site);
+const extraStructuredData = Array.isArray(structuredData) ? structuredData : [structuredData];
+const schema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${siteUrl}#website`,
+      url: siteUrl,
+      name: 'SlopSift',
+      description: 'A local-first NLP linter for AI writing tells.',
+      inLanguage: 'en',
+    },
+    {
+      '@type': 'ImageObject',
+      '@id': `${canonical}#primaryimage`,
+      url: socialImage,
+      contentUrl: socialImage,
+      width: 1200,
+      height: 630,
+      caption: imageAlt,
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${canonical}#webpage`,
+      url: canonical,
+      name: title,
+      description,
+      isPartOf: { '@id': `${siteUrl}#website` },
+      primaryImageOfPage: { '@id': `${canonical}#primaryimage` },
+      inLanguage: 'en',
+    },
+    ...extraStructuredData,
+  ],
+};
 ---
 
 <!doctype html>
@@ -19,14 +63,34 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <meta name="theme-color" content="#f2f0e9" />
+    <meta name="application-name" content="SlopSift" />
+    <meta name="author" content="Nikhil Verma" />
     <meta name="description" content={description} />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="SlopSift" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:secure_url" content={socialImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="canonical" href={canonical} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
+    {!noindex && <link rel="canonical" href={canonical} />}
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     <title>{title}</title>
   </head>
   <body>

@@ -6,9 +6,46 @@ const sample = `As an AI language model, let's delve into the load-bearing idea 
 The design is not only fast but also elegant. Studies suggest it is the fastest approach.
 
 The deadline was changed yesterday. Several safety concerns were ignored. It wasn't speed. It wasn't cost. It was trust.`;
+
+const productSchema = {
+  '@type': 'SoftwareApplication',
+  '@id': 'https://slopsift.dev/#software',
+  name: 'SlopSift',
+  url: 'https://slopsift.dev/',
+  description: 'A local-first NLP linter that reports exact, explainable AI writing tells in prose, Markdown, HTML, and source-code comments.',
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Web, macOS, Linux, Windows',
+  isAccessibleForFree: true,
+  offers: {
+    '@type': 'Offer',
+    price: 0,
+    priceCurrency: 'USD',
+  },
+  downloadUrl: 'https://www.npmjs.com/package/slopsift',
+  installUrl: 'https://www.npmjs.com/package/slopsift',
+  softwareHelp: 'https://slopsift.dev/docs/',
+  codeRepository: 'https://github.com/NikhilVerma/writinglint',
+  license: 'https://github.com/NikhilVerma/writinglint/blob/main/LICENSE',
+  author: {
+    '@type': 'Person',
+    name: 'Nikhil Verma',
+    url: 'https://github.com/NikhilVerma',
+  },
+  featureList: [
+    'Custom-trained dependency parser',
+    'Local browser and CLI inference',
+    'Exact finding ranges',
+    'Markdown, HTML, prose, and source-code comment linting',
+    'JSON output for CI',
+  ],
+  sameAs: [
+    'https://github.com/NikhilVerma/writinglint',
+    'https://www.npmjs.com/package/slopsift',
+  ],
+};
 ---
 
-<SiteLayout>
+<SiteLayout structuredData={productSchema}>
   <header class="site-header">
     <a class="wordmark" href="#top" aria-label="SlopSift home">
       <span>slop</span><span>sift</span><i aria-hidden="true"></i>
