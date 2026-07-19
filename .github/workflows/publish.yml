@@ -1,6 +1,10 @@
 name: Publish npm packages
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "packages/*/package.json"
   workflow_dispatch:
 
 permissions:
