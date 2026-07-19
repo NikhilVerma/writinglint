@@ -451,9 +451,12 @@
   .terminal > p { padding: 18px 22px; color: #aaa79f; font-size: 12px; }
   .terminal > p code { color: var(--paper); }
 
-  footer { min-height: 160px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 30px; align-items: center; }
-  footer p { color: var(--muted); font-size: 13px; }
-  footer > div { display: flex; gap: 24px; font-size: 13px; font-weight: 700; }
+  footer { min-height: 190px; display: grid; grid-template-columns: auto minmax(240px, 1fr) auto; gap: 42px; align-items: center; }
+  .site-footer__credit p { color: var(--muted); font-size: 13px; }
+  .site-footer__credit a { color: var(--ink); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+  .site-footer__credit .site-footer__more { margin-top: 8px; font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+  .site-footer__more span { margin-inline: 5px; color: var(--line-dark); }
+  footer > nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px 22px; max-width: 390px; font-size: 13px; font-weight: 700; }
   footer a:hover { color: var(--red-dark); }
 
   .policy-page { max-width: 980px; padding-block: 100px 150px; }
@@ -627,8 +630,9 @@
     .docs-content pre { padding: 20px 18px; font-size: 11px; }
     .docs-exits { grid-template-columns: 1fr; }
     .docs-exits span + span { border-top: 1px solid var(--line); border-left: 0; }
-    footer { grid-template-columns: 1fr auto; }
-    footer p { display: none; }
+    footer { grid-template-columns: 1fr auto; gap: 20px; padding-block: 34px; }
+    .site-footer__credit { grid-column: 1 / -1; grid-row: 2; }
+    footer > nav { max-width: 270px; }
   }
 
   @media (prefers-reduced-motion: reduce) {

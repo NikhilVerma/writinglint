@@ -1,5 +1,6 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
 const flags = [
   ['--level info|warning|error', 'Choose the minimum finding level. The default is warning.'],
@@ -123,9 +124,5 @@ const skillInstall = `bunx skills add NikhilVerma/slopsift`;
     </div>
   </main>
 
-  <footer>
-    <a class="wordmark" href="/"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
-    <p>Open source. Local first. Opinionated by design.</p>
-    <div><a href="/">Home</a><a href="/privacy/">Privacy</a><a href="https://github.com/NikhilVerma/writinglint">GitHub</a></div>
-  </footer>
+  <SiteFooter />
 </SiteLayout>

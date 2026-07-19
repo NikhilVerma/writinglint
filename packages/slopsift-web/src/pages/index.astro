@@ -1,5 +1,6 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 
 const sample = `As an AI language model, let's delve into the load-bearing idea behind this solution.
 
@@ -32,7 +33,8 @@ const productSchema = {
   author: {
     '@type': 'Person',
     name: 'Nikhil Verma',
-    url: 'https://github.com/NikhilVerma',
+    url: 'https://nikhil-verma.com/about/',
+    sameAs: 'https://github.com/NikhilVerma',
   },
   featureList: [
     'Custom-trained dependency parser',
@@ -188,11 +190,7 @@ const productSchema = {
     </section>
   </main>
 
-  <footer>
-    <a class="wordmark" href="#top"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
-    <p>Open source. Local first. Opinionated by design.</p>
-    <div><a href="/docs/">Docs</a><a href="/privacy/">Privacy</a><a href="https://github.com/NikhilVerma/writinglint">GitHub</a><a href="https://www.npmjs.com/package/slopsift">npm</a></div>
-  </footer>
+  <SiteFooter />
 
   <script is:inline>
     document.querySelectorAll('[data-copy]').forEach((button) => {

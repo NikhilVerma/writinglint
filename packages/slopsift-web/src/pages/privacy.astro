@@ -1,5 +1,6 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 ---
 
 <SiteLayout title="SlopSift privacy — Your writing stays on your device" description="SlopSift analyzes drafts locally. Learn how the browser editor and upcoming extension handle text, settings, storage, and network access.">
@@ -33,5 +34,5 @@ import SiteLayout from '../layouts/SiteLayout.astro';
       <p>We will publish material changes here and record them in the repository before a new extension release. Report privacy or security concerns through the private process in <a href="https://github.com/NikhilVerma/writinglint/blob/main/SECURITY.md">SECURITY.md</a>.</p>
     </section>
   </main>
-  <footer><a class="wordmark" href="/"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a><p>Open source. Local first. Opinionated by design.</p></footer>
+  <SiteFooter />
 </SiteLayout>
