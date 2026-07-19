@@ -36,7 +36,9 @@ class DecodeTreeTest(unittest.TestCase):
         generator = random.Random(13)
         for size in range(1, 40):
             for _ in range(25):
-                scores = [[generator.uniform(-10, 10) for _ in range(size + 1)] for _ in range(size)]
+                scores = [
+                    [generator.uniform(-10, 10) for _ in range(size + 1)] for _ in range(size)
+                ]
                 for dependent in range(1, size + 1):
                     scores[dependent - 1][dependent] = float("-inf")
                 self.assertTrue(valid_tree(decode_tree(scores)))

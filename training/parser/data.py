@@ -2,30 +2,36 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator
 
 import torch
 from conllu import parse_incr
 from torch.utils.data import Dataset
 from transformers import PreTrainedTokenizerBase
 
+from structures import Sentence
 
 UPOS = [
-    "ADJ", "ADP", "ADV", "AUX", "CCONJ", "DET", "INTJ", "NOUN", "NUM",
-    "PART", "PRON", "PROPN", "PUNCT", "SCONJ", "SYM", "VERB", "X",
+    "ADJ",
+    "ADP",
+    "ADV",
+    "AUX",
+    "CCONJ",
+    "DET",
+    "INTJ",
+    "NOUN",
+    "NUM",
+    "PART",
+    "PRON",
+    "PROPN",
+    "PUNCT",
+    "SCONJ",
+    "SYM",
+    "VERB",
+    "X",
 ]
 UPOS_TO_ID = {label: index for index, label in enumerate(UPOS)}
-
-
-@dataclass(frozen=True)
-class Sentence:
-    words: list[str]
-    upos: list[str]
-    heads: list[int]
-    relations: list[str]
-    rule_weights: list[float]
 
 
 def read_conllu(path: Path) -> Iterator[Sentence]:
@@ -35,8 +41,14 @@ def read_conllu(path: Path) -> Iterator[Sentence]:
             words = [token for token in tokens if isinstance(token["id"], int)]
             if not words:
                 continue
+            text = str(
+                tokens.metadata.get("text") or " ".join(str(token["form"]) for token in words)
+            )
             yield Sentence(
+                text=text,
+                family=str(tokens.metadata.get("family") or "unknown"),
                 words=[str(token["form"]) for token in words],
+                lemmas=[str(token.get("lemma") or token["form"]).lower() for token in words],
                 upos=[str(token["upos"]) for token in words],
                 heads=[int(token["head"]) for token in words],
                 relations=[str(token["deprel"]) for token in words],
@@ -47,7 +59,12 @@ def read_conllu(path: Path) -> Iterator[Sentence]:
 
 
 def relation_vocabulary(paths: list[Path]) -> list[str]:
-    labels = {relation for path in paths for sentence in read_conllu(path) for relation in sentence.relations}
+    labels = {
+        relation
+        for path in paths
+        for sentence in read_conllu(path)
+        for relation in sentence.relations
+    }
     return sorted(labels)
 
 
@@ -59,12 +76,19 @@ class DependencyDataset(Dataset[dict[str, torch.Tensor]]):
         relation_to_id: dict[str, int],
         max_subwords: int,
     ) -> None:
+        if max_subwords <= 0:
+            raise ValueError("max_subwords must be greater than zero")
         self.tokenizer = tokenizer
         self.relation_to_id = relation_to_id
         self.max_subwords = max_subwords
-        self.sentences = []
+        self.sentences: list[Sentence] = []
         skipped = 0
         for sentence in read_conllu(path):
+            unknown = sorted(set(sentence.relations) - relation_to_id.keys())
+            if unknown:
+                raise ValueError(
+                    f"{path.name} contains dependency relations absent from the training vocabulary: {unknown}"
+                )
             encoded = tokenizer(sentence.words, is_split_into_words=True, add_special_tokens=True)
             if len(encoded["input_ids"]) <= max_subwords:
                 self.sentences.append(sentence)
@@ -72,6 +96,7 @@ class DependencyDataset(Dataset[dict[str, torch.Tensor]]):
                 skipped += 1
         if skipped:
             print(f"Skipped {skipped} sentences over {max_subwords} subwords from {path.name}")
+        self.skipped_sentences = skipped
 
     def __len__(self) -> int:
         return len(self.sentences)
@@ -98,7 +123,9 @@ class DependencyDataset(Dataset[dict[str, torch.Tensor]]):
             "input_ids": torch.tensor(encoded["input_ids"], dtype=torch.long),
             "attention_mask": torch.tensor(encoded["attention_mask"], dtype=torch.long),
             "word_starts": torch.tensor(first_subword, dtype=torch.long),
-            "upos": torch.tensor([UPOS_TO_ID[tag] for tag in sentence.upos[:kept]], dtype=torch.long),
+            "upos": torch.tensor(
+                [UPOS_TO_ID[tag] for tag in sentence.upos[:kept]], dtype=torch.long
+            ),
             "heads": torch.tensor(sentence.heads[:kept], dtype=torch.long),
             "relations": torch.tensor(
                 [self.relation_to_id[relation] for relation in sentence.relations[:kept]],
@@ -119,6 +146,8 @@ class PairedDependencyDataset(Dataset[dict[str, dict[str, torch.Tensor]]]):
         relation_to_id: dict[str, int],
         max_subwords: int,
     ) -> None:
+        if max_subwords <= 0:
+            raise ValueError("max_subwords must be greater than zero")
         self.student_tokenizer = student_tokenizer
         self.teacher_tokenizer = teacher_tokenizer
         self.relation_to_id = relation_to_id
@@ -126,14 +155,26 @@ class PairedDependencyDataset(Dataset[dict[str, dict[str, torch.Tensor]]]):
         self.sentences: list[Sentence] = []
         skipped = 0
         for sentence in read_conllu(path):
-            student = student_tokenizer(sentence.words, is_split_into_words=True, add_special_tokens=True)
-            teacher = teacher_tokenizer(sentence.words, is_split_into_words=True, add_special_tokens=True)
+            unknown = sorted(set(sentence.relations) - relation_to_id.keys())
+            if unknown:
+                raise ValueError(
+                    f"{path.name} contains dependency relations absent from the teacher vocabulary: {unknown}"
+                )
+            student = student_tokenizer(
+                sentence.words, is_split_into_words=True, add_special_tokens=True
+            )
+            teacher = teacher_tokenizer(
+                sentence.words, is_split_into_words=True, add_special_tokens=True
+            )
             if max(len(student["input_ids"]), len(teacher["input_ids"])) <= max_subwords:
                 self.sentences.append(sentence)
             else:
                 skipped += 1
         if skipped:
-            print(f"Skipped {skipped} paired sentences over {max_subwords} subwords from {path.name}")
+            print(
+                f"Skipped {skipped} paired sentences over {max_subwords} subwords from {path.name}"
+            )
+        self.skipped_sentences = skipped
 
     def __len__(self) -> int:
         return len(self.sentences)

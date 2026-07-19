@@ -14,9 +14,30 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Any
+from typing import TypedDict
 
 import stanza
+
+
+RequestId = int | None
+
+
+class ParsedToken(TypedDict):
+    id: int
+    form: str
+    lemma: str
+    upos: str
+    head: int
+    deprel: str
+    start: int
+    end: int
+
+
+class ParsedSentence(TypedDict):
+    text: str
+    start: int
+    end: int
+    tokens: list[ParsedToken]
 
 
 def utf16_index(text: str, codepoint_index: int) -> int:
@@ -34,25 +55,31 @@ def load_pipeline(model_dir: Path) -> stanza.Pipeline:
     )
 
 
-def parse_document(nlp: stanza.Pipeline, text: str) -> list[dict[str, Any]]:
+def parse_document(nlp: stanza.Pipeline, text: str) -> list[ParsedSentence]:
     document = nlp(text)
-    sentences: list[dict[str, Any]] = []
+    sentences: list[ParsedSentence] = []
 
     for sentence in document.sentences:
-        words: list[dict[str, Any]] = []
+        words: list[ParsedToken] = []
         for token in sentence.tokens:
             for word in token.words:
                 # Stanza exposes exact sub-token offsets for contractions on Word.
                 start_char = word.start_char
                 end_char = word.end_char
+                if start_char is None or end_char is None:
+                    raise ValueError(f"Stanza omitted offsets for {word.text!r}")
+                if not isinstance(word.id, int) or not isinstance(word.head, int):
+                    raise TypeError(
+                        f"Stanza returned a non-integer dependency id for {word.text!r}"
+                    )
                 words.append(
                     {
                         "id": word.id,
                         "form": word.text,
-                        "lemma": word.lemma,
-                        "upos": word.upos,
+                        "lemma": word.lemma or word.text.lower(),
+                        "upos": word.upos or "X",
                         "head": word.head,
-                        "deprel": word.deprel,
+                        "deprel": word.deprel or "dep",
                         "start": utf16_index(text, start_char),
                         "end": utf16_index(text, end_char),
                     }
@@ -76,7 +103,7 @@ def parse_document(nlp: stanza.Pipeline, text: str) -> list[dict[str, Any]]:
     return sentences
 
 
-def send(payload: dict[str, Any]) -> None:
+def send(payload: object) -> None:
     print(json.dumps(payload, ensure_ascii=False, separators=(",", ":")), flush=True)
 
 
@@ -93,16 +120,21 @@ def main() -> None:
 
     send({"ready": True})
     for line in sys.stdin:
-        request: Any = None
+        request: object = None
+        request_id: RequestId = None
         try:
             request = json.loads(line)
-            request_id = request["id"]
-            text = request["text"]
+            if not isinstance(request, dict):
+                raise TypeError("request must be a JSON object")
+            raw_id = request.get("id")
+            if not isinstance(raw_id, int) or isinstance(raw_id, bool):
+                raise TypeError("id must be an integer")
+            request_id = raw_id
+            text = request.get("text")
             if not isinstance(text, str):
                 raise TypeError("text must be a string")
             send({"id": request_id, "sentences": parse_document(nlp, text)})
         except Exception as error:
-            request_id = request.get("id") if isinstance(request, dict) else None
             send({"id": request_id, "error": f"{type(error).__name__}: {error}"})
 
 

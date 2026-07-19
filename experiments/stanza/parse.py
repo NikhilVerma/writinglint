@@ -43,9 +43,9 @@ def print_analysis(text: str, model_dir: Path) -> None:
         print(f"\nSentence {sentence_number}: {sentence.text}")
         print("ID\tTEXT\tUPOS\tHEAD\tDEPREL\tSTART:END")
         for word in sentence.words:
-            token = next(
-                token for token in sentence.tokens if word in token.words
-            )
+            token = next(token for token in sentence.tokens if word in token.words)
+            if token.start_char is None or token.end_char is None:
+                raise ValueError(f"Stanza omitted offsets for {word.text!r}")
             print(
                 f"{word.id}\t{word.text}\t{word.upos}\t{word.head}\t"
                 f"{word.deprel}\t{token.start_char}:{token.end_char}"

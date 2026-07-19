@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 import math
+from dataclasses import dataclass
 
 import torch
 from torch import nn
@@ -69,7 +69,9 @@ class CompactDependencyParser(nn.Module):
         self.relation_dependent = MLP(hidden, relation_size, dropout)
         self.relation_head = MLP(hidden, relation_size, dropout)
         self.arc_biaffine = Biaffine(arc_size, scale_scores=scale_biaffine)
-        self.relation_biaffine = Biaffine(relation_size, relation_count, scale_scores=scale_biaffine)
+        self.relation_biaffine = Biaffine(
+            relation_size, relation_count, scale_scores=scale_biaffine
+        )
 
     def forward(
         self,
@@ -97,13 +99,20 @@ class CompactDependencyParser(nn.Module):
 
         # Mask padded candidate heads and self loops. Root is always candidate 0.
         head_mask = torch.cat(
-            [torch.ones(word_mask.shape[0], 1, dtype=torch.bool, device=word_mask.device), word_mask],
+            [
+                torch.ones(word_mask.shape[0], 1, dtype=torch.bool, device=word_mask.device),
+                word_mask,
+            ],
             dim=1,
         )
-        arc_logits = arc_logits.masked_fill(~head_mask.unsqueeze(1), torch.finfo(arc_logits.dtype).min)
+        arc_logits = arc_logits.masked_fill(
+            ~head_mask.unsqueeze(1), torch.finfo(arc_logits.dtype).min
+        )
         positions = torch.arange(word_mask.shape[1], device=word_mask.device)
         arc_logits[:, positions, positions + 1] = torch.finfo(arc_logits.dtype).min
-        return ParserOutput(upos_logits, arc_logits, relation_logits, relation_dependent, relation_heads)
+        return ParserOutput(
+            upos_logits, arc_logits, relation_logits, relation_dependent, relation_heads
+        )
 
     def score_relations(
         self,
@@ -115,4 +124,7 @@ class CompactDependencyParser(nn.Module):
         selected = heads.gather(1, gather)
         dependent = torch.cat([dependent, torch.ones_like(dependent[..., :1])], dim=-1)
         selected = torch.cat([selected, torch.ones_like(selected[..., :1])], dim=-1)
-        return torch.einsum("bxi,oij,bxj->bxo", dependent, self.relation_biaffine.weight, selected) / self.relation_biaffine.scale
+        return (
+            torch.einsum("bxi,oij,bxj->bxo", dependent, self.relation_biaffine.weight, selected)
+            / self.relation_biaffine.scale
+        )

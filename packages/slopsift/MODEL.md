@@ -157,3 +157,7 @@ to their licenses. Closed evaluation corpora are not published with the model.
 - Browser cold-start and warm-latency measurements should be tracked per release.
 - Confidence calibration is not yet exposed to rules.
 - Track npm, Chrome, VS Code, and R2 artifact parity for every model release.
+- `compact-int8-v1` retains PyTorch's legacy TorchScript ONNX exporter and
+  pre-optimization quantization path for exact graph-hash reproducibility.
+  Migrate to the `torch.export` exporter and explicit ORT preprocessing only in
+  a versioned model release with full parity and runtime benchmarks.

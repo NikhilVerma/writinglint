@@ -21,7 +21,7 @@ def _cycle(heads: Sequence[int]) -> list[int] | None:
         node = start
         while node != 0 and node not in complete:
             if node in positions:
-                return path[positions[node]:]
+                return path[positions[node] :]
             positions[node] = len(path)
             path.append(node)
             node = heads[node - 1]
@@ -94,7 +94,8 @@ def decode_tree(scores: Sequence[Sequence[float]]) -> list[int]:
             option = (loss, dependent, replacement)
             if best is None or option < best:
                 best = option
-        assert best is not None
+        if best is None:
+            raise RuntimeError("Could not find a rooted replacement edge for a dependency cycle")
         _, dependent, replacement = best
         heads[dependent - 1] = replacement
 
@@ -106,6 +107,9 @@ def valid_tree(heads: Sequence[int]) -> bool:
     size = len(heads)
     if sum(head == 0 for head in heads) != 1:
         return False
-    if any(head < 0 or head > size or head == dependent for dependent, head in enumerate(heads, start=1)):
+    if any(
+        head < 0 or head > size or head == dependent
+        for dependent, head in enumerate(heads, start=1)
+    ):
         return False
     return _cycle(heads) is None

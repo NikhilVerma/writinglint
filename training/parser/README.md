@@ -1,8 +1,26 @@
 # Compact dependency-parser training
 
-This package trains the parser that will replace the temporary Stanza runtime.
-Python is used only for data preparation, training, evaluation, and ONNX export;
-the shipped model will run through ONNX Runtime in TypeScript.
+This package trains the parser shipped by WritingLint and SlopSift. Python is
+used only for data preparation, training, evaluation, and ONNX export. The
+released model runs through ONNX Runtime in TypeScript; Stanza remains an
+optional offline reference parser.
+
+Create the locked Python 3.12 environment before running the commands below:
+
+```bash
+uv sync --frozen
+uv run python download_ud.py --help
+```
+
+Run the lightweight public-source checks without installing the ML runtime:
+
+```bash
+uv sync --frozen --only-group quality
+uv run --only-group quality ruff check . ../../packages/parser-node/python ../../experiments/stanza/parse.py
+uv run --only-group quality ruff format --check . ../../packages/parser-node/python ../../experiments/stanza/parse.py
+uv run --only-group quality mypy --config-file pyproject.toml . ../../packages/parser-node/python ../../experiments/stanza/parse.py
+python -m unittest discover -s . -p 'test_*.py'
+```
 
 ## First experiment
 
@@ -18,8 +36,8 @@ MiniLM checkpoint. Compare model bytes and CPU latency as well as UAS/LAS.
 Checkpoint selection uses development LAS excluding punctuation.
 
 ```bash
-python download_ud.py --treebank ewt --revision <exact-tag-or-commit>
-python train.py \
+uv run python download_ud.py --treebank ewt --revision <exact-tag-or-commit>
+uv run python train.py \
   --data-dir data/UD_English-EWT \
   --encoder google/electra-small-discriminator \
   --output artifacts/electra-small-ewt
@@ -29,7 +47,7 @@ Re-evaluate a saved checkpoint with all-token and conventional
 punctuation-excluded attachment scores:
 
 ```bash
-python evaluate_checkpoint.py \
+uv run python evaluate_checkpoint.py \
   --data-dir data/UD_English-EWT \
   --checkpoint artifacts/electra-small-ewt
 ```
@@ -68,7 +86,7 @@ It transfers UPOS, complete head distributions, and gold-head relation
 distributions while retaining supervised UD losses:
 
 ```bash
-python train_distill.py \
+uv run python train_distill.py \
   --data-dir data/UD_English-EWT \
   --teacher artifacts/deberta-v3-base-ewt \
   --output artifacts/bert-mini-distilled-ewt
@@ -82,12 +100,12 @@ valid tree, `relations.onnx` scores labels only for the selected heads. This
 avoids both a second encoder pass and a large words-by-heads-by-relations output.
 
 ```bash
-python export_onnx.py \
+uv run python export_onnx.py \
   --checkpoint artifacts/rule-family-50 \
   --output artifacts/rule-family-50-onnx \
   --validation-data rule-sensitivity/family-heldout.conllu
 
-python predict_onnx.py \
+uv run python predict_onnx.py \
   --model artifacts/rule-family-50-onnx \
   --data-file rule-sensitivity/family-heldout.conllu \
   --output artifacts/rule-family-50-onnx/holdout.jsonl

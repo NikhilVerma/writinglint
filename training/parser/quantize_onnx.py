@@ -25,28 +25,50 @@ def main() -> None:
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     args.output.mkdir(parents=True, exist_ok=True)
+    # Preserve the compact-int8-v1 graph hashes. ORT preprocessing was tested,
+    # retained identical holdout decisions, but changed the released artifacts.
+    # Introduce it only with a deliberately versioned model format.
     for name in ("parser.onnx", "relations.onnx"):
         quantize_dynamic(
-            args.model / name, args.output / name,
-            weight_type=QuantType.QInt8, per_channel=True,
+            args.model / name,
+            args.output / name,
+            weight_type=QuantType.QInt8,
+            per_channel=True,
         )
     tokenizer_output = args.output / "tokenizer"
     if tokenizer_output.exists():
         shutil.rmtree(tokenizer_output)
     shutil.copytree(args.model / "tokenizer", tokenizer_output)
-    source = json.loads((args.model / "manifest.json").read_text())
-    paths = [args.output / "parser.onnx", args.output / "relations.onnx", *sorted(tokenizer_output.iterdir())]
-    source.update({
-        "format": "writinglint-compact-parser-onnx-int8-v1",
-        "quantization": {"mode": "dynamic", "weightType": "QInt8", "perChannel": True},
-        "source_manifest_sha256": sha256(args.model / "manifest.json"),
-        "artifacts": {
-            str(path.relative_to(args.output)): {"bytes": path.stat().st_size, "sha256": sha256(path)}
-            for path in paths if path.is_file()
-        },
-    })
+    source = json.loads((args.model / "manifest.json").read_text(encoding="utf-8"))
+    paths = [
+        args.output / "parser.onnx",
+        args.output / "relations.onnx",
+        *sorted(tokenizer_output.iterdir()),
+    ]
+    source.update(
+        {
+            "format": "writinglint-compact-parser-onnx-int8-v1",
+            "quantization": {
+                "mode": "dynamic",
+                "weightType": "QInt8",
+                "perChannel": True,
+            },
+            "source_manifest_sha256": sha256(args.model / "manifest.json"),
+            "artifacts": {
+                str(path.relative_to(args.output)): {
+                    "bytes": path.stat().st_size,
+                    "sha256": sha256(path),
+                }
+                for path in paths
+                if path.is_file()
+            },
+        }
+    )
     source.pop("validation", None)
-    (args.output / "manifest.json").write_text(json.dumps(source, indent=2) + "\n")
+    (args.output / "manifest.json").write_text(
+        json.dumps(source, indent=2) + "\n",
+        encoding="utf-8",
+    )
     print(json.dumps(source, indent=2))
 
 

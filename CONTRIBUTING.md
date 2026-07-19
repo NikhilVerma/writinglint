@@ -34,7 +34,8 @@ the same gate directly with `npm run check:push`.
 
 The parser training experiments use `uv`; they are not required for ordinary
 TypeScript contributions. See `training/parser/README.md` before changing the
-model or training pipeline.
+model or training pipeline. Parser changes must pass the documented Ruff,
+strict mypy, and Python unit checks before the expensive devbox evaluation.
 
 ## Making changes
 

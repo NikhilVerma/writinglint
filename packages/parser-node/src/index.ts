@@ -1,4 +1,4 @@
-/** Node adapter for the local persistent Stanza parser process. */
+/** Node runtime for the bundled ONNX parser with an explicit Stanza development oracle. */
 import { existsSync } from 'node:fs';
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { createInterface } from 'node:readline';

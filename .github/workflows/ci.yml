@@ -13,6 +13,42 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  python-quality:
+    name: Python lint, types, and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Set up Python
+        uses: actions/setup-python@v6.3.0
+        with:
+          python-version: '3.12'
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v8.3.2
+        with:
+          version: '0.11.28'
+          enable-cache: true
+          cache-dependency-glob: training/parser/uv.lock
+      - name: Install lightweight quality tools
+        run: uv sync --project training/parser --frozen --only-group quality
+      - name: Lint Python
+        run: >-
+          uv run --project training/parser --only-group quality ruff check
+          training/parser packages/parser-node/python experiments/stanza/parse.py
+      - name: Check Python formatting
+        run: >-
+          uv run --project training/parser --only-group quality ruff format --check
+          training/parser packages/parser-node/python experiments/stanza/parse.py
+      - name: Type-check Python
+        run: >-
+          uv run --project training/parser --only-group quality mypy
+          --config-file training/parser/pyproject.toml
+          training/parser packages/parser-node/python experiments/stanza/parse.py
+      - name: Run dependency-free Python unit tests
+        working-directory: training/parser
+        run: python -m unittest discover -p 'test_*.py'
+
   compatibility:
     name: Node.js 20 compatibility
     runs-on: ubuntu-latest
