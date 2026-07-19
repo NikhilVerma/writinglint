@@ -1,5 +1,11 @@
 # writinglint-parser-node
 
+## 0.1.5
+
+### Patch Changes
+
+- 4a228ef: Harden the optional Stanza development backend by validating its JSONL protocol and parser output fields.
+
 ## 0.1.4
 
 ### Patch Changes
