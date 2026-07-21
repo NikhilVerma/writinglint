@@ -12,7 +12,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 concurrency:
   group: vscode-marketplace-publish
@@ -41,21 +40,8 @@ jobs:
         run: xvfb-run -a npm run test:integration -w slopsift-vscode
       - name: Package native Marketplace targets
         run: npm run vsix -w slopsift-vscode -- --all
-      - name: Authenticate to Azure with GitHub OIDC
-        uses: azure/login@v3
-        with:
-          client-id: ${{ vars.AZURE_CLIENT_ID }}
-          tenant-id: ${{ vars.AZURE_TENANT_ID }}
-          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      - name: Print the Marketplace identity resource ID
-        run: |
-          identity_id="$(az rest \
-            --url https://app.vssps.visualstudio.com/_apis/profile/profiles/me \
-            --resource 499b84ac-1321-427f-aa17-267ca6975798 \
-            --query id \
-            --output tsv)"
-          test -n "$identity_id"
-          echo "Marketplace identity resource ID: $identity_id"
       - name: Publish platform-specific VSIX packages
         working-directory: packages/vscode-extension
-        run: npx vsce publish --azure-credential --skip-duplicate --packagePath slopsift-vscode-*.vsix
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx vsce publish --skip-duplicate --packagePath slopsift-vscode-*.vsix

@@ -241,8 +241,10 @@ with recognizable AI-slop constructions.
 - [ ] Finish manual VS Code QA on Linux, Windows, remote workspaces, and plain
       text. Automated extension-host tests cover Markdown and source comments on
       macOS, including VS Code 1.96 (the minimum supported release).
-- [ ] Complete the one-time Microsoft Entra/OIDC setup and verify the GitHub
-      workflow publishes all five platform-specific VSIX builds automatically.
+- [ ] Verify GitHub publishes all five platform-specific VSIX builds
+      automatically using the Marketplace-only `VSCE_PAT` secret.
+- [ ] Replace the temporary Marketplace PAT with Microsoft Entra/OIDC before
+      the token expires on October 19, 2026 and global PATs retire.
 - [x] Pin the release manifest and verify every downloaded model artifact by
       byte count and SHA-256 before loading it.
 - [x] Define immutable SlopSift R2 paths and bundle the compact model in npm,

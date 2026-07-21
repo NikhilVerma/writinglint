@@ -4,36 +4,36 @@ SlopSift publishes its native VS Code extension packages from GitHub Actions.
 The workflow builds and tests the extension, creates a VSIX for every supported
 target, and uploads them to Visual Studio Marketplace as one extension version.
 
-The workflow uses GitHub OIDC and a Microsoft Entra managed identity. It does
-not store a Marketplace personal access token. Microsoft retires global Azure
-DevOps personal access tokens on December 1, 2026.
+The workflow currently authenticates with the `VSCE_PAT` GitHub Actions secret.
+The token is limited to Visual Studio Marketplace management and is not granted
+access to source code, builds, work items, packages, or other Azure DevOps data.
 
-## One-time identity setup
+This is a temporary bridge. Microsoft retires global Azure DevOps personal
+access tokens on December 1, 2026. Move the workflow to Microsoft Entra
+workload identity before then; the current token expires on October 19, 2026.
 
-1. In Azure, create a user-assigned managed identity in a subscription you
-   control. Record its client ID, tenant ID, and subscription ID.
-2. Add a federated credential to that identity for this GitHub repository. The
-   credential must trust the `vscode-marketplace` GitHub environment in
-   `NikhilVerma/writinglint`.
-3. In the GitHub repository, create an environment named
-   `vscode-marketplace`. Add these environment variables:
+## Credential setup
 
-   - `AZURE_CLIENT_ID`
-   - `AZURE_TENANT_ID`
-   - `AZURE_SUBSCRIPTION_ID`
+The Marketplace PAT must use:
 
-   These identifiers are configuration values, not credentials. The workflow
-   receives a short-lived token from GitHub for each run.
-4. Run **Publish VS Code extension** manually once. Copy the
-   `Marketplace identity resource ID` printed by the workflow.
-5. Open the `NikhilVerma01` publisher in Visual Studio Marketplace. On the
-   **Members** tab, add that resource ID as a Contributor.
-6. Rerun the workflow. It should publish every platform package and report
-   duplicates as successful no-ops.
+- organization: **All accessible organizations**;
+- scope: **Marketplace → Manage** only;
+- the shortest practical expiration.
 
-The first run is expected to fail at the publish step until the identity has
-been added to the Marketplace publisher. It still prints the identifier needed
-to finish that connection.
+Store the value as a repository Actions secret named `VSCE_PAT`. Never put the
+token in a repository variable, workflow file, command argument, issue, or log.
+The token is shown only once, so rotate it instead of trying to recover it.
+
+`--skip-duplicate` makes a retry safe when some target packages are already
+present in Marketplace.
+
+## Entra migration
+
+The long-term workflow should authenticate with GitHub OIDC and pass
+`--azure-credential` to `vsce`. That requires a Microsoft Entra identity backed
+by an Azure subscription, a federated credential for the
+`vscode-marketplace` GitHub environment, and Contributor membership on the
+`NikhilVerma01` Marketplace publisher.
 
 ## Release behavior
 
