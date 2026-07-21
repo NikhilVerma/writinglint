@@ -9,7 +9,9 @@ test('manifest contributes the SlopSift diagnostics controls and commands', asyn
     contributes: { commands: Array<{ command: string }>; configuration: { properties: Record<string, unknown> } };
   };
   assert.equal(manifest.main, './dist/extension.cjs');
-  assert.ok(manifest.activationEvents.includes('onStartupFinished'));
+  assert.ok(manifest.activationEvents.includes('onLanguage:markdown'));
+  assert.ok(manifest.activationEvents.includes('onLanguage:plaintext'));
+  assert.ok(!manifest.activationEvents.includes('onStartupFinished'));
   assert.deepEqual(manifest.contributes.commands.map(({ command }) => command), [
     'slopsift.lintDocument',
     'slopsift.showOutput',

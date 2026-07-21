@@ -2,10 +2,10 @@
 .vscode/**
 src/**
 test/**
+.vscode-test.mjs
 esbuild.mjs
 package-vsix.mjs
 tsconfig.json
 *.vsix
 node_modules/**
-!dist/**
-!model/**
+dist/test/**

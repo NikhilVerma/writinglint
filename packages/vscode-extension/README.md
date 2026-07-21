@@ -1,37 +1,57 @@
 # SlopSift for VS Code
 
-> **Experimental and untested.** This extension is a development prototype. It
-> has not completed cross-platform manual QA and is not published in the VS Code
-> Marketplace. Do not present it as an available SlopSift product.
+SlopSift marks AI-writing habits in the editor and lists them in VS Code's Problems panel. It handles Markdown and plain text directly, and checks comments in supported source files.
 
-SlopSift puts local, ESLint-like AI-slop diagnostics in VS Code's Problems
-panel. It lints Markdown and plain text as prose, and extracts comments from
-supported source files. The parser and rules run inside the extension host; no
-document text is sent to a service.
+The parser, model, and rules are bundled with the extension. Your draft stays on the machine running the VS Code extension host. SlopSift does not use telemetry or send document text to a service.
 
-## Development preview
+## What it catches
 
-Open a supported document. SlopSift runs when the document opens, after edits,
-and on save. Findings use the same levels as the CLI:
+- stock phrases and chatbot mannerisms;
+- repeated rhetorical scaffolding and rule-of-three cadence;
+- unsupported certainty and vague attribution;
+- dependency-backed patterns such as false agency, corrective contrasts, and mechanical sequencing;
+- repetition across nearby sentences and paragraphs.
 
-- error: a high-confidence slop signature;
-- warning: suspected slop that needs editorial judgment;
-- information: a broad review candidate.
+SlopSift points to patterns worth editing. It does not try to identify whether a person or a model wrote the text.
 
-Use **SlopSift: Lint Active Document** to force a run and **SlopSift: Show
-Output** for model and runtime details.
+## Use it
+
+Open a Markdown, plain-text, or supported source file. Diagnostics appear after edits and on save.
+
+- Run **SlopSift: Lint Active Document** to lint immediately.
+- Run **SlopSift: Show Output** to inspect model and runtime messages.
+- Select a finding in the Problems panel to jump to its source range.
+
+The default level is `warning`. Set `slopsift.minimumLevel` to `info` for every review candidate or `error` for high-confidence findings only.
 
 ## Settings
 
-- `slopsift.enable`: enable diagnostics (default `true`).
-- `slopsift.minimumLevel`: `info`, `warning`, or `error` (default `warning`).
-- `slopsift.debounceMilliseconds`: delay after edits (default `450`).
-- `slopsift.modelPath`: an optional absolute model-bundle path.
-- `slopsift.downloadModel`: permit an emergency model download if neither the
-  bundled nor configured model can be used (default `false`).
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `slopsift.enable` | `true` | Enable local diagnostics. |
+| `slopsift.minimumLevel` | `warning` | Show `info`, `warning`, or `error` findings and above. |
+| `slopsift.debounceMilliseconds` | `450` | Wait this long after an edit before linting. |
+| `slopsift.modelPath` | empty | Use an advanced, local model bundle instead of the bundled model. |
+| `slopsift.downloadModel` | `false` | Permit a model download only if a local model cannot be loaded. Inference remains local. |
 
-Inference is always local. Every platform-specific VSIX includes the compact
-INT8 model and works offline immediately after installation.
+## Platform support
+
+The extension uses native ONNX Runtime builds and is published separately for:
+
+- macOS on Apple silicon;
+- Linux on x64 and arm64;
+- Windows on x64 and arm64.
+
+Intel macOS and browser-hosted VS Code are not supported by the current native runtime. Remote workspaces use the build matching the remote extension host.
+
+## Project
+
+- [SlopSift website and browser editor](https://slopsift.dev/)
+- [Source code](https://github.com/NikhilVerma/writinglint)
+- [Issues and false-positive reports](https://github.com/NikhilVerma/writinglint/issues)
+- [Privacy](https://slopsift.dev/privacy/)
+
+SlopSift is open source under the MIT License.
 
 ## Development
 
@@ -39,24 +59,12 @@ From the monorepo root:
 
 ```bash
 npm install
-npm run compile -w slopsift-vscode
 npm test -w slopsift-vscode
-npm run vsix -w slopsift-vscode
+npm run test:release -w slopsift-vscode
 ```
 
-The build bundles the TypeScript implementation, compact model, and ONNX Runtime
-for the current operating-system/architecture. The packaging script labels the VSIX
-with that Marketplace target (for example, `darwin-arm64`). Produce each target
-VSIX on its matching platform; a macOS arm64 build is not portable to Linux or
-Windows.
+`test:release` builds a platform-specific VSIX and runs the extension inside an isolated VS Code Extension Development Host. To package every supported target from an ONNX Runtime installation containing the cross-platform binaries:
 
-Press `F5` in VS Code with this package as the extension development path to
-exercise it in an Extension Development Host.
-
-## Current limits
-
-- This first release targets desktop/remote VS Code, not vscode.dev. Native ONNX
-  Runtime is required.
-- Cancellation cannot interrupt an ONNX call already in progress. Versioned
-  results prevent stale diagnostics from being published.
-- Quick fixes are not exposed yet, even where a rule has a safe text fix.
+```bash
+npm run vsix -w slopsift-vscode -- --all
+```

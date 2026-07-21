@@ -1,0 +1,36 @@
+name: Publish VS Code extension
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'vscode-v*'
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Test, package, and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.14.0
+          cache: npm
+      - run: npm ci
+      - run: npm test -w slopsift-vscode
+      - run: npm run package -w slopsift-vscode
+      - name: Test in a VS Code extension host
+        run: xvfb-run -a npm run test:integration -w slopsift-vscode
+      - name: Package native Marketplace targets
+        run: npm run vsix -w slopsift-vscode -- --all
+      - name: Publish platform-specific VSIX packages
+        working-directory: packages/vscode-extension
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: npx vsce publish --skip-duplicate --packagePath slopsift-vscode-*.vsix

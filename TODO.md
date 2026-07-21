@@ -233,14 +233,16 @@ with recognizable AI-slop constructions.
       editable-field diagnostics, and severity controls.
 - [x] Build a desktop VS Code extension MVP with Problems diagnostics,
       debounced linting, commands, settings, and local native inference.
-- [ ] Keep both extensions labeled experimental and untested until their manual
-      QA matrices pass; do not advertise them on the SlopSift landing page.
+- [ ] Keep the Chrome extension labeled experimental and untested until its
+      manual QA matrix passes; do not advertise it on the SlopSift landing page.
 - [ ] Give SlopSift its own repository, release workflow, changelog, and domain.
 - [ ] Complete manual Chrome QA across Gmail, Notion, GitHub, Google Docs, and
       representative textarea and contenteditable editors.
-- [ ] Complete manual VS Code QA on macOS, Linux, Windows, local workspaces,
-      remote workspaces, Markdown, plaintext, and supported source comments.
-- [ ] Publish platform-specific VSIX builds and complete Marketplace metadata.
+- [ ] Finish manual VS Code QA on Linux, Windows, remote workspaces, and plain
+      text. Automated extension-host tests cover Markdown and source comments on
+      macOS, including VS Code 1.96 (the minimum supported release).
+- [ ] Publish the five platform-specific VSIX builds after the Marketplace
+      publisher and `VSCE_PAT` secret are configured.
 - [x] Pin the release manifest and verify every downloaded model artifact by
       byte count and SHA-256 before loading it.
 - [x] Define immutable SlopSift R2 paths and bundle the compact model in npm,

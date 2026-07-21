@@ -103,7 +103,7 @@ jobs:
   applications:
     name: Build sites and VS Code extension
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -119,3 +119,5 @@ jobs:
       - run: npm run build:site -w writinglint-web
       - run: npm run build -w slopsift-web
       - run: npm run package -w slopsift-vscode
+      - name: Test SlopSift in a VS Code extension host
+        run: xvfb-run -a npm run test:integration -w slopsift-vscode

@@ -9,6 +9,7 @@ dist-cli/
 packages/*/dist/
 packages/vscode-extension/*.vsix
 packages/vscode-extension/bin/
+packages/vscode-extension/.vscode-test/
 packages/slopsift-chrome/*.zip
 packages/slopsift-chrome/*.crx
 
