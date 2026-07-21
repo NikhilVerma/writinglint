@@ -161,7 +161,7 @@
     "@vscode/test-cli": "^0.0.15",
     "@vscode/test-electron": "^3.0.0",
     "@vscode/vsce": "^3.7.1",
-    "esbuild": "^0.24.2",
+    "esbuild": "^0.28.1",
     "typescript": "^5.9.3"
   },
   "scripts": {
