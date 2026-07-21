@@ -26,6 +26,11 @@
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./extract": {
+      "source": "./src/extract.ts",
+      "types": "./dist/extract.d.ts",
+      "default": "./dist/extract.js"
     }
   },
   "bin": {

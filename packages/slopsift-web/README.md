@@ -4,8 +4,19 @@ The standalone product site for SlopSift. It is intentionally separate from the
 WritingLint documentation site and has its own copy, interface, deployment, and
 release lifecycle.
 
-The live demo uses the same owned INT8 dependency parser and AI-style rulepack as
-the CLI. Parsing happens in a Web Worker and text never leaves the browser.
+The live demo and `/editor/` use the same owned INT8 dependency parser and
+AI-style rulepack as the CLI. Parsing happens in a Web Worker and text never
+leaves the browser.
+
+The editor keeps Markdown as source text. CodeMirror applies semantic styling
+to headings, emphasis, links, quotes, and code without rewriting the file. The
+CLI's browser-safe extraction entry point masks frontmatter, code, link targets,
+image metadata, and block quotations before linting while retaining source
+offsets for diagnostics. Plain-text mode sends the full draft to the linter.
+
+Draft recovery uses browser-local storage. Opening a file reads it through the
+browser file picker, and downloading creates a local Markdown or text file. The
+site has no draft upload endpoint.
 
 ## Local development
 

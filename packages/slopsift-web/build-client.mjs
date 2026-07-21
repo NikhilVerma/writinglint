@@ -8,6 +8,7 @@ const empty = join(root, 'src', 'client', 'empty.js');
 await build({
   entryPoints: {
     demo: join(root, 'src', 'client', 'demo.ts'),
+    editor: join(root, 'src', 'client', 'editor.ts'),
     'slop-worker': join(root, 'src', 'client', 'worker.ts'),
   },
   outdir: join(root, 'public'),

@@ -1,0 +1,109 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import '../styles/editor.css';
+
+const sample = `# The real bottleneck
+
+In today's fast-paced landscape, teams must navigate an ever-evolving set of challenges.
+
+## A transformative approach
+
+This system is not merely faster. It is a fundamental shift in how modern teams operate. Deterministic rules then flag vague claims, polished filler, and language that sounds more certain than its evidence.
+
+The result is clear: better outcomes, stronger alignment, and seamless execution.
+
+\`\`\`ts
+// Code fences stay visible but are not treated as prose.
+const draft = "delve";
+\`\`\`
+
+> Quoted material is left alone by default.
+`;
+
+const editorSchema = {
+  '@type': 'WebApplication',
+  '@id': 'https://slopsift.dev/editor/#application',
+  name: 'SlopSift Markdown editor',
+  url: 'https://slopsift.dev/editor/',
+  description: 'A free local Markdown and plain-text editor that marks AI writing tells as you type.',
+  applicationCategory: 'UtilitiesApplication',
+  browserRequirements: 'Requires JavaScript and WebAssembly',
+  operatingSystem: 'Any operating system with a modern web browser',
+  isAccessibleForFree: true,
+  offers: { '@type': 'Offer', price: 0, priceCurrency: 'USD' },
+  featureList: [
+    'Live local writing linting',
+    'Markdown and plain-text editing',
+    'Exact source highlights',
+    'Local draft storage',
+    'Markdown and text file export',
+    'JSON Lines finding export',
+  ],
+};
+---
+
+<SiteLayout
+  title="Free Markdown AI writing linter | SlopSift"
+  description="Edit Markdown or plain text and catch vague claims, canned structures, and filler locally in your browser. No upload or account."
+  structuredData={editorSchema}
+>
+  <main class="editor-page">
+    <section class="writing-workspace" data-editor-app aria-label="SlopSift Markdown editor">
+      <header class="editor-app-header">
+        <div class="editor-app-header__brand">
+          <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
+          <h1>Markdown editor</h1>
+        </div>
+        <div class="file-controls">
+          <label class="file-name" for="editor-filename"><span>File</span><input id="editor-filename" data-filename value="untitled.md" aria-label="Draft filename" /></label>
+          <label class="mode-select" for="editor-mode"><span>Mode</span><select id="editor-mode" data-mode aria-label="Document type"><option value="markdown">Markdown</option><option value="plain">Plain text</option></select></label>
+        </div>
+        <div class="document-actions" aria-label="Document actions">
+          <button type="button" data-new>New</button>
+          <button type="button" data-sample>Sample</button>
+          <button type="button" data-open>Open file</button>
+          <button type="button" data-download>Download</button>
+          <input data-file-input type="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden />
+        </div>
+        <nav aria-label="Editor navigation"><a href="/docs/">Docs</a><a href="https://github.com/NikhilVerma/writinglint">GitHub</a><a class="nav-install" href="https://www.npmjs.com/package/slopsift">Install</a></nav>
+      </header>
+
+      <div class="writing-workspace__body">
+        <div class="source-pane">
+          <div class="source-pane__bar">
+            <span data-document-label>untitled.md</span>
+            <span class="parser-state" data-parser-state><i aria-hidden="true"></i><span>Loading local parser</span></span>
+          </div>
+          <div class="source-editor" data-editor-mount>
+            <textarea aria-label="Markdown or plain-text draft" spellcheck="true">{sample}</textarea>
+          </div>
+          <div class="source-pane__status">
+            <span data-status>Preparing the editor</span>
+            <span><b data-word-count>0</b> words</span>
+            <span><b data-density>0</b> findings / 1k</span>
+            <span data-save-state>Saved in this browser</span>
+          </div>
+        </div>
+
+        <aside class="findings-pane" aria-label="SlopSift findings">
+          <div class="findings-pane__bar">
+            <div><span>Findings</span><b data-count>0</b></div>
+            <button type="button" data-copy-findings disabled>Copy JSONL</button>
+          </div>
+          <div class="finding-filters" role="group" aria-label="Filter findings">
+            <button type="button" data-filter="all" aria-pressed="true">All <b data-count-all>0</b></button>
+            <button type="button" data-filter="error" aria-pressed="false">Errors <b data-count-error>0</b></button>
+            <button type="button" data-filter="warn" aria-pressed="false">Warnings <b data-count-warn>0</b></button>
+            <button type="button" data-filter="info" aria-pressed="false">Notes <b data-count-info>0</b></button>
+          </div>
+          <div class="findings-list" data-findings aria-live="polite">
+            <p class="findings-placeholder">The parser is loading. Your draft stays in this browser.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script id="editor-sample" type="application/json" set:html={JSON.stringify(sample).replaceAll('<', '\\u003c')} />
+  <script type="module" src="/editor.js"></script>
+</SiteLayout>

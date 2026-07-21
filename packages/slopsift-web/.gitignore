@@ -2,6 +2,8 @@
 dist/
 public/demo.js
 public/demo.js.map
+public/editor.js
+public/editor.js.map
 public/slop-worker.js
 public/slop-worker.js.map
 public/model/

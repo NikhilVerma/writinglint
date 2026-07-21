@@ -9,6 +9,12 @@ test('Markdown is linted as complete prose', () => {
   assert.equal(inputKind('README.md'), 'prose');
 });
 
+test('browser-style and URL-like paths resolve without node:path', () => {
+  assert.equal(inputKind('C:\\drafts\\post.MD'), 'prose');
+  assert.equal(inputKind('/drafts/post.md?mode=edit#section'), 'prose');
+  assert.equal(inputKind('.hidden'), undefined);
+});
+
 test('TypeScript extraction keeps comments and exact source offsets', () => {
   const source = `const value = "// not a comment";\n// In today's landscape, we leverage things.\nrun();`;
   const extracted = extractLintText('index.ts', source);

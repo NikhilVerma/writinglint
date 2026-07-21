@@ -1,5 +1,3 @@
-import { extname } from 'node:path';
-
 export type InputKind = 'prose' | 'comments';
 export interface ExtractedInput {
   text: string;
@@ -17,6 +15,14 @@ const C_STYLE = new Set([
   '.c', '.h', '.cc', '.cpp', '.cxx', '.hpp', '.cs', '.go', '.rs', '.swift', '.scala',
   '.dart', '.php', '.css', '.scss', '.sass', '.less', '.sol',
 ]);
+
+/** Browser-safe equivalent of node:path's extname for file-like paths. */
+function extname(path: string): string {
+  const clean = path.split(/[?#]/, 1)[0] ?? path;
+  const base = clean.slice(Math.max(clean.lastIndexOf('/'), clean.lastIndexOf('\\')) + 1);
+  const dot = base.lastIndexOf('.');
+  return dot <= 0 ? '' : base.slice(dot);
+}
 
 export const DEFAULT_EXTENSIONS = [...PROSE, ...HASH, ...DASH, ...HTML, ...MARKUP_SOURCE, ...C_STYLE].sort();
 

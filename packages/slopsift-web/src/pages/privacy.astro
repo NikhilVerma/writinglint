@@ -3,18 +3,29 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 ---
 
-<SiteLayout title="SlopSift privacy — Your writing stays on your device" description="SlopSift analyzes drafts locally. Learn how the browser editor and upcoming extension handle text, settings, storage, and network access.">
+<SiteLayout title="SlopSift privacy | Your writing stays on your device" description="SlopSift analyzes drafts locally. Learn how the browser editor and upcoming extension handle text, settings, storage, and network access.">
   <header class="site-header">
     <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
     <nav aria-label="Privacy navigation"><a href="/">Home</a><a href="https://github.com/NikhilVerma/writinglint">Source</a></nav>
   </header>
   <main class="policy-page">
-    <p class="kicker">Last updated July 18, 2026</p>
+    <p class="kicker">Last updated July 21, 2026</p>
     <h1>Privacy without<br />the theatre.</h1>
-    <p class="policy-page__lead">SlopSift analyzes writing locally. The Chrome extension does not sell, share, transmit, or retain the text you lint.</p>
+    <p class="policy-page__lead">SlopSift analyzes writing locally. Neither the browser editor nor the Chrome extension sends draft text to a SlopSift server.</p>
 
     <section>
-      <h2>Data handling</h2>
+      <h2>Browser editor</h2>
+      <ul>
+        <li>The parser and rules run in a Web Worker on your device.</li>
+        <li>The editor keeps the current draft, filename, and Markdown or plain-text mode in this browser’s local storage so it can recover the draft after a reload.</li>
+        <li>Opening and downloading files use browser file APIs. SlopSift does not upload those files.</li>
+        <li>The browser fetches parser and runtime files from SlopSift’s Cloudflare-hosted domains. Those requests do not contain the draft.</li>
+        <li>Clearing site data for <code>slopsift.dev</code> removes the recovery draft.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Chrome extension</h2>
       <ul>
         <li>Draft text moves from the page content script to SlopSift’s own extension service worker for local analysis.</li>
         <li>The extension packages the parser and rules. Inference does not call a remote API.</li>

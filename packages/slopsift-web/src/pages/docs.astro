@@ -32,7 +32,7 @@ const skillInstall = `bunx skills add NikhilVerma/slopsift`;
 <SiteLayout title="SlopSift CLI docs — Install, configure, and run locally" description="Install SlopSift with Bun or Node, lint prose and code comments, understand finding levels, configure CI, and learn how its custom NLP parser works.">
   <header class="site-header">
     <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
-    <nav aria-label="Documentation navigation"><a href="/">Home</a><a href="/#demo">Live editor</a><a href="https://github.com/NikhilVerma/writinglint">Source</a><a class="nav-install" href="#quick-start">Start here</a></nav>
+    <nav aria-label="Documentation navigation"><a href="/">Home</a><a href="/editor/">Editor</a><a href="https://github.com/NikhilVerma/writinglint">Source</a><a class="nav-install" href="#quick-start">Start here</a></nav>
   </header>
 
   <main class="docs-page">
@@ -66,7 +66,7 @@ const skillInstall = `bunx skills add NikhilVerma/slopsift`;
         <p class="docs-index">02 / Inputs</p>
         <h2>Prose, pages, and code comments.</h2>
         <ul>
-          <li><strong>Markdown and text:</strong> SlopSift reads the full document as prose.</li>
+          <li><strong>Markdown and text:</strong> SlopSift reads the prose and skips frontmatter, code, link destinations, image metadata, and block quotations.</li>
           <li><strong>HTML:</strong> SlopSift reads rendered text and skips scripts, styles, templates, SVG, metadata, and code blocks.</li>
           <li><strong>Source files:</strong> SlopSift extracts line and block comments, then maps each finding back to its original file location.</li>
           <li><strong>Ignored paths:</strong> SlopSift skips dependencies, generated directories, <code>.git</code>, and anything covered by <code>.gitignore</code>.</li>
