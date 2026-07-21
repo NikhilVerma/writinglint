@@ -241,8 +241,8 @@ with recognizable AI-slop constructions.
 - [ ] Finish manual VS Code QA on Linux, Windows, remote workspaces, and plain
       text. Automated extension-host tests cover Markdown and source comments on
       macOS, including VS Code 1.96 (the minimum supported release).
-- [ ] Publish the five platform-specific VSIX builds after the Marketplace
-      publisher and `VSCE_PAT` secret are configured.
+- [ ] Publish the five platform-specific VSIX builds after the `VSCE_PAT`
+      repository secret is configured.
 - [x] Pin the release manifest and verify every downloaded model artifact by
       byte count and SHA-256 before loading it.
 - [x] Define immutable SlopSift R2 paths and bundle the compact model in npm,

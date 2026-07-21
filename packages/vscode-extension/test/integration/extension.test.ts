@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 declare const suite: (name: string, callback: () => void) => void;
 declare const test: (name: string, callback: () => Promise<void> | void) => void;
 
-const EXTENSION_ID = 'nikhilverma.slopsift-vscode';
+const EXTENSION_ID = 'NikhilVerma01.slopsift-vscode';
 
 async function waitForDiagnostics(uri: vscode.Uri, timeoutMilliseconds = 30_000): Promise<readonly vscode.Diagnostic[]> {
   const started = Date.now();
