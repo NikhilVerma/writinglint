@@ -27,6 +27,7 @@ bunx slopsift . --max-warnings 0
 # Machine-readable report without failing on prose
 bunx slopsift . --format json --exit-zero`;
 const skillInstall = `bunx skills add NikhilVerma/slopsift`;
+const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=NikhilVerma01.slopsift-vscode';
 ---
 
 <SiteLayout title="SlopSift CLI docs — Install, configure, and run locally" description="Install SlopSift with Bun or Node, lint prose and code comments, understand finding levels, configure CI, and learn how its custom NLP parser works.">
@@ -45,6 +46,7 @@ const skillInstall = `bunx skills add NikhilVerma/slopsift`;
     <nav class="docs-toc" aria-label="On this page">
       <span>On this page</span>
       <a href="#quick-start">Quick start</a>
+      <a href="#vscode">VS Code</a>
       <a href="#inputs">What it reads</a>
       <a href="#findings">Findings and output</a>
       <a href="#flags">CLI flags</a>
@@ -60,6 +62,14 @@ const skillInstall = `bunx skills add NikhilVerma/slopsift`;
         <p>The package and executable share the same name. Use Bun or npm without installing a separate binary.</p>
         <pre><code>{quickStart}</code></pre>
         <p>The npm package includes the compact parser weights. After npm installs the package, SlopSift works offline and does not download a second runtime.</p>
+      </section>
+
+      <section id="vscode">
+        <p class="docs-index">VS Code</p>
+        <h2>Lint the draft while you write.</h2>
+        <p>The free SlopSift extension reports local diagnostics in VS Code's Problems panel. It supports Markdown, plain text, and prose inside source-code comments. The parser weights ship inside each platform package, so normal linting does not send the document to a server.</p>
+        <a class="docs-source-link" href={marketplaceUrl}>Install SlopSift from Visual Studio Marketplace →</a>
+        <aside class="docs-note"><strong>Preview release:</strong> Automated extension-host tests cover Markdown and source comments. Manual testing across every supported operating system and remote workspace is still in progress.</aside>
       </section>
 
       <section id="inputs">
@@ -109,7 +119,7 @@ const skillInstall = `bunx skills add NikhilVerma/slopsift`;
         <p>Add the SlopSift skill with the open skills CLI. It works with Codex, Claude Code, Cursor, OpenCode, and other agents that support the Agent Skills format.</p>
         <pre><code>{skillInstall}</code></pre>
         <p>The skill tells an agent to use the project's existing Bun or Node environment, run the real SlopSift CLI, inspect exact ranges, and prioritize errors over weaker signals. It does not switch runtimes just to run the linter. It also preserves the writer's voice, leaves legitimate findings alone, and rejects authorship claims based on a lint result.</p>
-        <aside class="docs-note"><strong>Editor integrations:</strong> The VS Code extension and Chrome extension are still coming soon. The CLI, browser editor, and agent skill are available first.</aside>
+        <aside class="docs-note"><strong>Editor integrations:</strong> The VS Code extension is available in preview. The Chrome extension remains experimental and is not published.</aside>
       </section>
 
       <section id="model">

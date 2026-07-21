@@ -9,6 +9,7 @@ authorable TypeScript rules.
 [![Code license: MIT](https://img.shields.io/badge/code-MIT-2563eb)](LICENSE)
 [![Model license: CC BY-SA 4.0](https://img.shields.io/badge/model-CC_BY--SA_4.0-2563eb)](packages/parser-node/MODEL_LICENSE.md)
 [![SlopSift demo](https://img.shields.io/badge/demo-slopsift.dev-111111)](https://slopsift.dev)
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/NikhilVerma01.slopsift-vscode?label=VS%20Code&color=111111)](https://marketplace.visualstudio.com/items?itemName=NikhilVerma01.slopsift-vscode)
 
 WritingLint is the reusable engine. It parses text once, runs rulepacks over a
 dependency graph and document structure, and returns exact source ranges with
@@ -56,6 +57,9 @@ failures exit with status `2`; use `--no-error-on-unmatched-pattern` only for
 intentionally optional globs.
 
 Run `slopsift --help` for glob, extension, ignore, model, and output options.
+
+Prefer editor diagnostics? Install the preview release from the
+[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=NikhilVerma01.slopsift-vscode).
 
 ## WritingLint and SlopSift
 

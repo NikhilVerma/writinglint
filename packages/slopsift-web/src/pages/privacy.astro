@@ -3,7 +3,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 ---
 
-<SiteLayout title="SlopSift privacy | Your writing stays on your device" description="SlopSift analyzes drafts locally. Learn how the browser editor and upcoming extension handle text, settings, storage, and network access.">
+<SiteLayout title="SlopSift privacy | Your writing stays on your device" description="SlopSift analyzes drafts locally. Learn how the browser editor and editor extensions handle text, settings, storage, and network access.">
   <header class="site-header">
     <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
     <nav aria-label="Privacy navigation"><a href="/">Home</a><a href="https://github.com/NikhilVerma/writinglint">Source</a></nav>
@@ -11,7 +11,7 @@ import SiteFooter from '../components/SiteFooter.astro';
   <main class="policy-page">
     <p class="kicker">Last updated July 21, 2026</p>
     <h1>Privacy without<br />the theatre.</h1>
-    <p class="policy-page__lead">SlopSift analyzes writing locally. Neither the browser editor nor the Chrome extension sends draft text to a SlopSift server.</p>
+    <p class="policy-page__lead">SlopSift analyzes writing locally. The browser editor and VS Code extension do not send draft text to a SlopSift server.</p>
 
     <section>
       <h2>Browser editor</h2>
@@ -25,7 +25,18 @@ import SiteFooter from '../components/SiteFooter.astro';
     </section>
 
     <section>
+      <h2>VS Code extension</h2>
+      <ul>
+        <li>The extension runs the bundled parser and rules in the local VS Code extension host.</li>
+        <li>It reads the active document to produce diagnostics and does not store drafts or findings.</li>
+        <li>There is no analytics, telemetry, advertising, or account system.</li>
+        <li>VS Code stores extension settings such as the minimum finding level. A model download occurs only if the bundled model cannot load and the user explicitly enables that fallback.</li>
+      </ul>
+    </section>
+
+    <section>
       <h2>Chrome extension</h2>
+      <p>The Chrome extension is experimental and has not been published.</p>
       <ul>
         <li>Draft text moves from the page content script to SlopSift’s own extension service worker for local analysis.</li>
         <li>The extension packages the parser and rules. Inference does not call a remote API.</li>
