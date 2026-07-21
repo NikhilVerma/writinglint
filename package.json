@@ -15,7 +15,7 @@
     "packages/*"
   ],
   "scripts": {
-    "prepare": "husky",
+    "prepare": "node .husky/install.mjs",
     "dev": "npm run dev -w writinglint-web",
     "build": "npm run build -w writinglint-web",
     "build:cf": "node -e \"const fs=require('fs');for(const d of ['packages/web/public/model','packages/web/public/ort'])fs.rmSync(d,{recursive:true,force:true})\" && npm run build:site -w writinglint-web",
