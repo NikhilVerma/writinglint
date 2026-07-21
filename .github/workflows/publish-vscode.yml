@@ -3,16 +3,28 @@ name: Publish VS Code extension
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags:
       - 'vscode-v*'
+    paths:
+      - 'packages/vscode-extension/package.json'
 
 permissions:
   contents: read
+  id-token: write
+
+concurrency:
+  group: vscode-marketplace-publish
+  cancel-in-progress: false
 
 jobs:
   publish:
     name: Test, package, and publish
     runs-on: ubuntu-latest
+    environment:
+      name: vscode-marketplace
+      url: https://marketplace.visualstudio.com/items?itemName=NikhilVerma01.slopsift-vscode
     timeout-minutes: 30
     steps:
       - name: Check out repository
@@ -29,8 +41,21 @@ jobs:
         run: xvfb-run -a npm run test:integration -w slopsift-vscode
       - name: Package native Marketplace targets
         run: npm run vsix -w slopsift-vscode -- --all
+      - name: Authenticate to Azure with GitHub OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Print the Marketplace identity resource ID
+        run: |
+          identity_id="$(az rest \
+            --url https://app.vssps.visualstudio.com/_apis/profile/profiles/me \
+            --resource 499b84ac-1321-427f-aa17-267ca6975798 \
+            --query id \
+            --output tsv)"
+          test -n "$identity_id"
+          echo "Marketplace identity resource ID: $identity_id"
       - name: Publish platform-specific VSIX packages
         working-directory: packages/vscode-extension
-        env:
-          VSCE_PAT: ${{ secrets.VSCE_PAT }}
-        run: npx vsce publish --skip-duplicate --packagePath slopsift-vscode-*.vsix
+        run: npx vsce publish --azure-credential --skip-duplicate --packagePath slopsift-vscode-*.vsix
