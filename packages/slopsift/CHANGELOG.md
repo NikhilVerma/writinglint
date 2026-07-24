@@ -1,5 +1,14 @@
 # slopsift
 
+## 0.1.5
+
+### Patch Changes
+
+- 2d2e53f: Publish versioned agent-facing rule metadata and rule URLs, and add a GitHub
+  Actions annotation formatter to SlopSift.
+- Updated dependencies [2d2e53f]
+  - writinglint-rulepack-ai-style@0.1.5
+
 ## 0.1.4
 
 ### Patch Changes
