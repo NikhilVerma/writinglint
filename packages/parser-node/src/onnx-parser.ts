@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as ort from 'onnxruntime-node';
 import { decodeTree, type Parser, type ParsedSentence } from 'writinglint-core';
-import { encodeWordPieces, splitSentences, tokenizeWords, type SentenceTokens } from './tokenizer.js';
+import { chunkForEncoder, encodeWordPieces, splitSentences, tokenizeWords, type SentenceTokens } from './tokenizer.js';
 
 interface Manifest {
   upos: string[];
@@ -69,12 +69,12 @@ export class OnnxParser implements Parser {
   }
 
   async parse(text: string): Promise<ParsedSentence[]> {
-    const sentences = splitSentences(text).map(tokenizeWords).filter((sentence) => sentence.words.length > 0);
+    const sentences = splitSentences(text)
+      .map(tokenizeWords)
+      .filter((sentence) => sentence.words.length > 0)
+      .flatMap((sentence) => chunkForEncoder(sentence, this.vocab));
     if (sentences.length === 0) return [];
     const encoded = sentences.map((sentence) => encodeWordPieces(sentence.words, this.vocab));
-    if (encoded.some((item) => item.inputIds.length > 256)) {
-      throw new Error('Sentence exceeds the parser limit of 256 encoder subwords');
-    }
     const batch = sentences.length;
     const maxSubwords = Math.max(...encoded.map((item) => item.inputIds.length));
     const maxWords = Math.max(...encoded.map((item) => item.wordStarts.length));

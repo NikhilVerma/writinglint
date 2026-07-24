@@ -15,6 +15,8 @@ export interface SlopSiftOptions extends ModelOptions {
 export interface LintSourceOptions {
   /** Minimum confidence-derived level to return. */
   level?: MinimumLevel;
+  /** Emit an informational diagnostic when a supported source has no prose. */
+  reportEmpty?: boolean;
 }
 
 export interface SlopSiftResult {
@@ -46,12 +48,29 @@ export class SlopSift {
     const kind = inputKind(filePath);
     if (!kind) return undefined;
     const extracted = extractInput(filePath, source);
+    const wordCount = countWords(extracted.text);
+    if (wordCount === 0) {
+      return {
+        kind,
+        wordCount,
+        lints: options.reportEmpty ? [{
+          ruleId: 'slopsift/no-extractable-prose',
+          category: 'diagnostic',
+          severity: 'info',
+          confidence: 'high',
+          start: 0,
+          end: 0,
+          text: '',
+          message: 'No prose was found in this explicitly selected file. SlopSift did not lint its code or unsupported content locations.',
+        }] : [],
+      };
+    }
     const profile = profileForLevel(options.level ?? 'warning');
     const config = resolveConfig(profileFor(kind, profile));
     const { lints } = await this.linter.lint(extracted.text, config);
     return {
       kind,
-      wordCount: countWords(extracted.text),
+      wordCount,
       lints: lints.map((lint) => {
         const [start, end] = extracted.sourceRange(lint.start, lint.end);
         const fixRange = lint.fix ? extracted.sourceRange(lint.fix.range[0], lint.fix.range[1]) : undefined;

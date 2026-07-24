@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
@@ -42,4 +45,55 @@ test('GitHub format emits native annotations for CI', () => {
   const result = run(sloppy, '--level', 'error', '--format', 'github');
   assert.equal(result.status, 1, result.stderr);
   assert.match(result.stdout, /::error file=.*high-confidence\.md,line=\d+,col=\d+,endLine=\d+,endColumn=\d+,title=ai-style\//);
+});
+
+test('a large Markdown table does not abort a multi-file JSON run', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-table-'));
+  try {
+    const table = [
+      '| Rule | Description | Example |',
+      '| --- | --- | --- |',
+      ...Array.from(
+        { length: 45 },
+        (_, index) => `| rule-${index} | This short cell explains local behavior number ${index} without becoming a prose sentence | This example remains deliberately brief and concrete |`,
+      ),
+    ].join('\n');
+    const tableFile = join(directory, 'README.md');
+    writeFileSync(tableFile, table);
+
+    const result = run(tableFile, sloppy, '--format', 'json', '--exit-zero');
+    assert.equal(result.status, 0, result.stderr);
+    const output = JSON.parse(result.stdout) as Array<{
+      filePath: string;
+      messages: Array<{ ruleId: string }>;
+      wordCount: number;
+    }>;
+    assert.equal(output.length, 2);
+    assert.ok(output.find((entry) => entry.filePath === tableFile)?.wordCount! > 300);
+    assert.ok(output.find((entry) => entry.filePath.endsWith('high-confidence.md'))?.messages.length);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('an explicitly selected supported file reports zero extracted prose', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-empty-'));
+  try {
+    const codeFile = join(directory, 'empty.ts');
+    writeFileSync(codeFile, 'export const answer = 42;\n');
+
+    const result = run(codeFile, '--ext', '.ts', '--format', 'json', '--exit-zero');
+    assert.equal(result.status, 0, result.stderr);
+    const [output] = JSON.parse(result.stdout) as Array<{
+      messages: Array<{ ruleId: string; level: string }>;
+      wordCount: number;
+    }>;
+    assert.equal(output?.wordCount, 0);
+    assert.deepEqual(output?.messages.map(({ ruleId, level }) => ({ ruleId, level })), [{
+      ruleId: 'slopsift/no-extractable-prose',
+      level: 'info',
+    }]);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
 });

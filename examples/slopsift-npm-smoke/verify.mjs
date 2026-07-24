@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
@@ -67,5 +67,61 @@ assert.equal(
   1,
   `expected the graph-backed "X then Y" construction; received ${JSON.stringify(rules)}`,
 );
+
+const tableFile = join(root, 'large-table.md');
+const astroFile = join(root, 'page.astro');
+const textRouteFile = join(root, 'llms.txt.ts');
+const emptyCodeFile = join(root, 'empty.ts');
+await Promise.all([
+  writeFile(tableFile, [
+    '| Rule | Description | Example |',
+    '| --- | --- | --- |',
+    ...Array.from(
+      { length: 45 },
+      (_, index) => `| rule-${index} | This short cell explains local behavior number ${index} without becoming a prose sentence | This example remains deliberately brief and concrete |`,
+    ),
+  ].join('\n')),
+  writeFile(astroFile, `---
+const hidden = "frontmatter should not be linted";
+---
+<Layout title="A practical page title" description="A specific static page description.">
+  <p>This visible Astro paragraph should be analyzed as page copy.</p>
+</Layout>`),
+  writeFile(textRouteFile, `export const GET = () => new Response(\`# Local reference
+
+This multiline TypeScript template is returned as a plain text document for readers.
+\`);`),
+  writeFile(emptyCodeFile, 'export const answer = 42;\n'),
+]);
+
+const extraction = spawnSync(process.execPath, [
+  cli,
+  tableFile,
+  astroFile,
+  textRouteFile,
+  '--ext', '.md,.astro,.ts',
+  '--format', 'json',
+  '--exit-zero',
+  '--no-download',
+], { cwd: root, encoding: 'utf8' });
+assert.equal(extraction.status, 0, extraction.stderr);
+const extractionReports = JSON.parse(extraction.stdout);
+assert.equal(extractionReports.length, 3);
+assert.ok(extractionReports.find((report) => report.filePath.endsWith('large-table.md'))?.wordCount > 300);
+assert.ok(extractionReports.find((report) => report.filePath.endsWith('page.astro'))?.wordCount > 10);
+assert.ok(extractionReports.find((report) => report.filePath.endsWith('llms.txt.ts'))?.wordCount > 10);
+
+const empty = spawnSync(process.execPath, [
+  cli,
+  emptyCodeFile,
+  '--ext', '.ts',
+  '--format', 'json',
+  '--exit-zero',
+  '--no-download',
+], { cwd: root, encoding: 'utf8' });
+assert.equal(empty.status, 0, empty.stderr);
+const [emptyReport] = JSON.parse(empty.stdout);
+assert.equal(emptyReport.wordCount, 0);
+assert.equal(emptyReport.messages[0]?.ruleId, 'slopsift/no-extractable-prose');
 
 console.log(`Verified slopsift@${installed.version} as an isolated npm consumer (${reports[0].messages.length} findings).`);

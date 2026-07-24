@@ -150,7 +150,9 @@ to their licenses. Closed evaluation corpora are not published with the model.
 ## Known limitations and next work
 
 - English only.
-- Sentences are capped at 256 encoder subwords.
+- Individual inference chunks are capped at 256 encoder subwords. Longer
+  unpunctuated spans are split at token boundaries without dropping text;
+  dependency edges cannot cross a defensive chunk boundary.
 - INT8 changes a small number of token-level parses even though the controlled
   downstream lint behavior is unchanged.
 - Natural-document, code-comment, and Markdown-specific holdouts need to grow.

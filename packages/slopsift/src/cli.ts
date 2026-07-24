@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs';
-import { readFile } from 'node:fs/promises';
-import { relative, sep } from 'node:path';
+import { resolve } from 'node:path';
 import { createSlopSift, type MinimumLevel } from './index.js';
 import { findFiles } from './files.js';
-import { github, jsonResult, makeResult, stylish, type Result } from './format.js';
+import { github, jsonResult, stylish } from './format.js';
+import { lintFiles } from './run-files.js';
 
 const VERSION = (JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version;
 const HELP = `slopsift — lint prose and code comments for AI slop
@@ -89,25 +89,16 @@ async function run(): Promise<void> {
       onProgress: (message) => { if (options.format === 'stylish') console.error(message); },
     });
     const level: MinimumLevel = options.quiet ? 'error' : options.level;
-    const results: Result[] = [];
-    for (const file of files) {
-      const source = await readFile(file, 'utf8');
-      const report = await slopsift.lintSource(file, source, { level });
-      if (!report) continue;
-      const local = relative(process.cwd(), file);
-      const label = local === '..' || local.startsWith(`..${sep}`)
-        ? file
-        : (local || file);
-      const result = makeResult(label, source, report.lints, report.wordCount);
-      results.push(result);
-    }
+    const explicitlySelectedFiles = new Set(options.patterns.map((pattern) => resolve(pattern)));
+    const { results, runtimeFailures } = await lintFiles(slopsift, files, { level, explicitlySelectedFiles });
     if (options.format === 'json') console.log(JSON.stringify(results.map(jsonResult), null, 2));
     else if (options.format === 'json-lines') for (const result of results) console.log(JSON.stringify(jsonResult(result)));
     else if (options.format === 'github') { const output = github(results); if (output) console.log(output); }
     else { const output = stylish(results); if (output) console.log(output); }
     const warnings = results.reduce((sum, result) => sum + result.warningCount, 0);
     const errors = results.reduce((sum, result) => sum + result.errorCount, 0);
-    if (!options.exitZero && (errors || (options.maxWarnings >= 0 && warnings > options.maxWarnings))) process.exitCode = 1;
+    if (runtimeFailures) process.exitCode = 2;
+    else if (!options.exitZero && (errors || (options.maxWarnings >= 0 && warnings > options.maxWarnings))) process.exitCode = 1;
   } catch (error) {
     console.error(`slopsift: ${(error as Error).message}`);
     process.exitCode = 2;

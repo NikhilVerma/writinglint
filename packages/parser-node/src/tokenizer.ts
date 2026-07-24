@@ -33,6 +33,10 @@ export function splitSentences(text: string): Array<{ text: string; start: numbe
   };
   for (let index = 0; index < text.length; index++) {
     const character = text[index]!;
+    if (character === '\u2029') {
+      push(index + 1);
+      continue;
+    }
     if (character === '\n') {
       if (text[index + 1] === '\n') push(index + 1);
       continue;
@@ -118,4 +122,48 @@ export function encodeWordPieces(words: readonly WordToken[], vocab: Readonly<Re
   }
   inputIds.push(vocabId(vocab, '[SEP]') ?? 102);
   return { inputIds, wordStarts };
+}
+
+/**
+ * Split a tokenizer sentence into model-sized spans without dropping text.
+ * Dependency edges cannot cross a chunk boundary, but every source token keeps
+ * its original document-global offset and remains available to lint rules.
+ */
+export function chunkForEncoder(
+  sentence: SentenceTokens,
+  vocab: Readonly<Record<string, number>>,
+  maximumSubwords = 256,
+): SentenceTokens[] {
+  if (maximumSubwords < 3) throw new Error('maximumSubwords must leave room for [CLS], a token, and [SEP]');
+  if (encodeWordPieces(sentence.words, vocab).inputIds.length <= maximumSubwords) return [sentence];
+
+  const maximumContentPieces = maximumSubwords - 2;
+  const chunks: WordToken[][] = [];
+  let words: WordToken[] = [];
+  let pieces = 0;
+
+  const push = () => {
+    if (words.length) chunks.push(words);
+    words = [];
+    pieces = 0;
+  };
+
+  for (const word of sentence.words) {
+    const wordPieces = encodeWordPieces([word], vocab).inputIds.length - 2;
+    if (words.length && pieces + wordPieces > maximumContentPieces) push();
+    words.push(word);
+    pieces += wordPieces;
+  }
+  push();
+
+  return chunks.map((chunkWords) => {
+    const start = chunkWords[0]!.start;
+    const end = chunkWords.at(-1)!.end;
+    return {
+      text: sentence.text.slice(start - sentence.start, end - sentence.start),
+      start,
+      end,
+      words: chunkWords,
+    };
+  });
 }

@@ -21,6 +21,9 @@ const parser = await loadParser({
 The runtime performs owned sentence/word segmentation, BERT WordPiece encoding,
 the main ONNX graph, deterministic valid-tree decoding, and selected-head
 relation scoring. Token offsets are document-global UTF-16 indices.
+Individual model calls remain bounded to 256 encoder subwords. Longer
+unpunctuated spans are split at token boundaries without dropping text; graph
+edges do not cross those defensive chunk boundaries.
 
 ## Stanza oracle
 

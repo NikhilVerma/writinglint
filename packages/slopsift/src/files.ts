@@ -17,12 +17,20 @@ function ignored(file: string, cwd: string, matcher: ReturnType<typeof ignore>):
 export async function findFiles(patterns: string[], options: FileOptions = {}): Promise<string[]> {
   const cwd = resolve(options.cwd ?? process.cwd());
   const extensions = new Set((options.extensions ?? DEFAULT_EXTENSIONS).map((ext) => ext.startsWith('.') ? ext.toLowerCase() : `.${ext.toLowerCase()}`));
+  const explicitFiles: string[] = [];
   const expanded = patterns.flatMap((pattern) => {
     const absolute = resolve(cwd, pattern);
-    if (existsSync(absolute) && statSync(absolute).isDirectory()) return [`${slash(relative(cwd, absolute)) || '.'}/**/*`];
+    if (existsSync(absolute)) {
+      if (statSync(absolute).isDirectory()) return [`${slash(relative(cwd, absolute)) || '.'}/**/*`];
+      explicitFiles.push(absolute);
+      return [];
+    }
     return [pattern];
   });
-  const found = await glob(expanded, { cwd, absolute: true, onlyFiles: true, dot: false, followSymbolicLinks: false });
+  const matched = expanded.length
+    ? await glob(expanded, { cwd, absolute: true, onlyFiles: true, dot: false, followSymbolicLinks: false })
+    : [];
+  const found = [...explicitFiles, ...matched];
   const matcher = ignore().add(['node_modules/', '.git/', 'dist/', 'build/', 'coverage/']);
   if (!options.noIgnore && existsSync(resolve(cwd, '.gitignore'))) matcher.add(readFileSync(resolve(cwd, '.gitignore'), 'utf8'));
   matcher.add(options.ignorePatterns ?? []);

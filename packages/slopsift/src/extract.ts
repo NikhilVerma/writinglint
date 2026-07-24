@@ -28,7 +28,7 @@ export const DEFAULT_EXTENSIONS = [...PROSE, ...HASH, ...DASH, ...HTML, ...MARKU
 
 export function inputKind(path: string): InputKind | undefined {
   const ext = extname(path).toLowerCase();
-  if (PROSE.has(ext) || HTML.has(ext)) return 'prose';
+  if (PROSE.has(ext) || HTML.has(ext) || ext === '.astro') return 'prose';
   if (HASH.has(ext) || DASH.has(ext) || MARKUP_SOURCE.has(ext) || C_STYLE.has(ext)) return 'comments';
   return undefined;
 }
@@ -186,6 +186,35 @@ function maskRange(output: string[], source: string, start: number, end: number)
   }
 }
 
+const TABLE_DELIMITER = /^\s*\|?(?:\s*:?-{3,}:?\s*\|)+\s*:?-{3,}:?\s*\|?\s*$/;
+
+/**
+ * Mark Markdown table cells and rows as parser boundaries. U+2029 is one UTF-16
+ * unit, like the pipe/newline it replaces, so source offsets remain exact.
+ */
+function separateMarkdownTables(output: string[], source: string): void {
+  const lines = [...source.matchAll(/.*(?:\r?\n|$)/g)].filter((match) => match[0].length > 0);
+  for (let delimiter = 1; delimiter < lines.length; delimiter++) {
+    const delimiterLine = lines[delimiter]!;
+    const previousLine = lines[delimiter - 1]!;
+    if (!TABLE_DELIMITER.test(delimiterLine[0].trimEnd()) || !previousLine[0].includes('|')) continue;
+
+    let end = delimiter + 1;
+    while (end < lines.length && lines[end]![0].trim() && lines[end]![0].includes('|')) end++;
+    for (let row = delimiter - 1; row < end; row++) {
+      const match = lines[row]!;
+      const start = match.index;
+      if (row === delimiter) {
+        maskRange(output, source, start, start + match[0].length);
+        continue;
+      }
+      for (let index = start; index < start + match[0].length; index++) {
+        if (source[index] === '|' || source[index] === '\n') output[index] = '\u2029';
+      }
+    }
+  }
+}
+
 /** Remove Markdown syntax regions that are not authorial prose, preserving offsets. */
 function extractMarkdown(source: string): string {
   const output = [...source];
@@ -215,6 +244,7 @@ function extractMarkdown(source: string): string {
     }
     if (/^(?: {4}|\t)/.test(line)) maskRange(output, source, start, start + line.length);
   }
+  separateMarkdownTables(output, source);
 
   const visible = output.join('');
   // Attributed inline quotations followed by a footnote belong to the cited
@@ -237,9 +267,184 @@ function extractMarkdown(source: string): string {
   return output.join('');
 }
 
+function maskAstroSource(source: string): string {
+  const output = [...source];
+  const frontmatter = source.match(/^---\r?\n[\s\S]*?\r?\n---(?=\r?\n|$)/)?.[0];
+  if (frontmatter) maskRange(output, source, 0, frontmatter.length);
+
+  // Frontmatter has already been blanked. Starting after it also prevents
+  // braces and apostrophes in TypeScript comments/strings from being mistaken
+  // for Astro template expressions.
+  let index = frontmatter?.length ?? 0;
+  while (index < source.length) {
+    if (source[index] !== '{') { index++; continue; }
+    const start = index;
+    let depth = 1;
+    let quote = '';
+    index++;
+    while (index < source.length && depth > 0) {
+      const char = source[index]!;
+      if (quote) {
+        if (char === '\\') index += 2;
+        else {
+          if (char === quote) quote = '';
+          index++;
+        }
+        continue;
+      }
+      if (char === '"' || char === "'" || char === '`') quote = char;
+      else if (char === '{') depth++;
+      else if (char === '}') depth--;
+      index++;
+    }
+    maskRange(output, source, start, index);
+  }
+  return output.join('');
+}
+
+function sourceFragment(source: string, start: number, end: number): ExtractedInput {
+  return {
+    text: source.slice(start, end),
+    sourceRange(localStart, localEnd) {
+      return [start + localStart, start + localEnd];
+    },
+  };
+}
+
+function combineExtracted(parts: ExtractedInput[]): ExtractedInput {
+  let text = '';
+  const starts: number[] = [];
+  const ends: number[] = [];
+  for (const part of parts) {
+    if (!part.text.trim()) continue;
+    if (text) {
+      const anchor = starts.at(-1) ?? 0;
+      text += '\n\n';
+      starts.push(anchor, anchor);
+      ends.push(anchor, anchor);
+    }
+    for (let index = 0; index < part.text.length; index++) {
+      const [start, end] = part.sourceRange(index, index + 1);
+      text += part.text[index]!;
+      starts.push(start);
+      ends.push(end);
+    }
+  }
+  return {
+    text,
+    sourceRange(start, end) {
+      if (starts.length === 0) return [0, 0];
+      const first = Math.max(0, Math.min(start, starts.length - 1));
+      const last = Math.max(first, Math.min(Math.max(start, end - 1), ends.length - 1));
+      return [starts[first]!, ends[last]!];
+    },
+  };
+}
+
+function astroMetadata(source: string, masked: string, rendered: string): ExtractedInput[] {
+  const ranges: Array<[number, number]> = [];
+  const addValue = (match: RegExpMatchArray, value: string) => {
+    if (!value.trim() || rendered.includes(value)) return;
+    const local = match[0].lastIndexOf(value);
+    if (local >= 0) ranges.push([match.index! + local, match.index! + local + value.length]);
+  };
+
+  for (const match of masked.matchAll(/\b(?:title|description|aria-label|placeholder|alt)\s*=\s*(["'])(.*?)\1/gis)) {
+    addValue(match, match[2]!);
+  }
+  for (const tag of masked.matchAll(/<meta\b[^>]*>/gis)) {
+    if (!/\b(?:name|property)\s*=\s*(["'])(?:description|og:description|twitter:description)\1/i.test(tag[0])) continue;
+    const content = tag[0].match(/\bcontent\s*=\s*(["'])(.*?)\1/is);
+    if (!content?.[2]) continue;
+    const local = tag[0].indexOf(content[0]) + content[0].lastIndexOf(content[2]);
+    const start = tag.index! + local;
+    if (!rendered.includes(content[2])) ranges.push([start, start + content[2].length]);
+  }
+  for (const match of masked.matchAll(/<title\b[^>]*>([^<{]+)<\/title>/gis)) addValue(match, match[1]!);
+
+  const unique = [...new Map(ranges.map((range) => [`${range[0]}:${range[1]}`, range])).values()]
+    .sort((left, right) => left[0] - right[0]);
+  return unique.map(([start, end]) => sourceFragment(source, start, end));
+}
+
+function extractAstro(source: string): ExtractedInput {
+  const masked = maskAstroSource(source);
+  const body = extractHtml(masked);
+  return combineExtracted([body, ...astroMetadata(source, masked, body.text)]);
+}
+
+interface TemplateLiteral {
+  contentStart: number;
+  contentEnd: number;
+  end: number;
+  expressions: Array<[number, number]>;
+}
+
+function scanTemplateLiteral(source: string, start: number): TemplateLiteral {
+  const expressions: Array<[number, number]> = [];
+  let index = start + 1;
+  while (index < source.length) {
+    if (source[index] === '\\') { index += 2; continue; }
+    if (source[index] === '`') return { contentStart: start + 1, contentEnd: index, end: index + 1, expressions };
+    if (source.startsWith('${', index)) {
+      const expressionStart = index;
+      let depth = 1;
+      let quote = '';
+      index += 2;
+      while (index < source.length && depth > 0) {
+        const char = source[index]!;
+        if (quote) {
+          if (char === '\\') index += 2;
+          else {
+            if (char === quote) quote = '';
+            index++;
+          }
+          continue;
+        }
+        if (char === '"' || char === "'" || char === '`') quote = char;
+        else if (char === '{') depth++;
+        else if (char === '}') depth--;
+        index++;
+      }
+      expressions.push([expressionStart, index]);
+      continue;
+    }
+    index++;
+  }
+  return { contentStart: start + 1, contentEnd: source.length, end: source.length, expressions };
+}
+
+function scanCStyle(source: string, output: string[]): void {
+  scanDelimited(source, output, ['//'], [['/*', '*/']]);
+  let index = 0;
+  while (index < source.length) {
+    const character = source[index]!;
+    if (character === '"' || character === "'") {
+      const quote = character;
+      index++;
+      while (index < source.length) {
+        if (source[index] === '\\') index += 2;
+        else if (source[index] === quote) { index++; break; }
+        else index++;
+      }
+      continue;
+    }
+    if (character !== '`') { index++; continue; }
+    const template = scanTemplateLiteral(source, index);
+    const content = source.slice(template.contentStart, template.contentEnd);
+    const words = content.match(/[\p{L}\p{N}]+/gu)?.length ?? 0;
+    if (content.includes('\n') && words >= 5) {
+      copyRange(output, source, template.contentStart, template.contentEnd);
+      for (const [start, end] of template.expressions) maskRange(output, source, start, end);
+    }
+    index = template.end;
+  }
+}
+
 export function extractInput(path: string, source: string): ExtractedInput {
   const ext = extname(path).toLowerCase();
   if (HTML.has(ext)) return extractHtml(source);
+  if (ext === '.astro') return extractAstro(source);
   const text = extractLintText(path, source);
   return { text, sourceRange: (start, end) => [start, end] };
 }
@@ -250,10 +455,11 @@ export function extractLintText(path: string, source: string): string {
   if (ext === '.md' || ext === '.mdx' || ext === '.markdown') return extractMarkdown(source);
   if (PROSE.has(ext)) return source;
   if (HTML.has(ext)) return extractHtml(source).text;
+  if (ext === '.astro') return extractAstro(source).text;
   const output = blank(source);
   if (HASH.has(ext)) scanDelimited(source, output, ['#'], []);
   else if (DASH.has(ext)) scanDelimited(source, output, ['--'], [['/*', '*/']]);
   else if (MARKUP_SOURCE.has(ext)) scanDelimited(source, output, [], [['<!--', '-->']]);
-  else scanDelimited(source, output, ['//'], [['/*', '*/']]);
+  else scanCStyle(source, output);
   return output.join('');
 }

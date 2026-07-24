@@ -87,9 +87,12 @@ general WritingLint CLI.
 - Markdown, MDX, reStructuredText, AsciiDoc, and plain text are linted as prose.
 - HTML is linted as rendered text; metadata, scripts, styles, templates, SVG,
   code blocks, and comments are excluded.
-- JavaScript, TypeScript, Python, Ruby, shell, YAML, TOML, SQL, Rust, Go, Java,
-  C/C++, C#, Swift, Kotlin, PHP, CSS, Vue, Svelte, Astro, and other supported
-  source formats are linted through their comments.
+- Astro includes visible page text and static page metadata while excluding
+  frontmatter and template expressions.
+- JavaScript and TypeScript include comments and substantial multiline prose
+  templates. Python, Ruby, shell, YAML, TOML, SQL, Rust, Go, Java, C/C++, C#,
+  Swift, Kotlin, PHP, CSS, Vue, Svelte, and other supported source formats are
+  linted through their comments.
 - Dependencies, generated output, Git metadata, and paths matched by
   `.gitignore` are skipped by default.
 

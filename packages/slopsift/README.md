@@ -53,6 +53,11 @@ Use `--exit-zero` for report-only pipelines: lint findings remain visible but do
 not fail the command. Configuration and runtime failures still exit `2`.
 Unmatched patterns fail with `2` by default so a typo cannot silently pass CI;
 `--no-error-on-unmatched-pattern` makes deliberately optional globs exit `0`.
+Per-file runtime failures are included in structured output as
+`slopsift/runtime-error`; SlopSift continues with the remaining files before it
+exits `2`. An explicitly named supported file with no extractable prose receives
+an informational `slopsift/no-extractable-prose` diagnostic instead of a silent
+zero-word clean result.
 
 SlopSift is not limited to isolated sentences. The parser-backed document model
 preserves paragraphs, document-level rules measure repetition and structure,
@@ -60,12 +65,16 @@ and independent low-confidence signals can combine into a paragraph-level
 warning or error. A single passive or absolute stays informational; a dense
 cluster of different tells can become strong evidence of sloppy prose.
 
-Markdown and text files are linted as prose. HTML files are linted as rendered
-text, excluding metadata, scripts, styles, templates, SVG, and code blocks. In
-source files, SlopSift extracts line and block comments and reports findings at
-their original file locations. Technical comments use a narrower profile that
-does not flag diagram symbols as emoji or demand actors for implementation
-passives.
+Markdown and text files are linted as prose. Markdown table cells and rows are
+kept as separate parse spans, and any remaining overlength span is chunked
+without dropping text. HTML files are linted as rendered text, excluding
+metadata, scripts, styles, templates, SVG, and code blocks. Astro files include
+visible page copy plus static titles, descriptions, and accessibility labels
+while excluding frontmatter and template expressions. JavaScript and TypeScript
+include line and block comments plus substantial multiline prose templates,
+such as text routes. Other source files extract comments and report findings at
+their original locations. Technical comments use a narrower profile that does
+not flag diagram symbols as emoji or demand actors for implementation passives.
 Generated directories, dependencies, `.git`, and paths in `.gitignore` are
 ignored by default.
 

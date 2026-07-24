@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { splitSentences } from 'writinglint-parser-node/tokenizer';
 import { extractInput, extractLintText, inputKind } from '../src/extract.js';
 import { makeResult } from '../src/format.js';
 
@@ -81,4 +82,72 @@ test('Markdown extraction excludes metadata, code, and image alt text while reta
   assert.equal(extracted.includes('arrows'), false);
   assert.equal(extracted.includes('revolutionary harness diagram'), false);
   assert.equal(extracted.includes('https://'), false);
+});
+
+test('Markdown table cells and rows become parser boundaries', () => {
+  const source = `| Rule | Description |
+| --- | --- |
+| first | A short explanation without sentence punctuation |
+| second | Another short explanation without sentence punctuation |`;
+  const extracted = extractLintText('README.md', source);
+  const sentences = splitSentences(extracted).map((sentence) => sentence.text.trim()).filter(Boolean);
+  assert.deepEqual(sentences, [
+    'Rule',
+    'Description',
+    'first',
+    'A short explanation without sentence punctuation',
+    'second',
+    'Another short explanation without sentence punctuation',
+  ]);
+});
+
+test('Astro extraction keeps visible page copy and excludes frontmatter code', () => {
+  const source = `---
+const secretImplementation = "Delve into revolutionary internals.";
+const hiddenHelper = () => {
+  // It's implementation code, not page copy.
+  return { secretImplementation };
+};
+---
+<main>
+  <h1>Durable software for careful teams</h1>
+  <p>Ultimately, this visible paragraph makes a sweeping promise.</p>
+  <button>Read the field notes</button>
+</main>`;
+  const extracted = extractLintText('index.astro', source);
+  assert.equal(extracted.includes('Durable software for careful teams'), true);
+  assert.equal(extracted.includes('Ultimately, this visible paragraph makes a sweeping promise.'), true);
+  assert.equal(extracted.includes('Read the field notes'), true);
+  assert.equal(extracted.includes('secretImplementation'), false);
+  assert.equal(extracted.includes('revolutionary internals'), false);
+});
+
+test('Astro extraction includes static page titles and descriptions', () => {
+  const source = `<Layout
+  title="The durable systems field guide"
+  description="A practical guide to keeping important software understandable."
+>
+  <meta name="description" content="Notes on maintaining systems that have to last." />
+  <title>Durable systems without the ceremony</title>
+  <p>Visible body copy.</p>
+</Layout>`;
+  const extracted = extractLintText('guide.astro', source);
+  assert.equal(extracted.includes('The durable systems field guide'), true);
+  assert.equal(extracted.includes('A practical guide to keeping important software understandable.'), true);
+  assert.equal(extracted.includes('Notes on maintaining systems that have to last.'), true);
+  assert.equal(extracted.includes('Durable systems without the ceremony'), true);
+});
+
+test('TypeScript extraction keeps substantial multiline template prose', () => {
+  const source = `export function GET() {
+  return new Response(\`# Product guide
+
+Ultimately, this platform unlocks a revolutionary new era for every team.
+
+The guide is returned as plain text for local tools.\`);
+}`;
+  const extracted = extractLintText('llms.txt.ts', source);
+  assert.equal(extracted.includes('# Product guide'), true);
+  assert.equal(extracted.includes('Ultimately, this platform unlocks a revolutionary new era'), true);
+  assert.equal(extracted.includes('return new Response'), false);
 });
