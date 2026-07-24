@@ -1,5 +1,20 @@
 # slopsift
 
+## 0.1.6
+
+### Patch Changes
+
+- 99fd3cf: Prevent overlength prose blocks and Markdown tables from aborting a lint run by
+  adding table boundaries, defensive parser chunking, and structured per-file
+  runtime diagnostics.
+
+  Extract visible Astro copy and static page metadata, lint substantial multiline
+  prose templates in JavaScript and TypeScript, and report explicitly selected
+  files that contain no extractable prose.
+
+- Updated dependencies [99fd3cf]
+  - writinglint-parser-node@0.1.6
+
 ## 0.1.5
 
 ### Patch Changes
