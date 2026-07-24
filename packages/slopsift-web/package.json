@@ -37,7 +37,7 @@
     "writinglint-rulepack-ai-style": "*"
   },
   "devDependencies": {
-    "esbuild": "^0.24.2",
-    "wrangler": "^4.0.0"
+    "esbuild": "^0.28.1",
+    "wrangler": "^4.114.0"
   }
 }
