@@ -6,7 +6,7 @@ on:
     paths:
       - "packages/*/package.json"
       - ".github/workflows/publish.yml"
-      - "scripts/find-unpublished-packages.mjs"
+      - "scripts/detect-package-release.mjs"
   workflow_dispatch:
 
 permissions:
@@ -32,9 +32,12 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
-      - name: Detect unpublished public package versions
+      - name: Detect public package version changes
         id: release
-        run: node scripts/find-unpublished-packages.mjs
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+        run: node scripts/detect-package-release.mjs
       - name: Use an OIDC-compatible npm version
         if: steps.release.outputs.needed == 'true'
         run: npm install --global npm@11.6.1
