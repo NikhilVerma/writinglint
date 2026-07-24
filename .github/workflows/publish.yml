@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "packages/*/package.json"
+      - ".github/workflows/publish.yml"
+      - "scripts/find-unpublished-packages.mjs"
   workflow_dispatch:
 
 permissions:
@@ -30,22 +32,33 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
+      - name: Detect unpublished public package versions
+        id: release
+        run: node scripts/find-unpublished-packages.mjs
       - name: Use an OIDC-compatible npm version
+        if: steps.release.outputs.needed == 'true'
         run: npm install --global npm@11.6.1
-      - run: npm ci
+      - if: steps.release.outputs.needed == 'true'
+        run: npm ci
       - name: Verify packed packages in an isolated consumer project
+        if: steps.release.outputs.needed == 'true'
         run: npm run smoke:packed
       - name: Verify and publish unpublished versions
+        if: steps.release.outputs.needed == 'true'
         run: npm run release
       - name: Install and run the published SlopSift package
+        if: steps.release.outputs.needed == 'true'
         run: npm run smoke:published
       - name: Ensure verified package tags exist
+        if: steps.release.outputs.needed == 'true'
         run: node scripts/ensure-release-tags.mjs
       - name: Push verified package tags
+        if: steps.release.outputs.needed == 'true'
         # The packed and public-registry gates have already passed. Avoid
         # rerunning the local pre-push package build for this tag-only push.
         env:
           HUSKY: 0
         run: git push origin --tags
       - name: Verify release tags reached GitHub
+        if: steps.release.outputs.needed == 'true'
         run: node scripts/ensure-release-tags.mjs --verify-remote

@@ -13,7 +13,7 @@ for (const directory of await readdir(packagesDirectory)) {
   try {
     manifest = JSON.parse(await readFile(join(packagesDirectory, directory, 'package.json'), 'utf8'));
   } catch (error) {
-    if (error?.code === 'ENOENT') continue;
+    if (error?.code === 'ENOENT' || error?.code === 'ENOTDIR') continue;
     throw error;
   }
   if (manifest.private === true || !manifest.name || !manifest.version) continue;
