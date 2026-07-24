@@ -42,12 +42,20 @@ function runNpm(args, options = {}) {
 }
 
 async function waitUntilPublished(name, version) {
-  for (let attempt = 1; attempt <= 20; attempt++) {
+  const attempts = 60;
+  let lastLookup = '';
+  for (let attempt = 1; attempt <= attempts; attempt++) {
     const lookup = runNpm(['view', `${name}@${version}`, 'version', '--json'], { timeout: 15_000 });
     if (lookup.status === 0 && JSON.parse(lookup.stdout) === version) return;
-    await new Promise((resolveDelay) => setTimeout(resolveDelay, 3_000));
+    lastLookup = (lookup.stderr || lookup.stdout || `exit ${lookup.status}`).trim();
+    if (attempt % 10 === 0) {
+      console.log(`Waiting for ${name}@${version} on npm (${attempt}/${attempts})…`);
+    }
+    if (attempt < attempts) {
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, 3_000));
+    }
   }
-  throw new Error(`${name}@${version} did not become visible on npm`);
+  throw new Error(`${name}@${version} did not become visible on npm; last lookup: ${lastLookup}`);
 }
 
 try {
