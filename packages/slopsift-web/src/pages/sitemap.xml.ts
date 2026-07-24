@@ -1,6 +1,15 @@
 import type { APIRoute } from 'astro';
+import catalog from '../generated/rules.json';
 
-const paths = ['/', '/editor/', '/docs/', '/privacy/'];
+const paths = [
+  '/',
+  '/editor/',
+  '/docs/',
+  '/docs/github-actions/',
+  '/rules/',
+  '/privacy/',
+  ...catalog.rules.map((rule) => `/rules/${rule.name}/`),
+];
 
 export const GET: APIRoute = ({ site }) => new Response(
   [

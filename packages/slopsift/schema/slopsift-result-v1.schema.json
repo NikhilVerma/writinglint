@@ -1,0 +1,169 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://slopsift.dev/schemas/slopsift-result-v1.schema.json",
+  "title": "SlopSift JSON output",
+  "description": "Version 1 schema for the array emitted by slopsift --format json. Each JSON Lines record follows $defs.fileResult.",
+  "type": "array",
+  "items": {
+    "$ref": "#/$defs/fileResult"
+  },
+  "$defs": {
+    "fileResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "filePath",
+        "messages",
+        "errorCount",
+        "warningCount",
+        "infoCount",
+        "wordCount",
+        "findingsPerThousandWords"
+      ],
+      "properties": {
+        "filePath": {
+          "type": "string"
+        },
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/message"
+          }
+        },
+        "errorCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warningCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "infoCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "wordCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "findingsPerThousandWords": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    },
+    "message": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ruleId",
+        "ruleUrl",
+        "category",
+        "severity",
+        "level",
+        "confidence",
+        "start",
+        "end",
+        "text",
+        "message",
+        "line",
+        "column",
+        "endLine",
+        "endColumn"
+      ],
+      "properties": {
+        "ruleId": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+/[a-z0-9-]+$"
+        },
+        "ruleUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "category": {
+          "type": "string"
+        },
+        "severity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "level": {
+          "enum": [
+            "info",
+            "warn",
+            "error"
+          ]
+        },
+        "confidence": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "start": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "end": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "text": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "column": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "endLine": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "endColumn": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "suggestion": {
+          "type": "string"
+        },
+        "fix": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "range",
+            "text"
+          ],
+          "properties": {
+            "range": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "text": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -37,3 +37,9 @@ test('exit-zero neutralizes lint findings but not runtime failures', () => {
   const runtimeFailure = run(missing, '--exit-zero');
   assert.equal(runtimeFailure.status, 2);
 });
+
+test('GitHub format emits native annotations for CI', () => {
+  const result = run(sloppy, '--level', 'error', '--format', 'github');
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stdout, /::error file=.*high-confidence\.md,line=\d+,col=\d+,endLine=\d+,endColumn=\d+,title=ai-style\//);
+});

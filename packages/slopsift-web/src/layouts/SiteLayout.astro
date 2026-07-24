@@ -11,7 +11,7 @@ interface Props {
 }
 
 const {
-  title = 'SlopSift — An NLP linter for AI writing tells',
+  title = 'SlopSift | An NLP linter for AI writing tells',
   description = 'Catch AI writing tells with a custom-trained NLP parser, not a word list. SlopSift runs locally in your browser, CLI, or VS Code, with exact, explainable findings.',
   image = '/og/slopsift-social-v1.png',
   imageAlt = 'SlopSift live editor marking AI writing tells with exact, explainable findings.',
@@ -21,6 +21,16 @@ const {
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const socialImage = new URL(image, Astro.site);
 const siteUrl = new URL('/', Astro.site);
+const markdownPath = (() => {
+  const path = Astro.url.pathname;
+  if (path === '/') return '/markdown/index.md';
+  if (path === '/docs/') return '/markdown/docs.md';
+  if (path === '/docs/github-actions/') return '/markdown/github-actions.md';
+  if (path === '/privacy/') return '/markdown/privacy.md';
+  if (path === '/rules/') return '/markdown/rules.md';
+  const rule = path.match(/^\/rules\/([a-z0-9-]+)\/$/)?.[1];
+  return rule ? `/markdown/rules/${rule}.md` : undefined;
+})();
 const extraStructuredData = Array.isArray(structuredData) ? structuredData : [structuredData];
 const schema = {
   '@context': 'https://schema.org',
@@ -95,6 +105,7 @@ const schema = {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
     <link rel="manifest" href="/site.webmanifest" />
     {!noindex && <link rel="canonical" href={canonical} />}
+    {markdownPath && <link rel="alternate" type="text/markdown" href={new URL(markdownPath, Astro.site)} />}
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
     <title>{title}</title>
   </head>

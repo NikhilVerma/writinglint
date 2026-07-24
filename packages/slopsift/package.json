@@ -31,7 +31,9 @@
       "source": "./src/extract.ts",
       "types": "./dist/extract.d.ts",
       "default": "./dist/extract.js"
-    }
+    },
+    "./rules": "./rules/index.json",
+    "./schema/result-v1.json": "./schema/slopsift-result-v1.schema.json"
   },
   "bin": {
     "slopsift": "dist/cli.js"
@@ -39,6 +41,8 @@
   "files": [
     "dist",
     "src",
+    "rules",
+    "schema",
     "LICENSE",
     "README.md",
     "CHANGELOG.md",

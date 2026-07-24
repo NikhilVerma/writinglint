@@ -1,0 +1,71 @@
+---
+import SiteFooter from '../../components/SiteFooter.astro';
+import catalog from '../../generated/rules.json';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+export function getStaticPaths() {
+  return catalog.rules.map((rule) => ({
+    params: { name: rule.name },
+    props: { rule },
+  }));
+}
+
+type RuleEntry = typeof catalog.rules[number];
+const { rule } = Astro.props as { rule: RuleEntry };
+const level = rule.defaultLevel === 'warn' ? 'warning' : rule.defaultLevel;
+const termSchema = {
+  '@type': 'DefinedTerm',
+  '@id': `${rule.url}#rule`,
+  name: rule.id,
+  description: rule.description,
+  url: rule.url,
+  termCode: rule.id,
+  inDefinedTermSet: 'https://slopsift.dev/rules/',
+};
+---
+
+<SiteLayout
+  title={`${rule.title} rule | SlopSift`}
+  description={`${rule.description} See its default ${level} level, ${rule.methodLabel.toLowerCase()} evidence source, source code, and feedback link.`}
+  structuredData={termSchema}
+>
+  <header class="site-header">
+    <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
+    <nav aria-label="Rule navigation"><a href="/rules/">All rules</a><a href="/docs/">Docs</a><a href="/editor/">Editor</a><a class="nav-install" href="/#install">Install</a></nav>
+  </header>
+
+  <main class="rule-detail">
+    <a class="rule-detail__back" href="/rules/">All SlopSift rules</a>
+    <header>
+      <div class="rule-detail__identity">
+        <p>{rule.id}</p>
+        <h1>{rule.title}</h1>
+      </div>
+      <p class="rule-detail__summary">{rule.description}</p>
+    </header>
+
+    <section class="rule-detail__facts" aria-label="Rule facts">
+      <article><span>Default level</span><strong class={`rule-level rule-level--${rule.defaultLevel}`}>{level}</strong></article>
+      <article><span>Confidence</span><strong>{rule.confidence}</strong></article>
+      <article><span>Evidence</span><strong>{rule.methodLabel}</strong></article>
+      <article><span>Category</span><strong>{rule.category.label}</strong></article>
+    </section>
+
+    <section class="rule-detail__explanation">
+      <h2>What this rule reads</h2>
+      <p>{rule.methodDescription}</p>
+      <p>SlopSift reports the exact matching range. The finding is an editing prompt, not proof of who wrote the sentence.</p>
+    </section>
+
+    <section class="rule-detail__actions">
+      <h2>Inspect or challenge it</h2>
+      <div>
+        <a href={rule.sourceUrl}>Read the TypeScript source</a>
+        <a href={rule.reportUrl}>Report a false positive or missed finding</a>
+        <a href="/rules/index.json">Use the machine-readable catalogue</a>
+      </div>
+    </section>
+  </main>
+
+  <SiteFooter />
+</SiteLayout>

@@ -1,0 +1,791 @@
+{
+  "schemaVersion": "1.0.0",
+  "packageVersion": "0.1.4",
+  "name": "SlopSift AI-style rule catalogue",
+  "url": "https://slopsift.dev/rules/",
+  "categories": [
+    {
+      "id": "evidence",
+      "label": "Combined evidence",
+      "description": "Several weak signals become persuasive when they cluster across a paragraph or document.",
+      "ruleCount": 1
+    },
+    {
+      "id": "significance",
+      "label": "Inflated significance",
+      "description": "Grand claims about importance, legacy, or “broader trends”.",
+      "ruleCount": 4
+    },
+    {
+      "id": "parallelism",
+      "label": "Negative parallelism",
+      "description": "“Not only… but also”, “It’s not X, it’s Y”, “X, not Y”.",
+      "ruleCount": 4
+    },
+    {
+      "id": "promo",
+      "label": "Promotional puffery",
+      "description": "Travel-brochure / press-release language and marketing verbs.",
+      "ruleCount": 1
+    },
+    {
+      "id": "vague",
+      "label": "Vague attribution",
+      "description": "Unnamed “experts”, “studies”, and “observers”.",
+      "ruleCount": 6
+    },
+    {
+      "id": "meta",
+      "label": "Chatbot voice",
+      "description": "Editorialising asides and reader-collaboration filler.",
+      "ruleCount": 7
+    },
+    {
+      "id": "ai-vocab",
+      "label": "AI vocabulary",
+      "description": "Words LLMs reach for far more often than people do.",
+      "ruleCount": 2
+    },
+    {
+      "id": "agency",
+      "label": "Hidden or false agency",
+      "description": "Passive actor hiding and abstractions made to act like people.",
+      "ruleCount": 2
+    },
+    {
+      "id": "balance",
+      "label": "Hedging seesaw",
+      "description": "Relentless “While X… However, Y”, a position never taken.",
+      "ruleCount": 1
+    },
+    {
+      "id": "rule-of-three",
+      "label": "Rule of three",
+      "description": "Reflexive triads of adjectives or phrases.",
+      "ruleCount": 1
+    },
+    {
+      "id": "conjunctions",
+      "label": "Formulaic transitions",
+      "description": "Sentence-opening “Moreover,”, “Furthermore,”, “In conclusion,”.",
+      "ruleCount": 2
+    },
+    {
+      "id": "formatting",
+      "label": "Formatting tells",
+      "description": "Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts.",
+      "ruleCount": 5
+    },
+    {
+      "id": "rhythm",
+      "label": "Uniform rhythm",
+      "description": "Sentence lengths and openings fall into a machine-like cadence.",
+      "ruleCount": 1
+    }
+  ],
+  "rules": [
+    {
+      "id": "ai-style/evidence-cluster",
+      "name": "evidence-cluster",
+      "title": "Evidence Cluster",
+      "description": "Several independent slop signals cluster in one paragraph or across the document.",
+      "category": {
+        "id": "evidence",
+        "label": "Combined evidence",
+        "description": "Several weak signals become persuasive when they cluster across a paragraph or document."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/evidence-cluster/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/evidence-cluster.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fevidence-cluster"
+    },
+    {
+      "id": "ai-style/copula-avoidance",
+      "name": "copula-avoidance",
+      "title": "Copula Avoidance",
+      "description": "“stands/serves as a …” dressing up a plain “is a …”.",
+      "category": {
+        "id": "significance",
+        "label": "Inflated significance",
+        "description": "Grand claims about importance, legacy, or “broader trends”."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/copula-avoidance/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/copula-avoidance.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fcopula-avoidance"
+    },
+    {
+      "id": "ai-style/light-verb-role",
+      "name": "light-verb-role",
+      "title": "Light Verb Role",
+      "description": "“plays a … role”, importance asserted, not shown.",
+      "category": {
+        "id": "significance",
+        "label": "Inflated significance",
+        "description": "Grand claims about importance, legacy, or “broader trends”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/light-verb-role/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/light-verb-role.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Flight-verb-role"
+    },
+    {
+      "id": "ai-style/participial-appendage",
+      "name": "participial-appendage",
+      "title": "Participial Appendage",
+      "description": "Trailing “-ing” clause that editorialises the main clause.",
+      "category": {
+        "id": "significance",
+        "label": "Inflated significance",
+        "description": "Grand claims about importance, legacy, or “broader trends”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/participial-appendage/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/participial-appendage.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fparticipial-appendage"
+    },
+    {
+      "id": "ai-style/significance-idioms",
+      "name": "significance-idioms",
+      "title": "Significance Idioms",
+      "description": "Fixed “inflated significance” idioms (rich tapestry, testament to …).",
+      "category": {
+        "id": "significance",
+        "label": "Inflated significance",
+        "description": "Grand claims about importance, legacy, or “broader trends”."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/significance-idioms/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/idioms.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fsignificance-idioms"
+    },
+    {
+      "id": "ai-style/corrective-antithesis",
+      "name": "corrective-antithesis",
+      "title": "Corrective Antithesis",
+      "description": "The “X, not Y” staged contrast, a modern-AI cadence that adds no information.",
+      "category": {
+        "id": "parallelism",
+        "label": "Negative parallelism",
+        "description": "“Not only… but also”, “It’s not X, it’s Y”, “X, not Y”."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/corrective-antithesis/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/corrective-antithesis.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fcorrective-antithesis"
+    },
+    {
+      "id": "ai-style/negative-contrast",
+      "name": "negative-contrast",
+      "title": "Negative Contrast",
+      "description": "A negative declaration followed by a dramatic positive redefinition.",
+      "category": {
+        "id": "parallelism",
+        "label": "Negative parallelism",
+        "description": "“Not only… but also”, “It’s not X, it’s Y”, “X, not Y”."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/negative-contrast/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/negative-contrast.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fnegative-contrast"
+    },
+    {
+      "id": "ai-style/negative-list-buildup",
+      "name": "negative-list-buildup",
+      "title": "Negative List Buildup",
+      "description": "Repeatedly lists what something is not before revealing the point.",
+      "category": {
+        "id": "parallelism",
+        "label": "Negative parallelism",
+        "description": "“Not only… but also”, “It’s not X, it’s Y”, “X, not Y”."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/negative-list-buildup/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/negative-list-buildup.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fnegative-list-buildup"
+    },
+    {
+      "id": "ai-style/negative-parallelism",
+      "name": "negative-parallelism",
+      "title": "Negative Parallelism",
+      "description": "“Not (only) X but (also) Y”, a signature LLM cadence.",
+      "category": {
+        "id": "parallelism",
+        "label": "Negative parallelism",
+        "description": "“Not only… but also”, “It’s not X, it’s Y”, “X, not Y”."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/negative-parallelism/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/negative-parallelism.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fnegative-parallelism"
+    },
+    {
+      "id": "ai-style/promo-idioms",
+      "name": "promo-idioms",
+      "title": "Promo Idioms",
+      "description": "Travel-brochure / press-release idioms (nestled in the heart of …).",
+      "category": {
+        "id": "promo",
+        "label": "Promotional puffery",
+        "description": "Travel-brochure / press-release language and marketing verbs."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/promo-idioms/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/idioms.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fpromo-idioms"
+    },
+    {
+      "id": "ai-style/absolute-claim",
+      "name": "absolute-claim",
+      "title": "Absolute Claim",
+      "description": "An absolute or universal claim that may exceed the evidence or omit its scope.",
+      "category": {
+        "id": "vague",
+        "label": "Vague attribution",
+        "description": "Unnamed “experts”, “studies”, and “observers”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/absolute-claim/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/absolute-claim.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fabsolute-claim"
+    },
+    {
+      "id": "ai-style/unsupported-certainty",
+      "name": "unsupported-certainty",
+      "title": "Unsupported Certainty",
+      "description": "Confidence language that asserts a conclusion without showing the evidence.",
+      "category": {
+        "id": "vague",
+        "label": "Vague attribution",
+        "description": "Unnamed “experts”, “studies”, and “observers”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/unsupported-certainty/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/unsupported-certainty.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Funsupported-certainty"
+    },
+    {
+      "id": "ai-style/unsupported-comparison",
+      "name": "unsupported-comparison",
+      "title": "Unsupported Comparison",
+      "description": "A comparative, superlative, or outcome claim without an explicit benchmark in the phrase.",
+      "category": {
+        "id": "vague",
+        "label": "Vague attribution",
+        "description": "Unnamed “experts”, “studies”, and “observers”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/unsupported-comparison/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/unsupported-comparison.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Funsupported-comparison"
+    },
+    {
+      "id": "ai-style/vague-attribution",
+      "name": "vague-attribution",
+      "title": "Vague Attribution",
+      "description": "A bare, generic subject asserting a “that …” clause. Name who, or cut it.",
+      "category": {
+        "id": "vague",
+        "label": "Vague attribution",
+        "description": "Unnamed “experts”, “studies”, and “observers”."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/vague-attribution/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/vague-attribution.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fvague-attribution"
+    },
+    {
+      "id": "ai-style/vague-declarative",
+      "name": "vague-declarative",
+      "title": "Vague Declarative",
+      "description": "An abstract announcement or vague “this approach…” claim that may need a concrete subject.",
+      "category": {
+        "id": "vague",
+        "label": "Vague attribution",
+        "description": "Unnamed “experts”, “studies”, and “observers”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/vague-declarative/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/vague-declarative.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fvague-declarative"
+    },
+    {
+      "id": "ai-style/vague-quantifier",
+      "name": "vague-quantifier",
+      "title": "Vague Quantifier",
+      "description": "A broad population claim without a named sample, source, or scope.",
+      "category": {
+        "id": "vague",
+        "label": "Vague attribution",
+        "description": "Unnamed “experts”, “studies”, and “observers”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/vague-quantifier/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/vague-quantifier.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fvague-quantifier"
+    },
+    {
+      "id": "ai-style/chatbot-idioms",
+      "name": "chatbot-idioms",
+      "title": "Chatbot Idioms",
+      "description": "Editorialising / chatbot filler idioms (it’s worth noting …).",
+      "category": {
+        "id": "meta",
+        "label": "Chatbot voice",
+        "description": "Editorialising asides and reader-collaboration filler."
+      },
+      "confidence": "high",
+      "defaultLevel": "error",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/chatbot-idioms/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/idioms.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fchatbot-idioms"
+    },
+    {
+      "id": "ai-style/dramatic-fragment",
+      "name": "dramatic-fragment",
+      "title": "Dramatic Fragment",
+      "description": "A short transition is isolated as a sentence to manufacture drama.",
+      "category": {
+        "id": "meta",
+        "label": "Chatbot voice",
+        "description": "Editorialising asides and reader-collaboration filler."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/dramatic-fragment/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/dramatic-fragment.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fdramatic-fragment"
+    },
+    {
+      "id": "ai-style/modal-redundancy",
+      "name": "modal-redundancy",
+      "title": "Modal Redundancy",
+      "description": "Repeats modality after two possibilities already establish the outcome.",
+      "category": {
+        "id": "meta",
+        "label": "Chatbot voice",
+        "description": "Editorialising asides and reader-collaboration filler."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/modal-redundancy/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/modal-redundancy.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fmodal-redundancy"
+    },
+    {
+      "id": "ai-style/outline-conclusion",
+      "name": "outline-conclusion",
+      "title": "Outline Conclusion",
+      "description": "A canned “challenges and future prospects” ending instead of a specific conclusion.",
+      "category": {
+        "id": "meta",
+        "label": "Chatbot voice",
+        "description": "Editorialising asides and reader-collaboration filler."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/outline-conclusion/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/outline-conclusion.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Foutline-conclusion"
+    },
+    {
+      "id": "ai-style/rhetorical-scaffolding",
+      "name": "rhetorical-scaffolding",
+      "title": "Rhetorical Scaffolding",
+      "description": "Announces, dramatizes, or reassures around a point instead of stating it.",
+      "category": {
+        "id": "meta",
+        "label": "Chatbot voice",
+        "description": "Editorialising asides and reader-collaboration filler."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/rhetorical-scaffolding/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/rhetorical-scaffolding.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Frhetorical-scaffolding"
+    },
+    {
+      "id": "ai-style/semantic-redundancy",
+      "name": "semantic-redundancy",
+      "title": "Semantic Redundancy",
+      "description": "A nearby paragraph repeats the same content words instead of advancing the argument.",
+      "category": {
+        "id": "meta",
+        "label": "Chatbot voice",
+        "description": "Editorialising asides and reader-collaboration filler."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/semantic-redundancy/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/semantic-redundancy.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fsemantic-redundancy"
+    },
+    {
+      "id": "ai-style/throat-clearing",
+      "name": "throat-clearing",
+      "title": "Throat Clearing",
+      "description": "“it is important to note that …”. If it matters, just say it.",
+      "category": {
+        "id": "meta",
+        "label": "Chatbot voice",
+        "description": "Editorialising asides and reader-collaboration filler."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/throat-clearing/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/throat-clearing.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fthroat-clearing"
+    },
+    {
+      "id": "ai-style/ai-vocabulary",
+      "name": "ai-vocabulary",
+      "title": "AI Vocabulary",
+      "description": "Words LLMs over-use relative to human writers.",
+      "category": {
+        "id": "ai-vocab",
+        "label": "AI vocabulary",
+        "description": "Words LLMs reach for far more often than people do."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/ai-vocabulary/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/ai-vocabulary.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fai-vocabulary"
+    },
+    {
+      "id": "ai-style/emerging-slop-phrases",
+      "name": "emerging-slop-phrases",
+      "title": "Emerging Slop Phrases",
+      "description": "Newly common AI-writing phrases, graded as weak evidence in isolation.",
+      "category": {
+        "id": "ai-vocab",
+        "label": "AI vocabulary",
+        "description": "Words LLMs reach for far more often than people do."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/emerging-slop-phrases/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/emerging-slop-phrases.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Femerging-slop-phrases"
+    },
+    {
+      "id": "ai-style/false-agency",
+      "name": "false-agency",
+      "title": "False Agency",
+      "description": "An abstraction is made to act like a person instead of naming the actor.",
+      "category": {
+        "id": "agency",
+        "label": "Hidden or false agency",
+        "description": "Passive actor hiding and abstractions made to act like people."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/false-agency/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/false-agency.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Ffalse-agency"
+    },
+    {
+      "id": "ai-style/passive-actor-hiding",
+      "name": "passive-actor-hiding",
+      "title": "Passive Actor Hiding",
+      "description": "A passive clause hides who performed the action.",
+      "category": {
+        "id": "agency",
+        "label": "Hidden or false agency",
+        "description": "Passive actor hiding and abstractions made to act like people."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/passive-actor-hiding/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/passive-actor-hiding.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fpassive-actor-hiding"
+    },
+    {
+      "id": "ai-style/hedging-seesaw",
+      "name": "hedging-seesaw",
+      "title": "Hedging Seesaw",
+      "description": "Relentless “While X… However, Y” balancing, a position never taken.",
+      "category": {
+        "id": "balance",
+        "label": "Hedging seesaw",
+        "description": "Relentless “While X… However, Y”, a position never taken."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/hedging-seesaw/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/hedging-seesaw.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fhedging-seesaw"
+    },
+    {
+      "id": "ai-style/rule-of-three",
+      "name": "rule-of-three",
+      "title": "Rule of Three",
+      "description": "Reflexive triads of modifiers or balanced independent clauses.",
+      "category": {
+        "id": "rule-of-three",
+        "label": "Rule of three",
+        "description": "Reflexive triads of adjectives or phrases."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/rule-of-three/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/rule-of-three.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Frule-of-three"
+    },
+    {
+      "id": "ai-style/opening-conjunction",
+      "name": "opening-conjunction",
+      "title": "Opening Conjunction",
+      "description": "Formulaic sentence-opening transitions. Often removable.",
+      "category": {
+        "id": "conjunctions",
+        "label": "Formulaic transitions",
+        "description": "Sentence-opening “Moreover,”, “Furthermore,”, “In conclusion,”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/opening-conjunction/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/opening-conjunction.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fopening-conjunction"
+    },
+    {
+      "id": "ai-style/stepwise-sequencing",
+      "name": "stepwise-sequencing",
+      "title": "Stepwise Sequencing",
+      "description": "Formulaic “X then Y” sequencing where “then” narrates an explanation rather than a real order.",
+      "category": {
+        "id": "conjunctions",
+        "label": "Formulaic transitions",
+        "description": "Sentence-opening “Moreover,”, “Furthermore,”, “In conclusion,”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/stepwise-sequencing/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/stepwise-sequencing.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fstepwise-sequencing"
+    },
+    {
+      "id": "ai-style/em-dash-overuse",
+      "name": "em-dash-overuse",
+      "title": "Em Dash Overuse",
+      "description": "Heavy em-dash use relative to sentence count.",
+      "category": {
+        "id": "formatting",
+        "label": "Formatting tells",
+        "description": "Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/em-dash-overuse/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/formatting.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fem-dash-overuse"
+    },
+    {
+      "id": "ai-style/emoji",
+      "name": "emoji",
+      "title": "Emoji",
+      "description": "Decorative emoji in formal prose.",
+      "category": {
+        "id": "formatting",
+        "label": "Formatting tells",
+        "description": "Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/emoji/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/formatting.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Femoji"
+    },
+    {
+      "id": "ai-style/generation-artifacts",
+      "name": "generation-artifacts",
+      "title": "Generation Artifacts",
+      "description": "Leftover chatbot citation artifacts (oaicite, turn0search0, …).",
+      "category": {
+        "id": "formatting",
+        "label": "Formatting tells",
+        "description": "Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts."
+      },
+      "confidence": "high",
+      "defaultLevel": "error",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/generation-artifacts/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/formatting.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fgeneration-artifacts"
+    },
+    {
+      "id": "ai-style/mechanical-outline",
+      "name": "mechanical-outline",
+      "title": "Mechanical Outline",
+      "description": "Repeated bold-label blocks, canned headings, or thematic-break section templates.",
+      "category": {
+        "id": "formatting",
+        "label": "Formatting tells",
+        "description": "Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/mechanical-outline/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/mechanical-outline.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fmechanical-outline"
+    },
+    {
+      "id": "ai-style/mixed-quotes",
+      "name": "mixed-quotes",
+      "title": "Mixed Quotes",
+      "description": "Straight and curly double quotes mixed in one document, a paste seam.",
+      "category": {
+        "id": "formatting",
+        "label": "Formatting tells",
+        "description": "Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/mixed-quotes/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/formatting.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fmixed-quotes"
+    },
+    {
+      "id": "ai-style/uniform-rhythm",
+      "name": "uniform-rhythm",
+      "title": "Uniform Rhythm",
+      "description": "Sentence lengths cluster tightly enough to produce a machine-like drone.",
+      "category": {
+        "id": "rhythm",
+        "label": "Uniform rhythm",
+        "description": "Sentence lengths and openings fall into a machine-like cadence."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/uniform-rhythm/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/uniform-rhythm.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Funiform-rhythm"
+    }
+  ]
+}

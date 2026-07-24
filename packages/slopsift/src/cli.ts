@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { relative, sep } from 'node:path';
 import { createSlopSift, type MinimumLevel } from './index.js';
 import { findFiles } from './files.js';
-import { jsonResult, makeResult, stylish, type Result } from './format.js';
+import { github, jsonResult, makeResult, stylish, type Result } from './format.js';
 
 const VERSION = (JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version;
 const HELP = `slopsift — lint prose and code comments for AI slop
@@ -14,7 +14,7 @@ Usage:
   bunx slopsift .                    Lint the current project
 
 Options:
-  --format, -f stylish|json|json-lines
+  --format, -f stylish|json|json-lines|github
   --json                              Alias for --format json
   --ext .md,.txt,.ts                  Extensions to include
   --ignore-pattern <glob>             Additional ignore pattern (repeatable)
@@ -32,7 +32,7 @@ Options:
 Exit codes: 0 clean, 1 lint problems, 2 configuration/runtime failure.`;
 
 interface Options {
-  patterns: string[]; format: 'stylish' | 'json' | 'json-lines'; extensions?: string[];
+  patterns: string[]; format: 'stylish' | 'json' | 'json-lines' | 'github'; extensions?: string[];
   ignores: string[]; noIgnore: boolean; quiet: boolean; maxWarnings: number;
   model?: string; download: boolean; level: 'info' | 'warning' | 'error';
   errorOnUnmatchedPattern: boolean;
@@ -60,7 +60,7 @@ function parse(argv: string[]): Options | 'help' | 'version' {
     else if (arg.startsWith('-')) throw new Error(`unknown option: ${arg}`);
     else options.patterns.push(arg);
   }
-  if (!['stylish', 'json', 'json-lines'].includes(options.format)) throw new Error(`unknown format: ${options.format}`);
+  if (!['stylish', 'json', 'json-lines', 'github'].includes(options.format)) throw new Error(`unknown format: ${options.format}`);
   if (!['info', 'warning', 'error'].includes(options.level)) throw new Error(`unknown level: ${options.level}`);
   if (!Number.isInteger(options.maxWarnings) || options.maxWarnings < -1) throw new Error('--max-warnings must be a non-negative integer');
   if (!options.patterns.length) options.patterns.push('.');
@@ -103,6 +103,7 @@ async function run(): Promise<void> {
     }
     if (options.format === 'json') console.log(JSON.stringify(results.map(jsonResult), null, 2));
     else if (options.format === 'json-lines') for (const result of results) console.log(JSON.stringify(jsonResult(result)));
+    else if (options.format === 'github') { const output = github(results); if (output) console.log(output); }
     else { const output = stylish(results); if (output) console.log(output); }
     const warnings = results.reduce((sum, result) => sum + result.warningCount, 0);
     const errors = results.reduce((sum, result) => sum + result.errorCount, 0);

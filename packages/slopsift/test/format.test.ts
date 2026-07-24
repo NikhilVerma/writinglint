@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { Lint } from 'writinglint-core';
-import { jsonResult, makeResult, stylish } from '../src/format.js';
+import { github, jsonResult, makeResult, stylish } from '../src/format.js';
 
 const lint = (severity: Lint['severity'], confidence: Lint['confidence'], start: number): Lint => ({
   ruleId: `ai-style/${severity}`,
@@ -29,13 +29,26 @@ test('result counts all three levels and stylish reports them', () => {
 
 test('JSON uses ESLint numeric severity while retaining level and confidence', () => {
   const result = jsonResult(makeResult('sample.md', 'slop', [lint('error', 'high', 0)])) as {
-    messages: Array<{ severity: number; level: string; confidence: string }>;
+    messages: Array<{ severity: number; level: string; confidence: string; ruleUrl: string }>;
     wordCount: number;
     findingsPerThousandWords: number;
   };
   assert.equal(result.messages[0]?.severity, 2);
   assert.equal(result.messages[0]?.level, 'error');
   assert.equal(result.messages[0]?.confidence, 'high');
+  assert.equal(result.messages[0]?.ruleUrl, 'https://slopsift.dev/rules/error/');
   assert.equal(result.wordCount, 1);
   assert.equal(result.findingsPerThousandWords, 1000);
+});
+
+test('GitHub output emits escaped workflow annotations', () => {
+  const result = makeResult('docs/draft,one.md', 'slop', [{
+    ...lint('warn', 'medium', 0),
+    ruleId: 'ai-style/test:rule',
+    message: 'First line\nsecond line',
+  }]);
+  assert.equal(
+    github([result]),
+    '::warning file=docs/draft%2Cone.md,line=1,col=1,endLine=1,endColumn=5,title=ai-style/test%3Arule::First line%0Asecond line',
+  );
 });

@@ -1,0 +1,29 @@
+# SlopSift
+
+> SlopSift is a local-first linter for recognizable AI-writing habits. It uses a compact dependency parser and named rules. It reports writing patterns; it does not determine authorship.
+
+## Use SlopSift
+
+- [Browser editor](https://slopsift.dev/editor/): Lint Markdown or plain text locally in the browser.
+- [Documentation](https://slopsift.dev/docs/): Install the CLI, understand findings, and configure CI.
+- [Rule catalogue](https://slopsift.dev/rules/): Read every rule, its evidence source, and default level.
+- [GitHub Actions guide](https://slopsift.dev/docs/github-actions/): Add advisory or blocking checks to a repository.
+- [npm package](https://www.npmjs.com/package/slopsift): Run with `bunx slopsift .` or `npx slopsift .`.
+- [VS Code extension](https://marketplace.visualstudio.com/items?itemName=NikhilVerma01.slopsift-vscode): Show findings in the Problems panel.
+- [Agent Skill](https://skills.sh/NikhilVerma/slopsift): Install SlopSift instructions for compatible coding agents.
+- [Source code](https://github.com/NikhilVerma/writinglint): WritingLint engine, SlopSift product, model notes, and tests.
+
+## Machine-readable references
+
+- [Complete agent reference](https://slopsift.dev/llms-full.txt): CLI contract, exit codes, inputs, and all rules.
+- [Rule catalogue JSON](https://slopsift.dev/rules/index.json): Versioned rule metadata.
+- [JSON output schema](https://slopsift.dev/schemas/slopsift-result-v1.schema.json): Schema for `--format json` and `--format json-lines`.
+
+## Markdown
+
+Send `Accept: text/markdown` when requesting the home page, documentation, privacy policy, rule catalogue, GitHub Actions guide, or an individual rule page.
+
+## Optional
+
+- [Privacy](https://slopsift.dev/privacy/): Local processing and network behavior.
+- [Model card](https://github.com/NikhilVerma/writinglint/blob/main/packages/slopsift/MODEL.md): Training, evaluation, weights, and limitations.

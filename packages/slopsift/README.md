@@ -10,6 +10,9 @@ It is a separate product built on the WritingLint engine and AI-style rulepack.
 [![Model license: CC BY-SA 4.0](https://img.shields.io/badge/model-CC_BY--SA_4.0-2563eb)](https://github.com/NikhilVerma/writinglint/blob/main/packages/parser-node/MODEL_LICENSE.md)
 
 [Website](https://slopsift.dev) · [Documentation](https://slopsift.dev/docs/) ·
+[Rules](https://slopsift.dev/rules/) ·
+[GitHub Actions](https://slopsift.dev/docs/github-actions/) ·
+[Agent Skill](https://skills.sh/NikhilVerma/slopsift) ·
 [GitHub](https://github.com/NikhilVerma/writinglint) ·
 [npm](https://www.npmjs.com/package/slopsift)
 
@@ -17,6 +20,7 @@ It is a separate product built on the WritingLint engine and AI-style rulepack.
 bunx slopsift .
 bunx slopsift "docs/**/*.md" "src/**/*.{ts,tsx}"
 bunx slopsift . --format json
+bunx slopsift . --format github
 bunx slopsift . --level info
 bunx slopsift . --exit-zero
 ```
@@ -36,8 +40,14 @@ The default `--level warning` reports errors and warnings. Use `--level info` fo
 the strict editorial view, `--level error` (or `--quiet`) for high-confidence CI,
 and `--max-warnings 0` when warnings should fail CI. JSON format uses ESLint's
 numeric severities (`2`, `1`, `0`), retains `level` plus `confidence`, and adds
-`wordCount` plus `findingsPerThousandWords` for length-aware comparison. Raw
-finding totals are not comparable across documents of different lengths.
+`ruleUrl`, `wordCount`, and `findingsPerThousandWords` for length-aware
+comparison. The `github` formatter emits native GitHub Actions annotations.
+Raw finding totals are not comparable across documents of different lengths.
+
+Machine-readable consumers can use the versioned
+[JSON output schema](https://slopsift.dev/schemas/slopsift-result-v1.schema.json)
+and [rule catalogue](https://slopsift.dev/rules/index.json). Both also ship in
+the npm package as `slopsift/schema/result-v1.json` and `slopsift/rules`.
 
 Use `--exit-zero` for report-only pipelines: lint findings remain visible but do
 not fail the command. Configuration and runtime failures still exit `2`.

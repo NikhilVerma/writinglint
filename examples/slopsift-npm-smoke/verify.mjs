@@ -26,6 +26,12 @@ if (process.env.EXPECTED_RULEPACK_VERSION) {
 const parser = join(root, 'node_modules/writinglint-parser-node/model/parser.onnx');
 assert.equal((await stat(parser)).size, 11_877_081, 'the transitive npm package must contain the parser');
 
+const catalogue = JSON.parse(await readFile(requireFromSlopSift.resolve('slopsift/rules'), 'utf8'));
+assert.equal(catalogue.schemaVersion, '1.0.0');
+assert.ok(catalogue.rules.some((rule) => rule.id === 'ai-style/false-agency'));
+const outputSchema = JSON.parse(await readFile(requireFromSlopSift.resolve('slopsift/schema/result-v1.json'), 'utf8'));
+assert.equal(outputSchema.$id, 'https://slopsift.dev/schemas/slopsift-result-v1.schema.json');
+
 const cli = join(root, 'node_modules/slopsift/dist/cli.js');
 const result = spawnSync(process.execPath, [
   cli,
@@ -46,6 +52,7 @@ const result = spawnSync(process.execPath, [
 assert.ok(result.status === 0 || result.status === 1, result.stderr || `unexpected exit ${result.status}`);
 const reports = JSON.parse(result.stdout);
 assert.equal(reports.length, 1);
+assert.ok(reports[0].messages.every((message) => message.ruleUrl?.startsWith('https://slopsift.dev/rules/')));
 const rules = reports[0].messages.map((message) => message.ruleId);
 const emerging = reports[0].messages.filter((message) => message.ruleId === 'ai-style/emerging-slop-phrases');
 assert.equal(emerging.length, 2, 'expected the emerging phrases, but not the literal load-bearing wall');

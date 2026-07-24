@@ -1,0 +1,102 @@
+# SlopSift agent reference
+
+SlopSift 0.1.4 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
+
+## Install and run
+
+```sh
+bunx slopsift .
+npx slopsift "docs/**/*.md"
+npx slopsift . --level info --format json --exit-zero
+```
+
+Node.js 20 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
+
+## Inputs
+
+- Markdown, MDX, reStructuredText, AsciiDoc, and plain text are linted as prose.
+- HTML is linted as rendered text. Metadata, scripts, styles, templates, SVG, code blocks, and comments are excluded.
+- Supported source files are linted through their comments.
+- Dependencies, generated output, Git metadata, and paths ignored by `.gitignore` are skipped by default.
+
+## Finding levels
+
+- `error`: high-confidence, specific signature. Exits with status 1.
+- `warn`: likely issue requiring editorial judgment. Reported by default.
+- `info`: broad review candidate. Included with `--level info`.
+
+`--max-warnings 0` makes warnings fail the command. `--exit-zero` keeps lint findings visible without returning status 1. Configuration and runtime failures still return status 2.
+
+## Output formats
+
+- `stylish`: human-readable terminal report.
+- `json`: one JSON array. See [schema](https://slopsift.dev/schemas/slopsift-result-v1.schema.json).
+- `json-lines`: one file result per line, following `$defs.fileResult` in the schema.
+- `github`: GitHub Actions workflow annotations.
+
+JSON messages include an ESLint-compatible numeric severity, SlopSift's textual level, confidence, exact range, rule URL, word count, and findings per thousand words.
+
+## Exit codes
+
+- `0`: accepted result, including lint findings when `--exit-zero` is set.
+- `1`: findings crossed the configured error or warning threshold.
+- `2`: invalid arguments, unmatched required patterns, configuration failure, model failure, or runtime failure.
+
+## Agent workflow
+
+1. Run SlopSift using the repository's existing package manager.
+2. Use `--format json --exit-zero` for structured editorial review.
+3. Inspect the exact range and surrounding paragraph.
+4. Preserve facts, technical terms, modality, and the writer's voice.
+5. Rerun the same command after editing.
+6. Do not optimize for zero low-confidence findings.
+
+Install the maintained [SlopSift Agent Skill](https://skills.sh/NikhilVerma/slopsift) for the complete editing procedure.
+
+## Rule catalogue
+
+- [ai-style/evidence-cluster](https://slopsift.dev/rules/evidence-cluster/): Several independent slop signals cluster in one paragraph or across the document. (warn, document context)
+- [ai-style/copula-avoidance](https://slopsift.dev/rules/copula-avoidance/): “stands/serves as a …” dressing up a plain “is a …”. (warn, dependency graph)
+- [ai-style/light-verb-role](https://slopsift.dev/rules/light-verb-role/): “plays a … role”, importance asserted, not shown. (info, dependency graph)
+- [ai-style/participial-appendage](https://slopsift.dev/rules/participial-appendage/): Trailing “-ing” clause that editorialises the main clause. (info, dependency graph)
+- [ai-style/significance-idioms](https://slopsift.dev/rules/significance-idioms/): Fixed “inflated significance” idioms (rich tapestry, testament to …). (warn, text pattern)
+- [ai-style/corrective-antithesis](https://slopsift.dev/rules/corrective-antithesis/): The “X, not Y” staged contrast, a modern-AI cadence that adds no information. (warn, dependency graph)
+- [ai-style/negative-contrast](https://slopsift.dev/rules/negative-contrast/): A negative declaration followed by a dramatic positive redefinition. (warn, dependency graph)
+- [ai-style/negative-list-buildup](https://slopsift.dev/rules/negative-list-buildup/): Repeatedly lists what something is not before revealing the point. (warn, dependency graph)
+- [ai-style/negative-parallelism](https://slopsift.dev/rules/negative-parallelism/): “Not (only) X but (also) Y”, a signature LLM cadence. (warn, dependency graph)
+- [ai-style/promo-idioms](https://slopsift.dev/rules/promo-idioms/): Travel-brochure / press-release idioms (nestled in the heart of …). (warn, text pattern)
+- [ai-style/absolute-claim](https://slopsift.dev/rules/absolute-claim/): An absolute or universal claim that may exceed the evidence or omit its scope. (info, document context)
+- [ai-style/unsupported-certainty](https://slopsift.dev/rules/unsupported-certainty/): Confidence language that asserts a conclusion without showing the evidence. (info, document context)
+- [ai-style/unsupported-comparison](https://slopsift.dev/rules/unsupported-comparison/): A comparative, superlative, or outcome claim without an explicit benchmark in the phrase. (info, text pattern)
+- [ai-style/vague-attribution](https://slopsift.dev/rules/vague-attribution/): A bare, generic subject asserting a “that …” clause. Name who, or cut it. (warn, dependency graph)
+- [ai-style/vague-declarative](https://slopsift.dev/rules/vague-declarative/): An abstract announcement or vague “this approach…” claim that may need a concrete subject. (info, document context)
+- [ai-style/vague-quantifier](https://slopsift.dev/rules/vague-quantifier/): A broad population claim without a named sample, source, or scope. (info, document context)
+- [ai-style/chatbot-idioms](https://slopsift.dev/rules/chatbot-idioms/): Editorialising / chatbot filler idioms (it’s worth noting …). (error, text pattern)
+- [ai-style/dramatic-fragment](https://slopsift.dev/rules/dramatic-fragment/): A short transition is isolated as a sentence to manufacture drama. (info, document context)
+- [ai-style/modal-redundancy](https://slopsift.dev/rules/modal-redundancy/): Repeats modality after two possibilities already establish the outcome. (warn, dependency graph)
+- [ai-style/outline-conclusion](https://slopsift.dev/rules/outline-conclusion/): A canned “challenges and future prospects” ending instead of a specific conclusion. (info, document context)
+- [ai-style/rhetorical-scaffolding](https://slopsift.dev/rules/rhetorical-scaffolding/): Announces, dramatizes, or reassures around a point instead of stating it. (warn, dependency graph)
+- [ai-style/semantic-redundancy](https://slopsift.dev/rules/semantic-redundancy/): A nearby paragraph repeats the same content words instead of advancing the argument. (info, document context)
+- [ai-style/throat-clearing](https://slopsift.dev/rules/throat-clearing/): “it is important to note that …”. If it matters, just say it. (warn, dependency graph)
+- [ai-style/ai-vocabulary](https://slopsift.dev/rules/ai-vocabulary/): Words LLMs over-use relative to human writers. (info, text pattern)
+- [ai-style/emerging-slop-phrases](https://slopsift.dev/rules/emerging-slop-phrases/): Newly common AI-writing phrases, graded as weak evidence in isolation. (info, text pattern)
+- [ai-style/false-agency](https://slopsift.dev/rules/false-agency/): An abstraction is made to act like a person instead of naming the actor. (warn, dependency graph)
+- [ai-style/passive-actor-hiding](https://slopsift.dev/rules/passive-actor-hiding/): A passive clause hides who performed the action. (warn, dependency graph)
+- [ai-style/hedging-seesaw](https://slopsift.dev/rules/hedging-seesaw/): Relentless “While X… However, Y” balancing, a position never taken. (info, document context)
+- [ai-style/rule-of-three](https://slopsift.dev/rules/rule-of-three/): Reflexive triads of modifiers or balanced independent clauses. (info, dependency graph)
+- [ai-style/opening-conjunction](https://slopsift.dev/rules/opening-conjunction/): Formulaic sentence-opening transitions. Often removable. (info, text pattern)
+- [ai-style/stepwise-sequencing](https://slopsift.dev/rules/stepwise-sequencing/): Formulaic “X then Y” sequencing where “then” narrates an explanation rather than a real order. (info, dependency graph)
+- [ai-style/em-dash-overuse](https://slopsift.dev/rules/em-dash-overuse/): Heavy em-dash use relative to sentence count. (info, document context)
+- [ai-style/emoji](https://slopsift.dev/rules/emoji/): Decorative emoji in formal prose. (info, text pattern)
+- [ai-style/generation-artifacts](https://slopsift.dev/rules/generation-artifacts/): Leftover chatbot citation artifacts (oaicite, turn0search0, …). (error, text pattern)
+- [ai-style/mechanical-outline](https://slopsift.dev/rules/mechanical-outline/): Repeated bold-label blocks, canned headings, or thematic-break section templates. (info, document context)
+- [ai-style/mixed-quotes](https://slopsift.dev/rules/mixed-quotes/): Straight and curly double quotes mixed in one document, a paste seam. (warn, document context)
+- [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)
+
+## References
+
+- [Documentation](https://slopsift.dev/docs/)
+- [GitHub Actions guide](https://slopsift.dev/docs/github-actions/)
+- [Rule catalogue JSON](https://slopsift.dev/rules/index.json)
+- [Source code](https://github.com/NikhilVerma/writinglint)
+- [Privacy](https://slopsift.dev/privacy/)

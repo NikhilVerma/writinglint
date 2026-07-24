@@ -86,6 +86,53 @@ const rawRules = {
   'evidence-cluster': evidenceCluster,
 };
 
+export type RuleMethod = 'dependency-graph' | 'document-context' | 'lexical';
+
+/**
+ * The primary evidence source used by each rule. This is public metadata for
+ * documentation and integrations; it is not inferred from implementation
+ * details at build time.
+ */
+export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
+  'rule-of-three': 'dependency-graph',
+  'negative-parallelism': 'dependency-graph',
+  'corrective-antithesis': 'dependency-graph',
+  'stepwise-sequencing': 'dependency-graph',
+  'negative-contrast': 'dependency-graph',
+  'participial-appendage': 'dependency-graph',
+  'copula-avoidance': 'dependency-graph',
+  'light-verb-role': 'dependency-graph',
+  'vague-attribution': 'dependency-graph',
+  'throat-clearing': 'dependency-graph',
+  'passive-actor-hiding': 'dependency-graph',
+  'false-agency': 'dependency-graph',
+  'rhetorical-scaffolding': 'dependency-graph',
+  'negative-list-buildup': 'dependency-graph',
+  'modal-redundancy': 'dependency-graph',
+  'hedging-seesaw': 'document-context',
+  'dramatic-fragment': 'document-context',
+  'significance-idioms': 'lexical',
+  'promo-idioms': 'lexical',
+  'chatbot-idioms': 'lexical',
+  'ai-vocabulary': 'lexical',
+  'emerging-slop-phrases': 'lexical',
+  'opening-conjunction': 'lexical',
+  'em-dash-overuse': 'document-context',
+  'mixed-quotes': 'document-context',
+  'generation-artifacts': 'lexical',
+  emoji: 'lexical',
+  'unsupported-certainty': 'document-context',
+  'vague-declarative': 'document-context',
+  'outline-conclusion': 'document-context',
+  'uniform-rhythm': 'document-context',
+  'mechanical-outline': 'document-context',
+  'absolute-claim': 'document-context',
+  'vague-quantifier': 'document-context',
+  'semantic-redundancy': 'document-context',
+  'unsupported-comparison': 'lexical',
+  'evidence-cluster': 'document-context',
+};
+
 const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'rule-of-three': 'low',
   'negative-parallelism': 'medium',

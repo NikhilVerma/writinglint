@@ -30,7 +30,7 @@ body:
     id: output
     attributes:
       label: SlopSift output
-      description: Prefer `slopsift <file> --format json` and remove absolute paths.
+      description: Prefer `slopsift <file> --format json --exit-zero`, remove absolute paths, and share only text you are allowed to publish.
       render: json
     validations:
       required: true

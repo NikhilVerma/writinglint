@@ -5,7 +5,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 const flags = [
   ['--level info|warning|error', 'Choose the minimum finding level. The default is warning.'],
   ['--quiet', 'Show errors only. Equivalent to --level error.'],
-  ['--format stylish|json|json-lines', 'Choose human-readable or machine-readable output.'],
+  ['--format stylish|json|json-lines|github', 'Choose terminal, machine-readable, or GitHub annotation output.'],
   ['--ext .md,.txt,.ts', 'Limit the file extensions SlopSift reads.'],
   ['--ignore-pattern <glob>', 'Add an ignore pattern. Repeat the flag for more than one.'],
   ['--no-ignore', 'Do not read patterns from .gitignore.'],
@@ -30,10 +30,10 @@ const skillInstall = `bunx skills add NikhilVerma/slopsift`;
 const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=NikhilVerma01.slopsift-vscode';
 ---
 
-<SiteLayout title="SlopSift CLI docs — Install, configure, and run locally" description="Install SlopSift with Bun or Node, lint prose and code comments, understand finding levels, configure CI, and learn how its custom NLP parser works.">
+<SiteLayout title="SlopSift CLI docs | Install, configure, and run locally" description="Install SlopSift with Bun or Node, lint prose and code comments, understand finding levels, configure CI, and learn how its custom NLP parser works.">
   <header class="site-header">
     <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
-    <nav aria-label="Documentation navigation"><a href="/">Home</a><a href="/editor/">Editor</a><a href="https://github.com/NikhilVerma/writinglint">Source</a><a class="nav-install" href="#quick-start">Start here</a></nav>
+    <nav aria-label="Documentation navigation"><a href="/">Home</a><a href="/rules/">Rules</a><a href="https://github.com/NikhilVerma/writinglint">Source</a><a class="nav-install" href="#quick-start">Start here</a></nav>
   </header>
 
   <main class="docs-page">
@@ -91,7 +91,8 @@ const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=Nikh
           <article><span>warning</span><p>Likely slop that still needs editorial judgment. Shown by default.</p></article>
           <article><span>info</span><p>A low-confidence signal worth reviewing. Use <code>--level info</code> to include it.</p></article>
         </div>
-        <p>Stylish output is for people. JSON follows ESLint’s numeric severity shape while retaining SlopSift’s level, confidence, exact range, word count, and findings per thousand words.</p>
+        <p>Stylish output is for people. JSON follows ESLint’s numeric severity shape while retaining SlopSift’s level, confidence, exact range, rule URL, word count, and findings per thousand words.</p>
+        <p><a class="docs-source-link" href="/schemas/slopsift-result-v1.schema.json">Read the versioned JSON output schema →</a></p>
       </section>
 
       <section id="flags">
@@ -111,6 +112,7 @@ const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=Nikh
         <h2>Decide how strict the gate should be.</h2>
         <pre><code>{ciExamples}</code></pre>
         <div class="docs-exits"><span><b>0</b> clean</span><span><b>1</b> lint threshold failed</span><span><b>2</b> arguments, configuration, model, or runtime failed</span></div>
+        <a class="docs-source-link" href="/docs/github-actions/">Copy complete GitHub Actions workflows →</a>
       </section>
 
       <section id="agent-skill">
@@ -119,6 +121,7 @@ const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=Nikh
         <p>Add the SlopSift skill with the open skills CLI. It works with Codex, Claude Code, Cursor, OpenCode, and other agents that support the Agent Skills format.</p>
         <pre><code>{skillInstall}</code></pre>
         <p>The skill tells an agent to use the project's existing Bun or Node environment, run the real SlopSift CLI, inspect exact ranges, and prioritize errors over weaker signals. It does not switch runtimes just to run the linter. It also preserves the writer's voice, leaves legitimate findings alone, and rejects authorship claims based on a lint result.</p>
+        <a class="docs-source-link" href="/rules/">Browse the rules agents receive in structured output →</a>
         <aside class="docs-note"><strong>Editor integrations:</strong> The VS Code extension is available in preview. The Chrome extension remains experimental and is not published.</aside>
       </section>
 

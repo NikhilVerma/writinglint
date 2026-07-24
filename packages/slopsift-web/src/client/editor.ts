@@ -442,6 +442,7 @@ if (app) {
         endColumn: end.column,
         severity: severity === 'error' ? 2 : severity === 'warn' ? 1 : 0,
         level: severity,
+        ruleUrl: `https://slopsift.dev/rules/${encodeURIComponent(lint.ruleId.split('/')[1] ?? lint.ruleId)}/`,
       };
     });
     const output = JSON.stringify({

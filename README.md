@@ -45,6 +45,7 @@ slopsift . --quiet
 slopsift . --exit-zero
 slopsift . --format json
 slopsift . --format json-lines
+slopsift . --format github
 slopsift . --max-warnings 0
 ```
 
@@ -127,6 +128,24 @@ and serves immutable model artifacts from `models.slopsift.dev`.
 Model architecture, training, evaluation, quantization, provenance, hashes, and
 release procedures are documented in
 [`packages/slopsift/MODEL.md`](packages/slopsift/MODEL.md).
+
+## Agents and automation
+
+SlopSift publishes the same rule and output contracts for people, CI, and
+agents:
+
+- [Agent reference](https://slopsift.dev/llms.txt) and
+  [complete reference](https://slopsift.dev/llms-full.txt)
+- [Rule catalogue](https://slopsift.dev/rules/) and
+  [rule catalogue JSON](https://slopsift.dev/rules/index.json)
+- [Versioned JSON output schema](https://slopsift.dev/schemas/slopsift-result-v1.schema.json)
+- [GitHub Actions guide](docs/slopsift-github-actions.md)
+- [SlopSift Agent Skill](https://skills.sh/NikhilVerma/slopsift)
+
+The website serves authored Markdown when a client requests an eligible page
+with `Accept: text/markdown`. These files, the rule pages, the schema, and the
+agent references are generated from released package and rule metadata during
+every site build. CI fails if committed generated files drift.
 
 ## Packages
 

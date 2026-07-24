@@ -1,6 +1,8 @@
 ---
 name: slopsift
 description: Lint prose with the SlopSift CLI and interpret its structural AI-writing findings without guessing authorship. Use when reviewing or editing Markdown, documentation, website copy, release notes, plain text, or source-code comments for canned arguments, vague attribution, unsupported certainty, repetitive structure, AI vocabulary, and related writing tells.
+license: MIT
+compatibility: Requires Node.js 20 or newer, or Bun, plus permission to run the public slopsift package in the target workspace.
 ---
 
 # SlopSift
@@ -30,6 +32,11 @@ bunx slopsift . --level info --format json --exit-zero
 ```
 
 Do not add `--exit-zero` when the user wants SlopSift to act as a gate.
+
+The public rule catalogue is at <https://slopsift.dev/rules/>. Structured
+consumers can use <https://slopsift.dev/rules/index.json> and the versioned
+output schema at
+<https://slopsift.dev/schemas/slopsift-result-v1.schema.json>.
 
 ## Review findings
 

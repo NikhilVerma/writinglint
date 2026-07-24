@@ -8,6 +8,51 @@ interface Env {
 const MODEL_VERSION = 'compact-int8-v1';
 const ORT_VERSION = '1.27.0';
 
+const markdownAsset = (path: string): string | undefined => {
+  if (path === '/') return '/markdown/index.md';
+  if (path === '/docs/' || path === '/docs') return '/markdown/docs.md';
+  if (path === '/docs/github-actions/' || path === '/docs/github-actions') return '/markdown/github-actions.md';
+  if (path === '/privacy/' || path === '/privacy') return '/markdown/privacy.md';
+  if (path === '/rules/' || path === '/rules') return '/markdown/rules.md';
+  const rule = path.match(/^\/rules\/([a-z0-9-]+)\/?$/)?.[1];
+  return rule ? `/markdown/rules/${rule}.md` : undefined;
+};
+
+interface MediaPreference {
+  q: number;
+  specificity: number;
+}
+
+const preference = (accept: string, exact: string): MediaPreference => {
+  let best = { q: 0, specificity: -1 };
+  for (const entry of accept.toLowerCase().split(',')) {
+    const [media = '', ...parameters] = entry.trim().split(';').map((part) => part.trim());
+    const qValue = parameters.find((parameter) => parameter.startsWith('q='));
+    const q = qValue ? Number(qValue.slice(2)) : 1;
+    if (!Number.isFinite(q) || q <= 0) continue;
+    const type = exact.split('/')[0];
+    const specificity = media === exact ? 2 : media === `${type}/*` ? 1 : media === '*/*' ? 0 : -1;
+    if (specificity < 0) continue;
+    if (q > best.q || (q === best.q && specificity > best.specificity)) best = { q, specificity };
+  }
+  return best;
+};
+
+export const prefersMarkdown = (accept: string | null): boolean => {
+  if (!accept) return false;
+  const markdown = preference(accept, 'text/markdown');
+  const html = preference(accept, 'text/html');
+  if (markdown.specificity <= 0) return false;
+  return markdown.q > html.q
+    || (markdown.q === html.q && markdown.specificity >= html.specificity);
+};
+
+const withVaryAccept = (headers: Headers): void => {
+  const values = new Set((headers.get('vary') ?? '').split(',').map((value) => value.trim()).filter(Boolean));
+  values.add('Accept');
+  headers.set('vary', [...values].join(', '));
+};
+
 const contentType = (path: string): string | undefined => {
   if (path.endsWith('.json')) return 'application/json';
   if (path.endsWith('.mjs') || path.endsWith('.js')) return 'text/javascript';
@@ -43,7 +88,44 @@ export default {
         return Response.redirect(url.toString(), 301);
       }
     }
-    if (!runtimeMatch && !releaseMatch) return env.ASSETS.fetch(request);
+    if (!runtimeMatch && !releaseMatch) {
+      const assetPath = markdownAsset(url.pathname);
+      if (assetPath && (request.method === 'GET' || request.method === 'HEAD') && prefersMarkdown(request.headers.get('accept'))) {
+        const assetUrl = new URL(assetPath, url);
+        const assetResponse = await env.ASSETS.fetch(new Request(assetUrl, request));
+        if (assetResponse.ok) {
+          const headers = new Headers(assetResponse.headers);
+          headers.set('content-type', 'text/markdown; charset=utf-8');
+          headers.set('content-location', url.pathname);
+          headers.set('x-robots-tag', 'noindex');
+          headers.set('link', `<${url.pathname}>; rel="canonical"`);
+          withVaryAccept(headers);
+          return new Response(request.method === 'HEAD' ? null : assetResponse.body, {
+            status: assetResponse.status,
+            headers,
+          });
+        }
+      }
+
+      const assetResponse = await env.ASSETS.fetch(request);
+      if (url.pathname.startsWith('/markdown/')) {
+        const headers = new Headers(assetResponse.headers);
+        headers.set('content-type', 'text/markdown; charset=utf-8');
+        headers.set('x-robots-tag', 'noindex');
+        return new Response(request.method === 'HEAD' ? null : assetResponse.body, {
+          status: assetResponse.status,
+          headers,
+        });
+      }
+      if (!assetPath) return assetResponse;
+      const headers = new Headers(assetResponse.headers);
+      headers.append('link', `<${assetPath}>; rel="alternate"; type="text/markdown"`);
+      withVaryAccept(headers);
+      return new Response(request.method === 'HEAD' ? null : assetResponse.body, {
+        status: assetResponse.status,
+        headers,
+      });
+    }
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       return new Response('method not allowed', { status: 405, headers: { allow: 'GET, HEAD' } });
     }

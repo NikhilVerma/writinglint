@@ -1,0 +1,76 @@
+---
+import SiteFooter from '../../components/SiteFooter.astro';
+import catalog from '../../generated/rules.json';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+const grouped = catalog.categories.map((category) => ({
+  ...category,
+  rules: catalog.rules.filter((rule) => rule.category.id === category.id),
+})).filter((category) => category.rules.length);
+
+const catalogueSchema = {
+  '@type': 'DefinedTermSet',
+  '@id': 'https://slopsift.dev/rules/#catalogue',
+  name: 'SlopSift AI-style rules',
+  url: 'https://slopsift.dev/rules/',
+  description: 'Named writing-lint rules with confidence, evidence source, and default reporting level.',
+  hasDefinedTerm: catalog.rules.map((rule) => ({
+    '@type': 'DefinedTerm',
+    name: rule.id,
+    description: rule.description,
+    url: rule.url,
+    inDefinedTermSet: 'https://slopsift.dev/rules/',
+  })),
+};
+---
+
+<SiteLayout
+  title="SlopSift rule catalogue | Every writing rule explained"
+  description={`Browse all ${catalog.rules.length} SlopSift rules, including their evidence source, confidence, default level, source code, and feedback link.`}
+  structuredData={catalogueSchema}
+>
+  <header class="site-header">
+    <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
+    <nav aria-label="Rule catalogue navigation"><a href="/">Home</a><a href="/docs/">Docs</a><a href="/editor/">Editor</a><a class="nav-install" href="/rules/index.json">Rule JSON</a></nav>
+  </header>
+
+  <main class="rules-page">
+    <header class="rules-hero">
+      <p class="kicker">The public rulepack</p>
+      <h1>Every rule.<br />No mystery.</h1>
+      <div>
+        <p>{catalog.rules.length} named checks, each with a confidence level and an explanation of what evidence it reads.</p>
+        <div class="rules-hero__links">
+          <a href="/rules/index.json">Rule catalogue JSON</a>
+          <a href="/schemas/slopsift-result-v1.schema.json">Output schema</a>
+        </div>
+      </div>
+    </header>
+
+    <div class="rule-groups">
+      {grouped.map((group) => (
+        <section class="rule-group" aria-labelledby={`category-${group.id}`}>
+          <header>
+            <h2 id={`category-${group.id}`}>{group.label}</h2>
+            <p>{group.description}</p>
+            <span>{group.ruleCount} {group.ruleCount === 1 ? 'rule' : 'rules'}</span>
+          </header>
+          <div class="rule-group__list">
+            {group.rules.map((rule) => (
+              <a class="rule-row" href={`/rules/${rule.name}/`}>
+                <span class={`rule-level rule-level--${rule.defaultLevel}`}>{rule.defaultLevel === 'warn' ? 'warning' : rule.defaultLevel}</span>
+                <div>
+                  <h3>{rule.title}</h3>
+                  <p>{rule.description}</p>
+                </div>
+                <span class="rule-method">{rule.methodLabel}</span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  </main>
+
+  <SiteFooter />
+</SiteLayout>

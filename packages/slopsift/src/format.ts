@@ -48,6 +48,12 @@ export function makeResult(filePath: string, source: string, lints: Lint[], anal
 }
 
 const eslintSeverity = { info: 0, warn: 1, error: 2 } as const;
+const ruleUrl = (ruleId: string): string | undefined => {
+  const [pack, name] = ruleId.split('/');
+  return pack === 'ai-style' && name
+    ? `https://slopsift.dev/rules/${encodeURIComponent(name)}/`
+    : undefined;
+};
 
 /** ESLint-compatible numeric severity, with SlopSift's level and confidence retained. */
 export function jsonResult(result: Result): object {
@@ -57,8 +63,34 @@ export function jsonResult(result: Result): object {
       ...message,
       severity: eslintSeverity[severity],
       level: severity,
+      ruleUrl: ruleUrl(message.ruleId),
     })),
   };
+}
+
+const commandEscape = (value: string): string => value
+  .replace(/%/g, '%25')
+  .replace(/\r/g, '%0D')
+  .replace(/\n/g, '%0A');
+
+const commandPropertyEscape = (value: string): string => commandEscape(value)
+  .replace(/:/g, '%3A')
+  .replace(/,/g, '%2C');
+
+/** GitHub Actions workflow commands, one annotation per finding. */
+export function github(results: Result[]): string {
+  return results.flatMap((result) => result.messages.map((message) => {
+    const command = message.severity === 'error' ? 'error' : message.severity === 'warn' ? 'warning' : 'notice';
+    const properties = [
+      `file=${commandPropertyEscape(result.filePath)}`,
+      `line=${message.line}`,
+      `col=${message.column}`,
+      `endLine=${message.endLine}`,
+      `endColumn=${message.endColumn}`,
+      `title=${commandPropertyEscape(message.ruleId)}`,
+    ].join(',');
+    return `::${command} ${properties}::${commandEscape(message.message)}`;
+  })).join('\n');
 }
 
 const color = process.stdout.isTTY && !process.env.NO_COLOR;

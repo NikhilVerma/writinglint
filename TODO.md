@@ -218,9 +218,9 @@ with recognizable AI-slop constructions.
       in reusable WritingLint packages.
 - [x] Add directory/glob discovery, `.gitignore`, Markdown/prose handling,
       source-comment extraction, stylish output, JSON, and JSON Lines.
-- [ ] Freeze and version the JSON result schema as the agent integration contract.
+- [x] Freeze and version the JSON result schema as the agent integration contract.
 - [x] Write the SlopSift model card and training/release runbook.
-- [ ] Create distributable Codex and Claude Code skills that lint a draft,
+- [x] Create a distributable Agent Skill that lints a draft,
       revise only supported findings, rerun the CLI, and stop when clean.
 - [ ] Add a bounded iteration count and meaning-preservation guardrails.
 - [ ] Add fixtures demonstrating bad draft → revised draft → clean exit.
@@ -252,13 +252,13 @@ with recognizable AI-slop constructions.
 
 ### CI and GitHub integration
 
-- [ ] Publish a dedicated guide for running `slopsift` in GitHub Actions on
+- [x] Publish a dedicated guide for running `slopsift` in GitHub Actions on
       Markdown, prose, and source-code comments, including pull requests from
       forks and changed-file-only workflows.
-- [ ] Document the existing exit-code contract with copy-pasteable CI examples:
+- [x] Document the existing exit-code contract with copy-pasteable CI examples:
       `0` for an accepted lint result, `1` when configured findings fail the run,
       and `2` for invalid arguments, configuration, model, or runtime failures.
-- [ ] Document `--level`, `--quiet`, and `--max-warnings` as separate controls
+- [x] Document `--level`, `--quiet`, and `--max-warnings` as separate controls
       for visibility and enforcement, with examples for advisory, warning-gated,
       and errors-only pipelines.
 - [x] Add `--exit-zero` as an explicit report-only mode. It returns `0`
@@ -266,12 +266,27 @@ with recognizable AI-slop constructions.
       runtime failures; do not overload `--quiet`, which controls output only.
 - [ ] Add tests covering clean input, warnings, errors, `--max-warnings`,
       `--quiet`, `--exit-zero`, malformed configuration, and missing models.
-- [ ] Add a GitHub-native formatter or problem-matcher example so annotations
+- [x] Add a GitHub-native formatter or problem-matcher example so annotations
       appear on changed lines while retaining the stable JSON/JSON Lines output
       for other CI systems.
 - [ ] Add an isolated example workflow that installs the public npm package,
       runs without workspace links or network model downloads, and verifies the
       expected exit status.
+
+### Agent legibility
+
+- [x] Generate `llms.txt` and `llms-full.txt` from the package metadata, CLI
+      contract, docs, rule catalogue, and Agent Skill.
+- [x] Serve Markdown alternatives for public documentation and rule pages when
+      clients request `Accept: text/markdown`.
+- [x] Publish a versioned JSON rule catalogue and JSON result schema on the
+      website and inside the npm package.
+- [x] Add an SEO-indexable page for every rule, including its severity,
+      confidence, matching method, source, and false-positive feedback path.
+- [ ] Consider a thin local MCP wrapper only when users need tool discovery
+      beyond the CLI and Agent Skill. Keep the core linter protocol-neutral.
+- [ ] Explore a separate agent-legibility checker for sites, documentation,
+      schemas, and automation contracts; do not mix it into writing analysis.
 
 ### Open-source release blockers
 

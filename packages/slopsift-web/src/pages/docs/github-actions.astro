@@ -1,0 +1,125 @@
+---
+import SiteFooter from '../../components/SiteFooter.astro';
+import catalog from '../../generated/rules.json';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+const pinnedVersion = catalog.packageVersion;
+const blockingWorkflow = `name: SlopSift
+
+on:
+  pull_request:
+    paths:
+      - "**/*.md"
+      - "**/*.mdx"
+      - "**/*.txt"
+
+permissions:
+  contents: read
+
+jobs:
+  lint-writing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Lint high-confidence writing tells
+        run: npx --yes slopsift@${pinnedVersion} . --quiet --format github`;
+
+const advisoryWorkflow = `name: SlopSift report
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  review-writing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Write a JSON Lines report
+        run: npx --yes slopsift@${pinnedVersion} . --level info --format json-lines --exit-zero > slopsift.jsonl
+      - uses: actions/upload-artifact@v4
+        with:
+          name: slopsift-report
+          path: slopsift.jsonl`;
+
+const changedFilesWorkflow = `- name: Lint changed writing
+  shell: bash
+  env:
+    BASE_SHA: \${{ github.event.pull_request.base.sha }}
+  run: |
+    mapfile -d '' files < <(
+      git diff --name-only -z --diff-filter=ACMR "$BASE_SHA" HEAD -- \\
+        "*.md" "*.mdx" "*.txt" "*.html" "*.ts" "*.tsx" "*.js" "*.jsx"
+    )
+    if (( \${#files[@]} )); then
+      npx --yes slopsift@${pinnedVersion} "\${files[@]}" --quiet --format github
+    fi`;
+---
+
+<SiteLayout
+  title="Run SlopSift in GitHub Actions"
+  description="Copy tested GitHub Actions workflows for blocking, advisory, and changed-file-only SlopSift checks."
+>
+  <header class="site-header">
+    <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
+    <nav aria-label="GitHub Actions guide navigation"><a href="/docs/">Docs</a><a href="/rules/">Rules</a><a href="https://github.com/NikhilVerma/writinglint">Source</a><a class="nav-install" href="/#install">Install</a></nav>
+  </header>
+
+  <main class="docs-page">
+    <header class="docs-hero">
+      <p class="kicker">GitHub Actions</p>
+      <h1>Lint the<br />pull request.</h1>
+      <p>Pin the released CLI, grant read-only permissions, and choose whether prose findings should block or only leave a report.</p>
+    </header>
+
+    <nav class="docs-toc" aria-label="On this page">
+      <span>On this page</span>
+      <a href="#blocking">Blocking check</a>
+      <a href="#advisory">Advisory report</a>
+      <a href="#changed">Changed files</a>
+      <a href="#exit-codes">Exit codes</a>
+      <a href="#forks">Fork safety</a>
+    </nav>
+
+    <div class="docs-content">
+      <section id="blocking">
+        <p class="docs-index">Blocking check</p>
+        <h2>Block only strong findings.</h2>
+        <p>This workflow emits native annotations and fails only on high-confidence errors. The package version is pinned so a new SlopSift release cannot change a pull request unexpectedly.</p>
+        <pre><code>{blockingWorkflow}</code></pre>
+      </section>
+
+      <section id="advisory">
+        <p class="docs-index">Advisory report</p>
+        <h2>Collect every signal without blocking.</h2>
+        <p><code>--exit-zero</code> neutralizes lint thresholds, but it deliberately preserves exit status 2 for configuration, model, and runtime failures.</p>
+        <pre><code>{advisoryWorkflow}</code></pre>
+      </section>
+
+      <section id="changed">
+        <p class="docs-index">Changed files</p>
+        <h2>Read only what changed.</h2>
+        <p>The shell array preserves spaces in filenames and skips the command when no supported writing changed. No third-party changed-files action is required.</p>
+        <pre><code>{changedFilesWorkflow}</code></pre>
+      </section>
+
+      <section id="exit-codes">
+        <p class="docs-index">Exit codes</p>
+        <h2>Keep lint failures distinct from broken runs.</h2>
+        <div class="docs-exits"><span><b>0</b> accepted result</span><span><b>1</b> lint threshold failed</span><span><b>2</b> command or runtime failed</span></div>
+        <p>Do not append shell-level <code>|| true</code>. That hides status 2 as well as ordinary findings. Use <code>--exit-zero</code> for report-only jobs.</p>
+      </section>
+
+      <section id="forks">
+        <p class="docs-index">Forks</p>
+        <h2>No repository secret required.</h2>
+        <p>The workflow checks out text and invokes a pinned public npm package. It needs only <code>contents: read</code>, so pull requests from forks do not need access to secrets.</p>
+        <aside class="docs-note"><strong>Repositories that install their own dependencies:</strong> Prefer a committed <code>devDependency</code> and <code>npm ci</code>. Review changes to lifecycle scripts with the same care as executable source code.</aside>
+      </section>
+    </div>
+  </main>
+
+  <SiteFooter />
+</SiteLayout>

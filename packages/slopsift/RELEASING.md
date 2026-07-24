@@ -27,6 +27,7 @@ tarball in an empty directory so workspace symlinks cannot hide missing files.
 2. Run `npm run build -w slopsift`.
 3. Run `npm pack --dry-run -w slopsift` and inspect every included file.
 4. Test `slopsift .`, a quoted glob, `--format json`, `--format json-lines`,
+   `--format github`,
    `.gitignore`, a Markdown file, and comments in at least two source languages.
 5. Install the packed tarballs in a clean temporary project and confirm the
    parser resolves from `writinglint-parser-node/model` with networking blocked.

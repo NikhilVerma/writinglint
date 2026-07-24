@@ -32,14 +32,16 @@
     "setup-model": "node scripts/setup-model.mjs",
     "setup-stanza": "uv sync --project experiments/stanza && uv run --project experiments/stanza python packages/parser-node/python/download_stanza.py --model-dir experiments/stanza/.models",
     "gen:demo-lints": "node --conditions=source --import tsx scripts/gen-demo-lints.ts",
-    "check": "npm run typecheck && npm test && npm run build:libs",
+    "generate:agent-surfaces": "npm run generate:agent -w slopsift-web",
+    "check:agent-surfaces": "npm run check:agent -w slopsift-web",
+    "check": "npm run check:agent-surfaces && npm run typecheck && npm test && npm run build:libs",
     "pack:check": "npm run setup-model && npm run build:libs && node scripts/check-packages.mjs",
     "smoke:packed": "node scripts/smoke-cli-install.mjs packed",
     "smoke:published": "node scripts/smoke-cli-install.mjs published",
     "smoke:published:writinglint": "node scripts/smoke-cli-install.mjs published-writinglint",
     "check:push": "npm run smoke:packed",
     "changeset": "changeset",
-    "version-packages": "changeset version",
+    "version-packages": "changeset version && npm run generate:agent-surfaces",
     "release": "npm run check && npm run pack:check && changeset publish"
   },
   "devDependencies": {

@@ -242,6 +242,7 @@ if (host) {
           endColumn: end.column,
           severity: severity === 'error' ? 2 : severity === 'warn' ? 1 : 0,
           level: severity,
+          ruleUrl: `https://slopsift.dev/rules/${encodeURIComponent(lint.ruleId.split('/')[1] ?? lint.ruleId)}/`,
         };
       });
     const wordCount = sentText.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
