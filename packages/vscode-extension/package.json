@@ -3,6 +3,7 @@
   "displayName": "SlopSift",
   "version": "0.1.0",
   "description": "ESLint-like diagnostics for AI slop in prose and code comments.",
+  "private": true,
   "license": "MIT",
   "author": "Nikhil Verma",
   "publisher": "NikhilVerma01",

@@ -41,7 +41,7 @@
     "smoke:published:writinglint": "node scripts/smoke-cli-install.mjs published-writinglint",
     "check:push": "npm run smoke:packed",
     "changeset": "changeset",
-    "version-packages": "changeset version && npm run generate:agent-surfaces",
+    "version-packages": "changeset version && npm install --package-lock-only --ignore-scripts && npm run generate:agent-surfaces",
     "release": "npm run check && npm run pack:check && changeset publish"
   },
   "devDependencies": {
