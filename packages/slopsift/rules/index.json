@@ -32,7 +32,7 @@
       "id": "vague",
       "label": "Vague attribution",
       "description": "Unnamed “experts”, “studies”, and “observers”.",
-      "ruleCount": 6
+      "ruleCount": 7
     },
     {
       "id": "meta",
@@ -80,7 +80,7 @@
       "id": "rhythm",
       "label": "Uniform rhythm",
       "description": "Sentence lengths and openings fall into a machine-like cadence.",
-      "ruleCount": 1
+      "ruleCount": 2
     }
   ],
   "rules": [
@@ -294,6 +294,25 @@
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fabsolute-claim"
     },
     {
+      "id": "ai-style/claim-evidence-gap",
+      "name": "claim-evidence-gap",
+      "title": "Claim Evidence Gap",
+      "description": "Nearby prose stacks outcome claims without measurements, sources, examples, or a mechanism.",
+      "category": {
+        "id": "vague",
+        "label": "Vague attribution",
+        "description": "Unnamed “experts”, “studies”, and “observers”."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/claim-evidence-gap/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/claim-evidence-gap.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fclaim-evidence-gap"
+    },
+    {
       "id": "ai-style/unsupported-certainty",
       "name": "unsupported-certainty",
       "title": "Unsupported Certainty",
@@ -487,7 +506,7 @@
       "id": "ai-style/semantic-redundancy",
       "name": "semantic-redundancy",
       "title": "Semantic Redundancy",
-      "description": "A nearby paragraph repeats the same content words instead of advancing the argument.",
+      "description": "A nearby sentence or paragraph repeats the same argument without adding concrete support.",
       "category": {
         "id": "meta",
         "label": "Chatbot voice",
@@ -767,6 +786,25 @@
       "url": "https://slopsift.dev/rules/mixed-quotes/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/formatting.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fmixed-quotes"
+    },
+    {
+      "id": "ai-style/repeated-sentence-frame",
+      "name": "repeated-sentence-frame",
+      "title": "Repeated Sentence Frame",
+      "description": "Several nearby sentences repeat the same dependency frame and cadence.",
+      "category": {
+        "id": "rhythm",
+        "label": "Uniform rhythm",
+        "description": "Sentence lengths and openings fall into a machine-like cadence."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/repeated-sentence-frame/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/repeated-sentence-frame.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Frepeated-sentence-frame"
     },
     {
       "id": "ai-style/uniform-rhythm",

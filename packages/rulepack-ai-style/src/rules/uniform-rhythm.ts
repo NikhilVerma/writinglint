@@ -3,6 +3,14 @@ import { defineRule } from 'writinglint-core';
 const MIN_SENTENCES = 8;
 const MAX_CV = 0.22;
 const RUN_BAND = 0.25;
+const LIST_ITEM_RE = /^\s*(?:[-*+]|\d+[.)])\s+/m;
+
+function coefficientOfVariation(values: number[]): number {
+  const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
+  if (!mean) return Infinity;
+  const deviation = Math.sqrt(values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length);
+  return deviation / mean;
+}
 
 /** Document-level metronome: many sentences clustering around one length. */
 export const uniformRhythm = defineRule({
@@ -14,8 +22,31 @@ export const uniformRhythm = defineRule({
   create(ctx) {
     return {
       Document(doc) {
-        if (doc.sentences.length < MIN_SENTENCES) return;
-        const lengths = doc.sentences.map((sentence) => sentence.words.length).filter(Boolean);
+        const proseParagraphs = doc.paragraphs.filter((paragraph) =>
+          paragraph.sentences.length >= 2
+          && paragraph.sentences.length <= 3
+          && !LIST_ITEM_RE.test(paragraph.text));
+        for (const sentenceCount of [2, 3]) {
+          const sameShape = proseParagraphs.filter((paragraph) => paragraph.sentences.length === sentenceCount);
+          if (sameShape.length < 4) continue;
+          const slotVariation = Array.from({ length: sentenceCount }, (_, slot) =>
+            coefficientOfVariation(sameShape.map((paragraph) => paragraph.sentences[slot]!.words.length)));
+          if (slotVariation.some((variation) => variation > 0.28)) continue;
+          const strong = slotVariation.every((variation) => variation <= 0.18);
+          const anchor = sameShape[0]!;
+          ctx.report({
+            span: { start: anchor.start, end: anchor.end },
+            confidence: strong ? 'medium' : 'low',
+            message: `${sameShape.length} paragraphs repeat the same ${sentenceCount}-sentence length pattern. The alternating cadence makes the sections feel filled from one template.`,
+          });
+          return;
+        }
+
+        const proseSentences = doc.paragraphs
+          .filter((paragraph) => !LIST_ITEM_RE.test(paragraph.text))
+          .flatMap((paragraph) => paragraph.sentences);
+        if (proseSentences.length < MIN_SENTENCES) return;
+        const lengths = proseSentences.map((sentence) => sentence.words.length).filter(Boolean);
         if (lengths.length < MIN_SENTENCES) return;
         const mean = lengths.reduce((sum, length) => sum + length, 0) / lengths.length;
         const deviation = Math.sqrt(lengths.reduce((sum, length) => sum + (length - mean) ** 2, 0) / lengths.length);
@@ -33,7 +64,7 @@ export const uniformRhythm = defineRule({
           }
           runStart = index + 1;
         }
-        const anchor = doc.sentences[bestStart]!;
+        const anchor = proseSentences[bestStart]!;
         ctx.report({
           span: { start: anchor.start, end: anchor.end },
           confidence: 'low',

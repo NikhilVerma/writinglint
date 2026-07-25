@@ -8,7 +8,7 @@ stylometric document scorer. The first pack for the `writinglint-core` engine.
 import { recommended, score } from 'writinglint-rulepack-ai-style';
 ```
 
-See the [rule reference](https://writinglint.nikhilv.workers.dev/reference/rules/).
+See the [rule reference](https://slopsift.dev/rules/).
 
 ## Detection philosophy
 
@@ -24,13 +24,23 @@ analysis, vague attribution, copula avoidance, negative parallelism, triads,
 passive actor hiding, and false agency. Surface and discourse rules cover
 formatting artifacts, absolutes, unsupported certainty and comparisons,
 mechanical outlines, rhetorical scaffolding, semantic redundancy, uniform
-rhythm, and outline-like conclusions.
+rhythm, repeated transitions, repeated sentence frames, unsupported outcome
+stacks, and outline-like conclusions.
 
 Detection is multi-scale. Rules can inspect tokens, sentences, paragraphs, or
 the whole document. A final evidence rule combines independent weak signals in
 the same paragraph or across a document. Low-confidence absolutes, passives,
 and em dashes have deliberately small aggregation weights; repetition across
 several distinct rule families is what promotes a cluster.
+
+The paragraph and document rules do more than count phrases. Repeated-frame
+matching fingerprints dependency roles and parts of speech while discarding the
+words that fill them. Semantic-redundancy candidates compare nearby sentences
+and paragraphs, then back off when the later passage adds a measurement,
+source, example, mechanism, or opposite polarity. Claim-evidence gaps identify
+outcome predicates in the dependency graph and grade a stack by its density:
+three unsupported claims stay informational; four nearby claims become a
+warning. Lists and procedural checklists are excluded from prose-rhythm rules.
 
 Wikipedia explicitly cautions that its signs are descriptive rather than
 prescriptive and are not individually evidence of AI authorship. WritingLint

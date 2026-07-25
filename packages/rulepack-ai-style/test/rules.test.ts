@@ -113,6 +113,72 @@ test('a few structural + lexical rules still fire on their canonical tells', asy
   assert.ok(fired(await lint('Moreover, the results were clear.'), 'opening-conjunction'));
 });
 
+test('repeated sentence frames are detected across a paragraph without flagging varied exposition', async () => {
+  const repeated = await lint([
+    'Each request enters through the same gateway.',
+    'Each request passes through the same policy check.',
+    'Each request moves through the same approval queue.',
+    'Each request leaves with the same audit record.',
+  ].join(' '));
+  assert.equal(finding(repeated, 'repeated-sentence-frame')?.confidence, 'medium');
+
+  const varied = await lint([
+    'The gateway accepts a request.',
+    'Policy checks run next.',
+    'A reviewer can approve the result or send it back.',
+    'The audit log records what happened at the end.',
+  ].join(' '));
+  assert.ok(!fired(varied, 'repeated-sentence-frame'));
+});
+
+test('repeated sentence frames leave procedural lists alone', async () => {
+  const checklist = await lint([
+    '- Each request enters through the gateway.',
+    '- Each request passes through the policy check.',
+    '- Each request moves through the approval queue.',
+    '- Each request leaves with an audit record.',
+  ].join('\n'));
+  assert.ok(!fired(checklist, 'repeated-sentence-frame'));
+});
+
+test('repeated transitions are promoted only when they become a document habit', async () => {
+  const repeated = await lint([
+    'Moreover, the cache keeps recent records nearby.',
+    'Furthermore, the worker batches related writes.',
+    'Additionally, the queue limits concurrent jobs.',
+    'Ultimately, the operator can inspect every retry.',
+  ].join(' '));
+  const transitions = repeated.filter((item) => item.ruleId === 'ai-style/opening-conjunction');
+  assert.equal(transitions.length, 4);
+  assert.ok(transitions.every((item) => item.confidence === 'medium'));
+
+  assert.equal(
+    finding(await lint('Moreover, the cache keeps recent records nearby. The worker batches writes.'), 'opening-conjunction')?.confidence,
+    'low',
+  );
+});
+
+test('formulaic transitions stay informational when scattered through a long document', async () => {
+  const scattered = await lint([
+    'Moreover, the cache keeps recent records nearby.',
+    'The worker batches related writes.',
+    'Operators can inspect the queue.',
+    'Retries use a fixed delay.',
+    'The log stores each attempt.',
+    'Policy checks happen before dispatch.',
+    'Furthermore, the dashboard groups failures by cause.',
+    'Reviewers can open the original request.',
+    'A separate job removes expired records.',
+    'Metrics are sampled once per minute.',
+    'Alerts go to the owning team.',
+    'The runbook explains how to recover a stalled worker.',
+    'Additionally, the export includes the final disposition.',
+  ].join(' '));
+  const transitions = scattered.filter((item) => item.ruleId === 'ai-style/opening-conjunction');
+  assert.equal(transitions.length, 3);
+  assert.ok(transitions.every((item) => item.confidence === 'low'));
+});
+
 test('hedging-seesaw fires on relentless sentence-initial balancing', async () => {
   const lints = await lint(
     'While the tool is fast, it struggles with scale. However, the benchmarks look promising. ' +
@@ -216,6 +282,195 @@ test('nearby repeated paragraphs emit a semantic redundancy candidate', async ()
     '- Set the layer opacity to 60.',
   ].join('\n'));
   assert.equal(finding(recipe, 'semantic-redundancy')?.confidence, 'low');
+});
+
+test('semantic repetition distinguishes a recycled claim from new measurements', async () => {
+  const recycled = await lint([
+    'The new cache reduces median response time because it keeps frequently requested records in memory.',
+    '',
+    'Keeping frequently requested records in memory is how the new cache reduces median response time.',
+  ].join('\n'));
+  assert.equal(finding(recycled, 'semantic-redundancy')?.confidence, 'medium');
+
+  const supported = await lint([
+    'The new cache reduces median response time because it keeps frequently requested records in memory.',
+    '',
+    'In our May benchmark of 4,000 frequently requested records, the new cache reduced median response time from 180 milliseconds to 92 milliseconds.',
+  ].join('\n'));
+  assert.ok(!fired(supported, 'semantic-redundancy'));
+});
+
+test('a concrete example can advance a repeated argument without a number', async () => {
+  const withExample = await lint([
+    'The registry replaces raw database identifiers with short references that the model can safely return.',
+    '',
+    'For example, a model can return customer-one instead of exposing the raw database identifier for that account.',
+  ].join('\n'));
+  assert.ok(!fired(withExample, 'semantic-redundancy'));
+});
+
+test('semantic repetition can find a recycled argument inside one paragraph', async () => {
+  const recycled = await lint([
+    'The shared queue gives every reviewer the same view of pending requests.',
+    'A reviewer can still filter the queue by owner or deadline.',
+    'Every reviewer sees the same pending requests because the queue is shared.',
+  ].join(' '));
+  assert.equal(finding(recycled, 'semantic-redundancy')?.confidence, 'medium');
+
+  const advanced = await lint([
+    'The shared queue gives every reviewer the same view of pending requests.',
+    'A reviewer can still filter the queue by owner or deadline.',
+    'For example, the support team filters overdue requests before its morning handoff.',
+  ].join(' '));
+  assert.ok(!fired(advanced, 'semantic-redundancy'));
+});
+
+test('semantic overlap does not promote corrections or concrete mechanisms', async () => {
+  const correction = await lint([
+    'With every natural number you can relate at least one real number, so the set of real numbers has greater cardinality than the set of natural numbers.',
+    'That statement establishes the mapping in only one direction.',
+    "What it is n't true is that you can relate every real number with a natural number.",
+  ].join(' '));
+  assert.ok(!fired(correction, 'semantic-redundancy'));
+
+  const mechanism = await lint([
+    'The team thinks the old code is a mess.',
+    'They propose replacing it instead of reading it.',
+    'The team thinks the old code is a mess because unfamiliar code is harder to understand.',
+  ].join(' '));
+  assert.ok(!fired(mechanism, 'semantic-redundancy'));
+
+  const workedExample = await lint([
+    'Yellow paint absorbs blue light and reflects red and green.',
+    'Red paint absorbs green and blue light and reflects red.',
+    'Mix them together and the paint absorbs blue, absorbs half the green, and reflects the rest.',
+  ].join(' '));
+  assert.notEqual(finding(workedExample, 'semantic-redundancy')?.confidence, 'medium');
+});
+
+test('alternating paragraph templates count as uniform structure', async () => {
+  const templated = await lint([
+    'The intake service accepts a request and assigns it to the correct queue. The queue stays visible.',
+    '',
+    'The policy service checks the request and records the applicable constraints. The decision stays visible.',
+    '',
+    'The review service sends the request and records the assigned reviewer. The reviewer stays visible.',
+    '',
+    'The audit service stores the decision and records the final timestamp. The history stays visible.',
+  ].join('\n'));
+  assert.equal(finding(templated, 'uniform-rhythm')?.confidence, 'medium');
+
+  const varied = await lint([
+    'The gateway accepts requests and records their source.',
+    '',
+    'Policy checks run next. Some finish immediately, while unusual requests wait for a reviewer.',
+    '',
+    'A reviewer can approve the result, return it with a note, or ask the requester for more context. The queue records that choice. Nothing else runs until the response arrives.',
+    '',
+    'At the end, the audit log stores the decision.',
+  ].join('\n'));
+  assert.ok(!fired(varied, 'uniform-rhythm'));
+});
+
+test('uniform structure ignores repeated list-item shapes', async () => {
+  const list = await lint([
+    '- The gateway accepts a request. The source is recorded.',
+    '',
+    '- The policy service checks the request. The result is recorded.',
+    '',
+    '- The reviewer opens the request. The decision is recorded.',
+    '',
+    '- The audit service closes the request. The timestamp is recorded.',
+  ].join('\n'));
+  assert.ok(!fired(list, 'uniform-rhythm'));
+});
+
+test('dense outcome claims require support somewhere in the paragraph', async () => {
+  const unsupported = await lint([
+    'The new workflow improves reliability.',
+    'It reduces review time.',
+    'It prevents expensive mistakes.',
+    'It makes every release safer.',
+  ].join(' '));
+  assert.equal(finding(unsupported, 'claim-evidence-gap')?.confidence, 'medium');
+
+  const supported = await lint([
+    'We tested the workflow on 240 pull requests in June.',
+    'Median review time fell from 18 minutes to 11 minutes, and failed releases dropped from 9 to 3.',
+    'The raw logs and test script are linked in the appendix.',
+  ].join(' '));
+  assert.ok(!fired(supported, 'claim-evidence-gap'));
+});
+
+test('claim-evidence confidence rises with the size of the unsupported stack', async () => {
+  const threeClaims = await lint([
+    'The new workflow improves reliability.',
+    'It reduces review time.',
+    'It prevents expensive mistakes.',
+  ].join(' '));
+  assert.equal(finding(threeClaims, 'claim-evidence-gap')?.confidence, 'low');
+});
+
+test('dense outcome language is supported by an explicit mechanism', async () => {
+  const mechanism = await lint([
+    'The queue reduces duplicate work because it assigns one owner to each request.',
+    'It prevents concurrent edits by locking the record while that owner works.',
+    'It makes recovery safer by retaining the previous version until the replacement commits.',
+  ].join(' '));
+  assert.ok(!fired(mechanism, 'claim-evidence-gap'));
+});
+
+test('claim-evidence gaps can accumulate across short paragraphs', async () => {
+  const distributed = await lint([
+    'The shared workspace makes reviews faster.',
+    '',
+    'Automatic routing reduces duplicate work.',
+    '',
+    'Version history prevents expensive mistakes.',
+    '',
+    'Clear ownership makes every release safer.',
+  ].join('\n'));
+  assert.equal(finding(distributed, 'claim-evidence-gap')?.confidence, 'medium');
+
+  const supported = await lint([
+    'In a June trial of 240 changes, the shared workspace reduced median review time from 18 minutes to 11.',
+    '',
+    'Automatic routing reduced duplicate work because it assigns each change to one reviewer.',
+    '',
+    'Version history prevented 3 mistaken overwrites during the trial.',
+    '',
+    'The linked logs show which owner approved each of the 240 releases.',
+  ].join('\n'));
+  assert.ok(!fired(supported, 'claim-evidence-gap'));
+});
+
+test('one measured feature does not support unrelated promotional claims', async () => {
+  const mixed = await lint([
+    'The battery lasts 24 hours in our playback test.',
+    'The headphones deliver an immersive experience.',
+    'Noise cancellation makes every commute easier.',
+    'The lightweight frame keeps you comfortable.',
+    'Their balanced sound elevates your everyday listening.',
+  ].join(' '));
+  assert.equal(finding(mixed, 'claim-evidence-gap')?.confidence, 'medium');
+});
+
+test('ordinary uses of make and better do not become outcome claims', async () => {
+  const mistakes = await lint([
+    'Netscape made the mistake of rewriting the code.',
+    'Borland made the same mistake with its database.',
+    'Microsoft almost made that mistake with Word.',
+    'The abandoned projects made expensive cautionary examples.',
+  ].join(' '));
+  assert.ok(!fired(mistakes, 'claim-evidence-gap'));
+
+  const advice = await lint([
+    'It is better not to block the narrow street.',
+    'It is better not to carry the boxes side by side.',
+    'It is better not to stop in the doorway.',
+    'It is better not to leave a cart on the pavement.',
+  ].join(' '));
+  assert.ok(!fired(advice, 'claim-evidence-gap'));
 });
 
 test('false agency is narrow and asks for the human interpreter', async () => {

@@ -180,6 +180,11 @@ used only after linting for contextual explanation and repair.
 - [ ] Add document-level contradiction candidates.
 - [x] Add paragraph boundaries, document-exit evidence aggregation, and
       deterministic nearby-paragraph repetition candidates.
+- [x] Detect repeated dependency frames, recurring transitions, repeated
+      paragraph templates, and unsupported outcome-claim stacks across nearby
+      prose.
+- [x] Extend semantic-redundancy candidates within paragraphs and suppress
+      measurements, sources, examples, mechanisms, and polarity corrections.
 - [ ] Train a paragraph-pair semantic redundancy and contradiction grader over
       deterministic candidates; include adjacent evidence/citation context.
 - [ ] Add epistemic-overreach evaluation data covering absolutes, unsupported

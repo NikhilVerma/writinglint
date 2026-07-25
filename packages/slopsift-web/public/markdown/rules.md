@@ -1,6 +1,6 @@
 # SlopSift rule catalogue
 
-SlopSift 0.1.6 includes 37 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
+SlopSift 0.1.6 includes 39 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
 
 - [ai-style/evidence-cluster](https://slopsift.dev/rules/evidence-cluster/): Several independent slop signals cluster in one paragraph or across the document. (warn, document context)
 - [ai-style/copula-avoidance](https://slopsift.dev/rules/copula-avoidance/): “stands/serves as a …” dressing up a plain “is a …”. (warn, dependency graph)
@@ -13,6 +13,7 @@ SlopSift 0.1.6 includes 37 AI-style rules. Default levels derive from rule confi
 - [ai-style/negative-parallelism](https://slopsift.dev/rules/negative-parallelism/): “Not (only) X but (also) Y”, a signature LLM cadence. (warn, dependency graph)
 - [ai-style/promo-idioms](https://slopsift.dev/rules/promo-idioms/): Travel-brochure / press-release idioms (nestled in the heart of …). (warn, text pattern)
 - [ai-style/absolute-claim](https://slopsift.dev/rules/absolute-claim/): An absolute or universal claim that may exceed the evidence or omit its scope. (info, document context)
+- [ai-style/claim-evidence-gap](https://slopsift.dev/rules/claim-evidence-gap/): Nearby prose stacks outcome claims without measurements, sources, examples, or a mechanism. (warn, dependency graph)
 - [ai-style/unsupported-certainty](https://slopsift.dev/rules/unsupported-certainty/): Confidence language that asserts a conclusion without showing the evidence. (info, document context)
 - [ai-style/unsupported-comparison](https://slopsift.dev/rules/unsupported-comparison/): A comparative, superlative, or outcome claim without an explicit benchmark in the phrase. (info, text pattern)
 - [ai-style/vague-attribution](https://slopsift.dev/rules/vague-attribution/): A bare, generic subject asserting a “that …” clause. Name who, or cut it. (warn, dependency graph)
@@ -23,7 +24,7 @@ SlopSift 0.1.6 includes 37 AI-style rules. Default levels derive from rule confi
 - [ai-style/modal-redundancy](https://slopsift.dev/rules/modal-redundancy/): Repeats modality after two possibilities already establish the outcome. (warn, dependency graph)
 - [ai-style/outline-conclusion](https://slopsift.dev/rules/outline-conclusion/): A canned “challenges and future prospects” ending instead of a specific conclusion. (info, document context)
 - [ai-style/rhetorical-scaffolding](https://slopsift.dev/rules/rhetorical-scaffolding/): Announces, dramatizes, or reassures around a point instead of stating it. (warn, dependency graph)
-- [ai-style/semantic-redundancy](https://slopsift.dev/rules/semantic-redundancy/): A nearby paragraph repeats the same content words instead of advancing the argument. (info, document context)
+- [ai-style/semantic-redundancy](https://slopsift.dev/rules/semantic-redundancy/): A nearby sentence or paragraph repeats the same argument without adding concrete support. (info, document context)
 - [ai-style/throat-clearing](https://slopsift.dev/rules/throat-clearing/): “it is important to note that …”. If it matters, just say it. (warn, dependency graph)
 - [ai-style/ai-vocabulary](https://slopsift.dev/rules/ai-vocabulary/): Words LLMs over-use relative to human writers. (info, text pattern)
 - [ai-style/emerging-slop-phrases](https://slopsift.dev/rules/emerging-slop-phrases/): Newly common AI-writing phrases, graded as weak evidence in isolation. (info, text pattern)
@@ -38,6 +39,7 @@ SlopSift 0.1.6 includes 37 AI-style rules. Default levels derive from rule confi
 - [ai-style/generation-artifacts](https://slopsift.dev/rules/generation-artifacts/): Leftover chatbot citation artifacts (oaicite, turn0search0, …). (error, text pattern)
 - [ai-style/mechanical-outline](https://slopsift.dev/rules/mechanical-outline/): Repeated bold-label blocks, canned headings, or thematic-break section templates. (info, document context)
 - [ai-style/mixed-quotes](https://slopsift.dev/rules/mixed-quotes/): Straight and curly double quotes mixed in one document, a paste seam. (warn, document context)
+- [ai-style/repeated-sentence-frame](https://slopsift.dev/rules/repeated-sentence-frame/): Several nearby sentences repeat the same dependency frame and cadence. (info, dependency graph)
 - [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)
 
 [Rule catalogue JSON](https://slopsift.dev/rules/index.json)

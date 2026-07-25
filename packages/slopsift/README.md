@@ -64,6 +64,11 @@ preserves paragraphs, document-level rules measure repetition and structure,
 and independent low-confidence signals can combine into a paragraph-level
 warning or error. A single passive or absolute stays informational; a dense
 cluster of different tells can become strong evidence of sloppy prose.
+The document rules also find repeated dependency frames, arguments restated
+without new support, recurring transitions, paragraph templates with the same
+cadence, and dense stacks of outcome claims without evidence. Measurements,
+sources, examples, mechanisms, polarity changes, and procedural lists act as
+negative evidence rather than being treated as more slop.
 
 Markdown and text files are linted as prose. Markdown table cells and rows are
 kept as separate parse spans, and any remaining overlength span is chunked

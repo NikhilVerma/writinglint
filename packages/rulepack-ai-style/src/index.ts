@@ -1,10 +1,10 @@
 /**
  * writinglint-rulepack-ai-style — the AI-writing-style rulepack.
  *
- * Eighteen authorable rules (structural, matched on the dependency graph; and
- * lexical, matched on words/characters) plus a separate document-level SCORE.
- * The pack plugs into writinglint-core like any other; `recommended` is the
- * batteries-included config a consumer can lint with directly or `extends`.
+ * Authorable structural, lexical, and document-context rules plus a separate
+ * document-level score. The pack plugs into writinglint-core like any other;
+ * `recommended` is the batteries-included config a consumer can lint with
+ * directly or `extends`.
  */
 import { definePack, defineConfig, type Confidence, type Config, type Rule, type RuleSetting } from 'writinglint-core';
 import { CATEGORIES } from './categories.js';
@@ -44,6 +44,8 @@ import { vagueQuantifier } from './rules/vague-quantifier.js';
 import { semanticRedundancy } from './rules/semantic-redundancy.js';
 import { evidenceCluster } from './rules/evidence-cluster.js';
 import { unsupportedComparison } from './rules/unsupported-comparison.js';
+import { repeatedSentenceFrame } from './rules/repeated-sentence-frame.js';
+import { claimEvidenceGap } from './rules/claim-evidence-gap.js';
 
 const rawRules = {
   'rule-of-three': ruleOfThree,
@@ -82,6 +84,8 @@ const rawRules = {
   'vague-quantifier': vagueQuantifier,
   'semantic-redundancy': semanticRedundancy,
   'unsupported-comparison': unsupportedComparison,
+  'repeated-sentence-frame': repeatedSentenceFrame,
+  'claim-evidence-gap': claimEvidenceGap,
   // Keep last: DocumentExit combines findings emitted by every earlier rule.
   'evidence-cluster': evidenceCluster,
 };
@@ -130,6 +134,8 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'vague-quantifier': 'document-context',
   'semantic-redundancy': 'document-context',
   'unsupported-comparison': 'lexical',
+  'repeated-sentence-frame': 'dependency-graph',
+  'claim-evidence-gap': 'dependency-graph',
   'evidence-cluster': 'document-context',
 };
 
@@ -170,6 +176,8 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'vague-quantifier': 'low',
   'semantic-redundancy': 'low',
   'unsupported-comparison': 'low',
+  'repeated-sentence-frame': 'low',
+  'claim-evidence-gap': 'medium',
   'evidence-cluster': 'medium',
 };
 

@@ -1,6 +1,6 @@
 # ai-style/semantic-redundancy
 
-A nearby paragraph repeats the same content words instead of advancing the argument.
+A nearby sentence or paragraph repeats the same argument without adding concrete support.
 
 - Default level: `info`
 - Confidence: `low`
