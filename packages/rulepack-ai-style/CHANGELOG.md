@@ -1,5 +1,11 @@
 # writinglint-rulepack-ai-style
 
+## 0.1.6
+
+### Patch Changes
+
+- c3e1369: Add document-aware rules for repeated dependency frames and unsupported outcome-claim stacks. Improve repeated-transition, semantic-redundancy, and uniform-structure detection with evidence, polarity, procedural-list, and confidence guards.
+
 ## 0.1.5
 
 ### Patch Changes

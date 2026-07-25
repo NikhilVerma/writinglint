@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Lint high-confidence writing tells
-        run: npx --yes slopsift@0.1.6 . --quiet --format github
+        run: npx --yes slopsift@0.1.7 . --quiet --format github
 ```
 
 `--quiet` reports errors only. The `github` formatter emits native workflow annotations at the exact source range.
@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Write a JSON Lines report
-        run: npx --yes slopsift@0.1.6 . --level info --format json-lines --exit-zero > slopsift.jsonl
+        run: npx --yes slopsift@0.1.7 . --level info --format json-lines --exit-zero > slopsift.jsonl
       - uses: actions/upload-artifact@v4
         with:
           name: slopsift-report
@@ -67,7 +67,7 @@ jobs:
         "*.md" "*.mdx" "*.txt" "*.html" "*.ts" "*.tsx" "*.js" "*.jsx"
     )
     if (( ${#files[@]} )); then
-      npx --yes slopsift@0.1.6 "${files[@]}" --quiet --format github
+      npx --yes slopsift@0.1.7 "${files[@]}" --quiet --format github
     fi
 ```
 

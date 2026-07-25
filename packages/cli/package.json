@@ -38,7 +38,7 @@
   "dependencies": {
     "writinglint-core": "^0.1.1",
     "writinglint-parser-node": "^0.1.6",
-    "writinglint-rulepack-ai-style": "^0.1.5"
+    "writinglint-rulepack-ai-style": "^0.1.6"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').chmodSync('dist/cli.js', 0o755)\"",
