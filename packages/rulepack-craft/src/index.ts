@@ -22,6 +22,9 @@ import { parentheticalHedge } from "./rules/parenthetical-hedge.js";
 import { qualifierSoftener } from "./rules/qualifier-softener.js";
 import { verdictEcho } from "./rules/verdict-echo.js";
 import { verdictWord } from "./rules/verdict-word.js";
+// corporate-register (dependency-graph) rules
+import { stackedNouns } from "./rules/stacked-nouns.js";
+import { nominalization } from "./rules/nominalization.js";
 // document-level rhythm rules
 import { uniformRhythm } from "./rules/uniform-rhythm.js";
 
@@ -33,6 +36,8 @@ const rules = {
     "parenthetical-hedge": parentheticalHedge,
     "qualifier-softener": qualifierSoftener,
     "apology-reflex": apologyReflex,
+    "stacked-nouns": stackedNouns,
+    nominalization,
     "uniform-rhythm": uniformRhythm
 };
 
@@ -71,5 +76,7 @@ export {
     parentheticalHedge,
     qualifierSoftener,
     apologyReflex,
+    stackedNouns,
+    nominalization,
     uniformRhythm
 };

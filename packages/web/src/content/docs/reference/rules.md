@@ -24,6 +24,9 @@ cannot express. The rest are lexical / idiom / formatting rules.
 | ★ `vague-attribution` | vague | A bare, generic subject asserting a "that …" clause ("Studies suggest…"). |
 | ★ `throat-clearing` | meta | "It is important to note that …". If it matters, just say it. |
 | `hedging-seesaw` | balance | Relentless "While X… However, Y" balancing, density-gated — a position never taken. |
+| ★ `comma-splice` | rhythm | Two complete clauses stapled with a bare comma ("Thanks for the demo, I enjoyed it.") — clipped parataxis performing breeziness. |
+| ★ `agentless-opener` | agency | "Notes attached, and they are …" — a verbless fragment that circles back with a pronoun instead of naming the doer. |
+| ★ `setup-fragment` | performance | "One thing I wanted to put on the table …" — a noun-rooted fragment staging a point instead of making it. |
 
 ## Vocabulary & idioms
 
@@ -34,6 +37,8 @@ cannot express. The rest are lexical / idiom / formatting rules.
 | `promo-idioms` | promo | Travel-brochure / press-release idioms (nestled in the heart of …). |
 | `chatbot-idioms` | meta | Editorialising / chatbot filler ("it's worth noting…"). |
 | `opening-conjunction` | conjunctions | Formulaic sentence-opening transitions ("Moreover,", "Ultimately,"). |
+| `performed-candor` | performance | Announced honesty ("to be fully transparent", "I'll be honest") in place of the honest sentence itself. |
+| ★ `filler-intensifiers` | performance | Sincerity adverbs on first-person stance adjectives ("I am genuinely open"), plus density-gated intensifier spray. |
 
 ## Formatting tells
 

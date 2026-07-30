@@ -117,6 +117,21 @@ test("uniform-rhythm fires on metronome prose, nine same-length sentences", asyn
     assert.ok(fired(await lint(drone), "uniform-rhythm"));
 });
 
+test("stacked-nouns unpacks noun piles, leaves short compounds alone", async () => {
+    assert.ok(
+        fired(
+            await lint("The customer onboarding flow migration project timeline slipped again."),
+            "stacked-nouns"
+        )
+    );
+    assert.ok(!fired(await lint("The deployment process finished without errors."), "stacked-nouns"));
+});
+
+test("nominalization surfaces the buried verb", async () => {
+    assert.ok(fired(await lint("We made a decision to ship the fix early."), "nominalization"));
+    assert.ok(!fired(await lint("We respected the decision and shipped the fix."), "nominalization"));
+});
+
 test("uniform-rhythm does NOT fire on varied, breathing prose", async () => {
     const varied =
         "The report was late. Nobody minded, because the client had spent the whole week " +

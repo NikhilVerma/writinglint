@@ -13,9 +13,11 @@ they're allowed to say the thing, then the music of the prose itself:
 | `parenthetical-hedge` | "(not that important)" — a sentence undercut from inside a parenthesis | error |
 | `qualifier-softener` | "pretty good" — a dimmer switch on your own claim | warn |
 | `apology-reflex` | "sorry for the long post" — apologising to a reader who hasn't objected | error |
+| `stacked-nouns` | "customer onboarding flow migration project timeline" — a noun pile the reader must unpack | warn |
+| `nominalization` | "made a decision" — a light verb burying the real verb ("decided") | warn |
 | `uniform-rhythm` | metronome prose — every sentence near the same length (Gary Provost: "vary the sentence length, and I create music") | warn |
 
-The structural rules (`hedge-opener`, `qualifier-softener`) match on the
+The structural rules (`hedge-opener`, `qualifier-softener`, `stacked-nouns`, `nominalization`) match on the
 dependency graph, so any words can fill the construction's slots: "This could
 sound naive …" fires; "It seemed late" and "pretty flowers" don't.
 

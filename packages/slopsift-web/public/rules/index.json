@@ -50,13 +50,19 @@
       "id": "agency",
       "label": "Hidden or false agency",
       "description": "Passive actor hiding and abstractions made to act like people.",
-      "ruleCount": 2
+      "ruleCount": 3
     },
     {
       "id": "balance",
       "label": "Hedging seesaw",
       "description": "Relentless “While X… However, Y”, a position never taken.",
       "ruleCount": 1
+    },
+    {
+      "id": "performance",
+      "label": "Performed voice",
+      "description": "Sincerity narrated at the reader, announced candor, filler intensifiers, staged setups.",
+      "ruleCount": 3
     },
     {
       "id": "rule-of-three",
@@ -80,7 +86,7 @@
       "id": "rhythm",
       "label": "Uniform rhythm",
       "description": "Sentence lengths and openings fall into a machine-like cadence.",
-      "ruleCount": 2
+      "ruleCount": 3
     }
   ],
   "rules": [
@@ -579,6 +585,25 @@
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Femerging-slop-phrases"
     },
     {
+      "id": "ai-style/agentless-opener",
+      "name": "agentless-opener",
+      "title": "Agentless Opener",
+      "description": "Telegraphic verbless opener spliced with an “and it …” clause, the doer never appears.",
+      "category": {
+        "id": "agency",
+        "label": "Hidden or false agency",
+        "description": "Passive actor hiding and abstractions made to act like people."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/agentless-opener/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/agentless-opener.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fagentless-opener"
+    },
+    {
       "id": "ai-style/false-agency",
       "name": "false-agency",
       "title": "False Agency",
@@ -634,6 +659,63 @@
       "url": "https://slopsift.dev/rules/hedging-seesaw/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/hedging-seesaw.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fhedging-seesaw"
+    },
+    {
+      "id": "ai-style/filler-intensifiers",
+      "name": "filler-intensifiers",
+      "title": "Filler Intensifiers",
+      "description": "Sincerity adverbs (genuinely, truly, really) doing the believing for the reader.",
+      "category": {
+        "id": "performance",
+        "label": "Performed voice",
+        "description": "Sincerity narrated at the reader, announced candor, filler intensifiers, staged setups."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/filler-intensifiers/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/filler-intensifiers.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Ffiller-intensifiers"
+    },
+    {
+      "id": "ai-style/performed-candor",
+      "name": "performed-candor",
+      "title": "Performed Candor",
+      "description": "Announcing your own honesty (“to be transparent”, “I’ll be honest”) instead of enacting it.",
+      "category": {
+        "id": "performance",
+        "label": "Performed voice",
+        "description": "Sincerity narrated at the reader, announced candor, filler intensifiers, staged setups."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "lexical",
+      "methodLabel": "Text pattern",
+      "methodDescription": "Matches a word, phrase, punctuation pattern, or other directly observable text signal.",
+      "url": "https://slopsift.dev/rules/performed-candor/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/performed-candor.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fperformed-candor"
+    },
+    {
+      "id": "ai-style/setup-fragment",
+      "name": "setup-fragment",
+      "title": "Setup Fragment",
+      "description": "A noun-rooted fragment (“One thing I wanted to …”) that stages a point instead of making it.",
+      "category": {
+        "id": "performance",
+        "label": "Performed voice",
+        "description": "Sincerity narrated at the reader, announced candor, filler intensifiers, staged setups."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/setup-fragment/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/setup-fragment.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fsetup-fragment"
     },
     {
       "id": "ai-style/rule-of-three",
@@ -786,6 +868,25 @@
       "url": "https://slopsift.dev/rules/mixed-quotes/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/formatting.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fmixed-quotes"
+    },
+    {
+      "id": "ai-style/comma-splice",
+      "name": "comma-splice",
+      "title": "Comma Splice",
+      "description": "Two complete clauses stapled with a bare comma, clipped parataxis performing breeziness.",
+      "category": {
+        "id": "rhythm",
+        "label": "Uniform rhythm",
+        "description": "Sentence lengths and openings fall into a machine-like cadence."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/comma-splice/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/comma-splice.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fcomma-splice"
     },
     {
       "id": "ai-style/repeated-sentence-frame",

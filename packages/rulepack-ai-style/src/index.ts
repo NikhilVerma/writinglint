@@ -25,6 +25,10 @@ import { falseAgency } from './rules/false-agency.js';
 import { rhetoricalScaffolding } from './rules/rhetorical-scaffolding.js';
 import { negativeListBuildup } from './rules/negative-list-buildup.js';
 import { modalRedundancy } from './rules/modal-redundancy.js';
+import { commaSplice } from './rules/comma-splice.js';
+import { agentlessOpener } from './rules/agentless-opener.js';
+import { setupFragment } from './rules/setup-fragment.js';
+import { fillerIntensifiers } from './rules/filler-intensifiers.js';
 // document-level discourse rules
 import { hedgingSeesaw } from './rules/hedging-seesaw.js';
 import { dramaticFragment } from './rules/dramatic-fragment.js';
@@ -32,6 +36,7 @@ import { dramaticFragment } from './rules/dramatic-fragment.js';
 import { significanceIdioms, promoIdioms, chatbotIdioms } from './rules/idioms.js';
 import { aiVocabulary } from './rules/ai-vocabulary.js';
 import { emergingSlopPhrases } from './rules/emerging-slop-phrases.js';
+import { performedCandor } from './rules/performed-candor.js';
 import { openingConjunction } from './rules/opening-conjunction.js';
 import { emDashOveruse, mixedQuotes, generationArtifacts, emoji } from './rules/formatting.js';
 import { unsupportedCertainty } from './rules/unsupported-certainty.js';
@@ -63,6 +68,10 @@ const rawRules = {
   'rhetorical-scaffolding': rhetoricalScaffolding,
   'negative-list-buildup': negativeListBuildup,
   'modal-redundancy': modalRedundancy,
+  'comma-splice': commaSplice,
+  'agentless-opener': agentlessOpener,
+  'setup-fragment': setupFragment,
+  'filler-intensifiers': fillerIntensifiers,
   'hedging-seesaw': hedgingSeesaw,
   'dramatic-fragment': dramaticFragment,
   'significance-idioms': significanceIdioms,
@@ -70,6 +79,7 @@ const rawRules = {
   'chatbot-idioms': chatbotIdioms,
   'ai-vocabulary': aiVocabulary,
   'emerging-slop-phrases': emergingSlopPhrases,
+  'performed-candor': performedCandor,
   'opening-conjunction': openingConjunction,
   'em-dash-overuse': emDashOveruse,
   'mixed-quotes': mixedQuotes,
@@ -113,6 +123,10 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'rhetorical-scaffolding': 'dependency-graph',
   'negative-list-buildup': 'dependency-graph',
   'modal-redundancy': 'dependency-graph',
+  'comma-splice': 'dependency-graph',
+  'agentless-opener': 'dependency-graph',
+  'setup-fragment': 'dependency-graph',
+  'filler-intensifiers': 'dependency-graph',
   'hedging-seesaw': 'document-context',
   'dramatic-fragment': 'document-context',
   'significance-idioms': 'lexical',
@@ -120,6 +134,7 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'chatbot-idioms': 'lexical',
   'ai-vocabulary': 'lexical',
   'emerging-slop-phrases': 'lexical',
+  'performed-candor': 'lexical',
   'opening-conjunction': 'lexical',
   'em-dash-overuse': 'document-context',
   'mixed-quotes': 'document-context',
@@ -155,6 +170,10 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'rhetorical-scaffolding': 'medium',
   'negative-list-buildup': 'medium',
   'modal-redundancy': 'medium',
+  'comma-splice': 'low',
+  'agentless-opener': 'medium',
+  'setup-fragment': 'medium',
+  'filler-intensifiers': 'medium',
   'hedging-seesaw': 'low',
   'dramatic-fragment': 'low',
   'significance-idioms': 'medium',
@@ -162,6 +181,7 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'chatbot-idioms': 'high',
   'ai-vocabulary': 'low',
   'emerging-slop-phrases': 'low',
+  'performed-candor': 'medium',
   'opening-conjunction': 'low',
   'em-dash-overuse': 'low',
   'mixed-quotes': 'medium',

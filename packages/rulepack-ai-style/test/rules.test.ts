@@ -493,6 +493,34 @@ test('negative listing requires a repeated run', async () => {
   assert.ok(!fired(await lint("It wasn't speed. The bottleneck was memory."), 'negative-list-buildup'));
 });
 
+test('comma-splice catches clipped parataxis but not coordination or comment clauses', async () => {
+  assert.ok(fired(await lint('Thanks for the demo, I enjoyed it.'), 'comma-splice'));
+  assert.ok(!fired(await lint('It rained all day, but we still went out.'), 'comma-splice'));
+  assert.ok(!fired(await lint('Paris, you see, was our home.'), 'comma-splice'));
+});
+
+test('agentless-opener wants a doer, but leaves either register alone', async () => {
+  assert.ok(fired(await lint('Notes attached, and they are a fuller record than the summary.'), 'agentless-opener'));
+  assert.ok(!fired(await lint('I enjoyed the demo, and the notes are attached.'), 'agentless-opener'));
+  assert.ok(!fired(await lint('Notes attached.'), 'agentless-opener'));
+});
+
+test('setup-fragment flags staged points, not stated ones', async () => {
+  assert.ok(fired(await lint('One thing I wanted to put on the table before I talk to the reviewers.'), 'setup-fragment'));
+  assert.ok(!fired(await lint('One thing is clear: the tests are slow.'), 'setup-fragment'));
+});
+
+test('performed-candor catches announced honesty, not honest description', async () => {
+  assert.ok(fired(await lint('I would rather say that plainly than have you guess.'), 'performed-candor'));
+  assert.ok(fired(await lint('To be fully transparent, the budget is gone.'), 'performed-candor'));
+  assert.ok(!fired(await lint('The report is transparent about its methods.'), 'performed-candor'));
+});
+
+test('filler-intensifiers flags the first-person stance shape and gates the spray', async () => {
+  assert.ok(fired(await lint('I am genuinely open to both designs.'), 'filler-intensifiers'));
+  assert.ok(!fired(await lint('The button is really close to the edge.'), 'filler-intensifiers'));
+});
+
 test('modal redundancy removes only the duplicated future modal', async () => {
   assert.ok(fired(
     await lint('You can rewrite every line or hire an editor; both will give you a cleaner draft.'),

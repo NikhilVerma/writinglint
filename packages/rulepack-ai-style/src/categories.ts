@@ -61,6 +61,12 @@ export const CATEGORIES: Record<string, Category> = {
     blurb: 'Relentless “While X… However, Y” — a position never taken.',
     weight: 2,
   },
+  performance: {
+    id: 'performance',
+    label: 'Performed voice',
+    blurb: 'Sincerity narrated at the reader — announced candor, filler intensifiers, staged setups.',
+    weight: 2,
+  },
   'rule-of-three': {
     id: 'rule-of-three',
     label: 'Rule of three',
@@ -98,6 +104,7 @@ export const CATEGORY_ORDER: string[] = [
   'ai-vocab',
   'agency',
   'balance',
+  'performance',
   'rule-of-three',
   'conjunctions',
   'formatting',

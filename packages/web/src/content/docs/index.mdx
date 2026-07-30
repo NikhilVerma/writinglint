@@ -29,6 +29,11 @@ down. The linter above is loaded with the first one — every highlight is a str
 > tells are far more robust than surface patterns. Moreover, WritingLint boasts a diverse array of
 > authorable rules. Ultimately, it empowers writers to craft clearer, sharper, and more compelling
 > prose. Trust the graph, not the vibes.
+>
+> One thing we wanted to put on the table before you scroll further. To be fully transparent, we are
+> genuinely excited about where this is heading. Benchmarks attached, and they are a fuller picture
+> than the docs. Try the live demo, the flags appear instantly. It runs locally, nothing leaves
+> your browser. Thanks for reading, we enjoyed every draft.
 
 ### Edited by a human
 
@@ -36,14 +41,21 @@ down. The linter above is loaded with the first one — every highlight is a str
 > not just a flat list of words or part-of-speech tags. That lets a rule target the real structure of a
 > phrase — say, a coordinated "X, not Y" contrast — which regex and POS patterns tend to miss. The
 > trade-off is speed: the parser is a real model, so it is slower than a pattern matcher. In exchange,
-> you can write richer rules, and they keep working when someone rewords the sentence.
+> you can write richer rules, and they keep working when someone rewords the sentence. I've attached
+> the benchmarks; they give a fuller picture than this page. Try the live demo — it runs locally,
+> so nothing leaves your browser. Thanks for reading.
 
 The AI version isn't wrong — it's just wearing every tell at once: corrective antithesis
 ("*not just a linter, it's a paradigm shift*"), the rule of three ("*intricate, nuanced, and
 multifaceted*"), copula avoidance ("*stands as a testament*"), vague attribution ("*Studies
 suggest*"), promotional verbs ("*boasts a diverse array*"), and throat-clearing openers
-("*In today's…*", "*Moreover*", "*Ultimately*"). WritingLint flags each one **by its structure**,
-not by a word list — so the flags survive a synonym swap.
+("*In today's…*", "*Moreover*", "*Ultimately*"). The closing paragraph is chatbot email in
+miniature: a setup fragment that stages the point instead of making it ("*One thing we wanted
+to put on the table…*"), performed candor ("*To be fully transparent*"), a filler intensifier
+doing the believing ("*genuinely excited*"), an agentless opener that never names the doer
+("*Benchmarks attached, and they…*"), and comma splices performing breeziness ("*Thanks for
+reading, we enjoyed every draft*"). WritingLint flags each one **by its structure**, not by a
+word list — so the flags survive a synonym swap.
 
 ## Why a dependency graph, not just POS tags
 
