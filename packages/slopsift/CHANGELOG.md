@@ -1,5 +1,12 @@
 # slopsift
 
+## 0.1.8
+
+### Patch Changes
+
+- Updated dependencies [d3ff348]
+  - writinglint-rulepack-ai-style@0.2.0
+
 ## 0.1.7
 
 ### Patch Changes
