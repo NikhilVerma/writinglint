@@ -1,5 +1,14 @@
 # slopsift
 
+## 0.2.1
+
+### Patch Changes
+
+- 1c0e418: Refresh the shared build, test, documentation, browser-extension, and release
+  toolchain. The consolidated dependency update is verified against the CLI
+  package, browser editor, Chrome extension, VS Code extension host, and
+  Cloudflare Worker bundle.
+
 ## 0.2.0
 
 ### Minor Changes
