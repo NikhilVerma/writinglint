@@ -22,6 +22,7 @@
     "deploy:dry": "wrangler deploy --dry-run"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.10.2",
     "@codemirror/lang-markdown": "^6.5.1",
     "@codemirror/language": "^6.12.4",
     "@codemirror/lint": "^6.9.7",

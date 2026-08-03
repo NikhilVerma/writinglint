@@ -2,10 +2,11 @@ import { basicSetup } from 'codemirror';
 import { markdown } from '@codemirror/lang-markdown';
 import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
 import { setDiagnostics, type Diagnostic } from '@codemirror/lint';
-import { Compartment, EditorState } from '@codemirror/state';
-import { EditorView } from '@codemirror/view';
+import { Compartment, EditorState, Prec } from '@codemirror/state';
+import { EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 import type { Lint } from 'writinglint-core';
+import { EDITOR_SELECTION_THEME, selectEditorDocument } from './editor-interactions.js';
 
 type Mode = 'markdown' | 'plain';
 type Filter = 'all' | Lint['severity'];
@@ -118,7 +119,7 @@ if (app) {
       fontFamily: 'var(--mono)',
       fontSize: '10px',
     },
-    '.cm-activeLine': { backgroundColor: '#f3f1eb' },
+    ...EDITOR_SELECTION_THEME,
     '.cm-activeLineGutter': { backgroundColor: '#ebe8df', color: 'var(--ink)' },
     '.cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection': { backgroundColor: '#f0c9c5 !important' },
     '.cm-cursor, .cm-dropCursor': { borderLeftColor: 'var(--red)', borderLeftWidth: '2px' },
@@ -142,6 +143,7 @@ if (app) {
       doc: initialText,
       extensions: [
         basicSetup,
+        Prec.highest(keymap.of([{ key: 'Mod-a', run: selectEditorDocument, preventDefault: true }])),
         EditorState.tabSize.of(2),
         EditorView.lineWrapping,
         EditorView.contentAttributes.of({

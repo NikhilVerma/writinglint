@@ -20,7 +20,7 @@
       "id": "parallelism",
       "label": "Negative parallelism",
       "description": "“Not only… but also”, “It’s not X, it’s Y”, “X, not Y”.",
-      "ruleCount": 4
+      "ruleCount": 5
     },
     {
       "id": "promo",
@@ -32,13 +32,13 @@
       "id": "vague",
       "label": "Vague attribution",
       "description": "Unnamed “experts”, “studies”, and “observers”.",
-      "ruleCount": 7
+      "ruleCount": 8
     },
     {
       "id": "meta",
       "label": "Chatbot voice",
       "description": "Editorialising asides and reader-collaboration filler.",
-      "ruleCount": 7
+      "ruleCount": 8
     },
     {
       "id": "ai-vocab",
@@ -86,7 +86,7 @@
       "id": "rhythm",
       "label": "Uniform rhythm",
       "description": "Sentence lengths and openings fall into a machine-like cadence.",
-      "ruleCount": 3
+      "ruleCount": 4
     }
   ],
   "rules": [
@@ -184,6 +184,25 @@
       "url": "https://slopsift.dev/rules/significance-idioms/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/idioms.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fsignificance-idioms"
+    },
+    {
+      "id": "ai-style/binary-outcome-frame",
+      "name": "binary-outcome-frame",
+      "title": "Binary Outcome Frame",
+      "description": "Mirrored clauses compress a graded process into a polished right-versus-wrong outcome pair.",
+      "category": {
+        "id": "parallelism",
+        "label": "Negative parallelism",
+        "description": "“Not only… but also”, “It’s not X, it’s Y”, “X, not Y”."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/binary-outcome-frame/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/binary-outcome-frame.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fbinary-outcome-frame"
     },
     {
       "id": "ai-style/corrective-antithesis",
@@ -317,6 +336,25 @@
       "url": "https://slopsift.dev/rules/claim-evidence-gap/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/claim-evidence-gap.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fclaim-evidence-gap"
+    },
+    {
+      "id": "ai-style/undefined-key-term",
+      "name": "undefined-key-term",
+      "title": "Undefined Key Term",
+      "description": "A central term is introduced indefinitely, repeated across the document, and asked about without being defined.",
+      "category": {
+        "id": "vague",
+        "label": "Vague attribution",
+        "description": "Unnamed “experts”, “studies”, and “observers”."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/undefined-key-term/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/undefined-key-term.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fundefined-key-term"
     },
     {
       "id": "ai-style/unsupported-certainty",
@@ -488,6 +526,25 @@
       "url": "https://slopsift.dev/rules/outline-conclusion/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/outline-conclusion.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Foutline-conclusion"
+    },
+    {
+      "id": "ai-style/premature-closure",
+      "name": "premature-closure",
+      "title": "Premature Closure",
+      "description": "A summary aside announces that an explanation is complete even though the paragraph immediately continues.",
+      "category": {
+        "id": "meta",
+        "label": "Chatbot voice",
+        "description": "Editorialising asides and reader-collaboration filler."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/premature-closure/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/premature-closure.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fpremature-closure"
     },
     {
       "id": "ai-style/rhetorical-scaffolding",
@@ -887,6 +944,25 @@
       "url": "https://slopsift.dev/rules/comma-splice/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/comma-splice.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fcomma-splice"
+    },
+    {
+      "id": "ai-style/referential-compression",
+      "name": "referential-compression",
+      "title": "Referential Compression",
+      "description": "Several nearby sentences open with bare pronouns instead of carrying the subject forward explicitly.",
+      "category": {
+        "id": "rhythm",
+        "label": "Uniform rhythm",
+        "description": "Sentence lengths and openings fall into a machine-like cadence."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/referential-compression/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/referential-compression.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Freferential-compression"
     },
     {
       "id": "ai-style/repeated-sentence-frame",

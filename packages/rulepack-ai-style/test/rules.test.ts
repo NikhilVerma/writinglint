@@ -473,6 +473,85 @@ test('ordinary uses of make and better do not become outcome claims', async () =
   assert.ok(!fired(advice, 'claim-evidence-gap'));
 });
 
+test('compressed explanations expose their missing subjects and staged closure', async () => {
+  const original = await lint([
+    'We picked a rule and kept it to ourselves. Then we fed it sixty numbers and wrote down what came out the other side. Those sixty pairs are everything the machine gets. It never sees the rule.',
+    '',
+    'The machine is about as simple as a machine can be. It has two knobs. It takes the number you give it, multiplies by whatever the first knob says, then adds whatever the second knob says. That\'s the whole machine. Set the knobs to the right pair of numbers and it copies our secret rule exactly; set them wrong and it talks nonsense.',
+    '',
+    'So the question "can it find the rule?" turns into something much more concrete: can it find the right two numbers?',
+  ].join('\n'));
+
+  assert.equal(finding(original, 'referential-compression')?.confidence, 'low');
+  assert.equal(finding(original, 'premature-closure')?.confidence, 'medium');
+  assert.equal(finding(original, 'binary-outcome-frame')?.confidence, 'medium');
+  assert.equal(finding(original, 'undefined-key-term')?.confidence, 'low');
+});
+
+test('a more explicit explanation avoids compact AI cadence but still owns an undefined term', async () => {
+  const rewrite = await lint([
+    'For this test we will pick a rule and keep it to ourselves. We will then try and pick sixty random numbers and write down what comes to the other side. The machine which will "guess" these rules only sees the numbers we feed it, it\'s not allowed to look at the rules (that\'s cheating).',
+    '',
+    'For a start we will give the machine just 2 knobs. Each knob will hold some number. The machine will take the number we will provide it, then it will multiply it by the first knob\'s value and ADD the second knob\'s value.',
+    '',
+    'If we set the knob values correctly, it might be able to guess our rule! And if the values are wrong it will fail.',
+    '',
+    'Now the goal for today\'s problem is: can we do something that will allow the machine to guess our rule by just looking at the numbers?',
+  ].join('\n'));
+
+  assert.ok(!fired(rewrite, 'referential-compression'));
+  assert.ok(!fired(rewrite, 'premature-closure'));
+  assert.ok(!fired(rewrite, 'binary-outcome-frame'));
+  assert.equal(finding(rewrite, 'undefined-key-term')?.confidence, 'low');
+});
+
+test('contextual compression rules leave ordinary pronouns, summaries, and configuration prose alone', async () => {
+  const ordinary = await lint([
+    'The parser reads one sentence at a time. It stores the tokens in source order. The dependency graph records each head and relation.',
+    '',
+    'This section described the parser. That is the whole parser setup.',
+    '',
+    'Set cache to true to enable caching; set it to false to disable caching.',
+  ].join('\n'));
+
+  assert.ok(!fired(ordinary, 'referential-compression'));
+  assert.ok(!fired(ordinary, 'premature-closure'));
+  assert.ok(!fired(ordinary, 'binary-outcome-frame'));
+  assert.ok(!fired(ordinary, 'undefined-key-term'));
+});
+
+test('a key term with an actual definition is not reported as undefined', async () => {
+  const relativeDefinition = await lint([
+    'We use a rule that maps each input number to an output number.',
+    '',
+    'The rule produces one output for each input.',
+    '',
+    'Can the rule reproduce all sixty observed pairs?',
+  ].join('\n'));
+  assert.ok(!fired(relativeDefinition, 'undefined-key-term'));
+
+  const copularDefinition = await lint([
+    'A rule is a mapping from an input number to an output number.',
+    '',
+    'This rule uses multiplication and addition.',
+    '',
+    'Can the rule reproduce all sixty observed pairs?',
+  ].join('\n'));
+  assert.ok(!fired(copularDefinition, 'undefined-key-term'));
+});
+
+test('a bare-pronoun run remains informational without stronger contextual tells', async () => {
+  const explanation = await lint([
+    'The term covers several different techniques.',
+    'It describes an attempt to stop unauthorized copying.',
+    'It can inconvenience paying customers.',
+    'It may do little to stop a copy whose restrictions have already been removed.',
+  ].join(' '));
+  assert.equal(finding(explanation, 'referential-compression')?.confidence, 'low');
+  assert.ok(!fired(explanation, 'premature-closure'));
+  assert.ok(!fired(explanation, 'binary-outcome-frame'));
+});
+
 test('false agency is narrow and asks for the human interpreter', async () => {
   assert.ok(fired(await lint('The data tells us which option to choose.'), 'false-agency'));
   assert.equal(finding(await lint('The complaint becomes a fix.'), 'false-agency')?.confidence, 'medium');

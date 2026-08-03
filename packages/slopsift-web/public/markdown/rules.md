@@ -1,12 +1,13 @@
 # SlopSift rule catalogue
 
-SlopSift 0.1.7 includes 44 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
+SlopSift 0.1.7 includes 48 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
 
 - [ai-style/evidence-cluster](https://slopsift.dev/rules/evidence-cluster/): Several independent slop signals cluster in one paragraph or across the document. (warn, document context)
 - [ai-style/copula-avoidance](https://slopsift.dev/rules/copula-avoidance/): “stands/serves as a …” dressing up a plain “is a …”. (warn, dependency graph)
 - [ai-style/light-verb-role](https://slopsift.dev/rules/light-verb-role/): “plays a … role”, importance asserted, not shown. (info, dependency graph)
 - [ai-style/participial-appendage](https://slopsift.dev/rules/participial-appendage/): Trailing “-ing” clause that editorialises the main clause. (info, dependency graph)
 - [ai-style/significance-idioms](https://slopsift.dev/rules/significance-idioms/): Fixed “inflated significance” idioms (rich tapestry, testament to …). (warn, text pattern)
+- [ai-style/binary-outcome-frame](https://slopsift.dev/rules/binary-outcome-frame/): Mirrored clauses compress a graded process into a polished right-versus-wrong outcome pair. (warn, dependency graph)
 - [ai-style/corrective-antithesis](https://slopsift.dev/rules/corrective-antithesis/): The “X, not Y” staged contrast, a modern-AI cadence that adds no information. (warn, dependency graph)
 - [ai-style/negative-contrast](https://slopsift.dev/rules/negative-contrast/): A negative declaration followed by a dramatic positive redefinition. (warn, dependency graph)
 - [ai-style/negative-list-buildup](https://slopsift.dev/rules/negative-list-buildup/): Repeatedly lists what something is not before revealing the point. (warn, dependency graph)
@@ -14,6 +15,7 @@ SlopSift 0.1.7 includes 44 AI-style rules. Default levels derive from rule confi
 - [ai-style/promo-idioms](https://slopsift.dev/rules/promo-idioms/): Travel-brochure / press-release idioms (nestled in the heart of …). (warn, text pattern)
 - [ai-style/absolute-claim](https://slopsift.dev/rules/absolute-claim/): An absolute or universal claim that may exceed the evidence or omit its scope. (info, document context)
 - [ai-style/claim-evidence-gap](https://slopsift.dev/rules/claim-evidence-gap/): Nearby prose stacks outcome claims without measurements, sources, examples, or a mechanism. (warn, dependency graph)
+- [ai-style/undefined-key-term](https://slopsift.dev/rules/undefined-key-term/): A central term is introduced indefinitely, repeated across the document, and asked about without being defined. (info, dependency graph)
 - [ai-style/unsupported-certainty](https://slopsift.dev/rules/unsupported-certainty/): Confidence language that asserts a conclusion without showing the evidence. (info, document context)
 - [ai-style/unsupported-comparison](https://slopsift.dev/rules/unsupported-comparison/): A comparative, superlative, or outcome claim without an explicit benchmark in the phrase. (info, text pattern)
 - [ai-style/vague-attribution](https://slopsift.dev/rules/vague-attribution/): A bare, generic subject asserting a “that …” clause. Name who, or cut it. (warn, dependency graph)
@@ -23,6 +25,7 @@ SlopSift 0.1.7 includes 44 AI-style rules. Default levels derive from rule confi
 - [ai-style/dramatic-fragment](https://slopsift.dev/rules/dramatic-fragment/): A short transition is isolated as a sentence to manufacture drama. (info, document context)
 - [ai-style/modal-redundancy](https://slopsift.dev/rules/modal-redundancy/): Repeats modality after two possibilities already establish the outcome. (warn, dependency graph)
 - [ai-style/outline-conclusion](https://slopsift.dev/rules/outline-conclusion/): A canned “challenges and future prospects” ending instead of a specific conclusion. (info, document context)
+- [ai-style/premature-closure](https://slopsift.dev/rules/premature-closure/): A summary aside announces that an explanation is complete even though the paragraph immediately continues. (warn, dependency graph)
 - [ai-style/rhetorical-scaffolding](https://slopsift.dev/rules/rhetorical-scaffolding/): Announces, dramatizes, or reassures around a point instead of stating it. (warn, dependency graph)
 - [ai-style/semantic-redundancy](https://slopsift.dev/rules/semantic-redundancy/): A nearby sentence or paragraph repeats the same argument without adding concrete support. (info, document context)
 - [ai-style/throat-clearing](https://slopsift.dev/rules/throat-clearing/): “it is important to note that …”. If it matters, just say it. (warn, dependency graph)
@@ -44,6 +47,7 @@ SlopSift 0.1.7 includes 44 AI-style rules. Default levels derive from rule confi
 - [ai-style/mechanical-outline](https://slopsift.dev/rules/mechanical-outline/): Repeated bold-label blocks, canned headings, or thematic-break section templates. (info, document context)
 - [ai-style/mixed-quotes](https://slopsift.dev/rules/mixed-quotes/): Straight and curly double quotes mixed in one document, a paste seam. (warn, document context)
 - [ai-style/comma-splice](https://slopsift.dev/rules/comma-splice/): Two complete clauses stapled with a bare comma, clipped parataxis performing breeziness. (info, dependency graph)
+- [ai-style/referential-compression](https://slopsift.dev/rules/referential-compression/): Several nearby sentences open with bare pronouns instead of carrying the subject forward explicitly. (info, dependency graph)
 - [ai-style/repeated-sentence-frame](https://slopsift.dev/rules/repeated-sentence-frame/): Several nearby sentences repeat the same dependency frame and cadence. (info, dependency graph)
 - [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)
 
