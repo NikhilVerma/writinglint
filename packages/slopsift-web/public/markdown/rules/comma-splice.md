@@ -1,6 +1,6 @@
 # ai-style/comma-splice
 
-Two complete clauses stapled with a bare comma, clipped parataxis performing breeziness.
+Two independent clauses joined only by a comma; clipped cases can perform breeziness.
 
 - Default level: `info`
 - Confidence: `low`

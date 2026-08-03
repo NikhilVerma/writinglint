@@ -1,5 +1,13 @@
 # slopsift
 
+## 0.2.2
+
+### Patch Changes
+
+- Detect comma splices independently of sentence length, and grade em-dash overuse using local clusters as well as whole-document frequency so unrelated prose cannot dilute a real pattern.
+- Updated dependencies
+  - writinglint-rulepack-ai-style@0.3.1
+
 ## 0.2.1
 
 ### Patch Changes

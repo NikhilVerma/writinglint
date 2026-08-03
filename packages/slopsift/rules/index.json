@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "packageVersion": "0.2.1",
+  "packageVersion": "0.2.2",
   "name": "SlopSift AI-style rule catalogue",
   "url": "https://slopsift.dev/rules/",
   "categories": [
@@ -835,7 +835,7 @@
       "id": "ai-style/em-dash-overuse",
       "name": "em-dash-overuse",
       "title": "Em Dash Overuse",
-      "description": "Heavy em-dash use relative to sentence count.",
+      "description": "Locally clustered or globally habitual em-dash use.",
       "category": {
         "id": "formatting",
         "label": "Formatting tells",
@@ -930,7 +930,7 @@
       "id": "ai-style/comma-splice",
       "name": "comma-splice",
       "title": "Comma Splice",
-      "description": "Two complete clauses stapled with a bare comma, clipped parataxis performing breeziness.",
+      "description": "Two independent clauses joined only by a comma; clipped cases can perform breeziness.",
       "category": {
         "id": "rhythm",
         "label": "Uniform rhythm",

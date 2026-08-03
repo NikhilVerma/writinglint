@@ -1,6 +1,6 @@
 # SlopSift rule catalogue
 
-SlopSift 0.2.1 includes 48 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
+SlopSift 0.2.2 includes 48 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
 
 - [ai-style/evidence-cluster](https://slopsift.dev/rules/evidence-cluster/): Several independent slop signals cluster in one paragraph or across the document. (warn, document context)
 - [ai-style/copula-avoidance](https://slopsift.dev/rules/copula-avoidance/): “stands/serves as a …” dressing up a plain “is a …”. (warn, dependency graph)
@@ -41,12 +41,12 @@ SlopSift 0.2.1 includes 48 AI-style rules. Default levels derive from rule confi
 - [ai-style/rule-of-three](https://slopsift.dev/rules/rule-of-three/): Reflexive triads of modifiers or balanced independent clauses. (info, dependency graph)
 - [ai-style/opening-conjunction](https://slopsift.dev/rules/opening-conjunction/): Formulaic sentence-opening transitions. Often removable. (info, text pattern)
 - [ai-style/stepwise-sequencing](https://slopsift.dev/rules/stepwise-sequencing/): Formulaic “X then Y” sequencing where “then” narrates an explanation rather than a real order. (info, dependency graph)
-- [ai-style/em-dash-overuse](https://slopsift.dev/rules/em-dash-overuse/): Heavy em-dash use relative to sentence count. (info, document context)
+- [ai-style/em-dash-overuse](https://slopsift.dev/rules/em-dash-overuse/): Locally clustered or globally habitual em-dash use. (info, document context)
 - [ai-style/emoji](https://slopsift.dev/rules/emoji/): Decorative emoji in formal prose. (info, text pattern)
 - [ai-style/generation-artifacts](https://slopsift.dev/rules/generation-artifacts/): Leftover chatbot citation artifacts (oaicite, turn0search0, …). (error, text pattern)
 - [ai-style/mechanical-outline](https://slopsift.dev/rules/mechanical-outline/): Repeated bold-label blocks, canned headings, or thematic-break section templates. (info, document context)
 - [ai-style/mixed-quotes](https://slopsift.dev/rules/mixed-quotes/): Straight and curly double quotes mixed in one document, a paste seam. (warn, document context)
-- [ai-style/comma-splice](https://slopsift.dev/rules/comma-splice/): Two complete clauses stapled with a bare comma, clipped parataxis performing breeziness. (info, dependency graph)
+- [ai-style/comma-splice](https://slopsift.dev/rules/comma-splice/): Two independent clauses joined only by a comma; clipped cases can perform breeziness. (info, dependency graph)
 - [ai-style/referential-compression](https://slopsift.dev/rules/referential-compression/): Several nearby sentences open with bare pronouns instead of carrying the subject forward explicitly. (info, dependency graph)
 - [ai-style/repeated-sentence-frame](https://slopsift.dev/rules/repeated-sentence-frame/): Several nearby sentences repeat the same dependency frame and cadence. (info, dependency graph)
 - [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)
