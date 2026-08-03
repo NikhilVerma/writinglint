@@ -18,12 +18,20 @@ import { defineRule } from 'writinglint-core';
 // symbols that broad Unicode "emoji" blocks incorrectly classify as decoration.
 const EMOJI_RE = /\p{Extended_Pictographic}(?:\uFE0F|\p{Emoji_Modifier})?/gu;
 
-/** Em-dash use graded by density: possible signal at low levels, stronger in bulk. */
+const EM_DASH_WINDOW_SENTENCES = 8;
+const LOCAL_EM_DASH_MINIMUM = 4;
+const GLOBAL_EM_DASH_MINIMUM = 12;
+const GLOBAL_EM_DASH_RATE = 1 / 12;
+
+/**
+ * Em-dash use graded by local clusters and whole-document habit. Local windows
+ * prevent unrelated dash-free prose from diluting a conspicuous burst.
+ */
 export const emDashOveruse = defineRule({
   meta: {
     name: 'em-dash-overuse',
     category: 'formatting',
-    docs: { description: 'Heavy em-dash use relative to sentence count.' },
+    docs: { description: 'Locally clustered or globally habitual em-dash use.' },
   },
   create(ctx) {
     return {
@@ -31,17 +39,33 @@ export const emDashOveruse = defineRule({
         const emDashes = [...doc.text.matchAll(/—/g)];
         const sentenceCount = Math.max(1, doc.sentences.length);
         if (!emDashes.length) return;
-        const density = emDashes.length / sentenceCount;
-        const confidence = emDashes.length >= 6 && density > 0.5
-          ? 'medium'
-          : 'low';
+
+        const dashesBySentence = doc.sentences.map((sentence) =>
+          emDashes.filter((dash) => dash.index >= sentence.start && dash.index < sentence.end).length,
+        );
+        let densestWindow = { count: 0, size: 0 };
+        for (let start = 0; start < dashesBySentence.length; start++) {
+          const end = Math.min(start + EM_DASH_WINDOW_SENTENCES, dashesBySentence.length);
+          const count = dashesBySentence.slice(start, end).reduce((sum, value) => sum + value, 0);
+          if (count > densestWindow.count) densestWindow = { count, size: end - start };
+        }
+
+        const localCluster = densestWindow.count >= LOCAL_EM_DASH_MINIMUM;
+        const globalHabit = emDashes.length >= GLOBAL_EM_DASH_MINIMUM
+          && emDashes.length / sentenceCount >= GLOBAL_EM_DASH_RATE;
+        const confidence = localCluster || globalHabit ? 'medium' : 'low';
         const first = emDashes[0]!;
         ctx.report({
           span: { start: first.index, end: first.index + 1 },
           confidence,
-          message: confidence === 'medium'
-            ? `Heavy em-dash use (${emDashes.length} in ${sentenceCount} sentences). LLMs often use dashes for formulaic punch-up.`
-            : `Em dash used here (${emDashes.length} in ${sentenceCount} sentences). Weak signal on its own; review whether a comma, colon, or full stop is plainer.`,
+          message: localCluster
+            ? `Em-dash cluster (${densestWindow.count} in ${densestWindow.size} consecutive sentences; `
+              + `${emDashes.length} in ${sentenceCount} sentences overall). Review whether the repeated rhythm is doing useful work.`
+            : globalHabit
+              ? `Repeated em-dash habit (${emDashes.length} in ${sentenceCount} sentences). `
+                + 'Review whether the repeated rhythm is doing useful work.'
+              : `Em dash used here (${emDashes.length} in ${sentenceCount} sentences). Weak signal on its own; `
+                + 'review whether a comma, colon, or full stop is plainer.',
         });
       },
     };

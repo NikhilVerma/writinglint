@@ -262,6 +262,86 @@ test('formatting repetition and support-only signals cannot certify prose by the
   assert.notEqual(finding(checklist, 'evidence-cluster')?.confidence, 'high');
 });
 
+test('em-dash overuse distinguishes an isolated dash from a local cluster', async () => {
+  const isolated = await lint('The reviewer changed one phrase — the rest of the draft stayed as written.');
+  assert.equal(finding(isolated, 'em-dash-overuse')?.confidence, 'low');
+
+  const belowThreshold = await lint([
+    'The first record changed — the reviewer explained why.',
+    'The second record changed — the reviewer explained why.',
+    'The third record changed — the reviewer explained why.',
+    'The fourth record stayed as written.',
+    'The fifth record stayed as written.',
+    'The sixth record stayed as written.',
+    'The seventh record stayed as written.',
+    'The eighth record stayed as written.',
+  ].join(' '));
+  assert.equal(finding(belowThreshold, 'em-dash-overuse')?.confidence, 'low');
+
+  const clustered = await lint([
+    'The first record changed — the reviewer explained why.',
+    'The second record changed — the reviewer explained why.',
+    'The third record changed — the reviewer explained why.',
+    'The fourth record changed — the reviewer explained why.',
+    'The fifth record stayed as written.',
+    'The sixth record stayed as written.',
+    'The seventh record stayed as written.',
+    'The eighth record stayed as written.',
+  ].join(' '));
+  assert.equal(finding(clustered, 'em-dash-overuse')?.confidence, 'medium');
+});
+
+test('em-dash clusters cannot be diluted by unrelated prose elsewhere in the document', async () => {
+  const cluster = [
+    'The first record changed — the reviewer explained why.',
+    'The second record changed — the reviewer explained why.',
+    'The third record changed — the reviewer explained why.',
+    'The fourth record changed — the reviewer explained why.',
+    'The fifth record stayed as written.',
+    'The sixth record stayed as written.',
+    'The seventh record stayed as written.',
+    'The eighth record stayed as written.',
+  ];
+  const padding = Array.from(
+    { length: 32 },
+    (_, index) => `Appendix entry ${index + 1} records an ordinary review decision.`,
+  );
+  const result = finding(await lint([...cluster, ...padding].join(' ')), 'em-dash-overuse');
+  assert.equal(result?.confidence, 'medium');
+  assert.match(result?.message ?? '', /4 in 8 consecutive sentences/);
+});
+
+test('em-dash overuse also recognizes a dispersed whole-document habit', async () => {
+  // Interleave the dash-bearing sentences so no eight-sentence window can
+  // independently qualify as a local cluster.
+  const dispersedDocument = (dashCount: number, sentenceCount: number) => {
+    const dashAt = new Set(Array.from(
+      { length: dashCount },
+      (_, index) => Math.floor(index * sentenceCount / dashCount),
+    ));
+    return Array.from(
+      { length: sentenceCount },
+      (_, index) => dashAt.has(index)
+        ? `Section ${index + 1} records a change — an editor supplied the reason.`
+        : `Section ${index + 1} records an ordinary review decision.`,
+    ).join(' ');
+  };
+
+  assert.equal(
+    finding(await lint(dispersedDocument(12, 120)), 'em-dash-overuse')?.confidence,
+    'medium',
+  );
+  assert.equal(
+    finding(await lint(dispersedDocument(11, 120)), 'em-dash-overuse')?.confidence,
+    'low',
+  );
+  assert.equal(
+    finding(await lint(dispersedDocument(12, 200)), 'em-dash-overuse')?.confidence,
+    'low',
+  );
+  assert.ok(!fired(await lint('The range is 10–20 pages and the slug is draft-ready.'), 'em-dash-overuse'));
+});
+
 test('nearby repeated paragraphs emit a semantic redundancy candidate', async () => {
   const text = [
     'The registry replaces raw database identifiers with short references that the model can safely return.',
@@ -576,6 +656,52 @@ test('comma-splice catches clipped parataxis but not coordination or comment cla
   assert.ok(fired(await lint('Thanks for the demo, I enjoyed it.'), 'comma-splice'));
   assert.ok(!fired(await lint('It rained all day, but we still went out.'), 'comma-splice'));
   assert.ok(!fired(await lint('Paris, you see, was our home.'), 'comma-splice'));
+});
+
+test('comma-splice detection is invariant to clause length', async () => {
+  const short = finding(
+    await lint('Thanks for the detailed benchmark, I enjoyed reading it.'),
+    'comma-splice',
+  );
+  const expansions = [
+    'Thanks for the detailed benchmark and the careful notes from your week-long production test, I enjoyed reading it.',
+    'Thanks for the detailed benchmark, I enjoyed reading every section of it during the quiet train ride home yesterday.',
+    'Thanks for the detailed benchmark and the careful notes from your week-long production test, '
+      + 'I enjoyed reading every section of it during the quiet train ride home yesterday.',
+  ];
+
+  assert.equal(short?.confidence, 'low');
+  assert.match(short?.message ?? '', /clipped parataxis/);
+  for (const sentence of expansions) {
+    const expanded = finding(await lint(sentence), 'comma-splice');
+    assert.equal(expanded?.confidence, 'low', sentence);
+    assert.match(expanded?.message ?? '', /two independent clauses/, sentence);
+  }
+});
+
+test('repeated comma splices are promoted even when only one is clipped', async () => {
+  const lints = await lint([
+    'Thanks for the demo, I enjoyed it.',
+    'Thanks for the detailed benchmark and the careful notes from your week-long production test, '
+      + 'I enjoyed reading every section of it during the quiet train ride home yesterday.',
+  ].join(' '));
+  const splices = lints.filter((item) => item.ruleId === 'ai-style/comma-splice');
+  assert.equal(splices.length, 2);
+  assert.ok(splices.every((item) => item.confidence === 'medium'));
+});
+
+test('comma-splice leaves explicit grammatical links and quoted speech alone at any length', async () => {
+  const clean = [
+    'It rained across the northern valley throughout the entire afternoon, but we still walked home before sunset.',
+    'Because the database migration ran for most of the afternoon, the release manager postponed the production deploy.',
+    'The report, which the auditor signed after reviewing every appendix, reached the board this morning.',
+    'The deployment finished before sunrise; the support team published its incident note before lunch.',
+    '“The release is ready,” she said after reading the final test report.',
+    'The review was useful, I think.',
+  ];
+  for (const sentence of clean) {
+    assert.ok(!fired(await lint(sentence), 'comma-splice'), sentence);
+  }
 });
 
 test('agentless-opener wants a doer, but leaves either register alone', async () => {

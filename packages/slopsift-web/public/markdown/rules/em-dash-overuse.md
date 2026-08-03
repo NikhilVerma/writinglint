@@ -1,6 +1,6 @@
 # ai-style/em-dash-overuse
 
-Heavy em-dash use relative to sentence count.
+Locally clustered or globally habitual em-dash use.
 
 - Default level: `info`
 - Confidence: `low`

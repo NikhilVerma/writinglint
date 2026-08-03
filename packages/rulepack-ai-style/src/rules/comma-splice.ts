@@ -1,10 +1,10 @@
 /**
  * Comma splice / clipped parataxis — two complete clauses stapled with a bare
  * comma: "Thanks for the demo, I enjoyed it." Chatbots use the construction to
- * perform breeziness: two flat beats, no connective, no subordination — warmth
- * asserted by rhythm rather than content. Humans splice too (informally), so
- * the rule stays clipped-and-quiet: both clauses must be short, the sentence
- * must not be dialogue, and a lone splice reports at low confidence.
+ * perform breeziness when clipped: two flat beats, no connective, no
+ * subordination — warmth asserted by rhythm rather than content. Humans splice
+ * too (informally), so a lone splice reports at low confidence. Length changes
+ * the explanation, never whether the grammatical construction exists.
  *
  * The graph makes this expressible: the second clause hangs off the first as
  * `parataxis` with its own `nsubj` and no coordinator (`cc`) or subordinator
@@ -35,16 +35,20 @@ export const commaSplice = defineRule({
   meta: {
     name: 'comma-splice',
     category: 'rhythm',
-    docs: { description: 'Two complete clauses stapled with a bare comma — clipped parataxis performing breeziness.' },
+    docs: { description: 'Two independent clauses joined only by a comma; clipped cases can perform breeziness.' },
   },
   create(ctx) {
-    const matches: Array<{ s: DepSentence; tokens: ReturnType<typeof subtree> }> = [];
+    const matches: Array<{
+      s: DepSentence;
+      tokens: ReturnType<typeof subtree>;
+      clipped: boolean;
+    }> = [];
     return {
       Sentence(sentence) {
         // Dialogue and quoted speech splice legitimately; skip any sentence
         // carrying quotation marks (contractions stripped first).
         if (/["“”«»‘]|(?<!\w)’|’(?!\w)/.test(sentence.text)) return;
-        if (sentence.words.length < 4 || sentence.words.length > MAX_SENTENCE_WORDS) return;
+        if (sentence.words.length < 4) return;
         const s: DepSentence = sentence.dep;
         for (const t of s.tokens) {
           if (t.deprel !== 'parataxis') continue;
@@ -54,7 +58,6 @@ export const commaSplice = defineRule({
           if (!kids.some((c) => c.deprel === 'nsubj' || c.deprel.startsWith('nsubj:'))) continue;
           if (kids.some((c) => c.deprel === 'cc' || c.deprel === 'mark')) continue;
           const clause = subtree(s, t.id);
-          if (clause.length > MAX_CLAUSE_TOKENS) continue;
           // "…, I believe, …" — an epistemic parenthetical whatever the parser
           // decided to pull into its subtree.
           const commentSubj = kids.find((c) => c.deprel === 'nsubj' && c.upos === 'PRON');
@@ -75,7 +78,11 @@ export const commaSplice = defineRule({
           const last = clause.reduce((max, c) => Math.max(max, c.id), t.id);
           const lastContent = s.tokens.filter((c) => c.upos !== 'PUNCT').at(-1);
           if (lastContent && last < lastContent.id) continue;
-          matches.push({ s, tokens: clause });
+          matches.push({
+            s,
+            tokens: clause,
+            clipped: sentence.words.length <= MAX_SENTENCE_WORDS && clause.length <= MAX_CLAUSE_TOKENS,
+          });
         }
       },
       DocumentExit() {
@@ -84,9 +91,11 @@ export const commaSplice = defineRule({
           tokens: m.tokens,
           sentence: m.s,
           confidence,
-          message:
-            'Comma splice: two complete clauses stapled with a bare comma — clipped parataxis that performs '
-            + 'breeziness. Subordinate one clause, or use a dash or full stop.',
+          message: m.clipped
+            ? 'Comma splice: two complete clauses stapled with a bare comma — clipped parataxis that performs '
+              + 'breeziness. Subordinate one clause, or use a conjunction, semicolon, dash, or full stop.'
+            : 'Comma splice: two independent clauses are joined only by a comma. Subordinate one clause, '
+              + 'or use a conjunction, semicolon, dash, or full stop.',
         });
       },
     };
