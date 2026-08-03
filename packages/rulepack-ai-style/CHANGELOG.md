@@ -1,5 +1,14 @@
 # writinglint-rulepack-ai-style
 
+## 0.3.0
+
+### Minor Changes
+
+- d31b82d: Add four graph-backed, document-aware rules for compressed explanations:
+  referential compression, premature closure, mirrored binary outcomes, and
+  undefined central terms. The browser editor now preserves visible mouse
+  selection across every paragraph and handles Ctrl/Cmd+A explicitly.
+
 ## 0.2.0
 
 ### Minor Changes
