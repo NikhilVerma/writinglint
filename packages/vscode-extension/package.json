@@ -153,7 +153,7 @@
   "homepage": "https://slopsift.dev/",
   "dependencies": {
     "onnxruntime-node": "^1.27.0",
-    "slopsift": "^0.1.8"
+    "slopsift": "^0.2.0"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
