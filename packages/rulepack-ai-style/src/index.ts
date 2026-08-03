@@ -51,6 +51,10 @@ import { evidenceCluster } from './rules/evidence-cluster.js';
 import { unsupportedComparison } from './rules/unsupported-comparison.js';
 import { repeatedSentenceFrame } from './rules/repeated-sentence-frame.js';
 import { claimEvidenceGap } from './rules/claim-evidence-gap.js';
+import { referentialCompression } from './rules/referential-compression.js';
+import { prematureClosure } from './rules/premature-closure.js';
+import { binaryOutcomeFrame } from './rules/binary-outcome-frame.js';
+import { undefinedKeyTerm } from './rules/undefined-key-term.js';
 
 const rawRules = {
   'rule-of-three': ruleOfThree,
@@ -96,6 +100,10 @@ const rawRules = {
   'unsupported-comparison': unsupportedComparison,
   'repeated-sentence-frame': repeatedSentenceFrame,
   'claim-evidence-gap': claimEvidenceGap,
+  'referential-compression': referentialCompression,
+  'premature-closure': prematureClosure,
+  'binary-outcome-frame': binaryOutcomeFrame,
+  'undefined-key-term': undefinedKeyTerm,
   // Keep last: DocumentExit combines findings emitted by every earlier rule.
   'evidence-cluster': evidenceCluster,
 };
@@ -151,6 +159,10 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'unsupported-comparison': 'lexical',
   'repeated-sentence-frame': 'dependency-graph',
   'claim-evidence-gap': 'dependency-graph',
+  'referential-compression': 'dependency-graph',
+  'premature-closure': 'dependency-graph',
+  'binary-outcome-frame': 'dependency-graph',
+  'undefined-key-term': 'dependency-graph',
   'evidence-cluster': 'document-context',
 };
 
@@ -198,6 +210,10 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'unsupported-comparison': 'low',
   'repeated-sentence-frame': 'low',
   'claim-evidence-gap': 'medium',
+  'referential-compression': 'low',
+  'premature-closure': 'medium',
+  'binary-outcome-frame': 'medium',
+  'undefined-key-term': 'low',
   'evidence-cluster': 'medium',
 };
 
