@@ -1,6 +1,6 @@
 {
   "name": "writinglint-rulepack-ai-style",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "AI-writing-style rulepack for the WritingLint grammar linter: authorable rules over the dependency graph, plus a stylometric document scorer.",
   "type": "module",
   "license": "MIT",
