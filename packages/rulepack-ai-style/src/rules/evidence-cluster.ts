@@ -55,7 +55,9 @@ export const evidenceCluster = defineRule({
         const categories = new Set(source.map((lint) => lint.category));
         const substantialRules = new Set(source.filter((lint) => !SUPPORT_ONLY.has(lint.ruleId)).map((lint) => lint.ruleId));
         const score = source.reduce((sum, lint) => sum + evidenceWeight(lint), 0);
-        if (score < 12 || rules.size < 5 || substantialRules.size < 4 || categories.size < 3 || paragraphClusters >= 2) return;
+        const findingsPerThousandWords = source.length / Math.max(doc.tokens.length, 1) * 1000;
+        if (score < 12 || findingsPerThousandWords < 20 || rules.size < 5 || substantialRules.size < 4
+          || categories.size < 3 || paragraphClusters >= 2) return;
         // Put the document-level diagnostic on the strongest useful signal,
         // rather than an incidental early low-confidence match or footnote.
         const anchor = [...source].sort((left, right) =>

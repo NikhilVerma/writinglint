@@ -31,7 +31,8 @@ export const passiveActorHiding = defineRule({
             (token) => token.deprel === 'obl:agent' || token.deprel === 'nmod:agent',
           );
           if (hasAgent) continue;
-          const hidesAccountability = ACCOUNTABILITY_ACTIONS.has(lower(verb));
+          const secondPerson = lower(passiveSubject) === 'you';
+          const hidesAccountability = ACCOUNTABILITY_ACTIONS.has(lower(verb)) && !secondPerson;
           ctx.report({
             tokens: subtree(s, verb.id),
             sentence: s,

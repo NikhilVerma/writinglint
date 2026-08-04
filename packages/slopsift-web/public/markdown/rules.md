@@ -1,6 +1,6 @@
 # SlopSift rule catalogue
 
-SlopSift 0.2.2 includes 48 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
+SlopSift 0.3.0 includes 48 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
 
 - [ai-style/evidence-cluster](https://slopsift.dev/rules/evidence-cluster/): Several independent slop signals cluster in one paragraph or across the document. (warn, document context)
 - [ai-style/copula-avoidance](https://slopsift.dev/rules/copula-avoidance/): “stands/serves as a …” dressing up a plain “is a …”. (warn, dependency graph)
@@ -37,6 +37,7 @@ SlopSift 0.2.2 includes 48 AI-style rules. Default levels derive from rule confi
 - [ai-style/hedging-seesaw](https://slopsift.dev/rules/hedging-seesaw/): Relentless “While X… However, Y” balancing, a position never taken. (info, document context)
 - [ai-style/filler-intensifiers](https://slopsift.dev/rules/filler-intensifiers/): Sincerity adverbs (genuinely, truly, really) doing the believing for the reader. (warn, dependency graph)
 - [ai-style/performed-candor](https://slopsift.dev/rules/performed-candor/): Announcing your own honesty (“to be transparent”, “I’ll be honest”) instead of enacting it. (warn, text pattern)
+- [ai-style/performed-revelation](https://slopsift.dev/rules/performed-revelation/): Repeated questions, metaphors, and compressed payoffs make an explanation sound like prepared revelations. (warn, document context)
 - [ai-style/setup-fragment](https://slopsift.dev/rules/setup-fragment/): A noun-rooted fragment (“One thing I wanted to …”) that stages a point instead of making it. (warn, dependency graph)
 - [ai-style/rule-of-three](https://slopsift.dev/rules/rule-of-three/): Reflexive triads of modifiers or balanced independent clauses. (info, dependency graph)
 - [ai-style/opening-conjunction](https://slopsift.dev/rules/opening-conjunction/): Formulaic sentence-opening transitions. Often removable. (info, text pattern)
@@ -44,7 +45,6 @@ SlopSift 0.2.2 includes 48 AI-style rules. Default levels derive from rule confi
 - [ai-style/em-dash-overuse](https://slopsift.dev/rules/em-dash-overuse/): Locally clustered or globally habitual em-dash use. (info, document context)
 - [ai-style/emoji](https://slopsift.dev/rules/emoji/): Decorative emoji in formal prose. (info, text pattern)
 - [ai-style/generation-artifacts](https://slopsift.dev/rules/generation-artifacts/): Leftover chatbot citation artifacts (oaicite, turn0search0, …). (error, text pattern)
-- [ai-style/mechanical-outline](https://slopsift.dev/rules/mechanical-outline/): Repeated bold-label blocks, canned headings, or thematic-break section templates. (info, document context)
 - [ai-style/mixed-quotes](https://slopsift.dev/rules/mixed-quotes/): Straight and curly double quotes mixed in one document, a paste seam. (warn, document context)
 - [ai-style/comma-splice](https://slopsift.dev/rules/comma-splice/): Two independent clauses joined only by a comma; clipped cases can perform breeziness. (info, dependency graph)
 - [ai-style/referential-compression](https://slopsift.dev/rules/referential-compression/): Several nearby sentences open with bare pronouns instead of carrying the subject forward explicitly. (info, dependency graph)

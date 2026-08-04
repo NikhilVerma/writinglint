@@ -52,6 +52,8 @@ packages/vscode-extension/model/
 
 # Eval data is CLOSED-SOURCE (third-party text; kept private). Never commit it here.
 eval/data/
+# Local A/B calibration can also contain full third-party and generated rewrites.
+a-b-test/
 
 # Example apps: installed deps + downloaded model (not committed)
 examples/**/node_modules/

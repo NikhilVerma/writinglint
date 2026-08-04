@@ -1,7 +1,7 @@
 import { defineRule } from 'writinglint-core';
 
-const COMPARISON_RE = /\b(?:the (?:best|fastest|easiest|simplest|most reliable|most effective)|far (?:more|less|better|worse|faster|slower)|much (?:more|less|better|worse|faster|slower)|significantly (?:more|less|better|worse|faster|slower|reduces?|improves?)|dramatically (?:more|less|better|worse|faster|slower|reduces?|improves?)|outperforms?|beats? (?:a|the|any|every|larger|smaller|bigger)|a fraction of (?:the )?cost|orders? of magnitude|\d+(?:\.\d+)?\s*(?:x|times) (?:faster|slower|better|worse|more|less)|complete(?:ly)? (?:prevents?|eliminates?|removes?)|very high)\b/gi;
-const STRONG_COMPARISON_RE = /\b(?:the fastest|outperforms?|beats? (?:a|the|any|every|larger|smaller|bigger)|a fraction of (?:the )?cost|\d+(?:\.\d+)?\s*(?:x|times) (?:faster|slower|better|worse|more|less)|complete(?:ly)? (?:prevents?|eliminates?|removes?)|very high)\b/i;
+const COMPARISON_RE = /\b(?:the (?:best|fastest|easiest|simplest|most reliable|most effective)|far (?:more|less|better|worse|faster|slower)|much (?:more|less|better|worse|faster|slower)|significantly (?:more|less|better|worse|faster|slower|reduces?|improves?)|dramatically (?:more|less|better|worse|faster|slower|reduces?|improves?)|outperforms?|beats? (?:a|the|any|every|larger|smaller|bigger)|a fraction of (?:the )?cost|orders? of magnitude|\d+(?:\.\d+)?\s*(?:x|times) (?:faster|slower|better|worse)|complete(?:ly)? (?:prevents?|eliminates?|removes?)|very high)\b/gi;
+const STRONG_COMPARISON_RE = /\b(?:the fastest|outperforms?|beats? (?:a|the|any|every|larger|smaller|bigger)|a fraction of (?:the )?cost|\d+(?:\.\d+)?\s*(?:x|times) (?:faster|slower|better|worse)|complete(?:ly)? (?:prevents?|eliminates?|removes?)|very high)\b/i;
 
 /** Comparative outcome language that needs a benchmark, measurement, or scope. */
 export const unsupportedComparison = defineRule({

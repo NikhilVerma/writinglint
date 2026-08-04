@@ -32,6 +32,7 @@ import { fillerIntensifiers } from './rules/filler-intensifiers.js';
 // document-level discourse rules
 import { hedgingSeesaw } from './rules/hedging-seesaw.js';
 import { dramaticFragment } from './rules/dramatic-fragment.js';
+import { performedRevelation } from './rules/performed-revelation.js';
 // lexical rules
 import { significanceIdioms, promoIdioms, chatbotIdioms } from './rules/idioms.js';
 import { aiVocabulary } from './rules/ai-vocabulary.js';
@@ -43,7 +44,6 @@ import { unsupportedCertainty } from './rules/unsupported-certainty.js';
 import { vagueDeclarative } from './rules/vague-declarative.js';
 import { outlineConclusion } from './rules/outline-conclusion.js';
 import { uniformRhythm } from './rules/uniform-rhythm.js';
-import { mechanicalOutline } from './rules/mechanical-outline.js';
 import { absoluteClaim } from './rules/absolute-claim.js';
 import { vagueQuantifier } from './rules/vague-quantifier.js';
 import { semanticRedundancy } from './rules/semantic-redundancy.js';
@@ -78,6 +78,7 @@ const rawRules = {
   'filler-intensifiers': fillerIntensifiers,
   'hedging-seesaw': hedgingSeesaw,
   'dramatic-fragment': dramaticFragment,
+  'performed-revelation': performedRevelation,
   'significance-idioms': significanceIdioms,
   'promo-idioms': promoIdioms,
   'chatbot-idioms': chatbotIdioms,
@@ -93,7 +94,6 @@ const rawRules = {
   'vague-declarative': vagueDeclarative,
   'outline-conclusion': outlineConclusion,
   'uniform-rhythm': uniformRhythm,
-  'mechanical-outline': mechanicalOutline,
   'absolute-claim': absoluteClaim,
   'vague-quantifier': vagueQuantifier,
   'semantic-redundancy': semanticRedundancy,
@@ -137,6 +137,7 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'filler-intensifiers': 'dependency-graph',
   'hedging-seesaw': 'document-context',
   'dramatic-fragment': 'document-context',
+  'performed-revelation': 'document-context',
   'significance-idioms': 'lexical',
   'promo-idioms': 'lexical',
   'chatbot-idioms': 'lexical',
@@ -152,7 +153,6 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'vague-declarative': 'document-context',
   'outline-conclusion': 'document-context',
   'uniform-rhythm': 'document-context',
-  'mechanical-outline': 'document-context',
   'absolute-claim': 'document-context',
   'vague-quantifier': 'document-context',
   'semantic-redundancy': 'document-context',
@@ -188,6 +188,7 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'filler-intensifiers': 'medium',
   'hedging-seesaw': 'low',
   'dramatic-fragment': 'low',
+  'performed-revelation': 'medium',
   'significance-idioms': 'medium',
   'promo-idioms': 'medium',
   'chatbot-idioms': 'high',
@@ -203,7 +204,6 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'vague-declarative': 'low',
   'outline-conclusion': 'low',
   'uniform-rhythm': 'low',
-  'mechanical-outline': 'low',
   'absolute-claim': 'low',
   'vague-quantifier': 'low',
   'semantic-redundancy': 'low',
