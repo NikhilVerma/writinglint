@@ -44,7 +44,6 @@ import { unsupportedCertainty } from './rules/unsupported-certainty.js';
 import { vagueDeclarative } from './rules/vague-declarative.js';
 import { outlineConclusion } from './rules/outline-conclusion.js';
 import { uniformRhythm } from './rules/uniform-rhythm.js';
-import { mechanicalOutline } from './rules/mechanical-outline.js';
 import { absoluteClaim } from './rules/absolute-claim.js';
 import { vagueQuantifier } from './rules/vague-quantifier.js';
 import { semanticRedundancy } from './rules/semantic-redundancy.js';
@@ -95,7 +94,6 @@ const rawRules = {
   'vague-declarative': vagueDeclarative,
   'outline-conclusion': outlineConclusion,
   'uniform-rhythm': uniformRhythm,
-  'mechanical-outline': mechanicalOutline,
   'absolute-claim': absoluteClaim,
   'vague-quantifier': vagueQuantifier,
   'semantic-redundancy': semanticRedundancy,
@@ -155,7 +153,6 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'vague-declarative': 'document-context',
   'outline-conclusion': 'document-context',
   'uniform-rhythm': 'document-context',
-  'mechanical-outline': 'document-context',
   'absolute-claim': 'document-context',
   'vague-quantifier': 'document-context',
   'semantic-redundancy': 'document-context',
@@ -207,7 +204,6 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'vague-declarative': 'low',
   'outline-conclusion': 'low',
   'uniform-rhythm': 'low',
-  'mechanical-outline': 'low',
   'absolute-claim': 'low',
   'vague-quantifier': 'low',
   'semantic-redundancy': 'low',

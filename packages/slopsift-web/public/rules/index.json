@@ -80,7 +80,7 @@
       "id": "formatting",
       "label": "Formatting tells",
       "description": "Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts.",
-      "ruleCount": 5
+      "ruleCount": 4
     },
     {
       "id": "rhythm",
@@ -906,25 +906,6 @@
       "url": "https://slopsift.dev/rules/generation-artifacts/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/formatting.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fgeneration-artifacts"
-    },
-    {
-      "id": "ai-style/mechanical-outline",
-      "name": "mechanical-outline",
-      "title": "Mechanical Outline",
-      "description": "Repeated bold-label blocks, canned headings, or thematic-break section templates.",
-      "category": {
-        "id": "formatting",
-        "label": "Formatting tells",
-        "description": "Em-dash spray, mixed quote styles, emoji, leftover chatbot artifacts."
-      },
-      "confidence": "low",
-      "defaultLevel": "info",
-      "method": "document-context",
-      "methodLabel": "Document context",
-      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
-      "url": "https://slopsift.dev/rules/mechanical-outline/",
-      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/mechanical-outline.ts",
-      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fmechanical-outline"
     },
     {
       "id": "ai-style/mixed-quotes",

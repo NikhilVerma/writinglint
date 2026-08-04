@@ -98,7 +98,6 @@ Install the maintained [SlopSift Agent Skill](https://skills.sh/NikhilVerma/slop
 - [ai-style/em-dash-overuse](https://slopsift.dev/rules/em-dash-overuse/): Locally clustered or globally habitual em-dash use. (info, document context)
 - [ai-style/emoji](https://slopsift.dev/rules/emoji/): Decorative emoji in formal prose. (info, text pattern)
 - [ai-style/generation-artifacts](https://slopsift.dev/rules/generation-artifacts/): Leftover chatbot citation artifacts (oaicite, turn0search0, …). (error, text pattern)
-- [ai-style/mechanical-outline](https://slopsift.dev/rules/mechanical-outline/): Repeated bold-label blocks, canned headings, or thematic-break section templates. (info, document context)
 - [ai-style/mixed-quotes](https://slopsift.dev/rules/mixed-quotes/): Straight and curly double quotes mixed in one document, a paste seam. (warn, document context)
 - [ai-style/comma-splice](https://slopsift.dev/rules/comma-splice/): Two independent clauses joined only by a comma; clipped cases can perform breeziness. (info, dependency graph)
 - [ai-style/referential-compression](https://slopsift.dev/rules/referential-compression/): Several nearby sentences open with bare pronouns instead of carrying the subject forward explicitly. (info, dependency graph)

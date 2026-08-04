@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { Linter, resolveConfig, type Lint, type ResolvedConfig } from 'writinglint-core';
 import { loadParser } from 'writinglint-parser-node';
-import { score, strict } from '../src/index.js';
+import { aiStyle, score, strict } from '../src/index.js';
 
 let linter: Linter;
 let config: ResolvedConfig;
@@ -187,7 +187,7 @@ test('performed revelation cannot be diluted by unrelated explanatory prose', as
   assert.ok(hits.every((item) => item.confidence === 'medium'));
 });
 
-test('performed revelation recognizes repeated theatrical headings but not navigational headings', async () => {
+test('performed revelation does not use Markdown headings as authorship evidence', async () => {
   const staged = await lint([
     '# Guess and check',
     '',
@@ -203,7 +203,7 @@ test('performed revelation recognizes repeated theatrical headings but not navig
     '',
     'A second parameter lets the curve turn.',
   ].join('\n'));
-  assert.ok(fired(staged, 'performed-revelation'));
+  assert.ok(!fired(staged, 'performed-revelation'));
 
   const navigational = await lint([
     '# Guess and check',
@@ -431,24 +431,19 @@ test('emerging slop phrases are informational and preserve literal construction 
   assert.ok(!fired(await lint('The engineer replaced a damaged load-bearing wall.'), 'emerging-slop-phrases'));
 });
 
-test('mechanical outline and cross-rule paragraph clusters combine distributed evidence', async () => {
-  const text = [
-    '**Why this works:** Clearly, this approach always delivers robust results.',
+test('Markdown structure is not an AI-style rule or lint signal', async () => {
+  assert.ok(!('mechanical-outline' in aiStyle.rules));
+  const markdown = await lint([
+    '---',
     '',
-    '**When to use it:** Obviously, this strategy never creates failures.',
+    '## Why this works',
     '',
-    '**The key trick:** This method is crucial, vibrant, and groundbreaking.',
-  ].join('\n');
-  const lints = await lint(text);
-  assert.equal(finding(lints, 'mechanical-outline')?.confidence, 'medium');
-  assert.ok(fired(lints, 'evidence-cluster'));
-});
-
-test('formatting repetition and support-only signals cannot certify prose by themselves', async () => {
-  const separators = await lint('---\n\n## Technique One\n\nText.\n\n---\n\n## Technique Two\n\nText.\n\n---\n\n## Technique Three\n\nText.');
-  assert.equal(finding(separators, 'mechanical-outline')?.confidence, 'low');
-
-  const checklist = await lint([
+    '**Planning:** write the request.',
+    '',
+    '---',
+    '',
+    '## The key trick',
+    '',
     '- **Planning:** write the request.',
     '- **Requirements:** review what gets built.',
     '- **Implementation:** document why, never what.',
@@ -456,8 +451,9 @@ test('formatting repetition and support-only signals cannot certify prose by the
     '- **Deployment:** use a flag.',
     '- **Maintenance:** log the calls.',
   ].join('\n'));
-  assert.equal(finding(checklist, 'mechanical-outline')?.confidence, 'low');
-  assert.notEqual(finding(checklist, 'evidence-cluster')?.confidence, 'high');
+  assert.ok(!fired(markdown, 'mechanical-outline'));
+  assert.ok(!fired(markdown, 'performed-revelation'));
+  assert.ok(!fired(markdown, 'evidence-cluster'));
 });
 
 test('em-dash overuse distinguishes an isolated dash from a local cluster', async () => {

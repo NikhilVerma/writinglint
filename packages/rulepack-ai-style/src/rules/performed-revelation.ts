@@ -1,6 +1,6 @@
 import { childrenOf, defineRule, lower, root, type Document, type Paragraph, type Sentence } from 'writinglint-core';
 
-type BeatKind = 'aphorism' | 'compressed-result' | 'headline-declarative' | 'metaphor' | 'question' | 'reveal' | 'heading';
+type BeatKind = 'aphorism' | 'compressed-result' | 'headline-declarative' | 'metaphor' | 'question' | 'reveal';
 
 interface Beat {
   start: number;
@@ -10,8 +10,6 @@ interface Beat {
 }
 
 const LIST_OR_QUOTE_RE = /^\s*(?:[-*+]\s+|\d+[.)]\s+|>)/m;
-const HEADING_RE = /^#{1,6}[\t ]+([^\n#]+?)[\t ]*#*[\t ]*$/gm;
-const THEATRICAL_HEADING_RE = /^(?:watch|meet|notice|see|look at|find|follow|remember)\b|\b(?:before any|the next .+ (?:appear|arrive|break)|we (?:were|have been) missing|what happens next|at last)\b/i;
 const TOTALIZERS = new Set(['answer', 'catch', 'key', 'lesson', 'point', 'secret', 'story', 'thing', 'trick', 'whole']);
 const IMAGE_NOUNS = new Set([
   'animal', 'bend', 'box', 'bridge', 'corner', 'door', 'edge', 'engine', 'firework',
@@ -108,18 +106,6 @@ function classifyPerformedRevelationBeat(sentence: Sentence): BeatKind | undefin
   return undefined;
 }
 
-function headingBeats(text: string, paragraphs: Paragraph[]): Beat[] {
-  const beats: Beat[] = [];
-  for (const match of text.matchAll(HEADING_RE)) {
-    const label = match[1]?.trim() ?? '';
-    if (!THEATRICAL_HEADING_RE.test(label)) continue;
-    const start = match.index;
-    const paragraph = paragraphs.find((candidate) => start >= candidate.start && start < candidate.end)?.index ?? 0;
-    beats.push({ start, end: start + match[0].length, paragraph, kind: 'heading' });
-  }
-  return beats;
-}
-
 function localCluster(beats: Beat[], minimum: number, paragraphSpan: number): Beat[] {
   let best: Beat[] = [];
   for (let left = 0; left < beats.length; left++) {
@@ -159,20 +145,16 @@ function candidatePerformedRevelationBeats(doc: Document): Beat[] {
     }
   }
 
-  return [...prose, ...headingBeats(doc.text, doc.paragraphs)].sort((a, b) => a.start - b.start);
+  return prose;
 }
 
 function detectPerformedRevelation(doc: Document): Beat[] {
-  const candidates = candidatePerformedRevelationBeats(doc);
-  const prose = candidates.filter((beat) => beat.kind !== 'heading');
-  const headings = candidates.filter((beat) => beat.kind === 'heading');
-  const headlineDeclarations = candidates.filter((beat) => beat.kind === 'headline-declarative');
+  const prose = candidatePerformedRevelationBeats(doc);
+  const headlineDeclarations = prose.filter((beat) => beat.kind === 'headline-declarative');
   const proseCluster = localCluster(prose, 4, 8);
-  const headingCluster = localCluster(headings, 3, 12);
   const headlineCluster = localCluster(headlineDeclarations, 6, 14);
-  const combined = localCluster([...prose, ...headings].sort((a, b) => a.start - b.start), 4, 10);
   const selected = new Map<number, Beat>();
-  for (const beat of [...proseCluster, ...headingCluster, ...headlineCluster, ...combined]) selected.set(beat.start, beat);
+  for (const beat of [...proseCluster, ...headlineCluster]) selected.set(beat.start, beat);
   return [...selected.values()];
 }
 
