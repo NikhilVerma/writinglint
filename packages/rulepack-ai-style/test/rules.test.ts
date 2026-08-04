@@ -1,5 +1,6 @@
 import { test, before } from 'node:test';
 import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
 import { Linter, resolveConfig, type Lint, type ResolvedConfig } from 'writinglint-core';
 import { loadParser } from 'writinglint-parser-node';
 import { score, strict } from '../src/index.js';
@@ -17,6 +18,11 @@ async function lint(text: string): Promise<Lint[]> {
 }
 const fired = (lints: Lint[], rule: string) => lints.some((l) => l.ruleId === `ai-style/${rule}`);
 const finding = (lints: Lint[], rule: string) => lints.find((l) => l.ruleId === `ai-style/${rule}`);
+const AB_FIXTURES = ['human-1.txt', 'ai-1.txt', 'ai-2.txt', 'ai-3.txt'] as const;
+const fixtureUrl = (name: string): URL => new URL(`../../../a-b-test/${name}`, import.meta.url);
+const fixture = (name: string): string => readFileSync(fixtureUrl(name), 'utf8');
+const hasAbFixtures = AB_FIXTURES.every((name) => existsSync(fixtureUrl(name)));
+const warnings = (lints: Lint[]): Lint[] => lints.filter((item) => item.confidence !== 'low');
 
 test('corrective-antithesis fires on the "X, not Y" construction', async () => {
   const repeated = await lint('Trust the flags, not the number. The prompt is a request, not a contract.');
@@ -97,6 +103,198 @@ test('dramatic fragments are graded without matching ordinary transitions', asyn
   assert.equal(finding(await lint('The old workflow required a manual review. Until now. The new job automates it.'), 'dramatic-fragment')?.confidence, 'medium');
   assert.equal(finding(await lint('The team repeated that process. For years. The new job automates it.'), 'dramatic-fragment')?.confidence, 'low');
   assert.ok(!fired(await lint('Until now, the workflow required a manual review.'), 'dramatic-fragment'));
+});
+
+test('performed revelation detects a repeated sequence of staged punchlines', async () => {
+  const text = [
+    'The final example changes direction when the second value crosses zero. That last one turns out to be the whole lesson.',
+    '',
+    'We already wrote the score calculation, so its slope is available to us. So why are we poking it like a stranger?',
+    '',
+    'This method spends two full runs to estimate a direction that the formula already contains. A cheap claim deserves a race.',
+    '',
+    'The new error comes from a parameter the current expression cannot represent. This failure is a different animal from the last two.',
+    '',
+    'The search can only move through values represented by the current formula. You cannot search your way to a shape you cannot express.',
+  ].join('\n');
+  const hits = (await lint(text)).filter((item) => item.ruleId === 'ai-style/performed-revelation');
+  assert.ok(hits.length >= 4);
+  assert.ok(hits.every((item) => item.confidence === 'medium'));
+  assert.match(hits[0]?.message ?? '', /prepared revelations|punchline/i);
+});
+
+test('performed revelation stays quiet for one earned punchy line', async () => {
+  const text = [
+    'We ran the examples with both values and compared the errors.',
+    'That last one turns out to be the whole lesson.',
+    'The next section derives the same result from the score calculation.',
+  ].join(' ');
+  assert.ok(!fired(await lint(text), 'performed-revelation'));
+});
+
+test('performed revelation does not punish plain connective exposition', async () => {
+  const text = [
+    'In lesson 02, we changed one number and ran all the examples again to see what happened.',
+    'We had to do that twice for every number.',
+    'But we wrote the mistake-score ourselves, so we already know the calculation it performs.',
+    'In this lesson, we will use that calculation to work out which direction each number should move.',
+    '',
+    'The first knob multiplies the input.',
+    'The second knob is added afterward.',
+    'We will calculate both effects before changing either value.',
+  ].join('\n');
+  assert.ok(!fired(await lint(text), 'performed-revelation'));
+});
+
+test('performed revelation does not equate short human paragraphs with headline copy', async () => {
+  const fieldNotes = [
+    'I left the office just after six.',
+    '',
+    'Rain had filled the gutter outside.',
+    '',
+    'Maya waited under the pharmacy awning.',
+    '',
+    'We took the slow bus home.',
+    '',
+    'A dog slept beneath the back seat.',
+    '',
+    'The driver missed our usual turn.',
+    '',
+    'I noticed only when the shops changed.',
+    '',
+    'We walked back along the canal.',
+  ].join('\n');
+  assert.ok(!fired(await lint(fieldNotes), 'performed-revelation'));
+});
+
+test('performed revelation cannot be diluted by unrelated explanatory prose', async () => {
+  const staged = [
+    'The final example reverses near zero. That last one turns out to be the whole lesson.',
+    '',
+    'We already know the score formula. So why are we poking it like a stranger?',
+    '',
+    'This estimate costs two complete runs. A cheap claim deserves a race.',
+    '',
+    'The expression lacks the required parameter. This failure is a different animal from the last two.',
+  ];
+  const padding = Array.from(
+    { length: 24 },
+    (_, index) => `Appendix ${index + 1} records the input, calculated score, and observed output for that run.`,
+  );
+  const hits = (await lint([...staged, '', ...padding].join('\n')))
+    .filter((item) => item.ruleId === 'ai-style/performed-revelation');
+  assert.ok(hits.length >= 3);
+  assert.ok(hits.every((item) => item.confidence === 'medium'));
+});
+
+test('performed revelation recognizes repeated theatrical headings but not navigational headings', async () => {
+  const staged = await lint([
+    '# Guess and check',
+    '',
+    '## The question, before any formula',
+    '',
+    'We begin with two values and a score.',
+    '',
+    '## Watch the next limit appear',
+    '',
+    'The estimate stops improving near the boundary.',
+    '',
+    '## Meet the bend we were missing',
+    '',
+    'A second parameter lets the curve turn.',
+  ].join('\n'));
+  assert.ok(fired(staged, 'performed-revelation'));
+
+  const navigational = await lint([
+    '# Guess and check',
+    '',
+    '## Choosing the starting values',
+    '',
+    'We begin with two values and a score.',
+    '',
+    '## Calculating the error',
+    '',
+    'The estimate stops improving near the boundary.',
+    '',
+    '## Updating both values',
+    '',
+    'A second parameter lets the curve turn.',
+  ].join('\n'));
+  assert.ok(!fired(navigational, 'performed-revelation'));
+});
+
+test('A/B prose gate warns on the AI rewrites and passes the human source', { skip: !hasAbFixtures }, async () => {
+  const human = await lint(fixture('human-1.txt'));
+  const ai1 = await lint(fixture('ai-1.txt'));
+  const ai2 = await lint(fixture('ai-2.txt'));
+  const ai3 = await lint(fixture('ai-3.txt'));
+
+  assert.equal(
+    warnings(human).length,
+    0,
+    `human warnings:\n${warnings(human).map((item) => `${item.ruleId}: ${item.text}`).join('\n')}`,
+  );
+  for (const [name, result] of [['ai-1.txt', ai1], ['ai-2.txt', ai2], ['ai-3.txt', ai3]] as const) {
+    assert.ok(
+      result.some((item) => item.ruleId === 'ai-style/performed-revelation' && item.confidence !== 'low'),
+      `${name} should trigger the repeated performed-revelation cadence`,
+    );
+  }
+});
+
+test('A/B fixture labels contain distinct prose samples', { skip: !hasAbFixtures }, () => {
+  assert.notEqual(fixture('ai-1.txt'), fixture('human-1.txt'));
+});
+
+test('repeated absolutes in an examined claim stay informational when the paragraph supplies the argument', async () => {
+  const result = await lint([
+    "If it's impossible to make a billion dollars without cheating, which of those two numbers is impossible?",
+    "It's certainly not impossible to grow at fifteen percent a month without cheating.",
+    'Startups do that every week, and the calculation above supplies the measured rate.',
+  ].join(' '));
+  assert.ok(result.filter((item) => item.ruleId === 'ai-style/absolute-claim').every((item) => item.confidence === 'low'));
+  assert.ok(result.filter((item) => item.ruleId === 'ai-style/unsupported-certainty').every((item) => item.confidence === 'low'));
+});
+
+test('negative parallelism is informational until it becomes a repeated cadence', async () => {
+  assert.equal(
+    finding(await lint('The objection turns out not merely to be false, but false in an illuminating way.'), 'negative-parallelism')?.confidence,
+    'low',
+  );
+  const repeated = (await lint([
+    'The tool is not only faster but also easier to operate.',
+    'The result is not merely accurate but also transformative.',
+  ].join(' '))).filter((item) => item.ruleId === 'ai-style/negative-parallelism');
+  assert.equal(repeated.length, 2);
+  assert.ok(repeated.every((item) => item.confidence === 'medium'));
+});
+
+test('logical second-person passives do not imply a hidden accountable actor', async () => {
+  const result = finding(
+    await lint("If you want to do it yourself, you'll be forced to understand how it's done."),
+    'passive-actor-hiding',
+  );
+  assert.equal(result?.confidence, 'low');
+});
+
+test('measured comparisons and explicit coordinators are not promoted as unsupported or spliced', async () => {
+  assert.ok(!fired(
+    await lint('To grow 4000x, there has to be at least 4000x more demand than the company serves today.'),
+    'unsupported-comparison',
+  ));
+  assert.ok(!fired(
+    await lint('They do not understand exponential growth, so when they see a large outcome, they assume cheating.'),
+    'comma-splice',
+  ));
+});
+
+test('distributed low-confidence candidates do not become a warning merely because a document is long', async () => {
+  const paragraphs = Array.from({ length: 18 }, (_, index) => [
+    `Example ${index + 1} describes what the team measured during the trial.`,
+    index % 3 === 0 ? 'The team can always repeat that measurement under the same conditions.' : '',
+  ].filter(Boolean).join(' '));
+  const result = await lint(paragraphs.join('\n\n'));
+  assert.ok(!warnings(result).some((item) => item.ruleId === 'ai-style/evidence-cluster'));
 });
 
 test('a few structural + lexical rules still fire on their canonical tells', async () => {

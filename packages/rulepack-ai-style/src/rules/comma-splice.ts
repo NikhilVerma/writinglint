@@ -58,6 +58,10 @@ export const commaSplice = defineRule({
           if (!kids.some((c) => c.deprel === 'nsubj' || c.deprel.startsWith('nsubj:'))) continue;
           if (kids.some((c) => c.deprel === 'cc' || c.deprel === 'mark')) continue;
           const clause = subtree(s, t.id);
+          // Compact parsers sometimes label coordinating “so” as an adverb on
+          // a parataxis root. It is still an explicit connective, so this is
+          // not the bare-clause boundary the rule is looking for.
+          if (clause.some((token) => lower(token) === 'so' && token.id < t.id)) continue;
           // "…, I believe, …" — an epistemic parenthetical whatever the parser
           // decided to pull into its subtree.
           const commentSubj = kids.find((c) => c.deprel === 'nsubj' && c.upos === 'PRON');

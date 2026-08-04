@@ -1,5 +1,20 @@
 # slopsift
 
+## 0.3.0
+
+### Minor Changes
+
+- Add a document-aware `performed-revelation` rule for repeated headline-like
+  payoffs, staged questions, theatrical headings, and compressed takeaway
+  paragraphs. Calibrate related rules against a local human-versus-AI A/B corpus
+  so quoted absolutes, measured comparisons, explicit connectives, isolated
+  parallelism, and long documents do not become warnings merely through volume.
+
+### Patch Changes
+
+- Updated dependencies
+  - writinglint-rulepack-ai-style@0.4.0
+
 ## 0.2.2
 
 ### Patch Changes

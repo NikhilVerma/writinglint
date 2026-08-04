@@ -17,6 +17,7 @@ export const negativeParallelism = defineRule({
     docs: { description: '“Not (only) X but (also) Y” — a signature LLM cadence.' },
   },
   create(ctx) {
+    const matches: Array<{ s: DepSentence; tokens: ReturnType<typeof subtree> }> = [];
     return {
       Sentence(sentence) {
         const s: DepSentence = sentence.dep;
@@ -33,13 +34,19 @@ export const negativeParallelism = defineRule({
           if (!xAdv.includes('not') && !xAdv.includes('neither')) continue;
           const yAdv = childrenOf(s, y.id).map(lower);
           if (![...xAdv, ...yAdv].some((w) => PARALLEL_MARKER.has(w))) continue;
-          ctx.report({
-            tokens: [...subtree(s, x.id), ...subtree(s, y.id)],
-            sentence: s,
-            message:
-              '“Not (only) X but (also) Y” — a signature LLM cadence built on a negated coordination.',
-          });
+          matches.push({ s, tokens: [...subtree(s, x.id), ...subtree(s, y.id)] });
         }
+      },
+      DocumentExit() {
+        const confidence = matches.length >= 2 ? 'medium' : 'low';
+        for (const match of matches) ctx.report({
+          tokens: match.tokens,
+          sentence: match.s,
+          confidence,
+          message: confidence === 'medium'
+            ? `“Not (only) X but (also) Y” repeats ${matches.length} times, turning contrast into a document cadence.`
+            : 'Possible “not (only) X but (also) Y” cadence. One instance may be an ordinary contrast; repetition is the stronger tell.',
+        });
       },
     };
   },

@@ -1,6 +1,6 @@
 # SlopSift agent reference
 
-SlopSift 0.2.2 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
+SlopSift 0.3.0 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
 
 ## Install and run
 
@@ -90,6 +90,7 @@ Install the maintained [SlopSift Agent Skill](https://skills.sh/NikhilVerma/slop
 - [ai-style/hedging-seesaw](https://slopsift.dev/rules/hedging-seesaw/): Relentless “While X… However, Y” balancing, a position never taken. (info, document context)
 - [ai-style/filler-intensifiers](https://slopsift.dev/rules/filler-intensifiers/): Sincerity adverbs (genuinely, truly, really) doing the believing for the reader. (warn, dependency graph)
 - [ai-style/performed-candor](https://slopsift.dev/rules/performed-candor/): Announcing your own honesty (“to be transparent”, “I’ll be honest”) instead of enacting it. (warn, text pattern)
+- [ai-style/performed-revelation](https://slopsift.dev/rules/performed-revelation/): Repeated questions, metaphors, and compressed payoffs make an explanation sound like prepared revelations. (warn, document context)
 - [ai-style/setup-fragment](https://slopsift.dev/rules/setup-fragment/): A noun-rooted fragment (“One thing I wanted to …”) that stages a point instead of making it. (warn, dependency graph)
 - [ai-style/rule-of-three](https://slopsift.dev/rules/rule-of-three/): Reflexive triads of modifiers or balanced independent clauses. (info, dependency graph)
 - [ai-style/opening-conjunction](https://slopsift.dev/rules/opening-conjunction/): Formulaic sentence-opening transitions. Often removable. (info, text pattern)

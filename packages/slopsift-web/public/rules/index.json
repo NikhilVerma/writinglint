@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "packageVersion": "0.2.2",
+  "packageVersion": "0.3.0",
   "name": "SlopSift AI-style rule catalogue",
   "url": "https://slopsift.dev/rules/",
   "categories": [
@@ -62,7 +62,7 @@
       "id": "performance",
       "label": "Performed voice",
       "description": "Sincerity narrated at the reader, announced candor, filler intensifiers, staged setups.",
-      "ruleCount": 3
+      "ruleCount": 4
     },
     {
       "id": "rule-of-three",
@@ -754,6 +754,25 @@
       "url": "https://slopsift.dev/rules/performed-candor/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/performed-candor.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fperformed-candor"
+    },
+    {
+      "id": "ai-style/performed-revelation",
+      "name": "performed-revelation",
+      "title": "Performed Revelation",
+      "description": "Repeated questions, metaphors, and compressed payoffs make an explanation sound like prepared revelations.",
+      "category": {
+        "id": "performance",
+        "label": "Performed voice",
+        "description": "Sincerity narrated at the reader, announced candor, filler intensifiers, staged setups."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/performed-revelation/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/performed-revelation.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fperformed-revelation"
     },
     {
       "id": "ai-style/setup-fragment",

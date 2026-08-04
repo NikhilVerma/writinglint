@@ -13,13 +13,26 @@ export const unsupportedCertainty = defineRule({
     return {
       Document(doc) {
         const matches = [...doc.text.matchAll(CERTAINTY_RE)];
-        const confidence = matches.length >= 3 ? 'medium' : 'low';
-        for (const match of matches) {
+        const located = matches.map((match) => ({
+          match,
+          sentence: doc.sentences.find((sentence) => match.index >= sentence.start && match.index < sentence.end)?.index,
+        }));
+        const clustered = new Set<number>();
+        for (let left = 0; left < located.length; left++) {
+          const start = located[left]!.sentence;
+          if (start == null) continue;
+          const window = located
+            .map((item, index) => ({ ...item, index }))
+            .filter((item) => item.sentence != null && item.sentence >= start && item.sentence - start <= 7);
+          if (window.length >= 3) for (const item of window) clustered.add(item.index);
+        }
+        for (const [index, match] of matches.entries()) {
+          const confidence = clustered.has(index) ? 'medium' : 'low';
           ctx.report({
             span: { start: match.index, end: match.index + match[0].length },
             confidence,
-            message: matches.length >= 3
-              ? `Repeated certainty language (${matches.length} instances) asks the reader to accept claims without seeing the support.`
+            message: confidence === 'medium'
+              ? `Certainty language clusters nearby, asking the reader to accept claims without seeing the support.`
               : 'Possible unsupported certainty. Show the evidence or state the claim without telling the reader it is obvious.',
           });
         }

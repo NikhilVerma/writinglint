@@ -32,6 +32,7 @@ import { fillerIntensifiers } from './rules/filler-intensifiers.js';
 // document-level discourse rules
 import { hedgingSeesaw } from './rules/hedging-seesaw.js';
 import { dramaticFragment } from './rules/dramatic-fragment.js';
+import { performedRevelation } from './rules/performed-revelation.js';
 // lexical rules
 import { significanceIdioms, promoIdioms, chatbotIdioms } from './rules/idioms.js';
 import { aiVocabulary } from './rules/ai-vocabulary.js';
@@ -78,6 +79,7 @@ const rawRules = {
   'filler-intensifiers': fillerIntensifiers,
   'hedging-seesaw': hedgingSeesaw,
   'dramatic-fragment': dramaticFragment,
+  'performed-revelation': performedRevelation,
   'significance-idioms': significanceIdioms,
   'promo-idioms': promoIdioms,
   'chatbot-idioms': chatbotIdioms,
@@ -137,6 +139,7 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'filler-intensifiers': 'dependency-graph',
   'hedging-seesaw': 'document-context',
   'dramatic-fragment': 'document-context',
+  'performed-revelation': 'document-context',
   'significance-idioms': 'lexical',
   'promo-idioms': 'lexical',
   'chatbot-idioms': 'lexical',
@@ -188,6 +191,7 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'filler-intensifiers': 'medium',
   'hedging-seesaw': 'low',
   'dramatic-fragment': 'low',
+  'performed-revelation': 'medium',
   'significance-idioms': 'medium',
   'promo-idioms': 'medium',
   'chatbot-idioms': 'high',
