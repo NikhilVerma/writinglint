@@ -22,6 +22,8 @@ export interface ParserOptions extends StanzaParserOptions {
   backend?: 'auto' | 'onnx' | 'stanza';
   /** Directory containing parser.onnx, relations.onnx, manifest, and tokenizer. */
   onnxModelDir?: string;
+  /** Maximum sentence chunks per ONNX call. Defaults to the memory-safe limit of 16. */
+  onnxMaxBatchSentences?: number;
 }
 
 interface Response {
@@ -114,7 +116,10 @@ export function loadParser(options: ParserOptions = {}): Promise<Parser> {
     const onnxModelDir = options.onnxModelDir ?? process.env.WRITINGLINT_ONNX_MODEL ?? bundledModelDirectory();
     const backend = options.backend ?? 'auto';
     if (backend === 'onnx' || (backend === 'auto' && existsSync(join(onnxModelDir, 'parser.onnx')))) {
-      return OnnxParser.load({ modelDir: onnxModelDir });
+      return OnnxParser.load({
+        modelDir: onnxModelDir,
+        maxBatchSentences: options.onnxMaxBatchSentences,
+      });
     }
     const modelDir = options.modelDir ?? process.env.STANZA_MODEL_DIR ?? defaults.modelDir;
     const pythonExecutable =

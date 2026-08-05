@@ -1,5 +1,14 @@
 # slopsift
 
+## 0.3.1
+
+### Patch Changes
+
+- Process large documents with bounded sequential ONNX inference batches,
+  preventing parser memory from growing with every sentence in a file.
+- Updated dependencies
+  - writinglint-parser-node@0.1.7
+
 ## 0.3.0
 
 ### Minor Changes
