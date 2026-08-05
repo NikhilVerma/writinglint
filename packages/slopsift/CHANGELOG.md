@@ -12,7 +12,10 @@
 
 ### Patch Changes
 
+- Process large documents with bounded sequential ONNX inference batches,
+  preventing parser memory from growing with every sentence in a file.
 - Updated dependencies
+  - writinglint-parser-node@0.1.7
   - writinglint-rulepack-ai-style@0.4.0
 
 ## 0.2.2

@@ -68,7 +68,7 @@
     "ignore": "^7.0.5",
     "tinyglobby": "^0.2.17",
     "writinglint-core": "^0.1.1",
-    "writinglint-parser-node": "^0.1.6",
+    "writinglint-parser-node": "^0.1.7",
     "writinglint-rulepack-ai-style": "^0.4.0"
   },
   "scripts": {

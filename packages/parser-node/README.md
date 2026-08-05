@@ -15,6 +15,8 @@ import { loadParser } from 'writinglint-parser-node';
 const parser = await loadParser({
   backend: 'onnx',
   onnxModelDir: '/path/to/another-model',
+  // Optional: lower this on especially memory-constrained machines.
+  onnxMaxBatchSentences: 16,
 });
 ```
 
@@ -23,7 +25,10 @@ the main ONNX graph, deterministic valid-tree decoding, and selected-head
 relation scoring. Token offsets are document-global UTF-16 indices.
 Individual model calls remain bounded to 256 encoder subwords. Longer
 unpunctuated spans are split at token boundaries without dropping text; graph
-edges do not cross those defensive chunk boundaries.
+edges do not cross those defensive chunk boundaries. Documents are also parsed
+in sequential batches of at most 16 sentence chunks. This keeps ONNX tensor
+allocation bounded as a file or corpus grows instead of batching a whole large
+document into memory at once.
 
 ## Stanza oracle
 

@@ -17,7 +17,11 @@ interface TokenizerFile {
 export interface OnnxParserOptions {
   modelDir: string;
   intraOpNumThreads?: number;
+  /** Maximum sentence chunks sent through ONNX in one call. Defaults to 16. */
+  maxBatchSentences?: number;
 }
+
+const DEFAULT_MAX_BATCH_SENTENCES = 16;
 
 /** Absolute path of the compact model shipped inside the npm package. */
 export function bundledModelDirectory(): string {
@@ -46,9 +50,14 @@ export class OnnxParser implements Parser {
     private readonly relations: ort.InferenceSession,
     private readonly manifest: Manifest,
     private readonly vocab: Record<string, number>,
+    private readonly maxBatchSentences: number,
   ) {}
 
   static async load(options: OnnxParserOptions): Promise<OnnxParser> {
+    const maxBatchSentences = options.maxBatchSentences ?? DEFAULT_MAX_BATCH_SENTENCES;
+    if (!Number.isInteger(maxBatchSentences) || maxBatchSentences < 1) {
+      throw new Error('maxBatchSentences must be a positive integer');
+    }
     const [manifestText, tokenizerText] = await Promise.all([
       readFile(join(options.modelDir, 'manifest.json'), 'utf8'),
       readFile(join(options.modelDir, 'tokenizer', 'tokenizer.json'), 'utf8'),
@@ -65,6 +74,7 @@ export class OnnxParser implements Parser {
     return new OnnxParser(
       parser, relations, JSON.parse(manifestText) as Manifest,
       (JSON.parse(tokenizerText) as TokenizerFile).model.vocab,
+      maxBatchSentences,
     );
   }
 
@@ -74,6 +84,14 @@ export class OnnxParser implements Parser {
       .filter((sentence) => sentence.words.length > 0)
       .flatMap((sentence) => chunkForEncoder(sentence, this.vocab));
     if (sentences.length === 0) return [];
+    const parsed: ParsedSentence[] = [];
+    for (let start = 0; start < sentences.length; start += this.maxBatchSentences) {
+      parsed.push(...await this.parseBatch(sentences.slice(start, start + this.maxBatchSentences)));
+    }
+    return parsed;
+  }
+
+  private async parseBatch(sentences: SentenceTokens[]): Promise<ParsedSentence[]> {
     const encoded = sentences.map((sentence) => encodeWordPieces(sentence.words, this.vocab));
     const batch = sentences.length;
     const maxSubwords = Math.max(...encoded.map((item) => item.inputIds.length));
@@ -87,31 +105,46 @@ export class OnnxParser implements Parser {
       item.inputIds.forEach((id, column) => { inputIds[row * maxSubwords + column] = id; attentionMask[row * maxSubwords + column] = 1; });
       item.wordStarts.forEach((start, column) => { wordStarts[row * maxWords + column] = start; wordMask[row * maxWords + column] = 1; });
     }
-    const output = await this.parser.run({
+    const parserFeeds = {
       input_ids: int64(inputIds, [batch, maxSubwords]),
       attention_mask: int64(attentionMask, [batch, maxSubwords]),
       word_starts: int64(wordStarts, [batch, maxWords]),
       word_mask: new ort.Tensor('bool', wordMask, [batch, maxWords]),
-    });
-    const arc = output.arc_logits!.data as Float32Array;
-    const headWidth = maxWords + 1;
-    const selectedHeads = new Array<number>(batch * maxWords).fill(0);
-    for (let row = 0; row < batch; row++) {
-      const count = sentences[row]!.words.length;
-      const scores = Array.from({ length: count }, (_, dependent) =>
-        Array.from({ length: count + 1 }, (_, head) => arc[index3(row, dependent, headWidth, maxWords) + head]!));
-      decodeTree(scores).forEach((head, dependent) => { selectedHeads[row * maxWords + dependent] = head; });
+    };
+    let output: Awaited<ReturnType<ort.InferenceSession['run']>> | undefined;
+    let relationOutput: Awaited<ReturnType<ort.InferenceSession['run']>> | undefined;
+    let selectedHeadsTensor: ort.Tensor | undefined;
+    try {
+      output = await this.parser.run(parserFeeds);
+      const arc = output.arc_logits!.data as Float32Array;
+      const headWidth = maxWords + 1;
+      const selectedHeads = new Array<number>(batch * maxWords).fill(0);
+      for (let row = 0; row < batch; row++) {
+        const count = sentences[row]!.words.length;
+        const scores = Array.from({ length: count }, (_, dependent) =>
+          Array.from({ length: count + 1 }, (_, head) => arc[index3(row, dependent, headWidth, maxWords) + head]!));
+        decodeTree(scores).forEach((head, dependent) => { selectedHeads[row * maxWords + dependent] = head; });
+      }
+      selectedHeadsTensor = int64(selectedHeads, [batch, maxWords]);
+      relationOutput = await this.relations.run({
+        relation_dependent: output.relation_dependent!,
+        relation_heads: output.relation_heads!,
+        selected_heads: selectedHeadsTensor,
+      });
+      return sentences.map((sentence, row) => this.buildSentence(
+        sentence, row, maxWords, selectedHeads,
+        output!.upos_logits!.data as Float32Array,
+        relationOutput!.relation_logits!.data as Float32Array,
+      ));
+    } finally {
+      const tensors = new Set<ort.Tensor>([
+        ...Object.values(parserFeeds),
+        ...Object.values(output ?? {}),
+        ...Object.values(relationOutput ?? {}),
+        ...(selectedHeadsTensor ? [selectedHeadsTensor] : []),
+      ]);
+      for (const tensor of tensors) tensor.dispose();
     }
-    const relationOutput = await this.relations.run({
-      relation_dependent: output.relation_dependent!,
-      relation_heads: output.relation_heads!,
-      selected_heads: int64(selectedHeads, [batch, maxWords]),
-    });
-    return sentences.map((sentence, row) => this.buildSentence(
-      sentence, row, maxWords, selectedHeads,
-      output.upos_logits!.data as Float32Array,
-      relationOutput.relation_logits!.data as Float32Array,
-    ));
   }
 
   private buildSentence(
