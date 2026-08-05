@@ -1,5 +1,13 @@
 # writinglint-parser-node
 
+## 0.1.7
+
+### Patch Changes
+
+- Bound ONNX inference to sequential batches of at most 16 sentence chunks and
+  explicitly release intermediate tensors. Large documents now use stable
+  parser memory instead of allocating one corpus-sized padded batch.
+
 ## 0.1.6
 
 ### Patch Changes

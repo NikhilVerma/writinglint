@@ -1,6 +1,6 @@
 # SlopSift rule catalogue
 
-SlopSift 0.3.0 includes 48 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
+SlopSift 0.3.1 includes 48 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
 
 - [ai-style/evidence-cluster](https://slopsift.dev/rules/evidence-cluster/): Several independent slop signals cluster in one paragraph or across the document. (warn, document context)
 - [ai-style/copula-avoidance](https://slopsift.dev/rules/copula-avoidance/): “stands/serves as a …” dressing up a plain “is a …”. (warn, dependency graph)
