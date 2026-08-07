@@ -1,8 +1,11 @@
 /** Self-contained browser parser backed by the owned INT8 ONNX model. */
 import * as ort from 'onnxruntime-web';
 import { decodeTree, type Parser, type ParsedSentence } from 'writinglint-core';
-import { encodeWordPieces, splitSentences, tokenizeWords, type SentenceTokens } from 'writinglint-parser-node/tokenizer';
+import { chunkForEncoder, encodeWordPieces, splitSentences, tokenizeWords, type SentenceTokens } from 'writinglint-parser-node/tokenizer';
 import type { Model } from 'writinglint-rulepack-ai-style';
+
+/** Sentence chunks per ONNX call — matches the Node parser's memory-safe limit. */
+const MAX_BATCH_SENTENCES = 16;
 
 export interface Progress { (stage: string, loaded?: number, total?: number): void }
 export interface Loaded { parser: Parser; model: Model }
@@ -48,10 +51,20 @@ class BrowserOnnxParser implements Parser {
   ) {}
 
   async parse(text: string): Promise<ParsedSentence[]> {
-    const sentences = splitSentences(text).map(tokenizeWords).filter((sentence) => sentence.words.length);
+    const sentences = splitSentences(text)
+      .map(tokenizeWords)
+      .filter((sentence) => sentence.words.length)
+      .flatMap((sentence) => chunkForEncoder(sentence, this.vocab));
     if (!sentences.length) return [];
+    const parsed: ParsedSentence[] = [];
+    for (let start = 0; start < sentences.length; start += MAX_BATCH_SENTENCES) {
+      parsed.push(...await this.parseBatch(sentences.slice(start, start + MAX_BATCH_SENTENCES)));
+    }
+    return parsed;
+  }
+
+  private async parseBatch(sentences: SentenceTokens[]): Promise<ParsedSentence[]> {
     const encoded = sentences.map((sentence) => encodeWordPieces(sentence.words, this.vocab));
-    if (encoded.some((item) => item.inputIds.length > 256)) throw new Error('A sentence exceeds 256 subwords.');
     const batch = sentences.length;
     const maxSubwords = Math.max(...encoded.map((item) => item.inputIds.length));
     const maxWords = Math.max(...encoded.map((item) => item.wordStarts.length));
