@@ -1,0 +1,11 @@
+{
+  "name": "slopsift",
+  "version": "0.5.0",
+  "description": "Lint an agent's final prose and ask it to rewrite before stopping.",
+  "author": {
+    "name": "Nikhil Verma"
+  },
+  "homepage": "https://slopsift.dev",
+  "repository": "https://github.com/NikhilVerma/writinglint",
+  "license": "MIT"
+}

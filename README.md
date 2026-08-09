@@ -143,6 +143,7 @@ agents:
   [rule catalogue JSON](https://slopsift.dev/rules/index.json)
 - [Versioned JSON output schema](https://slopsift.dev/schemas/slopsift-result-v1.schema.json)
 - [GitHub Actions guide](docs/slopsift-github-actions.md)
+- [Claude Code, Codex, and Pi hook guide](packages/slopsift/AGENT-HOOKS.md)
 - [SlopSift Agent Skill](https://skills.sh/NikhilVerma/slopsift)
 
 The website serves authored Markdown when a client requests an eligible page

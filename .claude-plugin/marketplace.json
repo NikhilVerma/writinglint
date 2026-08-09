@@ -1,0 +1,25 @@
+{
+  "name": "slopsift",
+  "owner": {
+    "name": "Nikhil Verma",
+    "url": "https://slopsift.dev"
+  },
+  "description": "Local writing-quality tools for coding agents.",
+  "plugins": [
+    {
+      "name": "slopsift",
+      "displayName": "SlopSift",
+      "source": "./plugins/slopsift",
+      "description": "Lint an agent's final prose and ask it to rewrite before stopping.",
+      "version": "0.5.0",
+      "author": {
+        "name": "Nikhil Verma"
+      },
+      "homepage": "https://slopsift.dev",
+      "repository": "https://github.com/NikhilVerma/writinglint",
+      "license": "MIT",
+      "category": "Productivity",
+      "tags": ["writing", "linting", "hooks"]
+    }
+  ]
+}

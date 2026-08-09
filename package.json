@@ -39,6 +39,7 @@
     "smoke:packed": "node scripts/smoke-cli-install.mjs packed",
     "smoke:published": "node scripts/smoke-cli-install.mjs published",
     "smoke:published:writinglint": "node scripts/smoke-cli-install.mjs published-writinglint",
+    "smoke:agent-hook": "npm run build -w slopsift && node scripts/smoke-agent-hook.mjs",
     "check:push": "npm run smoke:packed",
     "changeset": "changeset",
     "version-packages": "changeset version && npm install --package-lock-only --ignore-scripts && npm run generate:agent-surfaces",

@@ -1,5 +1,11 @@
 # slopsift
 
+## 0.5.0
+
+### Minor Changes
+
+- Validate Claude Code and Codex Stop events with bounded rewrite feedback, and add Pi, dirty Git, and active-transcript adapters.
+
 ## 0.4.0
 
 ### Minor Changes

@@ -1,0 +1,16 @@
+{
+  "description": "Ask Claude Code or Codex to rewrite final responses that trigger SlopSift warnings.",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/stop-hook.mjs\"",
+            "timeout": 240
+          }
+        ]
+      }
+    ]
+  }
+}

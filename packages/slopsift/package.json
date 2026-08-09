@@ -1,6 +1,6 @@
 {
   "name": "slopsift",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Lint Markdown, prose, and source-code comments for AI writing slop.",
   "type": "module",
   "license": "MIT",
@@ -32,6 +32,21 @@
       "types": "./dist/extract.d.ts",
       "default": "./dist/extract.js"
     },
+    "./stop-hook": {
+      "source": "./src/stop-hook.ts",
+      "types": "./dist/stop-hook.d.ts",
+      "default": "./dist/stop-hook.js"
+    },
+    "./agent-transcript": {
+      "source": "./src/agent-transcript.ts",
+      "types": "./dist/agent-transcript.d.ts",
+      "default": "./dist/agent-transcript.js"
+    },
+    "./git-dirty": {
+      "source": "./src/git-dirty.ts",
+      "types": "./dist/git-dirty.d.ts",
+      "default": "./dist/git-dirty.js"
+    },
     "./rules": "./rules/index.json",
     "./schema/result-v1.json": "./schema/slopsift-result-v1.schema.json"
   },
@@ -49,7 +64,8 @@
     "MODEL.md",
     "RELEASING.md",
     "CALIBRATION.md",
-    "AUDIT.md"
+    "AUDIT.md",
+    "AGENT-HOOKS.md"
   ],
   "engines": {
     "node": ">=20"

@@ -18,6 +18,13 @@ function run(...args: string[]) {
   });
 }
 
+function runWithInput(input: string, ...args: string[]) {
+  return spawnSync(process.execPath, ['--conditions=source', '--import', 'tsx', cli, ...args], {
+    encoding: 'utf8',
+    input,
+  });
+}
+
 test('unmatched patterns fail loudly by default', () => {
   const result = run(missing);
   assert.equal(result.status, 2);
@@ -72,6 +79,38 @@ test('compressed technical comment regressions all produce a default warning', (
       `${entry.filePath} should report ${expectedRules[index]}`,
     );
   }
+});
+
+test('Stop-hook CLI turns a warning into a cross-agent continuation decision', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-hook-cli-'));
+  try {
+    const result = runWithInput(JSON.stringify({
+      session_id: 'cli-hook-test',
+      turn_id: 'turn-1',
+      hook_event_name: 'Stop',
+      stop_hook_active: false,
+      last_assistant_message: 'Kept modest deliberately: the win comes from narrower prompts, not from saturating the model gate.',
+    }), 'hook', 'stop', '--state-dir', directory);
+    assert.equal(result.status, 0, result.stderr);
+    const output = JSON.parse(result.stdout) as { decision?: string; reason?: string };
+    assert.equal(output.decision, 'block');
+    assert.match(output.reason ?? '', /ai-style\/agentless-rationale/);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('Stop-hook CLI fails open with valid JSON when its input is malformed', () => {
+  const result = runWithInput('{broken', 'hook', 'stop');
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout) as { systemMessage?: string };
+  assert.match(output.systemMessage ?? '', /could not validate/);
+});
+
+test('Stop-hook CLI rejects options whose values are missing', () => {
+  const result = run('hook', 'stop', '--max-retries');
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /--max-retries requires a value/);
 });
 
 test('a large Markdown table does not abort a multi-file JSON run', () => {
