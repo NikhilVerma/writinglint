@@ -1,0 +1,20 @@
+{
+  "name": "slopsift",
+  "interface": {
+    "displayName": "SlopSift"
+  },
+  "plugins": [
+    {
+      "name": "slopsift",
+      "source": {
+        "source": "local",
+        "path": "./plugins/slopsift"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "slopsift",
+  "version": "0.5.0",
+  "description": "Lint an agent's final prose and ask it to rewrite before stopping.",
+  "author": {
+    "name": "Nikhil Verma"
+  },
+  "homepage": "https://slopsift.dev",
+  "repository": "https://github.com/NikhilVerma/writinglint",
+  "license": "MIT",
+  "interface": {
+    "displayName": "SlopSift",
+    "shortDescription": "Catch slop before the agent stops.",
+    "longDescription": "SlopSift checks final responses locally and returns exact editorial findings to the coding agent for a bounded rewrite.",
+    "developerName": "Nikhil Verma",
+    "category": "Productivity",
+    "capabilities": ["Stop hook", "local prose linting", "dirty Git checks"],
+    "defaultPrompt": "Explain how SlopSift validates agent responses before they are accepted."
+  }
+}

@@ -30,6 +30,13 @@ The `slopsift` package and executable deliberately share a name, so both
 installs its packed tarball into an isolated non-workspace project before every
 release and repeats the smoke test against the public registry afterward.
 
+Coding agents can also run SlopSift before they finish a turn. Claude Code and
+Codex share a Stop-hook command, while the bundled Pi extension queues the same
+findings as a follow-up correction. The optional dirty-tree and transcript
+checks let the agent fix documentation in changed files and learn from prose
+stored during the active turn. See [AGENT-HOOKS.md](./AGENT-HOOKS.md) for plugin
+installation, standalone configuration, privacy boundaries, and tests.
+
 SlopSift grades every finding by detector confidence:
 
 - `error` / high confidence: a strong, specific slop signature; exits non-zero.
