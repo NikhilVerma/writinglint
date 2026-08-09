@@ -32,7 +32,7 @@
     "astro": "^7.1.6",
     "codemirror": "^6.0.2",
     "onnxruntime-web": "^1.27.0",
-    "slopsift": "^0.3.0",
+    "slopsift": "^0.4.0",
     "writinglint-core": "*",
     "writinglint-parser-node": "*",
     "writinglint-rulepack-ai-style": "*"

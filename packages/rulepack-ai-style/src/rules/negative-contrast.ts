@@ -41,6 +41,14 @@ export const negativeContrast = defineRule({
   create(ctx) {
     return {
       Document(doc) {
+        for (const sentence of doc.sentences) {
+          if (!/\b(?:is|are|was|were)\s+not\s+[^,;:]{1,100},\s*(?:it|this|they)\s+(?:is|are|was|were)\b/i.test(sentence.text)) continue;
+          ctx.report({
+            span: { start: sentence.start, end: sentence.end },
+            confidence: 'medium',
+            message: 'Inline negative redefinition (“X is not Y, it is Z”) stages the implementation choice as a reveal. State the behavior and its consequence directly.',
+          });
+        }
         for (let index = 0; index < doc.sentences.length - 1; index++) {
           const negative = doc.sentences[index]!;
           const positive = doc.sentences[index + 1]!;

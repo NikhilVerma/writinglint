@@ -416,6 +416,22 @@ function scanTemplateLiteral(source: string, start: number): TemplateLiteral {
 
 function scanCStyle(source: string, output: string[]): void {
   scanDelimited(source, output, ['//'], [['/*', '*/']]);
+  // JSDoc uses a leading `*` as margin decoration. Mask that marker so a line
+  // containing only ` *` remains a real blank-line paragraph boundary, while
+  // preserving every source offset for diagnostics.
+  for (const block of source.matchAll(/\/\*\*[\s\S]*?(?:\*\/|$)/g)) {
+    const start = block.index;
+    const end = start + block[0].length;
+    let lineStart = source.indexOf('\n', start) + 1;
+    while (lineStart > 0 && lineStart < end) {
+      let marker = lineStart;
+      while (marker < end && (source[marker] === ' ' || source[marker] === '\t')) marker++;
+      if (source[marker] === '*') output[marker] = ' ';
+      lineStart = source.indexOf('\n', lineStart);
+      if (lineStart < 0 || lineStart >= end) break;
+      lineStart++;
+    }
+  }
   let index = 0;
   while (index < source.length) {
     const character = source[index]!;

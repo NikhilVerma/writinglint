@@ -1,5 +1,16 @@
 # slopsift
 
+## 0.4.0
+
+### Minor Changes
+
+- Detect compressed technical explanations with graded signals for sustained passive voice, headline-style fragments, implementation-detail pileups, abstract process narration, agentless rationale fragments, and inline negative redefinitions. Preserve JSDoc paragraph boundaries so those findings stay locally calibrated and map to exact source ranges.
+
+### Patch Changes
+
+- Updated dependencies
+  - writinglint-rulepack-ai-style@0.5.0
+
 ## 0.3.1
 
 ### Patch Changes

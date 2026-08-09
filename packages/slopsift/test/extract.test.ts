@@ -24,6 +24,20 @@ test('TypeScript extraction keeps comments and exact source offsets', () => {
   assert.equal(extracted.includes('not a comment'), false);
 });
 
+test('JSDoc margin stars preserve paragraph boundaries', () => {
+  const source = [
+    '/**',
+    ' * The first paragraph explains the normal behavior.',
+    ' *',
+    ' * The second paragraph explains the exception.',
+    ' */',
+  ].join('\n');
+  const extracted = extractLintText('example.ts', source);
+  assert.match(extracted, /The first paragraph explains the normal behavior\.\n\s*\n\s*The second paragraph/);
+  assert.equal(extracted.length, source.length);
+  assert.equal(extracted.indexOf('The second paragraph'), source.indexOf('The second paragraph'));
+});
+
 test('ESLint-shaped locations point into the original code file', () => {
   const source = 'const x = 1;\n// Ultimately, this is transformative.\n';
   const start = source.indexOf('Ultimately');

@@ -1,6 +1,6 @@
 # SlopSift rule catalogue
 
-SlopSift 0.3.1 includes 48 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
+SlopSift 0.4.0 includes 52 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
 
 - [ai-style/evidence-cluster](https://slopsift.dev/rules/evidence-cluster/): Several independent slop signals cluster in one paragraph or across the document. (warn, document context)
 - [ai-style/copula-avoidance](https://slopsift.dev/rules/copula-avoidance/): “stands/serves as a …” dressing up a plain “is a …”. (warn, dependency graph)
@@ -23,6 +23,7 @@ SlopSift 0.3.1 includes 48 AI-style rules. Default levels derive from rule confi
 - [ai-style/vague-quantifier](https://slopsift.dev/rules/vague-quantifier/): A broad population claim without a named sample, source, or scope. (info, document context)
 - [ai-style/chatbot-idioms](https://slopsift.dev/rules/chatbot-idioms/): Editorialising / chatbot filler idioms (it’s worth noting …). (error, text pattern)
 - [ai-style/dramatic-fragment](https://slopsift.dev/rules/dramatic-fragment/): A short transition is isolated as a sentence to manufacture drama. (info, document context)
+- [ai-style/implementation-detail-pileup](https://slopsift.dev/rules/implementation-detail-pileup/): A passage piles up identifiers, qualifications, and exceptions before establishing the normal behavior. (warn, document context)
 - [ai-style/modal-redundancy](https://slopsift.dev/rules/modal-redundancy/): Repeats modality after two possibilities already establish the outcome. (warn, dependency graph)
 - [ai-style/outline-conclusion](https://slopsift.dev/rules/outline-conclusion/): A canned “challenges and future prospects” ending instead of a specific conclusion. (info, document context)
 - [ai-style/premature-closure](https://slopsift.dev/rules/premature-closure/): A summary aside announces that an explanation is complete even though the paragraph immediately continues. (warn, dependency graph)
@@ -32,8 +33,10 @@ SlopSift 0.3.1 includes 48 AI-style rules. Default levels derive from rule confi
 - [ai-style/ai-vocabulary](https://slopsift.dev/rules/ai-vocabulary/): Words LLMs over-use relative to human writers. (info, text pattern)
 - [ai-style/emerging-slop-phrases](https://slopsift.dev/rules/emerging-slop-phrases/): Newly common AI-writing phrases, graded as weak evidence in isolation. (info, text pattern)
 - [ai-style/agentless-opener](https://slopsift.dev/rules/agentless-opener/): Telegraphic verbless opener spliced with an “and it …” clause, the doer never appears. (warn, dependency graph)
+- [ai-style/agentless-rationale](https://slopsift.dev/rules/agentless-rationale/): Subjectless verb-led explanations accumulate into implementation-trace cadence instead of ordinary reader-facing prose. (warn, dependency graph)
 - [ai-style/false-agency](https://slopsift.dev/rules/false-agency/): An abstraction is made to act like a person instead of naming the actor. (warn, dependency graph)
 - [ai-style/passive-actor-hiding](https://slopsift.dev/rules/passive-actor-hiding/): A passive clause hides who performed the action. (warn, dependency graph)
+- [ai-style/passive-voice-density](https://slopsift.dev/rules/passive-voice-density/): Several nearby sentences rely on passive voice, making the process harder to follow. (warn, document context)
 - [ai-style/hedging-seesaw](https://slopsift.dev/rules/hedging-seesaw/): Relentless “While X… However, Y” balancing, a position never taken. (info, document context)
 - [ai-style/filler-intensifiers](https://slopsift.dev/rules/filler-intensifiers/): Sincerity adverbs (genuinely, truly, really) doing the believing for the reader. (warn, dependency graph)
 - [ai-style/performed-candor](https://slopsift.dev/rules/performed-candor/): Announcing your own honesty (“to be transparent”, “I’ll be honest”) instead of enacting it. (warn, text pattern)
@@ -47,6 +50,7 @@ SlopSift 0.3.1 includes 48 AI-style rules. Default levels derive from rule confi
 - [ai-style/generation-artifacts](https://slopsift.dev/rules/generation-artifacts/): Leftover chatbot citation artifacts (oaicite, turn0search0, …). (error, text pattern)
 - [ai-style/mixed-quotes](https://slopsift.dev/rules/mixed-quotes/): Straight and curly double quotes mixed in one document, a paste seam. (warn, document context)
 - [ai-style/comma-splice](https://slopsift.dev/rules/comma-splice/): Two independent clauses joined only by a comma; clipped cases can perform breeziness. (info, dependency graph)
+- [ai-style/headline-fragment](https://slopsift.dev/rules/headline-fragment/): An explanatory passage opens with a noun-heavy headline fragment instead of a complete statement. (info, document context)
 - [ai-style/referential-compression](https://slopsift.dev/rules/referential-compression/): Several nearby sentences open with bare pronouns instead of carrying the subject forward explicitly. (info, dependency graph)
 - [ai-style/repeated-sentence-frame](https://slopsift.dev/rules/repeated-sentence-frame/): Several nearby sentences repeat the same dependency frame and cadence. (info, dependency graph)
 - [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)

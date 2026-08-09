@@ -97,6 +97,17 @@ test('negative contrast catches a staged two-sentence redefinition', async () =>
     'medium',
   );
   assert.ok(!fired(await lint('Controls are not documents stored in this directory.'), 'negative-contrast'));
+  assert.equal(
+    finding(
+      await lint('The change that matters is not parallelism, it is decomposition: each unit receives a focused search.'),
+      'negative-contrast',
+    )?.confidence,
+    'medium',
+  );
+  assert.ok(!fired(
+    await lint('The change is not caused by parallelism because every unit uses the same worker.'),
+    'negative-contrast',
+  ));
 });
 
 test('dramatic fragments are graded without matching ordinary transitions', async () => {
@@ -267,6 +278,7 @@ test('negative parallelism is informational until it becomes a repeated cadence'
   ].join(' '))).filter((item) => item.ruleId === 'ai-style/negative-parallelism');
   assert.equal(repeated.length, 2);
   assert.ok(repeated.every((item) => item.confidence === 'medium'));
+
 });
 
 test('logical second-person passives do not imply a hidden accountable actor', async () => {
@@ -408,6 +420,119 @@ test('passive actor hiding grades ordinary passives below accountability-hiding 
   assert.equal(finding(await lint('Several safety concerns were ignored.'), 'passive-actor-hiding')?.confidence, 'medium');
   assert.equal(finding(await lint('The unused vocabulary has been removed.'), 'passive-actor-hiding')?.confidence, 'low');
   assert.ok(!fired(await lint('It is made up half the time.'), 'passive-actor-hiding'));
+});
+
+test('passive voice density catches a sustained local habit', async () => {
+  const result = await lint([
+    'The request is validated before dispatch.',
+    'The payload is copied into the queue.',
+    'A worker reads the next item and calls the provider.',
+    'The response is stored after the call.',
+    'The API returns the stored result to the client.',
+    'Expired records are removed every night.',
+  ].join(' '));
+  assert.equal(finding(result, 'passive-voice-density')?.confidence, 'medium');
+});
+
+test('passive voice density leaves an occasional implementation passive alone', async () => {
+  const result = await lint([
+    'The gateway validates each request.',
+    'The payload is copied into the queue.',
+    'A worker reads the next item.',
+    'The worker calls the provider and records the response.',
+    'The API returns that result to the client.',
+    'Expired records are removed every night.',
+  ].join(' '));
+  assert.ok(!fired(result, 'passive-voice-density'));
+
+  const checklist = await lint([
+    '- Requests are validated before dispatch.',
+    '- Payloads are copied into the queue.',
+    '- Responses are stored after each call.',
+    '- Expired records are removed every night.',
+  ].join('\n'));
+  assert.ok(!fired(checklist, 'passive-voice-density'));
+});
+
+test('headline fragments flag compressed explanation openers, not headings or complete statements', async () => {
+  const fragments = await lint([
+    'Prior L2 criteria example (Stage A of the inventory plan). The function supplies an earlier tree to the prompt.',
+    '',
+    'The most recent prior L2 subtree per L1 criterion of a control, for use as prompt context.',
+  ].join('\n'));
+  const hits = fragments.filter((item) => item.ruleId === 'ai-style/headline-fragment');
+  assert.equal(hits.length, 2);
+  assert.ok(hits.every((item) => item.confidence === 'low'));
+
+  assert.ok(!fired(await lint([
+    '## Prior criteria examples',
+    '',
+    'The function supplies an earlier tree to the prompt.',
+  ].join('\n')), 'headline-fragment'));
+  assert.ok(!fired(
+    await lint('The function returns the most recent prior subtree for each active criterion.'),
+    'headline-fragment',
+  ));
+
+  const decorated = await lint([
+    '─── inventory-first scope units (Stages B/C/D/E) ───────────',
+    'The function groups the fields used by the next stages.',
+  ].join('\n'));
+  assert.equal(finding(decorated, 'headline-fragment')?.confidence, 'low');
+});
+
+test('implementation detail pileups separate reader context from identifier density', async () => {
+  const compressed = await lint([
+    'Prior L2 criteria example (Stage A of the inventory-first scope plan).',
+    'The subtree travels FLATTENED (pre-order plus `depth`) rather than nested, so the wire contract needs no recursive TypeBox.',
+    '`anchorType` and `enforcementScope` stay free-form for the same generic-depth reason the projections above cite; the activity only renders them and never branches on them.',
+  ].join(' '));
+  assert.equal(finding(compressed, 'implementation-detail-pileup')?.confidence, 'medium');
+
+  const explained = await lint([
+    'This function gives the prompt an example of criteria designed for an earlier application.',
+    'It first finds the active parent criterion.',
+    'The response includes `anchorType`, `enforcementScope`, and `depth` so the prompt can reproduce the same shape.',
+    'If no earlier example exists, the function returns an empty list.',
+  ].join(' '));
+  assert.ok(!fired(explained, 'implementation-detail-pileup'));
+
+  const ordinaryReference = await lint([
+    'The response includes `id`, `status`, and `createdAt`.',
+    '`status` can be pending or complete.',
+    'The client checks that value before showing the result.',
+  ].join(' '));
+  assert.ok(!fired(ordinaryReference, 'implementation-detail-pileup'));
+
+  const identifierList = await lint([
+    '- `id`: stable record identifier.',
+    '- `status`: pending or complete.',
+    '- `createdAt`: creation timestamp.',
+    '- `updatedAt`: most recent update timestamp.',
+  ].join('\n'));
+  assert.ok(!fired(identifierList, 'implementation-detail-pileup'));
+
+  const enumComment = await lint([
+    '─── inventory-first scope units (Stages B/C/D/E) ───────────',
+    'Free-form `t.String()` is used for the narrow text enums below (anchorType, enforcementScope, phase) for the same Elysia generic-depth reason the projections above cite:',
+    'literal unions on these wide row shapes exceed the InlineHandler recursion budget.',
+    'The consumers only render them or compare them to a known constant, so a `string` wire type is sound.',
+  ].join(' '));
+  assert.equal(finding(enumComment, 'implementation-detail-pileup')?.confidence, 'medium');
+
+  const processNarration = await lint([
+    'This helper keeps the same evidence gate — an item is only a candidate if THIS application already has evidence for it — and then narrows to the work unit before ranking.',
+    'Narrowing is a RE-RANK plus a soft filter, never a hard one: if the filter would empty the result set, the unfiltered ranking is returned instead.',
+    'A unit that returns nothing because the hint was too literal is strictly worse than one that returns slightly-off candidates the agent can reject.',
+  ].join(' '));
+  assert.equal(finding(processNarration, 'implementation-detail-pileup')?.confidence, 'medium');
+
+  const ordinaryFallback = await lint([
+    'This helper checks the local cache before querying the database.',
+    'If the cache has no value, the helper reads the record from storage and stores it for the next request.',
+    'The caller receives the same record in either case.',
+  ].join(' '));
+  assert.ok(!fired(ordinaryFallback, 'implementation-detail-pileup'));
 });
 
 test('weak candidates are retained as info and promoted by repetition or density', async () => {
@@ -902,6 +1027,45 @@ test('agentless-opener wants a doer, but leaves either register alone', async ()
   assert.ok(fired(await lint('Notes attached, and they are a fuller record than the summary.'), 'agentless-opener'));
   assert.ok(!fired(await lint('I enjoyed the demo, and the notes are attached.'), 'agentless-opener'));
   assert.ok(!fired(await lint('Notes attached.'), 'agentless-opener'));
+});
+
+test('agentless rationale fragments distinguish compressed decisions from complete explanations', async () => {
+  assert.equal(
+    finding(
+      await lint('Kept modest deliberately: the win comes from narrower prompts, not from saturating the model gate.'),
+      'agentless-rationale',
+    )?.confidence,
+    'medium',
+  );
+  assert.equal(
+    finding(
+      await lint('Used by the MCP build tool and by the bulk workflow.'),
+      'agentless-rationale',
+    )?.confidence,
+    'low',
+  );
+  assert.ok(!fired(
+    await lint('The workflow keeps concurrency modest because narrower prompts provide the benefit.'),
+    'agentless-rationale',
+  ));
+
+  const repeated = (await lint([
+    'Used by the planner after it creates the work units.',
+    'Called by the finalizer after every unit has returned a result.',
+  ].join(' '))).filter((item) => item.ruleId === 'ai-style/agentless-rationale');
+  assert.equal(repeated.length, 2);
+  assert.ok(repeated.every((item) => item.confidence === 'medium'));
+
+  const distant = (await lint([
+    'Used by the planner after it creates the work units.',
+    'The planner reads the control and creates one unit for each criterion.',
+    'Each unit records the service that gives the search its scope.',
+    'The workflow sends those units through the shared model throttle.',
+    'The finalizer waits until every search has returned.',
+    'Called by the finalizer after every unit has returned a result.',
+  ].join(' '))).filter((item) => item.ruleId === 'ai-style/agentless-rationale');
+  assert.equal(distant.length, 2);
+  assert.ok(distant.every((item) => item.confidence === 'low'));
 });
 
 test('setup-fragment flags staged points, not stated ones', async () => {
