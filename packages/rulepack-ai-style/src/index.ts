@@ -21,13 +21,16 @@ import { lightVerbRole } from './rules/light-verb-role.js';
 import { vagueAttribution } from './rules/vague-attribution.js';
 import { throatClearing } from './rules/throat-clearing.js';
 import { passiveActorHiding } from './rules/passive-actor-hiding.js';
+import { passiveVoiceDensity } from './rules/passive-voice-density.js';
 import { falseAgency } from './rules/false-agency.js';
 import { rhetoricalScaffolding } from './rules/rhetorical-scaffolding.js';
 import { negativeListBuildup } from './rules/negative-list-buildup.js';
 import { modalRedundancy } from './rules/modal-redundancy.js';
 import { commaSplice } from './rules/comma-splice.js';
 import { agentlessOpener } from './rules/agentless-opener.js';
+import { agentlessRationale } from './rules/agentless-rationale.js';
 import { setupFragment } from './rules/setup-fragment.js';
+import { headlineFragment } from './rules/headline-fragment.js';
 import { fillerIntensifiers } from './rules/filler-intensifiers.js';
 // document-level discourse rules
 import { hedgingSeesaw } from './rules/hedging-seesaw.js';
@@ -55,6 +58,7 @@ import { referentialCompression } from './rules/referential-compression.js';
 import { prematureClosure } from './rules/premature-closure.js';
 import { binaryOutcomeFrame } from './rules/binary-outcome-frame.js';
 import { undefinedKeyTerm } from './rules/undefined-key-term.js';
+import { implementationDetailPileup } from './rules/implementation-detail-pileup.js';
 
 const rawRules = {
   'rule-of-three': ruleOfThree,
@@ -68,13 +72,16 @@ const rawRules = {
   'vague-attribution': vagueAttribution,
   'throat-clearing': throatClearing,
   'passive-actor-hiding': passiveActorHiding,
+  'passive-voice-density': passiveVoiceDensity,
   'false-agency': falseAgency,
   'rhetorical-scaffolding': rhetoricalScaffolding,
   'negative-list-buildup': negativeListBuildup,
   'modal-redundancy': modalRedundancy,
   'comma-splice': commaSplice,
   'agentless-opener': agentlessOpener,
+  'agentless-rationale': agentlessRationale,
   'setup-fragment': setupFragment,
+  'headline-fragment': headlineFragment,
   'filler-intensifiers': fillerIntensifiers,
   'hedging-seesaw': hedgingSeesaw,
   'dramatic-fragment': dramaticFragment,
@@ -104,6 +111,7 @@ const rawRules = {
   'premature-closure': prematureClosure,
   'binary-outcome-frame': binaryOutcomeFrame,
   'undefined-key-term': undefinedKeyTerm,
+  'implementation-detail-pileup': implementationDetailPileup,
   // Keep last: DocumentExit combines findings emitted by every earlier rule.
   'evidence-cluster': evidenceCluster,
 };
@@ -127,13 +135,16 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'vague-attribution': 'dependency-graph',
   'throat-clearing': 'dependency-graph',
   'passive-actor-hiding': 'dependency-graph',
+  'passive-voice-density': 'document-context',
   'false-agency': 'dependency-graph',
   'rhetorical-scaffolding': 'dependency-graph',
   'negative-list-buildup': 'dependency-graph',
   'modal-redundancy': 'dependency-graph',
   'comma-splice': 'dependency-graph',
   'agentless-opener': 'dependency-graph',
+  'agentless-rationale': 'dependency-graph',
   'setup-fragment': 'dependency-graph',
+  'headline-fragment': 'document-context',
   'filler-intensifiers': 'dependency-graph',
   'hedging-seesaw': 'document-context',
   'dramatic-fragment': 'document-context',
@@ -163,6 +174,7 @@ export const RULE_METHODS: Record<keyof typeof rawRules, RuleMethod> = {
   'premature-closure': 'dependency-graph',
   'binary-outcome-frame': 'dependency-graph',
   'undefined-key-term': 'dependency-graph',
+  'implementation-detail-pileup': 'document-context',
   'evidence-cluster': 'document-context',
 };
 
@@ -178,13 +190,16 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'vague-attribution': 'medium',
   'throat-clearing': 'medium',
   'passive-actor-hiding': 'medium',
+  'passive-voice-density': 'medium',
   'false-agency': 'medium',
   'rhetorical-scaffolding': 'medium',
   'negative-list-buildup': 'medium',
   'modal-redundancy': 'medium',
   'comma-splice': 'low',
   'agentless-opener': 'medium',
+  'agentless-rationale': 'medium',
   'setup-fragment': 'medium',
+  'headline-fragment': 'low',
   'filler-intensifiers': 'medium',
   'hedging-seesaw': 'low',
   'dramatic-fragment': 'low',
@@ -214,6 +229,7 @@ const CONFIDENCE: Record<keyof typeof rawRules, Confidence> = {
   'premature-closure': 'medium',
   'binary-outcome-frame': 'medium',
   'undefined-key-term': 'low',
+  'implementation-detail-pileup': 'medium',
   'evidence-cluster': 'medium',
 };
 

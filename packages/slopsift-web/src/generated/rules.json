@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "packageVersion": "0.3.1",
+  "packageVersion": "0.4.0",
   "name": "SlopSift AI-style rule catalogue",
   "url": "https://slopsift.dev/rules/",
   "categories": [
@@ -38,7 +38,7 @@
       "id": "meta",
       "label": "Chatbot voice",
       "description": "Editorialising asides and reader-collaboration filler.",
-      "ruleCount": 8
+      "ruleCount": 9
     },
     {
       "id": "ai-vocab",
@@ -50,7 +50,7 @@
       "id": "agency",
       "label": "Hidden or false agency",
       "description": "Passive actor hiding and abstractions made to act like people.",
-      "ruleCount": 3
+      "ruleCount": 5
     },
     {
       "id": "balance",
@@ -86,7 +86,7 @@
       "id": "rhythm",
       "label": "Uniform rhythm",
       "description": "Sentence lengths and openings fall into a machine-like cadence.",
-      "ruleCount": 4
+      "ruleCount": 5
     }
   ],
   "rules": [
@@ -490,6 +490,25 @@
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fdramatic-fragment"
     },
     {
+      "id": "ai-style/implementation-detail-pileup",
+      "name": "implementation-detail-pileup",
+      "title": "Implementation Detail Pileup",
+      "description": "A passage piles up identifiers, qualifications, and exceptions before establishing the normal behavior.",
+      "category": {
+        "id": "meta",
+        "label": "Chatbot voice",
+        "description": "Editorialising asides and reader-collaboration filler."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/implementation-detail-pileup/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/implementation-detail-pileup.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fimplementation-detail-pileup"
+    },
+    {
       "id": "ai-style/modal-redundancy",
       "name": "modal-redundancy",
       "title": "Modal Redundancy",
@@ -661,6 +680,25 @@
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fagentless-opener"
     },
     {
+      "id": "ai-style/agentless-rationale",
+      "name": "agentless-rationale",
+      "title": "Agentless Rationale",
+      "description": "Subjectless verb-led explanations accumulate into implementation-trace cadence instead of ordinary reader-facing prose.",
+      "category": {
+        "id": "agency",
+        "label": "Hidden or false agency",
+        "description": "Passive actor hiding and abstractions made to act like people."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/agentless-rationale/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/agentless-rationale.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fagentless-rationale"
+    },
+    {
       "id": "ai-style/false-agency",
       "name": "false-agency",
       "title": "False Agency",
@@ -697,6 +735,25 @@
       "url": "https://slopsift.dev/rules/passive-actor-hiding/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/passive-actor-hiding.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fpassive-actor-hiding"
+    },
+    {
+      "id": "ai-style/passive-voice-density",
+      "name": "passive-voice-density",
+      "title": "Passive Voice Density",
+      "description": "Several nearby sentences rely on passive voice, making the process harder to follow.",
+      "category": {
+        "id": "agency",
+        "label": "Hidden or false agency",
+        "description": "Passive actor hiding and abstractions made to act like people."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/passive-voice-density/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/passive-voice-density.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fpassive-voice-density"
     },
     {
       "id": "ai-style/hedging-seesaw",
@@ -944,6 +1001,25 @@
       "url": "https://slopsift.dev/rules/comma-splice/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/comma-splice.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fcomma-splice"
+    },
+    {
+      "id": "ai-style/headline-fragment",
+      "name": "headline-fragment",
+      "title": "Headline Fragment",
+      "description": "An explanatory passage opens with a noun-heavy headline fragment instead of a complete statement.",
+      "category": {
+        "id": "rhythm",
+        "label": "Uniform rhythm",
+        "description": "Sentence lengths and openings fall into a machine-like cadence."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/headline-fragment/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/headline-fragment.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Fheadline-fragment"
     },
     {
       "id": "ai-style/referential-compression",

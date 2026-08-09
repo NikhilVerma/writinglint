@@ -9,6 +9,8 @@ import test from 'node:test';
 const cli = fileURLToPath(new URL('../src/cli.ts', import.meta.url));
 const missing = '__slopsift_intentionally_missing__/**/*.md';
 const sloppy = fileURLToPath(new URL('./fixtures/high-confidence.md', import.meta.url));
+const compressedTechnical = [1, 2, 3, 4, 5, 6].map((index) =>
+  fileURLToPath(new URL(`./fixtures/compressed-technical-${index}.ts`, import.meta.url)));
 
 function run(...args: string[]) {
   return spawnSync(process.execPath, ['--conditions=source', '--import', 'tsx', cli, ...args], {
@@ -45,6 +47,31 @@ test('GitHub format emits native annotations for CI', () => {
   const result = run(sloppy, '--level', 'error', '--format', 'github');
   assert.equal(result.status, 1, result.stderr);
   assert.match(result.stdout, /::error file=.*high-confidence\.md,line=\d+,col=\d+,endLine=\d+,endColumn=\d+,title=ai-style\//);
+});
+
+test('compressed technical comment regressions all produce a default warning', () => {
+  const result = run(...compressedTechnical, '--format', 'json', '--exit-zero');
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout) as Array<{
+    filePath: string;
+    messages: Array<{ ruleId: string; level: string }>;
+  }>;
+  assert.equal(output.length, compressedTechnical.length);
+  const expectedRules = [
+    'ai-style/implementation-detail-pileup',
+    'ai-style/implementation-detail-pileup',
+    'ai-style/implementation-detail-pileup',
+    'ai-style/negative-contrast',
+    'ai-style/agentless-rationale',
+    'ai-style/implementation-detail-pileup',
+  ];
+  for (const [index, entry] of output.entries()) {
+    assert.ok(
+      entry.messages.some((message) =>
+        message.ruleId === expectedRules[index] && message.level === 'warn'),
+      `${entry.filePath} should report ${expectedRules[index]}`,
+    );
+  }
 });
 
 test('a large Markdown table does not abort a multi-file JSON run', () => {
