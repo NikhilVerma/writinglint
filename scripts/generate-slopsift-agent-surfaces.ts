@@ -143,6 +143,56 @@ const outputSchema = {
         infoCount: { type: 'integer', minimum: 0 },
         wordCount: { type: 'integer', minimum: 0 },
         findingsPerThousandWords: { type: 'number', minimum: 0 },
+        standardAssessment: { $ref: '#/$defs/standardAssessment' },
+      },
+    },
+    standardAssessment: {
+      type: 'object',
+      additionalProperties: false,
+      required: [
+        'standard',
+        'issue',
+        'publicationDate',
+        'status',
+        'automatedRuleFindings',
+        'automatedRules',
+        'executedRules',
+        'standardData',
+        'reviewRequired',
+        'disclaimer',
+      ],
+      properties: {
+        standard: { const: 'ASD-STE100' },
+        issue: { const: 9 },
+        publicationDate: { const: '2025-01-15' },
+        status: { enum: ['nonconformant', 'review-required'] },
+        automatedRuleFindings: { type: 'integer', minimum: 0 },
+        automatedRules: {
+          type: 'array',
+          items: { type: 'string' },
+          uniqueItems: true,
+        },
+        executedRules: {
+          type: 'array',
+          items: { type: 'string' },
+          uniqueItems: true,
+        },
+        standardData: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['loaded'],
+          properties: {
+            loaded: { type: 'boolean' },
+            fingerprint: { type: 'string' },
+            parserVersion: { type: 'string' },
+          },
+        },
+        reviewRequired: {
+          type: 'array',
+          items: { type: 'string' },
+          minItems: 1,
+        },
+        disclaimer: { type: 'string' },
       },
     },
     message: {
@@ -180,6 +230,14 @@ const outputSchema = {
         endLine: { type: 'integer', minimum: 1 },
         endColumn: { type: 'integer', minimum: 1 },
         suggestion: { type: 'string' },
+        assumptions: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        evidence: {
+          type: 'array',
+          items: { $ref: '#/$defs/evidence' },
+        },
         fix: {
           type: 'object',
           additionalProperties: false,
@@ -196,6 +254,28 @@ const outputSchema = {
             },
             text: { type: 'string' },
           },
+        },
+      },
+    },
+    evidence: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['kind'],
+      properties: {
+        kind: { type: 'string' },
+        message: { type: 'string' },
+        span: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['start', 'end'],
+          properties: {
+            start: { type: 'integer', minimum: 0 },
+            end: { type: 'integer', minimum: 0 },
+          },
+        },
+        data: {
+          type: 'object',
+          additionalProperties: { type: ['string', 'number', 'boolean', 'null'] },
         },
       },
     },
@@ -247,6 +327,9 @@ SlopSift ${packageJson.version} is a deterministic, local-first linter for recog
 bunx slopsift .
 npx slopsift "docs/**/*.md"
 npx slopsift . --level info --format json --exit-zero
+npx slopsift manual.md --rulepack asd-ste100
+npx slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
+npx slopsift procedure.md --rulepack asd-ste100 --technical-standard-data /local/ASD-STE100_ISSUE9.parsed.json
 \`\`\`
 
 Node.js 20 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
@@ -274,6 +357,10 @@ Node.js 20 or newer is required. The npm package includes the compact parser wei
 - \`github\`: GitHub Actions workflow annotations.
 
 JSON messages include an ESLint-compatible numeric severity, SlopSift's textual level, confidence, exact range, rule URL, word count, and findings per thousand words.
+
+## Rulepacks
+
+The default rulepack is \`ai-style\`. Use \`--rulepack asd-ste100\` for an independent, partial ASD-STE100 Issue 9 check. Repeat \`--rulepack\` to combine checks. If you have an authorized local copy, \`--technical-standard-data\` loads the validated Docling importer output for dictionary checks without redistributing it. The ASD-STE100 result is \`nonconformant\` when a high-confidence automated violation is present and \`review-required\` otherwise. It never claims full conformance without human review.
 
 ## Exit codes
 

@@ -1,0 +1,57 @@
+{
+  "name": "writinglint-rulepack-technical-english",
+  "version": "0.1.0",
+  "description": "Deterministic technical-English rules for WritingLint, including an independent partial ASD-STE100 Issue 9 check.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Nikhil Verma",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NikhilVerma/writinglint.git",
+    "directory": "packages/rulepack-technical-english"
+  },
+  "bugs": {
+    "url": "https://github.com/NikhilVerma/writinglint/issues"
+  },
+  "homepage": "https://slopsift.dev",
+  "keywords": [
+    "asd-ste100",
+    "controlled-language",
+    "rulepack",
+    "technical-english",
+    "writinglint"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "LICENSE",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "dependencies": {
+    "writinglint-core": "^0.1.1"
+  },
+  "devDependencies": {
+    "writinglint-parser-node": "^0.1.7"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

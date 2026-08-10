@@ -2,10 +2,12 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as ort from 'onnxruntime-node';
-import { decodeTree, type Parser, type ParsedSentence } from 'writinglint-core';
+import { decodeTree, type Parser, type ParsedSentence, type ParserDescriptor } from 'writinglint-core';
 import { chunkForEncoder, encodeWordPieces, splitSentences, tokenizeWords, type SentenceTokens } from './tokenizer.js';
 
 interface Manifest {
+  format?: string;
+  source_checkpoint_sha256?: string;
   upos: string[];
   relations: string[];
 }
@@ -45,13 +47,23 @@ function argmax(values: Float32Array, start: number, count: number): number {
 }
 
 export class OnnxParser implements Parser {
+  readonly descriptor: ParserDescriptor;
+
   private constructor(
     private readonly parser: ort.InferenceSession,
     private readonly relations: ort.InferenceSession,
     private readonly manifest: Manifest,
     private readonly vocab: Record<string, number>,
     private readonly maxBatchSentences: number,
-  ) {}
+  ) {
+    this.descriptor = {
+      id: 'writinglint/compact-onnx-parser',
+      version: manifest.format ?? 'unknown',
+      languages: ['en'],
+      capabilities: ['sentence-boundaries', 'tokens', 'part-of-speech', 'dependencies'],
+      modelHash: manifest.source_checkpoint_sha256,
+    };
+  }
 
   static async load(options: OnnxParserOptions): Promise<OnnxParser> {
     const maxBatchSentences = options.maxBatchSentences ?? DEFAULT_MAX_BATCH_SENTENCES;

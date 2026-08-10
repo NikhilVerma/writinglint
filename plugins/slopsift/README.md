@@ -1,6 +1,10 @@
 # SlopSift agent plugin
 
-This directory contains three thin adapters around the same local validator:
+Install this plugin once and let the coding agent repair warning- and error-level
+writing problems before it ends a turn. Informational findings remain editorial
+notes and never trigger the plugin.
+
+This directory contains three adapters around the same local validator:
 
 - Claude Code and Codex load `hooks/hooks.json` and run the Stop hook.
 - Pi loads `extensions/pi.ts` and queues a correction as a follow-up turn.
@@ -12,6 +16,15 @@ response, asks the agent to rewrite a response with warning-level findings, and
 stops asking after two failed rewrites. Model or process failures are shown to
 the user and allowed through, so a broken linter cannot trap an agent in a
 loop.
+
+After installing the plugin, use the published CLI to check the installation
+and exercise the correction decision:
+
+```bash
+npx slopsift@0.7.0 agent doctor --host claude-code
+npx slopsift@0.7.0 agent doctor --host codex
+npx slopsift@0.7.0 agent demo
+```
 
 ## Try this checkout
 

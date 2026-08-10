@@ -41,6 +41,9 @@ Useful modes:
 
 ```bash
 slopsift . --level info
+slopsift manual.md --rulepack asd-ste100
+slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
+slopsift docs/ --rulepack ai-style --rulepack asd-ste100
 slopsift . --quiet
 slopsift . --exit-zero
 slopsift . --format json
@@ -48,6 +51,12 @@ slopsift . --format json-lines
 slopsift . --format github
 slopsift . --max-warnings 0
 ```
+
+The `asd-ste100` alias is an independent, partial ASD-STE100 Issue 9 check.
+It automates selected rules and reports a clean run as `review-required`, not
+`conformant`, until the controlled dictionary, project terminology, and
+meaning-based rules have also been reviewed. ASD does not certify, authorize,
+approve, or endorse SlopSift.
 
 The default view reports errors and warnings. `--level info` includes broad
 editorial review candidates, while `--quiet` reports high-confidence errors
@@ -68,7 +77,7 @@ The dependency direction is deliberate:
 
 ```text
 SlopSift CLI
-    -> WritingLint AI-style rulepack
+    -> WritingLint rulepacks (AI style, technical English, and others)
         -> WritingLint core + parser contract
             -> compact ONNX parser runtime
 ```
@@ -134,7 +143,10 @@ release procedures are documented in
 
 ## Agents and automation
 
-SlopSift publishes the same rule and output contracts for people, CI, and
+SlopSift can send warning- and error-level writing problems back to Claude Code,
+Codex, or Pi for an automatic rewrite before the agent finishes. Run
+`npx slopsift@0.7.0 agent demo` to exercise the correction decision locally.
+SlopSift also publishes the same rule and output contracts for people, CI, and
 agents:
 
 - [Agent reference](https://slopsift.dev/llms.txt) and

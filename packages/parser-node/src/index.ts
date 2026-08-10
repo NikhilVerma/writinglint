@@ -4,7 +4,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Parser, ParsedSentence } from 'writinglint-core';
+import type { Parser, ParsedSentence, ParserDescriptor } from 'writinglint-core';
 export { bundledModelDirectory, OnnxParser, type OnnxParserOptions } from './onnx-parser.js';
 import { bundledModelDirectory, OnnxParser } from './onnx-parser.js';
 
@@ -39,6 +39,12 @@ interface Pending {
 }
 
 class StanzaParser implements Parser {
+  readonly descriptor: ParserDescriptor = {
+    id: 'writinglint/stanza-development-oracle',
+    version: 'external',
+    languages: ['en'],
+    capabilities: ['sentence-boundaries', 'tokens', 'part-of-speech', 'dependencies', 'lemmas'],
+  };
   private nextId = 1;
   private readonly pending = new Map<number, Pending>();
   private readonly ready: Promise<void>;

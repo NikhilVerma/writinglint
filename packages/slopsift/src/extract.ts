@@ -1,8 +1,14 @@
+import type { DocumentRegion, SpanAnnotation } from 'writinglint-core';
+
 export type InputKind = 'prose' | 'comments';
 export interface ExtractedInput {
   text: string;
   /** Map an extracted range back to source UTF-16 boundaries. */
   sourceRange(start: number, end: number): [number, number];
+  /** Optional structure expressed in offsets into `text`, not the source file. */
+  regions?: readonly DocumentRegion[];
+  annotations?: readonly SpanAnnotation[];
+  language?: string;
 }
 
 const PROSE = new Set(['.md', '.mdx', '.markdown', '.txt', '.text', '.rst', '.adoc']);
@@ -267,6 +273,60 @@ function extractMarkdown(source: string): string {
   return output.join('');
 }
 
+function paragraphRanges(text: string): Array<{ start: number; end: number }> {
+  const ranges: Array<{ start: number; end: number }> = [];
+  const boundaries = [...text.matchAll(/\n[\t ]*\n/g)];
+  let segmentStart = 0;
+  for (let index = 0; index <= boundaries.length; index++) {
+    const segmentEnd = index < boundaries.length ? boundaries[index]!.index : text.length;
+    const segment = text.slice(segmentStart, segmentEnd);
+    const leading = segment.search(/\S/);
+    if (leading >= 0) {
+      ranges.push({
+        start: segmentStart + leading,
+        end: segmentEnd - (segment.length - segment.trimEnd().length),
+      });
+    }
+    const boundary = boundaries[index];
+    segmentStart = boundary ? boundary.index + boundary[0].length : text.length;
+  }
+  return ranges;
+}
+
+/** Preserve useful Markdown roles without changing the exact lint text. */
+function markdownRegions(source: string, text: string): DocumentRegion[] {
+  const regions: DocumentRegion[] = [{ id: 'markdown:document', role: 'document', start: 0, end: text.length }];
+  const paragraphs = paragraphRanges(text);
+  paragraphs.forEach(({ start, end }, index) => regions.push({
+    id: `markdown:paragraph:${index}`,
+    role: 'paragraph',
+    start,
+    end,
+    parentId: 'markdown:document',
+  }));
+  let structuralIndex = 0;
+  for (const match of source.matchAll(/.*(?:\r?\n|$)/g)) {
+    if (!match[0]) continue;
+    const raw = match[0].replace(/\r?\n$/u, '');
+    const end = match.index + raw.length;
+    const heading = raw.match(/^\s{0,3}#{1,6}\s+/u);
+    const listItem = raw.match(/^\s{0,3}(?:[-+*]|\d+[.)])\s+/u);
+    const role = heading ? 'heading' : listItem ? 'list-item' : undefined;
+    if (!role || !text.slice(match.index, end).trim()) continue;
+    const parent = paragraphs.find(({ start, end: paragraphEnd }) => match.index >= start && end <= paragraphEnd);
+    regions.push({
+      id: `markdown:${role}:${structuralIndex++}`,
+      role,
+      start: match.index,
+      end,
+      parentId: parent
+        ? `markdown:paragraph:${paragraphs.indexOf(parent)}`
+        : 'markdown:document',
+    });
+  }
+  return regions;
+}
+
 function maskAstroSource(source: string): string {
   const output = [...source];
   const frontmatter = source.match(/^---\r?\n[\s\S]*?\r?\n---(?=\r?\n|$)/)?.[0];
@@ -462,7 +522,13 @@ export function extractInput(path: string, source: string): ExtractedInput {
   if (HTML.has(ext)) return extractHtml(source);
   if (ext === '.astro') return extractAstro(source);
   const text = extractLintText(path, source);
-  return { text, sourceRange: (start, end) => [start, end] };
+  return {
+    text,
+    sourceRange: (start, end) => [start, end],
+    regions: ext === '.md' || ext === '.mdx' || ext === '.markdown'
+      ? markdownRegions(source, text)
+      : undefined,
+  };
 }
 
 /** Return prose at its original UTF-16 offsets, blanking all non-comment code. */

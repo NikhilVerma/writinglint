@@ -27,6 +27,7 @@ test('agent plugin runner forwards opt-in evidence flags and emits only hook JSO
         SLOPSIFT_HOOK_INCLUDE_DIRTY: '1',
         SLOPSIFT_HOOK_INCLUDE_TRANSCRIPT: '1',
         SLOPSIFT_HOOK_MAX_DIRTY_FILES: '12',
+        SLOPSIFT_HOOK_LEVEL: 'info',
       },
     });
     assert.equal(result.status, 0, result.stderr);
@@ -36,7 +37,21 @@ test('agent plugin runner forwards opt-in evidence flags and emits only hook JSO
     assert.match(output.reason ?? '', /--include-dirty/);
     assert.match(output.reason ?? '', /--include-transcript/);
     assert.match(output.reason ?? '', /--max-dirty-files 12/);
+    assert.doesNotMatch(output.reason ?? '', /--level info/);
     assert.equal(result.stdout.trim().split('\n').length, 1);
+
+    const errorsOnly = spawnSync(process.execPath, [runner], {
+      input: '{}',
+      encoding: 'utf8',
+      env: {
+        ...process.env,
+        SLOPSIFT_HOOK_CLI: fakeCli,
+        SLOPSIFT_HOOK_LEVEL: 'error',
+      },
+    });
+    assert.equal(errorsOnly.status, 0, errorsOnly.stderr);
+    const errorsOnlyOutput = JSON.parse(errorsOnly.stdout) as { reason?: string };
+    assert.match(errorsOnlyOutput.reason ?? '', /--level error/);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

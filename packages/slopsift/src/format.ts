@@ -1,4 +1,5 @@
 import type { Lint } from 'writinglint-core';
+import type { StandardAssessment } from './index.js';
 
 export interface Message extends Lint {
   line: number;
@@ -14,6 +15,7 @@ export interface Result {
   infoCount: number;
   wordCount: number;
   findingsPerThousandWords: number;
+  standardAssessment?: StandardAssessment;
 }
 
 export function countWords(text: string): number {
@@ -28,7 +30,13 @@ function location(text: string, offset: number): { line: number; column: number 
   return { line, column };
 }
 
-export function makeResult(filePath: string, source: string, lints: Lint[], analyzedWordCount = countWords(source)): Result {
+export function makeResult(
+  filePath: string,
+  source: string,
+  lints: Lint[],
+  analyzedWordCount = countWords(source),
+  standardAssessment?: StandardAssessment,
+): Result {
   const messages = lints.map((lint) => ({
     ...lint,
     ...location(source, lint.start),
@@ -44,15 +52,16 @@ export function makeResult(filePath: string, source: string, lints: Lint[], anal
     findingsPerThousandWords: analyzedWordCount
       ? Number(((messages.length / analyzedWordCount) * 1000).toFixed(1))
       : 0,
+    standardAssessment,
   };
 }
 
 const eslintSeverity = { info: 0, warn: 1, error: 2 } as const;
 const ruleUrl = (ruleId: string): string | undefined => {
   const [pack, name] = ruleId.split('/');
-  return pack === 'ai-style' && name
-    ? `https://slopsift.dev/rules/${encodeURIComponent(name)}/`
-    : undefined;
+  if (pack === 'ai-style' && name) return `https://slopsift.dev/rules/${encodeURIComponent(name)}/`;
+  if (pack === 'technical-english' && name) return 'https://www.asd-ste100.org/';
+  return undefined;
 };
 
 /** ESLint-compatible numeric severity, with SlopSift's level and confidence retained. */
@@ -107,10 +116,20 @@ export function stylish(results: Result[]): string {
     });
     blocks.push(`${ansi('1;4', result.filePath)}\n${rows.join('\n')}`);
   }
+  for (const result of results) {
+    const assessment = result.standardAssessment;
+    if (!assessment) continue;
+    const detail = assessment.status === 'nonconformant'
+      ? `${assessment.automatedRuleFindings} automated rule finding${assessment.automatedRuleFindings === 1 ? '' : 's'}`
+      : assessment.automatedRuleFindings
+        ? `${assessment.automatedRuleFindings} warning finding${assessment.automatedRuleFindings === 1 ? '' : 's'} and the remaining rules require review`
+        : 'no reported violations; dictionary and human review remain';
+    blocks.push(`${result.filePath}: ASD-STE100 Issue ${assessment.issue} ${assessment.status} (${detail})`);
+  }
   const errors = results.reduce((sum, result) => sum + result.errorCount, 0);
   const warnings = results.reduce((sum, result) => sum + result.warningCount, 0);
   const infos = results.reduce((sum, result) => sum + result.infoCount, 0);
   const total = errors + warnings + infos;
-  if (total) blocks.push(ansi('1', `✖ ${total} finding${total === 1 ? '' : 's'} (${errors} errors, ${warnings} warnings, ${infos} info)`));
+  if (total) blocks.push(ansi('1', `✖ ${total} finding${total === 1 ? '' : 's'} (${errors} error${errors === 1 ? '' : 's'}, ${warnings} warning${warnings === 1 ? '' : 's'}, ${infos} info)`));
   return blocks.join('\n\n');
 }

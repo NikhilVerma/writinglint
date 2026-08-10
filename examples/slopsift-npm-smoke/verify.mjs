@@ -23,6 +23,14 @@ if (process.env.EXPECTED_RULEPACK_VERSION) {
   assert.equal(installedRulepack.version, process.env.EXPECTED_RULEPACK_VERSION);
 }
 
+const technicalRulepackEntry = requireFromSlopSift.resolve('writinglint-rulepack-technical-english');
+const installedTechnicalRulepack = JSON.parse(
+  await readFile(join(dirname(technicalRulepackEntry), '..', 'package.json'), 'utf8'),
+);
+if (process.env.EXPECTED_TECHNICAL_RULEPACK_VERSION) {
+  assert.equal(installedTechnicalRulepack.version, process.env.EXPECTED_TECHNICAL_RULEPACK_VERSION);
+}
+
 const parser = join(root, 'node_modules/writinglint-parser-node/model/parser.onnx');
 assert.equal((await stat(parser)).size, 11_877_081, 'the transitive npm package must contain the parser');
 
@@ -61,6 +69,25 @@ assert.equal(
   reports[0].messages.filter((message) => message.ruleId === 'ai-style/corrective-antithesis').length,
   1,
   `expected the clause-level "X, not Y" construction from rulepack ${installedRulepack.version}; received ${JSON.stringify(rules)}`,
+);
+
+const technicalFile = join(root, 'technical.md');
+await writeFile(technicalFile, "Don't open the valve; inspect the seal.\n");
+const technical = spawnSync(process.execPath, [
+  cli,
+  technicalFile,
+  '--rulepack', 'asd-ste100',
+  '--format', 'json',
+  '--exit-zero',
+  '--no-download',
+], { cwd: root, encoding: 'utf8' });
+assert.equal(technical.status, 0, technical.stderr);
+const [technicalReport] = JSON.parse(technical.stdout);
+assert.equal(technicalReport.standardAssessment?.standard, 'ASD-STE100');
+assert.equal(technicalReport.standardAssessment?.status, 'nonconformant');
+assert.deepEqual(
+  new Set(technicalReport.messages.map((message) => message.ruleId)),
+  new Set(['technical-english/no-contractions', 'technical-english/no-semicolon']),
 );
 assert.equal(
   reports[0].messages.filter((message) => message.ruleId === 'ai-style/stepwise-sequencing').length,

@@ -49,6 +49,88 @@
         "findingsPerThousandWords": {
           "type": "number",
           "minimum": 0
+        },
+        "standardAssessment": {
+          "$ref": "#/$defs/standardAssessment"
+        }
+      }
+    },
+    "standardAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "standard",
+        "issue",
+        "publicationDate",
+        "status",
+        "automatedRuleFindings",
+        "automatedRules",
+        "executedRules",
+        "standardData",
+        "reviewRequired",
+        "disclaimer"
+      ],
+      "properties": {
+        "standard": {
+          "const": "ASD-STE100"
+        },
+        "issue": {
+          "const": 9
+        },
+        "publicationDate": {
+          "const": "2025-01-15"
+        },
+        "status": {
+          "enum": [
+            "nonconformant",
+            "review-required"
+          ]
+        },
+        "automatedRuleFindings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "automatedRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "executedRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "standardData": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "loaded"
+          ],
+          "properties": {
+            "loaded": {
+              "type": "boolean"
+            },
+            "fingerprint": {
+              "type": "string"
+            },
+            "parserVersion": {
+              "type": "string"
+            }
+          }
+        },
+        "reviewRequired": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "disclaimer": {
+          "type": "string"
         }
       }
     },
@@ -135,6 +217,18 @@
         "suggestion": {
           "type": "string"
         },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
         "fix": {
           "type": "object",
           "additionalProperties": false,
@@ -161,6 +255,50 @@
             "text": {
               "type": "string"
             }
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "span": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "start",
+            "end"
+          ],
+          "properties": {
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
           }
         }
       }

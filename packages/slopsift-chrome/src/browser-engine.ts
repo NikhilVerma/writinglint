@@ -1,11 +1,11 @@
 /** Browser-only SlopSift engine backed by the bundled, owned INT8 ONNX parser. */
 import * as ort from 'onnxruntime-web';
 import { decodeTree, Linter, resolveConfig } from 'writinglint-core';
-import type { Parser, ParsedSentence } from 'writinglint-core';
+import type { Parser, ParsedSentence, ParserDescriptor } from 'writinglint-core';
 import { encodeWordPieces, splitSentences, tokenizeWords, type SentenceTokens } from 'writinglint-parser-node/tokenizer';
 import { strict } from 'writinglint-rulepack-ai-style';
 
-interface Manifest { upos: string[]; relations: string[] }
+interface Manifest { format?: string; source_checkpoint_sha256?: string; upos: string[]; relations: string[] }
 interface TokenizerFile { model: { vocab: Record<string, number> } }
 
 const int64 = (values: readonly number[], dimensions: readonly number[]) =>
@@ -21,12 +21,22 @@ function argmax(values: Float32Array, start: number, count: number): number {
 }
 
 class ExtensionOnnxParser implements Parser {
+  readonly descriptor: ParserDescriptor;
+
   constructor(
     private readonly parser: ort.InferenceSession,
     private readonly relations: ort.InferenceSession,
     private readonly manifest: Manifest,
     private readonly vocab: Record<string, number>,
-  ) {}
+  ) {
+    this.descriptor = {
+      id: 'writinglint/compact-onnx-parser',
+      version: manifest.format ?? 'unknown',
+      languages: ['en'],
+      capabilities: ['sentence-boundaries', 'tokens', 'part-of-speech', 'dependencies'],
+      modelHash: manifest.source_checkpoint_sha256,
+    };
+  }
 
   async parse(text: string): Promise<ParsedSentence[]> {
     const sentences = splitSentences(text).map(tokenizeWords).filter((sentence) => sentence.words.length);

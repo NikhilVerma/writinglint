@@ -30,6 +30,9 @@ const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const expected = JSON.parse(await readFile(join(root, `packages/${packageDirectory}/package.json`), 'utf8')).version;
 const expectedParser = JSON.parse(await readFile(join(root, 'packages/parser-node/package.json'), 'utf8')).version;
 const expectedRulepack = JSON.parse(await readFile(join(root, 'packages/rulepack-ai-style/package.json'), 'utf8')).version;
+const expectedTechnicalRulepack = JSON.parse(
+  await readFile(join(root, 'packages/rulepack-technical-english/package.json'), 'utf8'),
+).version;
 
 function runNpm(args, options = {}) {
   return spawnSync('npm', args, {
@@ -77,6 +80,7 @@ try {
       'writinglint-core',
       'writinglint-parser-node',
       'writinglint-rulepack-ai-style',
+      'writinglint-rulepack-technical-english',
       'slopsift',
     ]) {
       const output = execFileSync('npm', [
@@ -96,6 +100,9 @@ try {
     await waitUntilPublished(packageName, expected);
     await waitUntilPublished('writinglint-parser-node', expectedParser);
     await waitUntilPublished('writinglint-rulepack-ai-style', expectedRulepack);
+    if (packageName === 'slopsift') {
+      await waitUntilPublished('writinglint-rulepack-technical-english', expectedTechnicalRulepack);
+    }
   }
 
   let installation;
@@ -124,6 +131,7 @@ try {
       EXPECTED_PACKAGE_VERSION: expected,
       EXPECTED_PARSER_VERSION: expectedParser,
       EXPECTED_RULEPACK_VERSION: expectedRulepack,
+      EXPECTED_TECHNICAL_RULEPACK_VERSION: expectedTechnicalRulepack,
     },
   });
   if (verification.status !== 0) {

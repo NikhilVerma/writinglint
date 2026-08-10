@@ -10,6 +10,9 @@ import {
   type Parser,
   type ParsedSentence,
   type DepToken,
+  InMemoryTerminologyProvider,
+  LayeredTerminologyProvider,
+  countSentenceUnits,
 } from '../src/index.js';
 
 // ── a fake parser: one hand-built sentence, ASCII so byte offset == char offset ─
@@ -115,4 +118,143 @@ test('Document exposes blank-line paragraphs for cross-sentence rules', async ()
   const { doc } = await new Linter(parser).lint('the cat sat\n\nthe dog ran', defineConfig({}));
   assert.equal(doc.paragraphs.length, 2);
   assert.deepEqual(doc.paragraphs.map((paragraph) => paragraph.text), ['the cat sat', 'the dog ran']);
+});
+
+test('core composes structure, annotations, parser capabilities, services, and evidence', async () => {
+  const text = 'Install 10 kg.';
+  const parser: Parser = {
+    descriptor: {
+      id: 'test/morphology-parser',
+      version: '1',
+      languages: ['en'],
+      capabilities: ['sentence-boundaries', 'tokens', 'part-of-speech', 'dependencies', 'morphology'],
+    },
+    parse: async () => [{
+      text,
+      start: 0,
+      end: text.length,
+      tokens: [
+        { ...tok(1, 'Install', 'VERB', 0, 'root', 0), features: { Mood: 'Imp' } },
+        tok(2, '10', 'NUM', 3, 'nummod', 8),
+        tok(3, 'kg', 'NOUN', 1, 'obj', 11),
+        tok(4, '.', 'PUNCT', 1, 'punct', 13),
+      ],
+    }],
+  };
+  const terminology = new InMemoryTerminologyProvider({
+    id: 'test-terms', layer: 'project', languages: ['en'],
+  }, [{
+    id: 'install', term: 'install', status: 'approved', language: 'en',
+    provenance: { source: 'test' },
+  }]);
+  let regionVisits = 0;
+  let annotationVisits = 0;
+  const capable = defineRule({
+    meta: {
+      name: 'capable',
+      category: 'demo',
+      docs: { description: 'Exercises the generic extension contracts.' },
+      requires: {
+        parser: ['morphology'],
+        regions: ['step'],
+        annotations: ['measurement'],
+        services: ['terminology'],
+      },
+    },
+    create(ctx) {
+      return {
+        Region(region) { if (region.role === 'step') regionVisits++; },
+        Annotation(annotation) { if (annotation.kind === 'measurement') annotationVisits++; },
+        DocumentExit() {
+          const match = ctx.services.terminology?.lookup('Install', { language: ctx.doc.language })[0];
+          ctx.report({
+            span: { start: 0, end: 7 },
+            message: 'generic contracts available',
+            evidence: [{ kind: 'terminology-match', data: { provider: match?.providerId ?? '' } }],
+          });
+        },
+      };
+    },
+  });
+  const pack = definePack({ name: 'capabilities', rules: { capable } });
+  const report = await new Linter(parser).lint(text, defineConfig({
+    plugins: { capabilities: pack }, rules: { 'capabilities/capable': 'warn' },
+  }), {
+    regions: [
+      { id: 'document', role: 'document', start: 0, end: text.length },
+      { id: 'step', role: 'step', start: 0, end: text.length, parentId: 'document', mode: 'procedural' },
+    ],
+    annotations: [{ kind: 'measurement', start: 8, end: 13, provider: 'test-recognizer' }],
+    services: { terminology },
+  });
+
+  assert.equal(report.executions[0]?.status, 'executed');
+  assert.equal(report.doc.parser.id, 'test/morphology-parser');
+  assert.equal(report.doc.tokens[0]?.features?.Mood, 'Imp');
+  assert.equal(regionVisits, 1);
+  assert.equal(annotationVisits, 1);
+  assert.equal(report.lints[0]?.evidence?.[0]?.data?.provider, 'test-terms');
+  assert.deepEqual(
+    countSentenceUnits(report.doc.sentences[0]!, report.doc, {
+      id: 'measurement-count', groupAnnotationKinds: ['measurement'],
+    }).map(({ text: unitText }) => unitText),
+    ['Install', '10 kg'],
+  );
+});
+
+test('rules are explicitly skipped when a required parser capability is unavailable', async () => {
+  const requiresMorphology = defineRule({
+    meta: {
+      name: 'requires-morphology', category: 'demo',
+      docs: { description: 'Needs morphology.' },
+      requires: { parser: ['morphology'] },
+    },
+    create(ctx) {
+      return { Document() { ctx.report({ span: { start: 0, end: 3 }, message: 'must not run' }); } };
+    },
+  });
+  const pack = definePack({ name: 'requirements', rules: { check: requiresMorphology } });
+  const report = await new Linter(fakeParser).lint('the cat sat', defineConfig({
+    plugins: { requirements: pack }, rules: { 'requirements/check': 'warn' },
+  }));
+  assert.equal(report.lints.length, 0);
+  assert.deepEqual(report.executions, [{
+    ruleId: 'requirements/check',
+    status: 'skipped',
+    reason: 'Parser capabilities unavailable: morphology.',
+  }]);
+});
+
+test('layered terminology lets a local glossary override a standard', () => {
+  const standard = new InMemoryTerminologyProvider({
+    id: 'standard', layer: 'standard', languages: ['en'],
+  }, [{
+    id: 'standard-utilize', term: 'utilize', status: 'unapproved', language: 'en',
+    provenance: { source: 'standard' },
+  }]);
+  const project = new InMemoryTerminologyProvider({
+    id: 'project', layer: 'project', languages: ['en'],
+  }, [{
+    id: 'project-utilize', term: 'utilize', status: 'technical', language: 'en',
+    provenance: { source: 'project glossary' },
+  }]);
+  const layered = new LayeredTerminologyProvider([standard, project]);
+  assert.deepEqual(layered.lookup('UTILIZE').map(({ providerId, record }) => ({ providerId, status: record.status })), [
+    { providerId: 'project', status: 'technical' },
+  ]);
+});
+
+test('structured inputs reject invalid UTF-16 ranges and missing parents', async () => {
+  await assert.rejects(
+    new Linter({ parse: async () => [] }).lint('😀', defineConfig({}), {
+      regions: [{ id: 'bad', role: 'paragraph', start: 0, end: 3 }],
+    }),
+    /invalid UTF-16 source range/,
+  );
+  await assert.rejects(
+    new Linter({ parse: async () => [] }).lint('text', defineConfig({}), {
+      regions: [{ id: 'child', role: 'paragraph', start: 0, end: 4, parentId: 'missing' }],
+    }),
+    /missing parent/,
+  );
 });

@@ -1,7 +1,25 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { createSlopSift, type MinimumLevel } from './index.js';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
+import {
+  AGENT_DEMO_DRAFT,
+  AGENT_DEMO_REWRITE,
+  inspectAgentHost,
+  runAgentDemo,
+  type AgentHost,
+} from './agent-loop.js';
+import {
+  createSlopSift,
+  type MinimumLevel,
+  type RulepackName,
+  type TechnicalEnglishMode,
+} from './index.js';
+import {
+  parseAsdSte100Issue9StandardData,
+  type AsdSte100Issue9StandardData,
+} from 'writinglint-rulepack-technical-english';
 import { findFiles } from './files.js';
 import { github, jsonResult, stylish } from './format.js';
 import { lintFiles } from './run-files.js';
@@ -18,6 +36,8 @@ const HELP = `slopsift — lint prose and code comments for AI slop
 Usage:
   slopsift [patterns...]              Lint files, directories, or globs
   slopsift hook stop                  Validate an agent's final response from stdin
+  slopsift agent doctor               Check one agent installation and the validator
+  slopsift agent demo                 Exercise the local correction decision
   bunx slopsift .                    Lint the current project
 
 Options:
@@ -30,6 +50,10 @@ Options:
   --quiet                             Report errors only
   --exit-zero                         Report findings without failing the run
   --level info|warning|error          Minimum level to report (default: warning)
+  --rulepack ai-style|asd-ste100      Select a rulepack (repeatable; default: ai-style)
+  --technical-mode descriptive|procedural
+                                      Text type for asd-ste100 (default: descriptive)
+  --technical-standard-data <file>    Load local parsed Issue 9 data for dictionary checks
   --max-warnings <n>                  Exit 1 above this warning count
   --model <directory>                 Use an explicit ONNX model bundle
   --no-download                       Fail instead of downloading a missing model
@@ -58,8 +82,25 @@ Options:
   --no-download                       Fail open instead of downloading a missing model
   --help, -h                          Show this help
 
-The command always writes one JSON object to stdout. Writing findings requests a
-continuation; runtime failures are reported through systemMessage and fail open.`;
+The command writes one JSON object to stdout. When SlopSift finds writing
+problems, it requests a continuation. A runtime failure adds systemMessage and
+lets the agent finish.`;
+
+const AGENT_HELP = `slopsift agent — verify the automatic agent correction loop
+
+Usage:
+  slopsift agent doctor [options]     Check the host, plugin, model, and Stop-hook decision
+  slopsift agent demo [options]       Reject a known-bad draft and accept a clean rewrite
+
+Options:
+  --host claude-code|codex            Host checked by doctor (default: claude-code)
+  --json                              Write a machine-readable result
+  --model <directory>                 Use an explicit ONNX model bundle
+  --no-download                       Do not download a missing model
+  --help, -h                          Show this help
+
+Doctor is read-only. It can confirm that a plugin is installed and enabled, but
+the host may still require hook trust or a restart before the first live turn.`;
 
 interface Options {
   patterns: string[]; format: 'stylish' | 'json' | 'json-lines' | 'github'; extensions?: string[];
@@ -67,6 +108,9 @@ interface Options {
   model?: string; download: boolean; level: 'info' | 'warning' | 'error';
   errorOnUnmatchedPattern: boolean;
   exitZero: boolean;
+  rulepacks: RulepackName[];
+  technicalMode: TechnicalEnglishMode;
+  technicalStandardData?: string;
 }
 
 interface HookOptions {
@@ -84,10 +128,23 @@ interface HookOptions {
   download: boolean;
 }
 
+interface AgentOptions {
+  action: 'doctor' | 'demo';
+  host: AgentHost;
+  json: boolean;
+  model?: string;
+  download: boolean;
+}
+
 function parse(argv: string[]): Options | 'help' | 'version' {
-  const options: Options = { patterns: [], format: 'stylish', ignores: [], noIgnore: false, quiet: false, maxWarnings: -1, download: true, level: 'warning', errorOnUnmatchedPattern: true, exitZero: false };
+  const options: Options = { patterns: [], format: 'stylish', ignores: [], noIgnore: false, quiet: false, maxWarnings: -1, download: true, level: 'warning', errorOnUnmatchedPattern: true, exitZero: false, rulepacks: [], technicalMode: 'descriptive' };
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index]!;
+    const nextValue = (): string => {
+      const value = argv[++index];
+      if (value === undefined) throw new Error(`${arg} requires a value`);
+      return value;
+    };
     if (arg === '-h' || arg === '--help') return 'help';
     if (arg === '-v' || arg === '--version') return 'version';
     if (arg === '--json') options.format = 'json';
@@ -101,13 +158,24 @@ function parse(argv: string[]): Options | 'help' | 'version' {
     else if (arg === '--ignore-pattern') options.ignores.push(argv[++index] ?? '');
     else if (arg === '--max-warnings') options.maxWarnings = Number(argv[++index]);
     else if (arg === '--level') options.level = argv[++index] as Options['level'];
+    else if (arg === '--rulepack') options.rulepacks.push(nextValue() as RulepackName);
+    else if (arg === '--technical-mode') options.technicalMode = nextValue() as TechnicalEnglishMode;
+    else if (arg === '--technical-standard-data') options.technicalStandardData = nextValue();
     else if (arg === '--model') options.model = argv[++index];
     else if (arg.startsWith('-')) throw new Error(`unknown option: ${arg}`);
     else options.patterns.push(arg);
   }
   if (!['stylish', 'json', 'json-lines', 'github'].includes(options.format)) throw new Error(`unknown format: ${options.format}`);
   if (!['info', 'warning', 'error'].includes(options.level)) throw new Error(`unknown level: ${options.level}`);
+  if (options.rulepacks.some((rulepack) => !['ai-style', 'asd-ste100'].includes(rulepack))) {
+    throw new Error(`unknown rulepack: ${options.rulepacks.find((rulepack) => !['ai-style', 'asd-ste100'].includes(rulepack))}`);
+  }
+  if (!['descriptive', 'procedural'].includes(options.technicalMode)) throw new Error(`unknown technical mode: ${options.technicalMode}`);
+  if (options.technicalStandardData && !options.rulepacks.includes('asd-ste100')) {
+    throw new Error('--technical-standard-data requires --rulepack asd-ste100');
+  }
   if (!Number.isInteger(options.maxWarnings) || options.maxWarnings < -1) throw new Error('--max-warnings must be a non-negative integer');
+  if (!options.rulepacks.length) options.rulepacks.push('ai-style');
   if (!options.patterns.length) options.patterns.push('.');
   return options;
 }
@@ -159,6 +227,158 @@ function parseHook(argv: string[]): HookOptions | 'help' {
   return options;
 }
 
+function parseAgent(argv: string[]): AgentOptions | 'help' {
+  if (!argv.length || argv[0] === '-h' || argv[0] === '--help') return 'help';
+  if (argv[0] !== 'doctor' && argv[0] !== 'demo') throw new Error('expected agent command "doctor" or "demo"');
+  const options: AgentOptions = {
+    action: argv[0],
+    host: 'claude-code',
+    json: false,
+    download: true,
+  };
+  for (let index = 1; index < argv.length; index++) {
+    const arg = argv[index]!;
+    const nextValue = (): string => {
+      const value = argv[++index];
+      if (value === undefined) throw new Error(`${arg} requires a value`);
+      return value;
+    };
+    if (arg === '-h' || arg === '--help') return 'help';
+    if (arg === '--json') options.json = true;
+    else if (arg === '--no-download') options.download = false;
+    else if (arg === '--host') options.host = nextValue() as AgentHost;
+    else if (arg === '--model') options.model = nextValue();
+    else throw new Error(`unknown agent option: ${arg}`);
+  }
+  if (!['claude-code', 'codex'].includes(options.host)) throw new Error(`unknown agent host: ${options.host}`);
+  if (options.action === 'demo' && options.host !== 'claude-code') throw new Error('--host only applies to agent doctor');
+  return options;
+}
+
+async function exerciseAgentLoop(options: AgentOptions) {
+  const directory = await mkdtemp(join(tmpdir(), 'slopsift-agent-demo-'));
+  try {
+    const slopsift = await createSlopSift({
+      explicit: options.model,
+      download: options.download,
+      onProgress: (message) => console.error(message),
+    });
+    return await runAgentDemo(slopsift, directory);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+function hostLabel(host: AgentHost): string {
+  return host === 'claude-code' ? 'Claude Code' : 'Codex';
+}
+
+function hostVersion(host: AgentHost, version?: string): string | undefined {
+  if (!version) return undefined;
+  return host === 'claude-code'
+    ? version.replace(/\s*\(Claude Code\)\s*$/, '')
+    : version.replace(/^codex-cli\s+/, '');
+}
+
+async function runAgent(argv: string[]): Promise<void> {
+  let options: AgentOptions | 'help';
+  try {
+    options = parseAgent(argv);
+  } catch (error) {
+    console.error(`slopsift: ${(error as Error).message}\nRun slopsift agent --help for usage.`);
+    process.exitCode = 2;
+    return;
+  }
+  if (options === 'help') {
+    console.log(AGENT_HELP);
+    return;
+  }
+
+  if (options.action === 'demo') {
+    try {
+      const demo = await exerciseAgentLoop(options);
+      if (options.json) {
+        console.log(JSON.stringify({
+          ok: true,
+          draft: AGENT_DEMO_DRAFT,
+          rewrite: AGENT_DEMO_REWRITE,
+          rejectedDraft: demo.rejectedDraft,
+          acceptedRewrite: demo.acceptedRewrite,
+        }, null, 2));
+      } else {
+        console.log([
+          'SlopSift agent demo',
+          '',
+          `Draft: ${AGENT_DEMO_DRAFT}`,
+          'Result: rewrite requested',
+          '',
+          demo.rejectedDraft.reason ?? '',
+          '',
+          `Rewrite: ${AGENT_DEMO_REWRITE}`,
+          `Result: ${demo.acceptedRewrite.systemMessage ?? 'accepted'}`,
+        ].join('\n'));
+      }
+    } catch (error) {
+      if (options.json) {
+        console.log(JSON.stringify({ ok: false, error: error instanceof Error ? error.message : String(error) }));
+      } else {
+        console.error(`SlopSift agent demo failed: ${error instanceof Error ? error.message : String(error)}`);
+      }
+      process.exitCode = 1;
+    }
+    return;
+  }
+
+  const host = inspectAgentHost(options.host);
+  let demo;
+  let validatorError: string | undefined;
+  try {
+    demo = await exerciseAgentLoop(options);
+  } catch (error) {
+    validatorError = error instanceof Error ? error.message : String(error);
+  }
+  const ok = host.pluginState === 'ready' && demo !== undefined;
+  if (options.json) {
+    console.log(JSON.stringify({
+      ok,
+      host,
+      validator: demo ? {
+        ready: true,
+        rejectedKnownBadDraft: demo.rejectedDraft.decision === 'block',
+        acceptedCleanRewrite: demo.acceptedRewrite.decision !== 'block',
+      } : { ready: false, error: validatorError },
+      limitation: 'Hook execution and trust can only be confirmed by completing a live agent turn.',
+    }, null, 2));
+  } else {
+    const version = hostVersion(host.host, host.version);
+    const lines = [
+      'SlopSift agent doctor',
+      '',
+      demo
+        ? '✓ Validator rejected the known-bad draft and accepted the clean rewrite.'
+        : `✗ Validator failed: ${validatorError}`,
+      host.installed
+        ? `✓ ${hostLabel(host.host)} is installed${version ? ` (${version})` : ''}.`
+        : `✗ ${hostLabel(host.host)} is not installed.`,
+    ];
+    if (host.pluginState === 'ready') {
+      lines.push(`✓ SlopSift${host.pluginVersion ? ` ${host.pluginVersion}` : ''} is installed and enabled.`);
+      lines.push('  Start a new agent session before the live test if you installed or updated the plugin just now.');
+    } else if (host.pluginState === 'disabled') {
+      lines.push('✗ SlopSift is installed but disabled. Enable it, then restart the agent.');
+    } else if (host.pluginState === 'unknown') {
+      lines.push(`✗ SlopSift plugin state could not be read${host.detail ? `: ${host.detail}` : '.'}`);
+    } else {
+      lines.push('✗ SlopSift is not installed in this agent.');
+      lines.push('', 'Install it with:');
+      for (const command of host.installCommands) lines.push(`  ${command}`);
+    }
+    lines.push('', 'A doctor run cannot prove hook trust. Complete the live test in AGENT-HOOKS.md after installation.');
+    console.log(lines.join('\n'));
+  }
+  if (!ok) process.exitCode = 1;
+}
+
 async function runHook(argv: string[]): Promise<void> {
   let options: HookOptions | 'help';
   try {
@@ -204,6 +424,10 @@ async function run(): Promise<void> {
     await runHook(argv.slice(1));
     return;
   }
+  if (argv[0] === 'agent') {
+    await runAgent(argv.slice(1));
+    return;
+  }
   let options: Options | 'help' | 'version';
   try { options = parse(argv); }
   catch (error) { console.error(`slopsift: ${(error as Error).message}\nRun slopsift --help for usage.`); process.exitCode = 2; return; }
@@ -211,6 +435,11 @@ async function run(): Promise<void> {
   if (options === 'version') { console.log(VERSION); return; }
 
   try {
+    let technicalStandardData: AsdSte100Issue9StandardData | undefined;
+    if (options.technicalStandardData) {
+      const path = resolve(options.technicalStandardData);
+      technicalStandardData = parseAsdSte100Issue9StandardData(JSON.parse(readFileSync(path, 'utf8')));
+    }
     const files = await findFiles(options.patterns, { noIgnore: options.noIgnore, ignorePatterns: options.ignores, extensions: options.extensions });
     if (!files.length) {
       if (options.errorOnUnmatchedPattern) {
@@ -226,7 +455,13 @@ async function run(): Promise<void> {
     });
     const level: MinimumLevel = options.quiet ? 'error' : options.level;
     const explicitlySelectedFiles = new Set(options.patterns.map((pattern) => resolve(pattern)));
-    const { results, runtimeFailures } = await lintFiles(slopsift, files, { level, explicitlySelectedFiles });
+    const { results, runtimeFailures } = await lintFiles(slopsift, files, {
+      level,
+      rulepacks: options.rulepacks,
+      technicalMode: options.technicalMode,
+      technicalStandardData,
+      explicitlySelectedFiles,
+    });
     if (options.format === 'json') console.log(JSON.stringify(results.map(jsonResult), null, 2));
     else if (options.format === 'json-lines') for (const result of results) console.log(JSON.stringify(jsonResult(result)));
     else if (options.format === 'github') { const output = github(results); if (output) console.log(output); }

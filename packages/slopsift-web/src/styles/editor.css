@@ -172,6 +172,29 @@
     text-transform: uppercase;
   }
 
+  .source-pane__tools,
+  .editor-rulepack-select {
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .source-pane__tools { gap: 18px; }
+  .editor-rulepack-select { gap: 8px; }
+  .editor-rulepack-select select {
+    max-width: 220px;
+    height: 29px;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    padding-inline: 8px;
+    background: #fff;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .editor-rulepack-select select:hover { border-color: var(--ink); }
+
   .parser-state {
     display: inline-flex;
     align-items: center;
@@ -371,6 +394,11 @@
     .source-pane__status > span { padding-inline: 10px; }
     .source-pane__status > span:nth-child(3),
     .source-pane__status > span:nth-child(4) { display: none; }
+    .source-pane__bar { padding-inline: 10px; }
+    .source-pane__tools { gap: 10px; }
+    .editor-rulepack-select > span,
+    .parser-state > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .editor-rulepack-select select { max-width: min(49vw, 210px); }
     .source-editor .cm-content { padding-top: 22px; }
     .source-editor .cm-line { padding-right: 20px; padding-left: 12px; }
   }

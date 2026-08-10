@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "datasetVersion": "ste-candidates-v1",
+  "standard": "ASD-STE100 Issue 9",
+  "status": "unreviewed-candidate-set",
+  "authoredAt": "2026-08-10",
+  "defaultRotationSeed": "ste-eval-v1",
+  "rotationSplits": ["development", "evaluation"],
+  "limitations": {
+    "generators": 1,
+    "generatorType": "ai",
+    "labels": "deliberately-balanced",
+    "construction": "paired-and-template-based",
+    "domains": "narrow-maintenance-and-equipment-scenarios",
+    "representativeOfProduction": false,
+    "unbiased": false
+  },
+  "generatedConformance": {
+    "verifiedAt": "2026-08-10",
+    "scale": 100,
+    "checks": 3100,
+    "matched": 3100,
+    "detectors": 7,
+    "classification": "deterministic-template-matrix",
+    "heldOut": false,
+    "note": "This stress-tests detector boundaries and product wiring. It is not natural-writing evaluation data."
+  },
+  "reservedPublicPool": {
+    "state": "public-reserved",
+    "records": 12,
+    "exposureLog": "exposure-log.jsonl",
+    "note": "These checked-in rows are visible and must never be described as blind, secret, or held out."
+  },
+  "optionalExternalFinalHoldout": {
+    "state": "absent",
+    "requiredPool": "external-final",
+    "location": "outside-repository",
+    "note": "A private human-reviewed JSONL file can be supplied explicitly when the detector and decision policy are frozen."
+  }
+}

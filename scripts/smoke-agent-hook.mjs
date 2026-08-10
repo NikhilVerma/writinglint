@@ -11,6 +11,16 @@ const runner = join(root, 'plugins/slopsift/scripts/stop-hook.mjs');
 const stateDirectory = await mkdtemp(join(tmpdir(), 'slopsift-agent-hook-'));
 
 try {
+  const demoResult = spawnSync(process.execPath, [cli, 'agent', 'demo', '--json'], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  assert.equal(demoResult.status, 0, demoResult.stderr);
+  const demo = JSON.parse(demoResult.stdout);
+  assert.equal(demo.ok, true);
+  assert.equal(demo.rejectedDraft.decision, 'block');
+  assert.match(demo.acceptedRewrite.systemMessage, /accepted the response after 1 automatic rewrite/);
+
   const input = JSON.stringify({
     session_id: 'packed-hook-smoke',
     turn_id: 'turn-1',

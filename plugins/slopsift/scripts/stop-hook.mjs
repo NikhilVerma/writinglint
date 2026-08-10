@@ -14,7 +14,10 @@ const valueOption = (envName, flag) => {
   const value = process.env[envName];
   if (value) options.push(flag, value);
 };
-valueOption('SLOPSIFT_HOOK_LEVEL', '--level');
+const requestedLevel = process.env.SLOPSIFT_HOOK_LEVEL;
+if (requestedLevel === 'warning' || requestedLevel === 'error') {
+  options.push('--level', requestedLevel);
+}
 valueOption('SLOPSIFT_HOOK_MAX_RETRIES', '--max-retries');
 valueOption('SLOPSIFT_HOOK_MAX_FINDINGS', '--max-findings');
 valueOption('SLOPSIFT_HOOK_MAX_DIRTY_FILES', '--max-dirty-files');
@@ -27,7 +30,7 @@ if (process.env.SLOPSIFT_HOOK_NO_DOWNLOAD === '1') options.push('--no-download')
 
 const localCli = process.env.SLOPSIFT_HOOK_CLI;
 const command = localCli ? process.execPath : (process.env.SLOPSIFT_HOOK_NPX || 'npx');
-const args = localCli ? [localCli, ...options] : ['--yes', 'slopsift@0.5.0', ...options];
+const args = localCli ? [localCli, ...options] : ['--yes', 'slopsift@0.7.0', ...options];
 const result = spawnSync(command, args, {
   input,
   encoding: 'utf8',

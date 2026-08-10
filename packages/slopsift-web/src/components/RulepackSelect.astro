@@ -1,0 +1,17 @@
+---
+import { RULEPACK_PRESETS } from '../client/rulepack-selection.js';
+
+interface Props {
+  id: string;
+  className: string;
+}
+
+const { id, className } = Astro.props;
+---
+
+<label class={className} for={id}>
+  <span>Rules</span>
+  <select id={id} data-rulepack-preset aria-label="Rulepack">
+    {RULEPACK_PRESETS.map((preset) => <option value={preset.value}>{preset.label}</option>)}
+  </select>
+</label>

@@ -153,24 +153,27 @@ function findingsReason(lints: readonly EvidenceLint[], maxFindings: number, lim
   const kinds = new Set(lints.map(({ kind }) => kind));
   const actions = [
     kinds.has('response')
-      ? 'Rewrite the final response before stopping. Preserve every fact, command, link, caveat, and file reference.'
-      : 'Write a clear final response that does not repeat the transcript problems below.',
+      ? 'Rewrite the final response before stopping. Keep every fact, command, link, caveat, and file reference.'
+      : 'Write a clear final response without repeating the transcript problems below.',
   ];
   if (kinds.has('dirty-file')) {
-    actions.push('Edit the listed files to fix the prose or comments before stopping. Preserve their technical meaning.');
+    actions.push('Edit the listed files before stopping. Keep their technical meaning and useful detail.');
   }
-  actions.push('Return only the corrected response and do not mention this lint pass.');
+  actions.push('Address the reason for each finding instead of merely deleting the flagged text.');
+  actions.push('Return only the corrected response. Do not mention SlopSift or this review.');
   const findings = shown.map(({ label, source, lint }) => {
     const { line, column } = lineAndColumn(source, lint.start);
     const quoted = excerpt(lint);
-    return `- ${label}:${line}:${column} — ${lint.ruleId}: ${lint.message}${quoted ? `\n  Text: “${quoted}”` : ''}`;
+    const level = lint.severity === 'warn' ? 'warning' : lint.severity;
+    return `- ${level} at ${label}:${line}:${column} — ${lint.ruleId}: ${lint.message}${quoted ? `\n  Text: “${quoted}”` : ''}`;
   });
   if (omitted > 0) findings.push(`- ${omitted} additional finding${omitted === 1 ? '' : 's'} omitted.`);
   return [
-    `SlopSift found ${lints.length} writing problem${lints.length === 1 ? '' : 's'} in this agent turn.`,
+    `The response needs another editing pass. SlopSift found ${lints.length} writing problem${lints.length === 1 ? '' : 's'} in this turn.`,
     ...actions,
     ...limits,
     '',
+    'Problems to fix:',
     ...findings,
   ].join('\n');
 }
@@ -249,7 +252,16 @@ export async function runStopHook(
   }
 
   if (!evidence.length) {
+    const retries = event.stop_hook_active ? await readRetries(path) : 0;
     await clearRetries(path);
+    if (retries > 0) {
+      return {
+        systemMessage: [
+          `SlopSift accepted the response after ${retries} automatic rewrite${retries === 1 ? '' : 's'}.`,
+          ...limits,
+        ].join(' '),
+      };
+    }
     return limits.length ? { systemMessage: limits.join(' ') } : {};
   }
 
