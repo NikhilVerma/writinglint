@@ -22,6 +22,13 @@ test('programmatic API lints supported source in process', async () => {
   assert.deepEqual(result?.lints, []);
 });
 
+test('an empty technical-English run still reports that review is required', async () => {
+  const linter = new SlopSift(parser);
+  const result = await linter.lintSource('README.md', '', { rulepacks: ['asd-ste100'] });
+  assert.equal(result?.standardAssessment?.status, 'review-required');
+  assert.equal(result?.standardAssessment?.automatedRuleFindings, 0);
+});
+
 test('source metrics count extracted comments rather than code tokens', async () => {
   const linter = new SlopSift(parser);
   const result = await linter.lintSource('example.ts', 'const implementationToken = 1; // Review this sentence.');

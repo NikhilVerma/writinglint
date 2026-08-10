@@ -35,7 +35,8 @@
     "slopsift": "^0.7.0",
     "writinglint-core": "*",
     "writinglint-parser-node": "*",
-    "writinglint-rulepack-ai-style": "*"
+    "writinglint-rulepack-ai-style": "*",
+    "writinglint-rulepack-technical-english": "*"
   },
   "devDependencies": {
     "esbuild": "^0.28.1",

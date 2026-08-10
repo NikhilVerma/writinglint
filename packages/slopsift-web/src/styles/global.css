@@ -239,6 +239,24 @@
   .live-indicator { display: inline-flex; align-items: center; gap: 7px; }
   .live-indicator i { width: 6px; height: 6px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 3px var(--red-pale); }
   .is-linting .live-indicator i { animation: live-pulse .9s ease-in-out infinite; }
+  .demo-panel-tools,
+  .demo-rulepack-select { display: inline-flex; align-items: center; }
+  .demo-panel-tools { min-width: 0; gap: 13px; }
+  .demo-rulepack-select { gap: 7px; }
+  .demo-rulepack-select select {
+    max-width: 184px;
+    height: 27px;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    padding-inline: 7px;
+    background: var(--paper-raised);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 9px;
+    cursor: pointer;
+  }
+  .demo-rulepack-select select:hover { border-color: var(--ink); }
+  .demo-rulepack-select select:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
   .editor-invitation {
     min-height: 56px;
     display: flex;

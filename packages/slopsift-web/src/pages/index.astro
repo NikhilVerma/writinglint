@@ -1,6 +1,7 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import RulepackSelect from '../components/RulepackSelect.astro';
 
 const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=NikhilVerma01.slopsift-vscode';
 
@@ -86,7 +87,10 @@ const productSchema = {
         <div class="lint-demo__editor">
           <div class="panel-bar">
             <span class="editor-file">draft.txt <b>editable</b></span>
-            <span class="live-indicator"><i aria-hidden="true"></i>live NLP</span>
+            <span class="demo-panel-tools">
+              <RulepackSelect id="demo-rulepack" className="demo-rulepack-select" />
+              <span class="live-indicator"><i aria-hidden="true"></i>live NLP</span>
+            </span>
           </div>
           <label class="editor-invitation" for="slopsift-draft">
             <span class="editor-invitation__mark" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="m4 14.7-.7 2.9 2.9-.7L16.4 6.7l-2.2-2.2L4 14.7Z"/><path d="m12.8 5.9 2.2 2.2"/></svg></span>

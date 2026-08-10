@@ -127,6 +127,53 @@ test('--technical-mode applies the 20-word procedural limit', () => {
   }
 });
 
+test('warning-only technical findings remain review-required', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-ste100-warning-'));
+  try {
+    const file = join(directory, 'procedure.md');
+    writeFileSync(file, 'Inspect the primary hydraulic pump housing carefully before you disconnect the pressure line from the forward service manifold during scheduled maintenance.\n');
+    const result = run(
+      file,
+      '--rulepack', 'asd-ste100',
+      '--technical-mode', 'procedural',
+      '--format', 'json',
+      '--exit-zero',
+    );
+    assert.equal(result.status, 0, result.stderr);
+    const [output] = JSON.parse(result.stdout) as Array<{
+      messages: Array<{ ruleId: string; level: string }>;
+      standardAssessment?: { status: string; automatedRuleFindings: number };
+    }>;
+    assert.ok(output?.messages.some(({ ruleId, level }) => ruleId.endsWith('/sentence-length') && level === 'warn'));
+    assert.equal(output?.standardAssessment?.status, 'review-required');
+    assert.equal(output?.standardAssessment?.automatedRuleFindings, 1);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('technical findings in source comments retain exact original ranges', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-ste100-source-range-'));
+  try {
+    const file = join(directory, 'manual.ts');
+    const source = "const ready = true;\n// Don't open the valve; inspect the seal.\n";
+    writeFileSync(file, source);
+    const result = run(file, '--rulepack', 'asd-ste100', '--format', 'json', '--exit-zero');
+    assert.equal(result.status, 0, result.stderr);
+    const [output] = JSON.parse(result.stdout) as Array<{
+      messages: Array<{ ruleId: string; start: number; end: number; text: string; line: number }>;
+    }>;
+    const messages = output?.messages ?? [];
+    assert.deepEqual(new Set(messages.map(({ text }) => text)), new Set(["Don't", ';']));
+    for (const message of messages) {
+      assert.equal(source.slice(message.start, message.end), message.text);
+      assert.equal(message.line, 2);
+    }
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
 test('--rulepack can combine ASD-STE100 with the default AI-style rules', () => {
   const directory = mkdtempSync(join(tmpdir(), 'slopsift-rulepacks-'));
   try {

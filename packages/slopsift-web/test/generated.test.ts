@@ -33,6 +33,13 @@ test('versioned schema describes JSON and JSON Lines contracts', async () => {
   assert.equal(schema.type, 'array');
   assert.ok(schema.$defs.fileResult);
   assert.ok(schema.$defs.message);
+  assert.ok(schema.$defs.standardAssessment);
+  const assessment = schema.$defs.standardAssessment as {
+    properties?: { status?: { enum?: string[] } };
+    required?: string[];
+  };
+  assert.deepEqual(assessment.properties?.status?.enum, ['nonconformant', 'review-required']);
+  assert.ok(assessment.required?.includes('reviewRequired'));
 });
 
 test('agent discovery files link to the machine contracts', async () => {

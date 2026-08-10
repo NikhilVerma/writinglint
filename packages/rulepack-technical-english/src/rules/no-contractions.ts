@@ -1,6 +1,6 @@
 import { defineRule } from 'writinglint-core';
 
-const CONTRACTION = /\b(?:ain['’]t|aren['’]t|can['’]t|couldn['’]t|didn['’]t|doesn['’]t|don['’]t|hadn['’]t|hasn['’]t|haven['’]t|isn['’]t|mightn['’]t|mustn['’]t|needn['’]t|shan['’]t|shouldn['’]t|wasn['’]t|weren['’]t|won['’]t|wouldn['’]t|[A-Za-z]+(?:['’]d|['’]ll|['’]m|['’]re|['’]ve))\b/giu;
+const CONTRACTION = /\b(?:ain['’]t|aren['’]t|can['’]t|couldn['’]t|didn['’]t|doesn['’]t|don['’]t|hadn['’]t|hasn['’]t|haven['’]t|isn['’]t|mightn['’]t|mustn['’]t|needn['’]t|shan['’]t|shouldn['’]t|wasn['’]t|weren['’]t|won['’]t|wouldn['’]t|(?:he|here|how|it|let|she|that|there|what|when|where|who|why)['’]s|[A-Za-z]+(?:['’]d|['’]ll|['’]m|['’]re|['’]ve))\b/giu;
 
 export const noContractions = defineRule({
   meta: {

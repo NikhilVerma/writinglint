@@ -1,5 +1,13 @@
 import { segments, type Lint } from 'writinglint-core';
 import { CATEGORY_ORDER } from 'writinglint-rulepack-ai-style';
+import type { AsdSte100Issue9Assessment } from 'writinglint-rulepack-technical-english';
+import {
+  emptyResultFor,
+  normalizeRulepackPreset,
+  ruleUrl,
+  statusForResult,
+  type RulepackPreset,
+} from './rulepack-selection.js';
 
 const host = document.querySelector<HTMLElement>('[data-slop-demo]');
 
@@ -16,6 +24,7 @@ if (host) {
   const loadingLabel = demo.querySelector<HTMLElement>('[data-loading-label]')!;
   const loadingBar = demo.querySelector<HTMLElement>('[data-loading-bar]')!;
   const cursor = demo.querySelector<HTMLElement>('[data-cursor]')!;
+  const presetSelect = demo.querySelector<HTMLSelectElement>('[data-rulepack-preset]')!;
 
   const severityRank = { error: 0, warn: 1, info: 2 } as const;
   const categoryRank = new Map(CATEGORY_ORDER.map((category, index) => [category, index]));
@@ -30,7 +39,9 @@ if (host) {
   let pending = false;
   let request = 0;
   let sentText = input.value;
+  let sentPreset: RulepackPreset = normalizeRulepackPreset(presetSelect.value);
   let lastLints: Lint[] = [];
+  let lastAssessment: AsdSte100Issue9Assessment | undefined;
   let editTimer = 0;
   let firstResult = true;
 
@@ -62,8 +73,9 @@ if (host) {
     }).join('') + '\n';
   }
 
-  function render(lints: Lint[]): void {
+  function render(lints: Lint[], assessment?: AsdSte100Issue9Assessment): void {
     lastLints = lints;
+    lastAssessment = assessment;
     const counts = { error: 0, warn: 0, info: 0 };
     for (const lint of lints) counts[lint.severity]++;
     count.textContent = String(lints.length);
@@ -74,6 +86,7 @@ if (host) {
       .map((lint, index) => ({ lint, index }))
       .sort((a, b) => a.lint.start - b.lint.start || severityRank[a.lint.severity] - severityRank[b.lint.severity]);
 
+    const empty = emptyResultFor(normalizeRulepackPreset(presetSelect.value), assessment);
     results.innerHTML = ordered.length
       ? ordered.map(({ lint, index }) => {
         const location = lineColOf(sentText, lint.start);
@@ -90,10 +103,10 @@ if (host) {
             </span>
           </button>`;
       }).join('')
-      : '<p class="results-empty"><strong>No tells found.</strong><br />This draft reads clean to the active rules.</p>';
+      : `<p class="results-empty"><strong>${escape(empty.title)}</strong><br />${escape(empty.detail)}</p>`;
 
     paint(sentText, lints);
-    status.textContent = `${lints.length} finding${lints.length === 1 ? '' : 's'} · updated just now`;
+    status.textContent = `${statusForResult(lints, assessment)} · updated just now`;
     if (firstResult) {
       firstResult = false;
       backdrop.classList.add('is-drawn');
@@ -124,9 +137,10 @@ if (host) {
     inFlight = true;
     const id = ++request;
     sentText = input.value;
+    sentPreset = normalizeRulepackPreset(presetSelect.value);
     status.textContent = 'Reading the sentence structure…';
     demo.classList.add('is-linting');
-    worker.postMessage({ type: 'lint', id, text: sentText });
+    worker.postMessage({ type: 'lint', id, text: sentText, preset: sentPreset });
   }
 
   function settle(): void {
@@ -155,8 +169,8 @@ if (host) {
         loading.classList.add('is-done');
         lint();
       } else if (message.type === 'result') {
-        if (message.id === request && input.value === sentText) {
-          render(message.lints);
+        if (message.id === request && input.value === sentText && normalizeRulepackPreset(presetSelect.value) === sentPreset) {
+          render(message.lints, message.standardAssessment);
         }
         settle();
       } else if (message.type === 'error') {
@@ -185,6 +199,11 @@ if (host) {
     }
     status.textContent = ready ? 'Waiting for a pause…' : 'The parser will sift this when it is ready.';
     editTimer = window.setTimeout(lint, 320);
+  });
+
+  presetSelect.addEventListener('change', () => {
+    status.textContent = 'Loading the selected rules…';
+    lint();
   });
 
   input.addEventListener('scroll', () => {
@@ -242,7 +261,7 @@ if (host) {
           endColumn: end.column,
           severity: severity === 'error' ? 2 : severity === 'warn' ? 1 : 0,
           level: severity,
-          ruleUrl: `https://slopsift.dev/rules/${encodeURIComponent(lint.ruleId.split('/')[1] ?? lint.ruleId)}/`,
+          ruleUrl: ruleUrl(lint.ruleId),
         };
       });
     const wordCount = sentText.match(/[\p{L}\p{N}]+(?:['’][\p{L}\p{N}]+)*/gu)?.length ?? 0;
@@ -256,6 +275,7 @@ if (host) {
       findingsPerThousandWords: wordCount
         ? Number(((lastLints.length / wordCount) * 1000).toFixed(1))
         : 0,
+      standardAssessment: lastAssessment,
     });
     try {
       await navigator.clipboard.writeText(`${output}\n`);

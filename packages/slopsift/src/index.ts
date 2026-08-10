@@ -9,7 +9,10 @@ import {
   type TechnicalEnglishMode,
 } from './profiles.js';
 import { countWords } from './format.js';
-import { ASD_STE100_ISSUE_9_COVERAGE } from 'writinglint-rulepack-technical-english';
+import {
+  assessAsdSte100Issue9,
+  type AsdSte100Issue9Assessment,
+} from 'writinglint-rulepack-technical-english';
 
 export type MinimumLevel = 'info' | 'warning' | 'error';
 
@@ -29,16 +32,7 @@ export interface LintSourceOptions {
   technicalMode?: TechnicalEnglishMode;
 }
 
-export interface StandardAssessment {
-  standard: 'ASD-STE100';
-  issue: 9;
-  publicationDate: '2025-01-15';
-  status: 'nonconformant' | 'review-required';
-  automatedRuleFindings: number;
-  automatedRules: readonly string[];
-  reviewRequired: readonly string[];
-  disclaimer: string;
-}
+export type StandardAssessment = AsdSte100Issue9Assessment;
 
 export interface SlopSiftResult {
   kind: InputKind;
@@ -72,40 +66,32 @@ export class SlopSift {
     if (!kind) return undefined;
     const extracted = extractInput(filePath, source);
     const wordCount = countWords(extracted.text);
+    const rulepacks: RulepackName[] = [...new Set<RulepackName>(options.rulepacks ?? ['ai-style'])];
     if (wordCount === 0) {
+      const lints: Lint[] = options.reportEmpty ? [{
+        ruleId: 'slopsift/no-extractable-prose',
+        category: 'diagnostic',
+        severity: 'info',
+        confidence: 'high',
+        start: 0,
+        end: 0,
+        text: '',
+        message: 'No prose was found in this explicitly selected file. SlopSift did not lint its code or unsupported content locations.',
+      }] : [];
       return {
         kind,
         wordCount,
-        lints: options.reportEmpty ? [{
-          ruleId: 'slopsift/no-extractable-prose',
-          category: 'diagnostic',
-          severity: 'info',
-          confidence: 'high',
-          start: 0,
-          end: 0,
-          text: '',
-          message: 'No prose was found in this explicitly selected file. SlopSift did not lint its code or unsupported content locations.',
-        }] : [],
+        lints,
+        standardAssessment: rulepacks.includes('asd-ste100') ? assessAsdSte100Issue9(lints) : undefined,
       };
     }
     const profile = profileForLevel(options.level ?? 'warning');
-    const rulepacks: RulepackName[] = [...new Set<RulepackName>(options.rulepacks ?? ['ai-style'])];
     const config = resolveConfig(profileFor(kind, profile, rulepacks, options.technicalMode));
     const { lints } = await this.linter.lint(extracted.text, config);
-    const technicalLints = lints.filter((lint) => lint.ruleId.startsWith('technical-english/'));
     return {
       kind,
       wordCount,
-      standardAssessment: rulepacks.includes('asd-ste100') ? {
-        standard: 'ASD-STE100',
-        issue: 9,
-        publicationDate: ASD_STE100_ISSUE_9_COVERAGE.publicationDate,
-        status: technicalLints.some((lint) => lint.severity === 'error') ? 'nonconformant' : 'review-required',
-        automatedRuleFindings: technicalLints.length,
-        automatedRules: ASD_STE100_ISSUE_9_COVERAGE.automatedRules,
-        reviewRequired: ASD_STE100_ISSUE_9_COVERAGE.reviewRequired,
-        disclaimer: ASD_STE100_ISSUE_9_COVERAGE.disclaimer,
-      } : undefined,
+      standardAssessment: rulepacks.includes('asd-ste100') ? assessAsdSte100Issue9(lints) : undefined,
       lints: lints.map((lint) => {
         const [start, end] = extracted.sourceRange(lint.start, lint.end);
         const fixRange = lint.fix ? extracted.sourceRange(lint.fix.range[0], lint.fix.range[1]) : undefined;

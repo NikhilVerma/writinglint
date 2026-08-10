@@ -4,12 +4,13 @@ Deterministic technical-English rules for WritingLint. The first release include
 
 ```ts
 import { Linter, resolveConfig } from 'writinglint-core';
-import { descriptive } from 'writinglint-rulepack-technical-english';
+import { assessAsdSte100Issue9, descriptive } from 'writinglint-rulepack-technical-english';
 
 const result = await linter.lint(text, resolveConfig(descriptive));
+const assessment = assessAsdSte100Issue9(result.lints);
 ```
 
-Use `procedural` for instructions and `descriptive` for explanatory text. The presets currently automate selected parts of rules 3.6, 4.2, 5.1, 6.3, 6.6, and 8.1. `ASD_STE100_ISSUE_9_COVERAGE` describes those checks and the work that still requires review.
+Use `procedural` for instructions and `descriptive` for explanatory text. The presets currently automate selected parts of rules 3.6, 4.2, 5.1, 6.3, 6.6, and 8.1. The coverage constant, `ASD_STE100_ISSUE_9_COVERAGE`, connects each automated reference to its detector and lists the work that still requires review. The assessment helper, `assessAsdSte100Issue9`, returns `nonconformant` when an automated error is present and `review-required` otherwise.
 
 This package does not include or redistribute the ASD-STE100 controlled dictionary. A clean automated run is therefore `review-required`, not proof that a document conforms to all 53 rules.
 

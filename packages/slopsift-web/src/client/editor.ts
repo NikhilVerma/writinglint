@@ -6,20 +6,29 @@ import { Compartment, EditorState, Prec } from '@codemirror/state';
 import { EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 import type { Lint } from 'writinglint-core';
+import type { AsdSte100Issue9Assessment } from 'writinglint-rulepack-technical-english';
 import { EDITOR_SELECTION_THEME, selectEditorDocument } from './editor-interactions.js';
+import {
+  emptyResultFor,
+  normalizeRulepackPreset,
+  ruleUrl,
+  statusForResult,
+  type RulepackPreset,
+} from './rulepack-selection.js';
 
 type Mode = 'markdown' | 'plain';
 type Filter = 'all' | Lint['severity'];
 type WorkerOutput =
   | { type: 'progress'; stage: string; loaded?: number; total?: number }
   | { type: 'ready' }
-  | { type: 'result'; id: number; lints: Lint[]; wordCount: number }
+  | { type: 'result'; id: number; lints: Lint[]; wordCount: number; standardAssessment?: AsdSte100Issue9Assessment }
   | { type: 'error'; id?: number; message: string };
 
 interface SavedDraft {
   text: string;
   filename: string;
   mode: Mode;
+  preset: RulepackPreset;
 }
 
 const app = document.querySelector<HTMLElement>('[data-editor-app]');
@@ -35,6 +44,7 @@ if (app) {
   const fallback = required<HTMLTextAreaElement>('[data-editor-mount] textarea');
   const filenameInput = required<HTMLInputElement>('[data-filename]');
   const modeSelect = required<HTMLSelectElement>('[data-mode]');
+  const presetSelect = required<HTMLSelectElement>('[data-rulepack-preset]');
   const fileInput = required<HTMLInputElement>('[data-file-input]');
   const documentLabel = required<HTMLElement>('[data-document-label]');
   const parserState = required<HTMLElement>('[data-parser-state]');
@@ -63,7 +73,12 @@ if (app) {
       if (!value) return undefined;
       const draft = JSON.parse(value) as Partial<SavedDraft>;
       if (typeof draft.text !== 'string' || typeof draft.filename !== 'string') return undefined;
-      return { text: draft.text, filename: draft.filename, mode: draft.mode === 'plain' ? 'plain' : 'markdown' };
+      return {
+        text: draft.text,
+        filename: draft.filename,
+        mode: draft.mode === 'plain' ? 'plain' : 'markdown',
+        preset: normalizeRulepackPreset(draft.preset),
+      };
     } catch {
       return undefined;
     }
@@ -72,8 +87,10 @@ if (app) {
   const restored = restore();
   let filename = restored?.filename ?? filenameInput.value;
   let mode: Mode = restored?.mode ?? 'markdown';
+  let preset: RulepackPreset = restored?.preset ?? 'ai-style';
   let activeFilter: Filter = 'all';
   let lastLints: Lint[] = [];
+  let lastAssessment: AsdSte100Issue9Assessment | undefined;
   let lastWordCount = 0;
   let ready = false;
   let inFlight = false;
@@ -81,12 +98,14 @@ if (app) {
   let requestId = 0;
   let sentText = '';
   let sentPath = '';
+  let sentPreset: RulepackPreset = preset;
   let lintTimer = 0;
   let saveTimer = 0;
   let worker: Worker | undefined;
 
   filenameInput.value = filename;
   modeSelect.value = mode;
+  presetSelect.value = preset;
   documentLabel.textContent = filename;
 
   const language = new Compartment();
@@ -181,7 +200,7 @@ if (app) {
   function saveDraft(): void {
     window.clearTimeout(saveTimer);
     try {
-      localStorage.setItem(storageKey, JSON.stringify({ text: currentText(), filename, mode } satisfies SavedDraft));
+      localStorage.setItem(storageKey, JSON.stringify({ text: currentText(), filename, mode, preset } satisfies SavedDraft));
       saveState.textContent = 'Saved in this browser';
     } catch {
       saveState.textContent = 'Could not save locally';
@@ -254,19 +273,25 @@ if (app) {
     if (!visible.length) {
       const empty = document.createElement('p');
       empty.className = 'findings-placeholder';
-      empty.textContent = lastLints.length ? 'No findings at this level.' : 'No tells found in the current draft.';
+      if (lastLints.length) {
+        empty.textContent = 'No findings at this level.';
+      } else {
+        const copy = emptyResultFor(preset, lastAssessment);
+        empty.textContent = `${copy.title} ${copy.detail}`;
+      }
       findingsList.append(empty);
       return;
     }
     findingsList.append(...visible.map(findingButton));
   }
 
-  function applyResult(lints: Lint[], wordCount: number): void {
+  function applyResult(lints: Lint[], wordCount: number, assessment?: AsdSte100Issue9Assessment): void {
     lastLints = lints;
     lastWordCount = wordCount;
+    lastAssessment = assessment;
     view.dispatch(setDiagnostics(view.state, diagnosticsFor(lints)));
     renderFindings();
-    status.textContent = `${lints.length} finding${lints.length === 1 ? '' : 's'} found`;
+    status.textContent = statusForResult(lints, assessment);
     parserState.classList.add('is-ready');
     parserState.classList.remove('is-working', 'is-error');
     parserStateLabel.textContent = 'Local parser ready';
@@ -287,6 +312,7 @@ if (app) {
       requestId++;
       lastLints = [];
       lastWordCount = 0;
+      lastAssessment = undefined;
       view.dispatch(setDiagnostics(view.state, []));
       renderFindings();
       status.textContent = 'Start writing to run SlopSift';
@@ -295,11 +321,12 @@ if (app) {
     inFlight = true;
     sentText = text;
     sentPath = pathForLint();
+    sentPreset = preset;
     const id = ++requestId;
     parserState.classList.add('is-working');
     parserStateLabel.textContent = 'Reading sentence structure';
     status.textContent = 'Linting locally';
-    worker.postMessage({ type: 'lint', id, text, path: sentPath });
+    worker.postMessage({ type: 'lint', id, text, path: sentPath, preset: sentPreset });
   }
 
   function scheduleLint(): void {
@@ -329,6 +356,14 @@ if (app) {
     scheduleLint();
   }
 
+  function setPreset(nextPreset: RulepackPreset): void {
+    preset = nextPreset;
+    presetSelect.value = preset;
+    lastAssessment = undefined;
+    scheduleSave();
+    scheduleLint();
+  }
+
   function setFilename(nextFilename: string): void {
     filename = nextFilename.trim() || (mode === 'markdown' ? 'untitled.md' : 'untitled.txt');
     filenameInput.value = filename;
@@ -350,8 +385,8 @@ if (app) {
         parserStateLabel.textContent = 'Local parser ready';
         lintNow();
       } else if (message.type === 'result') {
-        if (message.id === requestId && currentText() === sentText && pathForLint() === sentPath) {
-          applyResult(message.lints, message.wordCount);
+        if (message.id === requestId && currentText() === sentText && pathForLint() === sentPath && preset === sentPreset) {
+          applyResult(message.lints, message.wordCount, message.standardAssessment);
         }
         settle();
       } else if (message.type === 'error') {
@@ -394,6 +429,7 @@ if (app) {
   filenameInput.addEventListener('change', () => setFilename(filenameInput.value));
   filenameInput.addEventListener('blur', () => setFilename(filenameInput.value));
   modeSelect.addEventListener('change', () => setMode(modeSelect.value === 'plain' ? 'plain' : 'markdown'));
+  presetSelect.addEventListener('change', () => setPreset(normalizeRulepackPreset(presetSelect.value)));
 
   required<HTMLButtonElement>('[data-new]').addEventListener('click', () => {
     if (currentText().trim() && !window.confirm('Start a new draft? The current version is saved in this browser.')) return;
@@ -444,7 +480,7 @@ if (app) {
         endColumn: end.column,
         severity: severity === 'error' ? 2 : severity === 'warn' ? 1 : 0,
         level: severity,
-        ruleUrl: `https://slopsift.dev/rules/${encodeURIComponent(lint.ruleId.split('/')[1] ?? lint.ruleId)}/`,
+        ruleUrl: ruleUrl(lint.ruleId),
       };
     });
     const output = JSON.stringify({
@@ -455,6 +491,7 @@ if (app) {
       infoCount: lastLints.filter((lint) => lint.severity === 'info').length,
       wordCount: lastWordCount,
       findingsPerThousandWords: lastWordCount ? Number(((lastLints.length / lastWordCount) * 1000).toFixed(1)) : 0,
+      standardAssessment: lastAssessment,
     });
     try {
       await navigator.clipboard.writeText(`${output}\n`);

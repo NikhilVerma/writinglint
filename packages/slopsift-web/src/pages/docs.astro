@@ -4,6 +4,8 @@ import SiteFooter from '../components/SiteFooter.astro';
 
 const flags = [
   ['--level info|warning|error', 'Choose the minimum finding level. The default is warning.'],
+  ['--rulepack ai-style|asd-ste100', 'Choose a writing policy. Repeat the flag to run both rulepacks.'],
+  ['--technical-mode descriptive|procedural', 'Choose the ASD-STE100 text type. The default is descriptive.'],
   ['--quiet', 'Show errors only. Equivalent to --level error.'],
   ['--format stylish|json|json-lines|github', 'Choose terminal, machine-readable, or GitHub annotation output.'],
   ['--ext .md,.txt,.ts', 'Limit the file extensions SlopSift reads.'],
@@ -46,6 +48,7 @@ const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=Nikh
     <nav class="docs-toc" aria-label="On this page">
       <span>On this page</span>
       <a href="#quick-start">Quick start</a>
+      <a href="#browser-editor">Browser editor</a>
       <a href="#vscode">VS Code</a>
       <a href="#inputs">What it reads</a>
       <a href="#findings">Findings and output</a>
@@ -62,6 +65,14 @@ const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=Nikh
         <p>The package and executable share the same name. Use Bun or npm without installing a separate binary.</p>
         <pre><code>{quickStart}</code></pre>
         <p>The npm package includes the compact parser weights. After npm installs the package, SlopSift works offline and does not download a second runtime.</p>
+      </section>
+
+      <section id="browser-editor">
+        <p class="docs-index">Browser editor</p>
+        <h2>Choose the rules before you edit.</h2>
+        <p>The homepage demo and the full editor include a Rules dropdown. Choose AI style, ASD-STE100 descriptive, or ASD-STE100 procedural. The selected rules and parser run locally in the browser.</p>
+        <p>The ASD-STE100 choices run an independent, partial Issue 9 check. A detected error reports <code>nonconformant</code>. A run without automated errors remains <code>review-required</code> because the controlled dictionary and meaning-based rules still need human review.</p>
+        <a class="docs-source-link" href="/editor/">Open the local browser editor →</a>
       </section>
 
       <section id="vscode">
