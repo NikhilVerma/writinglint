@@ -5,6 +5,7 @@
     "packages/parser-node/src",
     "packages/rulepack-ai-style/src",
     "packages/rulepack-craft/src",
+    "packages/rulepack-technical-english/src",
     "packages/cli/src",
     "packages/slopsift/src",
     "packages/*/test",

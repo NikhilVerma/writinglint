@@ -1,46 +1,97 @@
-# Check coding-agent writing before a turn ends
+# Let the agent repair difficult writing before it stops
 
-SlopSift can check a completed response and ask the coding agent to rewrite it.
-The check runs locally, returns exact rules and source positions, and uses the
-same warning threshold as the CLI. It does not try to decide whether a person or
-a model wrote the text.
+Install SlopSift once and continue using your coding agent normally. When a
+completed response contains a warning or error, SlopSift returns the specific
+problems to the agent and asks for another draft. A clean response ends the turn
+without an extra model call. Informational findings never interrupt the agent.
 
-Claude Code and Codex expose compatible Stop-hook input and output. SlopSift
-reads the hook event from standard input and writes one JSON object to standard
-output:
+The validator runs locally and reports exact rules and source positions. It
+detects writing habits; it does not try to decide whether a person or a model
+wrote the text.
 
-```bash
-npx slopsift@0.5.0 hook stop < hook-event.json
-```
+## Install and prove the loop
 
-When the response is clean, the command writes `{}`. When it finds a warning,
-it writes a blocking decision whose reason tells the agent what to revise. The
-agent gets two correction attempts by default. A third failure is shown to the
-user and allowed through, which prevents an infinite correction loop. A model
-load, malformed event, or other runtime failure also fails open with a visible
-`systemMessage`.
-
-The Stop event occurs after the model has produced its response. Depending on
-the host, the first draft may already have streamed to the terminal before the
-agent receives the correction. A wrapper that buffers model output is still
-needed when an application must hide every rejected draft.
-
-## Install the shared plugin
-
-This repository contains one plugin directory that both Claude Code and Codex
-can load. The plugin runs the pinned `slopsift@0.5.0` package through `npx`, so
-Node and npm must be available to the agent process.
-
-In Claude Code, add the GitHub repository as a marketplace and install the
-plugin:
+In Claude Code, add the marketplace and install the plugin:
 
 ```text
 /plugin marketplace add NikhilVerma/writinglint
 /plugin install slopsift@slopsift
 ```
 
-For a local Codex checkout, add the repository root as a marketplace and then
-install its plugin:
+In Codex, run:
+
+```bash
+codex plugin marketplace add NikhilVerma/writinglint
+codex plugin add slopsift@slopsift
+```
+
+Start a new agent session after installation. Then check that the client,
+plugin, local model, and Stop-hook decision are ready:
+
+```bash
+npx slopsift@0.7.0 agent doctor --host claude-code
+npx slopsift@0.7.0 agent doctor --host codex
+```
+
+The doctor is read-only. It can confirm that the plugin is installed and
+enabled, but only a live turn can prove that the host trusts and runs its hook.
+Use this prompt for that final check:
+
+```text
+For this hook test, first answer with exactly the sentence below. If a Stop hook
+asks you to revise it, follow the hook and preserve the meaning.
+
+Kept modest deliberately: the win comes from narrower prompts, not from
+saturating the model gate.
+```
+
+The first draft should trigger a correction. When the revised response passes,
+SlopSift reports that it accepted the response after one automatic rewrite.
+
+You can exercise the same reject-then-accept decision without launching an
+agent:
+
+```bash
+npx slopsift@0.7.0 agent demo
+```
+
+## How the Stop hook works
+
+Claude Code and Codex expose compatible Stop-hook input and output. SlopSift
+reads the hook event from standard input and writes one JSON object to standard
+output:
+
+```bash
+npx slopsift@0.7.0 hook stop < hook-event.json
+```
+
+For an initially clean response, the command writes `{}`. When it finds a
+warning or error, it writes a blocking decision whose reason tells the agent
+what to revise. After a successful rewrite, it returns a short confirmation for
+the user. The agent gets two correction attempts by default. A third failure is
+shown to the user and allowed through, which prevents an infinite correction
+loop. A model load, malformed event, or other runtime failure also fails open
+with a visible `systemMessage`.
+
+The Stop event occurs after the model has produced its response. Depending on
+the host, the first draft may already have streamed to the terminal before the
+agent receives the correction. A wrapper that buffers model output is still
+needed when an application must hide every rejected draft.
+
+## Install the shared plugin from a checkout
+
+This repository contains one plugin directory that both Claude Code and Codex
+can load. The plugin runs the pinned `slopsift@0.7.0` package through `npx`, so
+Node and npm must be available to the agent process.
+
+Use a local checkout when you are developing the plugin itself. In Claude Code:
+
+```text
+/plugin marketplace add /absolute/path/to/writinglint
+/plugin install slopsift@slopsift
+```
+
+For Codex, add the repository root as a marketplace and install its plugin:
 
 ```bash
 codex plugin marketplace add /absolute/path/to/writinglint
@@ -64,7 +115,7 @@ You can call the CLI without the plugin. Add this handler under `hooks.Stop` in
         "hooks": [
           {
             "type": "command",
-            "command": "npx --yes slopsift@0.5.0 hook stop",
+            "command": "npx --yes slopsift@0.7.0 hook stop",
             "timeout": 240
           }
         ]
@@ -83,7 +134,7 @@ Pass `--include-dirty` when the agent should fix prose in files as well as its
 final response:
 
 ```bash
-npx slopsift@0.5.0 hook stop --include-dirty
+npx slopsift@0.7.0 hook stop --include-dirty
 ```
 
 SlopSift asks Git for modified, staged, renamed, and untracked files, skips
@@ -118,7 +169,7 @@ The hook event must supply `transcript_path`, or you must pass
 uploads it.
 
 ```bash
-npx slopsift@0.5.0 hook stop \
+npx slopsift@0.7.0 hook stop \
   --include-transcript \
   --transcript-path /path/to/session.jsonl
 ```
@@ -170,7 +221,7 @@ transcript options above. Run `slopsift hook stop --help` for the complete list.
 
 The plugin runner maps these environment variables to CLI options:
 
-- `SLOPSIFT_HOOK_LEVEL`
+- `SLOPSIFT_HOOK_LEVEL=warning|error`
 - `SLOPSIFT_HOOK_MAX_RETRIES`
 - `SLOPSIFT_HOOK_MAX_FINDINGS`
 - `SLOPSIFT_HOOK_INCLUDE_DIRTY=1`
@@ -180,6 +231,10 @@ The plugin runner maps these environment variables to CLI options:
 - `SLOPSIFT_HOOK_STATE_DIR`
 - `SLOPSIFT_HOOK_NO_DOWNLOAD=1`
 - `SLOPSIFT_MODEL`
+
+The plugin never blocks on informational findings. Setting
+`SLOPSIFT_HOOK_LEVEL=info` therefore keeps the normal warning threshold. The
+standalone CLI still accepts `--level info` for manual editorial review.
 
 `PLUGIN_DATA` or `CLAUDE_PLUGIN_DATA` is used for bounded-retry state when the
 host provides it. Otherwise the command uses a hashed session key in the
@@ -195,4 +250,13 @@ bundles the Pi extension to catch syntax or import errors:
 
 ```bash
 npm run smoke:agent-hook
+```
+
+The repository also includes an opt-in live Claude Code test. It makes two paid
+model turns, uses the plugin directly from the checkout, caps the allowed spend
+at US$0.50, and checks both the rejection and acceptance hook events. CI does
+not run it:
+
+```bash
+SLOPSIFT_CLAUDE_MODEL=fable npm run smoke:agent-hook:claude
 ```

@@ -56,6 +56,111 @@ test('GitHub format emits native annotations for CI', () => {
   assert.match(result.stdout, /::error file=.*high-confidence\.md,line=\d+,col=\d+,endLine=\d+,endColumn=\d+,title=ai-style\//);
 });
 
+test('--rulepack asd-ste100 selects the technical-English checks and reports coverage', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-ste100-'));
+  try {
+    const file = join(directory, 'manual.md');
+    writeFileSync(file, "Don't open the valve; inspect the seal.\n");
+    const result = run(file, '--rulepack', 'asd-ste100', '--format', 'json', '--exit-zero');
+    assert.equal(result.status, 0, result.stderr);
+    const [output] = JSON.parse(result.stdout) as Array<{
+      messages: Array<{ ruleId: string }>;
+      standardAssessment?: {
+        standard: string;
+        issue: number;
+        status: string;
+        automatedRuleFindings: number;
+      };
+    }>;
+    assert.deepEqual(
+      new Set(output?.messages.map((message) => message.ruleId)),
+      new Set(['technical-english/no-contractions', 'technical-english/no-semicolon']),
+    );
+    assert.deepEqual(output?.standardAssessment, {
+      ...output?.standardAssessment,
+      standard: 'ASD-STE100',
+      issue: 9,
+      status: 'nonconformant',
+      automatedRuleFindings: 2,
+    });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('a clean automated ASD-STE100 run remains review-required', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-ste100-clean-'));
+  try {
+    const file = join(directory, 'manual.md');
+    writeFileSync(file, 'Open the valve. Inspect the seal.\n');
+    const result = run(file, '--rulepack', 'asd-ste100', '--format', 'json');
+    assert.equal(result.status, 0, result.stderr);
+    const [output] = JSON.parse(result.stdout) as Array<{
+      standardAssessment?: { status: string; automatedRuleFindings: number };
+    }>;
+    assert.equal(output?.standardAssessment?.status, 'review-required');
+    assert.equal(output?.standardAssessment?.automatedRuleFindings, 0);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('--technical-mode applies the 20-word procedural limit', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-ste100-mode-'));
+  try {
+    const file = join(directory, 'procedure.md');
+    writeFileSync(file, 'Inspect the primary hydraulic pump housing carefully before you disconnect the pressure line from the forward service manifold during scheduled maintenance.\n');
+    const descriptive = run(file, '--rulepack', 'asd-ste100', '--format', 'json', '--exit-zero');
+    const procedural = run(
+      file,
+      '--rulepack', 'asd-ste100',
+      '--technical-mode', 'procedural',
+      '--format', 'json',
+      '--exit-zero',
+    );
+    const [descriptiveOutput] = JSON.parse(descriptive.stdout) as Array<{ messages: Array<{ ruleId: string }> }>;
+    const [proceduralOutput] = JSON.parse(procedural.stdout) as Array<{ messages: Array<{ ruleId: string }> }>;
+    assert.equal(descriptiveOutput?.messages.some((message) => message.ruleId.endsWith('/sentence-length')), false);
+    assert.equal(proceduralOutput?.messages.some((message) => message.ruleId.endsWith('/sentence-length')), true);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('--rulepack can combine ASD-STE100 with the default AI-style rules', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-rulepacks-'));
+  try {
+    const file = join(directory, 'manual.md');
+    writeFileSync(file, "Don't open the valve; inspect the seal.\n");
+    const result = run(
+      file,
+      '--rulepack', 'ai-style',
+      '--rulepack', 'asd-ste100',
+      '--format', 'json',
+      '--exit-zero',
+    );
+    assert.equal(result.status, 0, result.stderr);
+    const [output] = JSON.parse(result.stdout) as Array<{
+      messages: Array<{ ruleId: string }>;
+    }>;
+    assert.ok(output?.messages.some((message) => message.ruleId.startsWith('technical-english/')));
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('unknown rulepacks fail before loading the model', () => {
+  const result = run('--rulepack', 'official-magic');
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /unknown rulepack: official-magic/);
+});
+
+test('--rulepack requires a value', () => {
+  const result = run('--rulepack');
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /--rulepack requires a value/);
+});
+
 test('compressed technical comment regressions all produce a default warning', () => {
   const result = run(...compressedTechnical, '--format', 'json', '--exit-zero');
   assert.equal(result.status, 0, result.stderr);
@@ -111,6 +216,25 @@ test('Stop-hook CLI rejects options whose values are missing', () => {
   const result = run('hook', 'stop', '--max-retries');
   assert.equal(result.status, 2);
   assert.match(result.stderr, /--max-retries requires a value/);
+});
+
+test('agent demo exercises the same reject-then-accept decision as the plugin', () => {
+  const result = run('agent', 'demo', '--json');
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout) as {
+    ok?: boolean;
+    rejectedDraft?: { decision?: string };
+    acceptedRewrite?: { systemMessage?: string };
+  };
+  assert.equal(output.ok, true);
+  assert.equal(output.rejectedDraft?.decision, 'block');
+  assert.match(output.acceptedRewrite?.systemMessage ?? '', /accepted the response after 1 automatic rewrite/);
+});
+
+test('agent doctor rejects an unknown host before loading the model', () => {
+  const result = run('agent', 'doctor', '--host', 'unknown');
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /unknown agent host/);
 });
 
 test('a large Markdown table does not abort a multi-file JSON run', () => {

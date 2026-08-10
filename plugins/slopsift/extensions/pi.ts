@@ -100,7 +100,10 @@ export default function slopSiftExtension(pi: PiApi): void {
       transcript: pi.getFlag('slopsift-transcript') === true,
     });
 
-    if (output.systemMessage) ctx.ui.notify(output.systemMessage, 'warning');
+    if (output.systemMessage) {
+      const type = output.systemMessage.startsWith('SlopSift accepted') ? 'info' : 'warning';
+      ctx.ui.notify(output.systemMessage, type);
+    }
     if (output.decision !== 'block' || !output.reason) {
       correcting = false;
       return;

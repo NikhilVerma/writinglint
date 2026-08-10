@@ -143,6 +143,39 @@ const outputSchema = {
         infoCount: { type: 'integer', minimum: 0 },
         wordCount: { type: 'integer', minimum: 0 },
         findingsPerThousandWords: { type: 'number', minimum: 0 },
+        standardAssessment: { $ref: '#/$defs/standardAssessment' },
+      },
+    },
+    standardAssessment: {
+      type: 'object',
+      additionalProperties: false,
+      required: [
+        'standard',
+        'issue',
+        'publicationDate',
+        'status',
+        'automatedRuleFindings',
+        'automatedRules',
+        'reviewRequired',
+        'disclaimer',
+      ],
+      properties: {
+        standard: { const: 'ASD-STE100' },
+        issue: { const: 9 },
+        publicationDate: { const: '2025-01-15' },
+        status: { enum: ['nonconformant', 'review-required'] },
+        automatedRuleFindings: { type: 'integer', minimum: 0 },
+        automatedRules: {
+          type: 'array',
+          items: { type: 'string' },
+          uniqueItems: true,
+        },
+        reviewRequired: {
+          type: 'array',
+          items: { type: 'string' },
+          minItems: 1,
+        },
+        disclaimer: { type: 'string' },
       },
     },
     message: {
@@ -247,6 +280,8 @@ SlopSift ${packageJson.version} is a deterministic, local-first linter for recog
 bunx slopsift .
 npx slopsift "docs/**/*.md"
 npx slopsift . --level info --format json --exit-zero
+npx slopsift manual.md --rulepack asd-ste100
+npx slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
 \`\`\`
 
 Node.js 20 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
@@ -274,6 +309,10 @@ Node.js 20 or newer is required. The npm package includes the compact parser wei
 - \`github\`: GitHub Actions workflow annotations.
 
 JSON messages include an ESLint-compatible numeric severity, SlopSift's textual level, confidence, exact range, rule URL, word count, and findings per thousand words.
+
+## Rulepacks
+
+The default rulepack is \`ai-style\`. Use \`--rulepack asd-ste100\` for an independent, partial ASD-STE100 Issue 9 check. Repeat \`--rulepack\` to combine checks. The ASD-STE100 result is \`nonconformant\` when a high-confidence automated violation is present and \`review-required\` otherwise. It never claims full conformance without the controlled dictionary and human review.
 
 ## Exit codes
 

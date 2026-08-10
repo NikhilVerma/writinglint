@@ -1,6 +1,6 @@
 # SlopSift agent reference
 
-SlopSift 0.5.0 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
+SlopSift 0.7.0 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
 
 ## Install and run
 
@@ -8,6 +8,8 @@ SlopSift 0.5.0 is a deterministic, local-first linter for recognizable AI-writin
 bunx slopsift .
 npx slopsift "docs/**/*.md"
 npx slopsift . --level info --format json --exit-zero
+npx slopsift manual.md --rulepack asd-ste100
+npx slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
 ```
 
 Node.js 20 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
@@ -35,6 +37,10 @@ Node.js 20 or newer is required. The npm package includes the compact parser wei
 - `github`: GitHub Actions workflow annotations.
 
 JSON messages include an ESLint-compatible numeric severity, SlopSift's textual level, confidence, exact range, rule URL, word count, and findings per thousand words.
+
+## Rulepacks
+
+The default rulepack is `ai-style`. Use `--rulepack asd-ste100` for an independent, partial ASD-STE100 Issue 9 check. Repeat `--rulepack` to combine checks. The ASD-STE100 result is `nonconformant` when a high-confidence automated violation is present and `review-required` otherwise. It never claims full conformance without the controlled dictionary and human review.
 
 ## Exit codes
 

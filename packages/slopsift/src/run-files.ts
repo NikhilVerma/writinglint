@@ -10,6 +10,8 @@ interface LintEngine {
 
 export interface LintFilesOptions {
   level: NonNullable<LintSourceOptions['level']>;
+  rulepacks?: readonly NonNullable<LintSourceOptions['rulepacks']>[number][];
+  technicalMode?: NonNullable<LintSourceOptions['technicalMode']>;
   explicitlySelectedFiles: ReadonlySet<string>;
   cwd?: string;
   readSource?: (filePath: string) => Promise<string>;
@@ -44,8 +46,16 @@ export async function lintFiles(
       const report = await engine.lintSource(file, source, {
         level: options.level,
         reportEmpty: options.explicitlySelectedFiles.has(file),
+        rulepacks: options.rulepacks,
+        technicalMode: options.technicalMode,
       });
-      if (report) results.push(makeResult(label, source, report.lints, report.wordCount));
+      if (report) results.push(makeResult(
+        label,
+        source,
+        report.lints,
+        report.wordCount,
+        report.standardAssessment,
+      ));
     } catch (error) {
       runtimeFailures++;
       const message = error instanceof Error ? error.message : String(error);

@@ -102,8 +102,9 @@ test('Stop hook blocks with concise findings and caps correction retries', async
     });
     assert.equal(first.decision, 'block');
     assert.match(first.reason ?? '', /Rewrite the final response before stopping/);
-    assert.match(first.reason ?? '', /assistant response:1:1 — ai-style\/agentless-rationale/);
-    assert.match(first.reason ?? '', /Preserve every fact, command, link, caveat, and file reference/);
+    assert.match(first.reason ?? '', /warning at assistant response:1:1 — ai-style\/agentless-rationale/);
+    assert.match(first.reason ?? '', /Keep every fact, command, link, caveat, and file reference/);
+    assert.match(first.reason ?? '', /Address the reason for each finding/);
 
     const second = await runStopHook(engine([warning()]), event({ stop_hook_active: true }), {
       stateDirectory: directory,
@@ -123,6 +124,23 @@ test('Stop hook blocks with concise findings and caps correction retries', async
   }
 });
 
+test('Stop hook tells the user when an automatic rewrite passes', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'slopsift-stop-accepted-'));
+  try {
+    await runStopHook(engine([warning()]), event(), { stateDirectory: directory });
+    const accepted = await runStopHook(engine([]), event({
+      stop_hook_active: true,
+      last_assistant_message: 'The workflow limits concurrency because focused prompts improve the evidence search.',
+    }), { stateDirectory: directory });
+    assert.deepEqual(accepted, {
+      systemMessage: 'SlopSift accepted the response after 1 automatic rewrite.',
+    });
+    assert.deepEqual(await readdir(directory), []);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 test('Stop hook limits model-visible findings and handles empty responses', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'slopsift-stop-findings-'));
   try {
@@ -136,7 +154,9 @@ test('Stop hook limits model-visible findings and handles empty responses', asyn
       stop_hook_active: true,
       last_assistant_message: null,
     }), { stateDirectory: directory });
-    assert.deepEqual(empty, {});
+    assert.deepEqual(empty, {
+      systemMessage: 'SlopSift accepted the response after 1 automatic rewrite.',
+    });
     assert.deepEqual(await readdir(directory), []);
   } finally {
     await rm(directory, { recursive: true, force: true });
@@ -191,7 +211,7 @@ test('Stop hook can use active-turn transcript prose as correction context', asy
       stateDirectory: join(directory, 'state'),
     });
     assert.equal(output.decision, 'block');
-    assert.match(output.reason ?? '', /does not repeat the transcript problems/);
+    assert.match(output.reason ?? '', /without repeating the transcript problems/);
     assert.match(output.reason ?? '', /session\.jsonl#record-2:1:1/);
   } finally {
     await rm(directory, { recursive: true, force: true });

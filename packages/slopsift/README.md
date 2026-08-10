@@ -1,7 +1,8 @@
 # SlopSift
 
-An opinionated CLI that flags AI-writing slop in prose and source-code comments.
-It is a separate product built on the WritingLint engine and AI-style rulepack.
+An opinionated CLI that checks prose and source-code comments against selectable
+writing policies. It is a separate product built on the WritingLint engine;
+the AI-style rulepack remains its zero-configuration default.
 
 [![npm version](https://img.shields.io/npm/v/slopsift?label=npm&color=111111)](https://www.npmjs.com/package/slopsift)
 [![CI](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml/badge.svg)](https://github.com/NikhilVerma/writinglint/actions/workflows/ci.yml)
@@ -16,6 +17,24 @@ It is a separate product built on the WritingLint engine and AI-style rulepack.
 [GitHub](https://github.com/NikhilVerma/writinglint) ·
 [npm](https://www.npmjs.com/package/slopsift)
 
+## Let your coding agent fix its own writing
+
+The Claude Code and Codex plugin checks each completed response automatically.
+Warnings and errors go back to the agent for a bounded rewrite; informational
+findings never interrupt the turn.
+
+```bash
+npx slopsift@0.7.0 agent doctor --host claude-code
+npx slopsift@0.7.0 agent doctor --host codex
+npx slopsift@0.7.0 agent demo
+```
+
+The doctor checks the installed client and plugin, then exercises the real
+reject-then-accept decision with a known-bad draft and a clean rewrite. See
+[AGENT-HOOKS.md](./AGENT-HOOKS.md) for installation and the live agent test.
+
+## Lint files yourself
+
 ```bash
 bunx slopsift .
 bunx slopsift "docs/**/*.md" "src/**/*.{ts,tsx}"
@@ -25,17 +44,36 @@ bunx slopsift . --level info
 bunx slopsift . --exit-zero
 ```
 
+Select a rulepack when you need a different writing policy. The option is
+repeatable, so AI-style and technical-English checks can run together:
+
+```bash
+slopsift manual.md --rulepack asd-ste100
+slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
+slopsift docs/ --rulepack ai-style --rulepack asd-ste100
+```
+
+The `asd-ste100` alias runs an independent, partial ASD-STE100 Issue 9 check.
+It currently automates selected parts of rules 3.6, 4.2, 5.1, 6.3, 6.6, and
+8.1. JSON output includes `standardAssessment`: automated violations produce
+`nonconformant`; a clean automated run produces `review-required`. It cannot
+produce `conformant` until the controlled dictionary, project terminology, and
+meaning-based rules have also been reviewed.
+
+ASD does not certify, authorize, approve, or endorse SlopSift. ASD-STE100 is a
+registered trademark of ASD. Obtain the standard from the
+[official ASD-STE100 website](https://www.asd-ste100.org/).
+
 The `slopsift` package and executable deliberately share a name, so both
 `bunx slopsift .` and `npx slopsift .` work without a package override. CI
 installs its packed tarball into an isolated non-workspace project before every
 release and repeats the smoke test against the public registry afterward.
 
-Coding agents can also run SlopSift before they finish a turn. Claude Code and
-Codex share a Stop-hook command, while the bundled Pi extension queues the same
-findings as a follow-up correction. The optional dirty-tree and transcript
-checks let the agent fix documentation in changed files and learn from prose
-stored during the active turn. See [AGENT-HOOKS.md](./AGENT-HOOKS.md) for plugin
-installation, standalone configuration, privacy boundaries, and tests.
+The optional dirty-tree and transcript checks let the agent fix documentation
+in changed files and use prose stored during the active turn as correction
+context. Pi can queue the same findings as an automatic follow-up turn. The
+[agent guide](./AGENT-HOOKS.md) documents those modes, privacy boundaries, and
+tests.
 
 SlopSift grades every finding by detector confidence:
 

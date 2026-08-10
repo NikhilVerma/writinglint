@@ -49,6 +49,61 @@
         "findingsPerThousandWords": {
           "type": "number",
           "minimum": 0
+        },
+        "standardAssessment": {
+          "$ref": "#/$defs/standardAssessment"
+        }
+      }
+    },
+    "standardAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "standard",
+        "issue",
+        "publicationDate",
+        "status",
+        "automatedRuleFindings",
+        "automatedRules",
+        "reviewRequired",
+        "disclaimer"
+      ],
+      "properties": {
+        "standard": {
+          "const": "ASD-STE100"
+        },
+        "issue": {
+          "const": 9
+        },
+        "publicationDate": {
+          "const": "2025-01-15"
+        },
+        "status": {
+          "enum": [
+            "nonconformant",
+            "review-required"
+          ]
+        },
+        "automatedRuleFindings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "automatedRules": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "reviewRequired": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "disclaimer": {
+          "type": "string"
         }
       }
     },

@@ -24,7 +24,7 @@ test('result counts all three levels and stylish reports them', () => {
     { errors: result.errorCount, warnings: result.warningCount, info: result.infoCount, words: result.wordCount, density: result.findingsPerThousandWords },
     { errors: 1, warnings: 1, info: 1, words: 3, density: 1000 },
   );
-  assert.match(stylish([result]), /3 findings \(1 errors, 1 warnings, 1 info\)/);
+  assert.match(stylish([result]), /3 findings \(1 error, 1 warning, 1 info\)/);
 });
 
 test('JSON uses ESLint numeric severity while retaining level and confidence', () => {
