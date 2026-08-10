@@ -257,6 +257,32 @@
   }
   .demo-rulepack-select select:hover { border-color: var(--ink); }
   .demo-rulepack-select select:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+  .standard-data-control {
+    min-height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 6px 16px;
+    background: #f5f1e8;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 9px;
+    line-height: 1.35;
+  }
+  .standard-data-control[hidden] { display: none; }
+  .standard-data-control.is-loaded { background: #eef3e9; color: #3f653f; }
+  .standard-data-control label {
+    flex: 0 0 auto;
+    border: 1px solid currentColor;
+    padding: 4px 7px;
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+    text-transform: uppercase;
+  }
+  .standard-data-control label:hover { color: var(--red-dark); }
   .editor-invitation {
     min-height: 56px;
     display: flex;

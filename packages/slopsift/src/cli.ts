@@ -16,6 +16,10 @@ import {
   type RulepackName,
   type TechnicalEnglishMode,
 } from './index.js';
+import {
+  parseAsdSte100Issue9StandardData,
+  type AsdSte100Issue9StandardData,
+} from 'writinglint-rulepack-technical-english';
 import { findFiles } from './files.js';
 import { github, jsonResult, stylish } from './format.js';
 import { lintFiles } from './run-files.js';
@@ -49,6 +53,7 @@ Options:
   --rulepack ai-style|asd-ste100      Select a rulepack (repeatable; default: ai-style)
   --technical-mode descriptive|procedural
                                       Text type for asd-ste100 (default: descriptive)
+  --technical-standard-data <file>    Load local parsed Issue 9 data for dictionary checks
   --max-warnings <n>                  Exit 1 above this warning count
   --model <directory>                 Use an explicit ONNX model bundle
   --no-download                       Fail instead of downloading a missing model
@@ -77,8 +82,9 @@ Options:
   --no-download                       Fail open instead of downloading a missing model
   --help, -h                          Show this help
 
-The command always writes one JSON object to stdout. Writing findings requests a
-continuation; runtime failures are reported through systemMessage and fail open.`;
+The command writes one JSON object to stdout. When SlopSift finds writing
+problems, it requests a continuation. A runtime failure adds systemMessage and
+lets the agent finish.`;
 
 const AGENT_HELP = `slopsift agent — verify the automatic agent correction loop
 
@@ -104,6 +110,7 @@ interface Options {
   exitZero: boolean;
   rulepacks: RulepackName[];
   technicalMode: TechnicalEnglishMode;
+  technicalStandardData?: string;
 }
 
 interface HookOptions {
@@ -153,6 +160,7 @@ function parse(argv: string[]): Options | 'help' | 'version' {
     else if (arg === '--level') options.level = argv[++index] as Options['level'];
     else if (arg === '--rulepack') options.rulepacks.push(nextValue() as RulepackName);
     else if (arg === '--technical-mode') options.technicalMode = nextValue() as TechnicalEnglishMode;
+    else if (arg === '--technical-standard-data') options.technicalStandardData = nextValue();
     else if (arg === '--model') options.model = argv[++index];
     else if (arg.startsWith('-')) throw new Error(`unknown option: ${arg}`);
     else options.patterns.push(arg);
@@ -163,6 +171,9 @@ function parse(argv: string[]): Options | 'help' | 'version' {
     throw new Error(`unknown rulepack: ${options.rulepacks.find((rulepack) => !['ai-style', 'asd-ste100'].includes(rulepack))}`);
   }
   if (!['descriptive', 'procedural'].includes(options.technicalMode)) throw new Error(`unknown technical mode: ${options.technicalMode}`);
+  if (options.technicalStandardData && !options.rulepacks.includes('asd-ste100')) {
+    throw new Error('--technical-standard-data requires --rulepack asd-ste100');
+  }
   if (!Number.isInteger(options.maxWarnings) || options.maxWarnings < -1) throw new Error('--max-warnings must be a non-negative integer');
   if (!options.rulepacks.length) options.rulepacks.push('ai-style');
   if (!options.patterns.length) options.patterns.push('.');
@@ -424,6 +435,11 @@ async function run(): Promise<void> {
   if (options === 'version') { console.log(VERSION); return; }
 
   try {
+    let technicalStandardData: AsdSte100Issue9StandardData | undefined;
+    if (options.technicalStandardData) {
+      const path = resolve(options.technicalStandardData);
+      technicalStandardData = parseAsdSte100Issue9StandardData(JSON.parse(readFileSync(path, 'utf8')));
+    }
     const files = await findFiles(options.patterns, { noIgnore: options.noIgnore, ignorePatterns: options.ignores, extensions: options.extensions });
     if (!files.length) {
       if (options.errorOnUnmatchedPattern) {
@@ -443,6 +459,7 @@ async function run(): Promise<void> {
       level,
       rulepacks: options.rulepacks,
       technicalMode: options.technicalMode,
+      technicalStandardData,
       explicitlySelectedFiles,
     });
     if (options.format === 'json') console.log(JSON.stringify(results.map(jsonResult), null, 2));

@@ -1,6 +1,11 @@
 import { defineConfig, type Config } from 'writinglint-core';
 import { ci, recommended, strict } from 'writinglint-rulepack-ai-style';
-import { descriptive, procedural } from 'writinglint-rulepack-technical-english';
+import {
+  descriptive,
+  procedural,
+  withAsdSte100StandardData,
+  type AsdSte100Issue9StandardData,
+} from 'writinglint-rulepack-technical-english';
 import type { InputKind } from './extract.js';
 
 export type ProfileName = 'recommended' | 'strict' | 'ci';
@@ -12,6 +17,7 @@ export function profileFor(
   profile: ProfileName = 'recommended',
   rulepacks: readonly RulepackName[] = ['ai-style'],
   technicalMode: TechnicalEnglishMode = 'descriptive',
+  standardData?: AsdSte100Issue9StandardData,
 ): Config {
   const base = profile === 'strict' ? strict : profile === 'ci' ? ci : recommended;
   const selected: Config[] = [];
@@ -26,7 +32,9 @@ export function profileFor(
     }));
   }
   if (rulepacks.includes('asd-ste100')) {
-    selected.push(technicalMode === 'procedural' ? procedural : descriptive);
+    selected.push(standardData
+      ? withAsdSte100StandardData(technicalMode, standardData)
+      : technicalMode === 'procedural' ? procedural : descriptive);
   }
   return defineConfig({
     extends: selected,

@@ -28,7 +28,9 @@ export function statusForResult(
   }
   return assessment.automatedRuleFindings
     ? `ASD-STE100 review required: ${assessment.automatedRuleFindings} automated finding${assessment.automatedRuleFindings === 1 ? '' : 's'}`
-    : 'No automated ASD-STE100 violations. Dictionary and human review are still required.';
+    : assessment.standardData.loaded
+      ? 'No automated ASD-STE100 violations. Local dictionary checks ran; human review is still required.'
+      : 'No automated ASD-STE100 violations. Dictionary and human review are still required.';
 }
 
 export function emptyResultFor(
@@ -38,8 +40,10 @@ export function emptyResultFor(
   if (isTechnicalEnglishPreset(preset)) {
     return {
       title: 'No automated violations found.',
-      detail: assessment
-        ? 'The controlled dictionary and human review are still required.'
+      detail: assessment?.standardData.loaded
+        ? 'Local dictionary checks ran. Meaning and human review are still required.'
+        : assessment
+          ? 'The controlled dictionary and human review are still required.'
         : 'Run the technical-English checks to assess this draft.',
     };
   }

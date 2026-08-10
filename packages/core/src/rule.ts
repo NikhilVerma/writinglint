@@ -11,10 +11,22 @@
 import type { DepToken } from './parse-types.js';
 import type { DepSentence } from './graph.js';
 import type { Document, Paragraph, Sentence, Tok } from './document.js';
+import type { ParserCapability } from './capabilities.js';
+import type { SpanAnnotation } from './annotations.js';
+import type { DocumentRegion, DocumentRegionRole } from './structure.js';
+import type { TerminologyProvider } from './terminology.js';
 
 export type Severity = 'off' | 'info' | 'warn' | 'error';
 export type ActiveSeverity = Exclude<Severity, 'off'>;
 export type Confidence = 'low' | 'medium' | 'high';
+
+export interface RuleEvidence {
+  /** Extensible machine-readable evidence kind. */
+  kind: string;
+  message?: string;
+  span?: { start: number; end: number };
+  data?: Readonly<Record<string, string | number | boolean | null>>;
+}
 
 /** A concrete text replacement a fixer could apply. */
 export interface TextFix {
@@ -44,6 +56,10 @@ export interface Lint {
   fix?: TextFix;
   /** Optional concrete suggestion (prose). */
   suggestion?: string;
+  /** Inspectable facts that produced this finding. */
+  evidence?: readonly RuleEvidence[];
+  /** Visible assumptions that still require writer or tool judgment. */
+  assumptions?: readonly string[];
 }
 
 /**
@@ -64,6 +80,12 @@ export interface ReportDescriptor {
   suggestion?: string;
   /** Certainty for this occurrence; overrides the rule's default confidence. */
   confidence?: Confidence;
+  evidence?: readonly RuleEvidence[];
+  assumptions?: readonly string[];
+}
+
+export interface RuleServices {
+  terminology?: TerminologyProvider;
 }
 
 /** Everything a rule sees while running, plus how it reports. */
@@ -72,6 +94,7 @@ export interface RuleContext<Options = unknown> {
   readonly category: string;
   readonly options: Options;
   readonly doc: Document;
+  readonly services: RuleServices;
   /** Findings emitted so far, for rules that combine weak evidence at document exit. */
   readonly findings: readonly Lint[];
   report(descriptor: ReportDescriptor): void;
@@ -83,11 +106,20 @@ export interface RuleContext<Options = unknown> {
  */
 export interface RuleListener {
   Document?(doc: Document): void;
+  Region?(region: DocumentRegion): void;
+  Annotation?(annotation: SpanAnnotation): void;
   Paragraph?(paragraph: Paragraph): void;
   Sentence?(sentence: Sentence): void;
   Token?(token: Tok): void;
   /** Runs after paragraph, sentence, and token listeners; useful for evidence aggregation. */
   DocumentExit?(doc: Document): void;
+}
+
+export interface RuleRequirements {
+  parser?: readonly ParserCapability[];
+  annotations?: readonly string[];
+  regions?: readonly DocumentRegionRole[];
+  services?: readonly (keyof RuleServices)[];
 }
 
 export interface RuleMeta {
@@ -104,6 +136,8 @@ export interface RuleMeta {
   defaultConfidence?: Confidence;
   /** Present if the rule can emit an autofix. */
   fixable?: 'text';
+  /** Capabilities required before the engine can execute this rule honestly. */
+  requires?: RuleRequirements;
 }
 
 export interface Rule<Options = unknown> {

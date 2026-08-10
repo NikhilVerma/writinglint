@@ -1,8 +1,12 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { Linter } from 'writinglint-core';
 import { loadParser } from 'writinglint-parser-node';
-import type { AsdSte100Issue9Assessment } from 'writinglint-rulepack-technical-english';
+import type {
+  AsdSte100Issue9Assessment,
+  AsdSte100Issue9StandardData,
+} from 'writinglint-rulepack-technical-english';
 import { configForRulepackPreset } from '../src/client/rulepack-config.js';
 import {
   emptyResultFor,
@@ -15,6 +19,7 @@ import {
 const assessment = (
   status: AsdSte100Issue9Assessment['status'],
   automatedRuleFindings: number,
+  standardDataLoaded = false,
 ): AsdSte100Issue9Assessment => ({
   standard: 'ASD-STE100',
   issue: 9,
@@ -22,8 +27,18 @@ const assessment = (
   status,
   automatedRuleFindings,
   automatedRules: ['4.2'],
+  executedRules: ['4.2'],
+  standardData: { loaded: standardDataLoaded },
   reviewRequired: ['Controlled dictionary'],
   disclaimer: 'Independent partial check.',
+});
+
+test('technical-English clean status says when local dictionary checks actually ran', () => {
+  const status = statusForResult([], assessment('review-required', 0, true));
+  assert.match(status, /local dictionary checks ran/i);
+  assert.doesNotMatch(status, /dictionary and human review are still required/i);
+  const empty = emptyResultFor('asd-ste100-procedural', assessment('review-required', 0, true));
+  assert.match(empty.detail, /local dictionary checks ran/i);
 });
 
 test('browser surfaces expose the same three rulepack presets', () => {
@@ -78,4 +93,40 @@ test('each browser preset resolves to the configuration named by the dropdown', 
   const procedural = await linter.lint(sentence, configForRulepackPreset('asd-ste100-procedural'));
   assert.equal(descriptive.lints.some(({ ruleId }) => ruleId.endsWith('/sentence-length')), false);
   assert.equal(procedural.lints.some(({ ruleId }) => ruleId.endsWith('/sentence-length')), true);
+});
+
+test('browser configuration enables dictionary checks only after local standard data loads', async () => {
+  const data = {
+    schemaVersion: 1,
+    standard: 'ASD-STE100',
+    issue: 9,
+    source: { filename: 'local.pdf', pages: 434, doclingJsonSha256: 'd'.repeat(64), parserVersion: 'test' },
+    rules: [],
+    terminology: {
+      provider: 'user-supplied-asd-ste100-issue-9',
+      approvedEntries: 875,
+      entries: [{
+        headword: 'utilize',
+        approved: false,
+        partOfSpeech: 'verb',
+        forms: [],
+        source: { ref: '#/test', page: 420 },
+      }],
+    },
+  } as AsdSte100Issue9StandardData;
+  const linter = new Linter(await loadParser());
+  const withoutData = await linter.lint('Utilize the tool.', configForRulepackPreset('asd-ste100-procedural'));
+  const withData = await linter.lint('Utilize the tool.', configForRulepackPreset('asd-ste100-procedural', data));
+  assert.equal(withoutData.lints.some(({ ruleId }) => ruleId.endsWith('/dictionary-word-approval')), false);
+  assert.equal(withData.lints.some(({ ruleId }) => ruleId.endsWith('/dictionary-word-approval')), true);
+});
+
+test('main editor and full editor both expose a local standard-data loader', () => {
+  for (const page of ['../src/pages/index.astro', '../src/pages/editor.astro']) {
+    const source = readFileSync(new URL(page, import.meta.url), 'utf8');
+    assert.match(source, /TechnicalStandardData/u);
+  }
+  const component = readFileSync(new URL('../src/components/TechnicalStandardData.astro', import.meta.url), 'utf8');
+  assert.match(component, /data-standard-data-input/u);
+  assert.match(component, /Load local standard data/u);
 });

@@ -25,6 +25,9 @@ if (host) {
   const loadingBar = demo.querySelector<HTMLElement>('[data-loading-bar]')!;
   const cursor = demo.querySelector<HTMLElement>('[data-cursor]')!;
   const presetSelect = demo.querySelector<HTMLSelectElement>('[data-rulepack-preset]')!;
+  const standardDataControl = demo.querySelector<HTMLElement>('[data-standard-data-control]')!;
+  const standardDataInput = demo.querySelector<HTMLInputElement>('[data-standard-data-input]')!;
+  const standardDataStatus = demo.querySelector<HTMLElement>('[data-standard-data-status]')!;
 
   const severityRank = { error: 0, warn: 1, info: 2 } as const;
   const categoryRank = new Map(CATEGORY_ORDER.map((category, index) => [category, index]));
@@ -121,6 +124,10 @@ if (host) {
     status.textContent = 'Type something to start sifting.';
   }
 
+  function updateStandardDataControl(): void {
+    standardDataControl.hidden = normalizeRulepackPreset(presetSelect.value) === 'ai-style';
+  }
+
   function lint(): void {
     if (!ready || !worker) {
       pending = true;
@@ -168,6 +175,13 @@ if (host) {
         loadingBar.style.transform = 'scaleX(1)';
         loading.classList.add('is-done');
         lint();
+      } else if (message.type === 'standard-data-ready') {
+        standardDataStatus.textContent = `Local dictionary loaded · ${message.fingerprint.slice(0, 18)}…`;
+        standardDataControl.classList.add('is-loaded');
+        lint();
+      } else if (message.type === 'standard-data-error') {
+        standardDataStatus.textContent = `Could not load this file: ${message.message}`;
+        standardDataControl.classList.remove('is-loaded');
       } else if (message.type === 'result') {
         if (message.id === request && input.value === sentText && normalizeRulepackPreset(presetSelect.value) === sentPreset) {
           render(message.lints, message.standardAssessment);
@@ -202,8 +216,21 @@ if (host) {
   });
 
   presetSelect.addEventListener('change', () => {
+    updateStandardDataControl();
     status.textContent = 'Loading the selected rules…';
     lint();
+  });
+
+  standardDataInput.addEventListener('change', async () => {
+    const file = standardDataInput.files?.[0];
+    if (!file || !worker) return;
+    standardDataStatus.textContent = `Validating ${file.name} locally…`;
+    try {
+      worker.postMessage({ type: 'standard-data', text: await file.text() });
+    } catch (error) {
+      standardDataStatus.textContent = `Could not read this file: ${error instanceof Error ? error.message : String(error)}`;
+    }
+    standardDataInput.value = '';
   });
 
   input.addEventListener('scroll', () => {
@@ -289,5 +316,6 @@ if (host) {
 
   paint(input.value, []);
   updateCursor();
+  updateStandardDataControl();
   start();
 }

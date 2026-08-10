@@ -1,6 +1,6 @@
 /** Self-contained browser parser backed by the owned INT8 ONNX model. */
 import * as ort from 'onnxruntime-web';
-import { decodeTree, type Parser, type ParsedSentence } from 'writinglint-core';
+import { decodeTree, type Parser, type ParsedSentence, type ParserDescriptor } from 'writinglint-core';
 import { chunkForEncoder, encodeWordPieces, splitSentences, tokenizeWords, type SentenceTokens } from 'writinglint-parser-node/tokenizer';
 import type { Model } from 'writinglint-rulepack-ai-style';
 
@@ -9,7 +9,7 @@ const MAX_BATCH_SENTENCES = 16;
 
 export interface Progress { (stage: string, loaded?: number, total?: number): void }
 export interface Loaded { parser: Parser; model: Model }
-interface Manifest { upos: string[]; relations: string[] }
+interface Manifest { format?: string; source_checkpoint_sha256?: string; upos: string[]; relations: string[] }
 interface TokenizerFile { model: { vocab: Record<string, number> } }
 
 async function fetchBytes(url: string, stage: string, progress: Progress): Promise<Uint8Array> {
@@ -43,12 +43,22 @@ function argmax(values: Float32Array, start: number, count: number): number {
 }
 
 class BrowserOnnxParser implements Parser {
+  readonly descriptor: ParserDescriptor;
+
   constructor(
     private parser: ort.InferenceSession,
     private relationSession: ort.InferenceSession,
     private manifest: Manifest,
     private vocab: Record<string, number>,
-  ) {}
+  ) {
+    this.descriptor = {
+      id: 'writinglint/compact-onnx-parser',
+      version: manifest.format ?? 'unknown',
+      languages: ['en'],
+      capabilities: ['sentence-boundaries', 'tokens', 'part-of-speech', 'dependencies'],
+      modelHash: manifest.source_checkpoint_sha256,
+    };
+  }
 
   async parse(text: string): Promise<ParsedSentence[]> {
     const sentences = splitSentences(text)

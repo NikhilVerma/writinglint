@@ -6,6 +6,7 @@ const flags = [
   ['--level info|warning|error', 'Choose the minimum finding level. The default is warning.'],
   ['--rulepack ai-style|asd-ste100', 'Choose a writing policy. Repeat the flag to run both rulepacks.'],
   ['--technical-mode descriptive|procedural', 'Choose the ASD-STE100 text type. The default is descriptive.'],
+  ['--technical-standard-data <file>', 'Load validated local Issue 9 parser output for dictionary checks.'],
   ['--quiet', 'Show errors only. Equivalent to --level error.'],
   ['--format stylish|json|json-lines|github', 'Choose terminal, machine-readable, or GitHub annotation output.'],
   ['--ext .md,.txt,.ts', 'Limit the file extensions SlopSift reads.'],
@@ -71,7 +72,7 @@ const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=Nikh
         <p class="docs-index">Browser editor</p>
         <h2>Choose the rules before you edit.</h2>
         <p>The homepage demo and the full editor include a Rules dropdown. Choose AI style, ASD-STE100 descriptive, or ASD-STE100 procedural. The selected rules and parser run locally in the browser.</p>
-        <p>The ASD-STE100 choices run an independent, partial Issue 9 check. A detected error reports <code>nonconformant</code>. A run without automated errors remains <code>review-required</code> because the controlled dictionary and meaning-based rules still need human review.</p>
+        <p>The ASD-STE100 choices run an independent, partial Issue 9 check. If you have an authorized local copy, you can load the importer output to add dictionary checks without uploading the file. A detected error reports <code>nonconformant</code>. A run without automated errors remains <code>review-required</code> because meaning-based rules still need human review.</p>
         <a class="docs-source-link" href="/editor/">Open the local browser editor →</a>
       </section>
 

@@ -8,6 +8,7 @@ export const noContractions = defineRule({
     category: 'technical-words',
     defaultSeverity: 'error',
     defaultConfidence: 'high',
+    requires: { parser: ['part-of-speech', 'dependencies'] },
     docs: {
       description: 'Do not omit words or use contractions (ASD-STE100 Issue 9, rule 4.2).',
     },
@@ -20,6 +21,24 @@ export const noContractions = defineRule({
           context.report({
             span: { start, end: start + match[0].length },
             message: `Write “${match[0]}” in full. Technical English does not use contractions.`,
+          });
+        }
+      },
+      Sentence(sentence) {
+        const tokens = sentence.dep.tokens;
+        for (let index = 1; index < tokens.length - 1; index += 1) {
+          const marker = tokens[index]!;
+          const subject = tokens[index - 1]!;
+          const predicate = tokens[index + 1]!;
+          if (!/^['’]s$/u.test(marker.form)
+            || marker.upos !== 'PUNCT'
+            || subject.deprel !== 'nsubj'
+            || predicate.upos !== 'VERB'
+            || subject.end !== marker.start) continue;
+          const text = context.doc.text.slice(subject.start, marker.end);
+          context.report({
+            span: { start: subject.start, end: marker.end },
+            message: `Write “${text}” in full. In this sentence, the apostrophe form contracts a subject with “is” or “has”.`,
           });
         }
       },

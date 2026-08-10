@@ -156,6 +156,8 @@ const outputSchema = {
         'status',
         'automatedRuleFindings',
         'automatedRules',
+        'executedRules',
+        'standardData',
         'reviewRequired',
         'disclaimer',
       ],
@@ -169,6 +171,21 @@ const outputSchema = {
           type: 'array',
           items: { type: 'string' },
           uniqueItems: true,
+        },
+        executedRules: {
+          type: 'array',
+          items: { type: 'string' },
+          uniqueItems: true,
+        },
+        standardData: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['loaded'],
+          properties: {
+            loaded: { type: 'boolean' },
+            fingerprint: { type: 'string' },
+            parserVersion: { type: 'string' },
+          },
         },
         reviewRequired: {
           type: 'array',
@@ -213,6 +230,14 @@ const outputSchema = {
         endLine: { type: 'integer', minimum: 1 },
         endColumn: { type: 'integer', minimum: 1 },
         suggestion: { type: 'string' },
+        assumptions: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+        evidence: {
+          type: 'array',
+          items: { $ref: '#/$defs/evidence' },
+        },
         fix: {
           type: 'object',
           additionalProperties: false,
@@ -229,6 +254,28 @@ const outputSchema = {
             },
             text: { type: 'string' },
           },
+        },
+      },
+    },
+    evidence: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['kind'],
+      properties: {
+        kind: { type: 'string' },
+        message: { type: 'string' },
+        span: {
+          type: 'object',
+          additionalProperties: false,
+          required: ['start', 'end'],
+          properties: {
+            start: { type: 'integer', minimum: 0 },
+            end: { type: 'integer', minimum: 0 },
+          },
+        },
+        data: {
+          type: 'object',
+          additionalProperties: { type: ['string', 'number', 'boolean', 'null'] },
         },
       },
     },
@@ -282,6 +329,7 @@ npx slopsift "docs/**/*.md"
 npx slopsift . --level info --format json --exit-zero
 npx slopsift manual.md --rulepack asd-ste100
 npx slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
+npx slopsift procedure.md --rulepack asd-ste100 --technical-standard-data /local/ASD-STE100_ISSUE9.parsed.json
 \`\`\`
 
 Node.js 20 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
@@ -312,7 +360,7 @@ JSON messages include an ESLint-compatible numeric severity, SlopSift's textual 
 
 ## Rulepacks
 
-The default rulepack is \`ai-style\`. Use \`--rulepack asd-ste100\` for an independent, partial ASD-STE100 Issue 9 check. Repeat \`--rulepack\` to combine checks. The ASD-STE100 result is \`nonconformant\` when a high-confidence automated violation is present and \`review-required\` otherwise. It never claims full conformance without the controlled dictionary and human review.
+The default rulepack is \`ai-style\`. Use \`--rulepack asd-ste100\` for an independent, partial ASD-STE100 Issue 9 check. Repeat \`--rulepack\` to combine checks. If you have an authorized local copy, \`--technical-standard-data\` loads the validated Docling importer output for dictionary checks without redistributing it. The ASD-STE100 result is \`nonconformant\` when a high-confidence automated violation is present and \`review-required\` otherwise. It never claims full conformance without human review.
 
 ## Exit codes
 

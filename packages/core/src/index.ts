@@ -8,8 +8,30 @@
 
 // Document model + parser surface
 export { buildDocument } from './document.js';
-export type { Document, Paragraph, Sentence, Tok } from './document.js';
+export type { BuildDocumentOptions, Document, Paragraph, Sentence, Tok } from './document.js';
 export type { Parser } from './parser.js';
+export { BASE_PARSER_CAPABILITIES } from './capabilities.js';
+export type { ParserCapabilities, ParserCapability, ParserDescriptor } from './capabilities.js';
+export { annotationsOverlapping } from './annotations.js';
+export type { SpanAnnotation } from './annotations.js';
+export { DOCUMENT_REGION_ROLES, regionsOverlapping, validateRegions } from './structure.js';
+export type { DocumentRegion, DocumentRegionRole } from './structure.js';
+export {
+  InMemoryTerminologyProvider,
+  LayeredTerminologyProvider,
+} from './terminology.js';
+export type {
+  TerminologyLayer,
+  TerminologyLookup,
+  TerminologyMatch,
+  TerminologyProvider,
+  TerminologyProviderDescriptor,
+  TerminologyProvenance,
+  TerminologyRecord,
+  TerminologyStatus,
+} from './terminology.js';
+export { countSentenceUnits, TOKEN_COUNT_POLICY } from './counting.js';
+export type { CountPolicy, CountUnit } from './counting.js';
 
 // Dependency-graph model + helpers (the toolkit rule authors match with)
 export {
@@ -43,6 +65,9 @@ export type {
   Severity,
   ActiveSeverity,
   Confidence,
+  RuleEvidence,
+  RuleRequirements,
+  RuleServices,
 } from './rule.js';
 
 // Authoring a rulepack
@@ -55,4 +80,4 @@ export type { Config, RuleLevel, RuleSetting, ResolvedConfig, ResolvedRule } fro
 
 // The engine
 export { Linter, segments } from './linter.js';
-export type { LintReport, Segment } from './linter.js';
+export type { LintOptions, LintReport, RuleExecution, Segment } from './linter.js';

@@ -10,7 +10,9 @@ import {
 } from './profiles.js';
 import { countWords } from './format.js';
 import {
+  asdSte100TerminologyProvider,
   assessAsdSte100Issue9,
+  type AsdSte100Issue9StandardData,
   type AsdSte100Issue9Assessment,
 } from 'writinglint-rulepack-technical-english';
 
@@ -30,6 +32,8 @@ export interface LintSourceOptions {
   rulepacks?: readonly RulepackName[];
   /** ASD-STE100 text type. Descriptive text is the default. */
   technicalMode?: TechnicalEnglishMode;
+  /** Locally supplied, parser-validated Issue 9 data. SlopSift never uploads it. */
+  technicalStandardData?: AsdSte100Issue9StandardData;
 }
 
 export type StandardAssessment = AsdSte100Issue9Assessment;
@@ -82,25 +86,48 @@ export class SlopSift {
         kind,
         wordCount,
         lints,
-        standardAssessment: rulepacks.includes('asd-ste100') ? assessAsdSte100Issue9(lints) : undefined,
+        standardAssessment: rulepacks.includes('asd-ste100')
+          ? assessAsdSte100Issue9(lints, { standardData: options.technicalStandardData })
+          : undefined,
       };
     }
     const profile = profileForLevel(options.level ?? 'warning');
-    const config = resolveConfig(profileFor(kind, profile, rulepacks, options.technicalMode));
-    const { lints } = await this.linter.lint(extracted.text, config);
+    const config = resolveConfig(profileFor(
+      kind,
+      profile,
+      rulepacks,
+      options.technicalMode,
+      options.technicalStandardData,
+    ));
+    const { lints } = await this.linter.lint(extracted.text, config, {
+      language: extracted.language,
+      regions: extracted.regions,
+      annotations: extracted.annotations,
+      services: options.technicalStandardData
+        ? { terminology: asdSte100TerminologyProvider(options.technicalStandardData) }
+        : undefined,
+    });
     return {
       kind,
       wordCount,
-      standardAssessment: rulepacks.includes('asd-ste100') ? assessAsdSte100Issue9(lints) : undefined,
+      standardAssessment: rulepacks.includes('asd-ste100')
+        ? assessAsdSte100Issue9(lints, { standardData: options.technicalStandardData })
+        : undefined,
       lints: lints.map((lint) => {
         const [start, end] = extracted.sourceRange(lint.start, lint.end);
         const fixRange = lint.fix ? extracted.sourceRange(lint.fix.range[0], lint.fix.range[1]) : undefined;
+        const evidence = lint.evidence?.map((item) => {
+          if (!item.span) return item;
+          const [evidenceStart, evidenceEnd] = extracted.sourceRange(item.span.start, item.span.end);
+          return { ...item, span: { start: evidenceStart, end: evidenceEnd } };
+        });
         return {
           ...lint,
           start,
           end,
           text: source.slice(start, end),
           fix: lint.fix ? { ...lint.fix, range: fixRange! } : undefined,
+          evidence,
         };
       }),
     };

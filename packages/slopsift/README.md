@@ -50,10 +50,11 @@ repeatable, so AI-style and technical-English checks can run together:
 ```bash
 slopsift manual.md --rulepack asd-ste100
 slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
+slopsift procedure.md --rulepack asd-ste100 --technical-standard-data /local/ASD-STE100_ISSUE9.parsed.json
 slopsift docs/ --rulepack ai-style --rulepack asd-ste100
 ```
 
-The `asd-ste100` alias runs an independent, partial ASD-STE100 Issue 9 check.
+The `asd-ste100` alias runs an independent, partial ASD-STE100 Issue 9 check. If you have an authorized local copy of the standard, `--technical-standard-data` accepts the validated output from the repository's Docling importer and adds conservative dictionary checks. SlopSift reads the file locally and reports its source fingerprint; the package does not contain or redistribute the controlled dictionary.
 It currently automates selected parts of rules 3.6, 4.2, 5.1, 6.3, 6.6, and
 8.1. JSON output includes `standardAssessment`: automated violations produce
 `nonconformant`; a clean automated run produces `review-required`. It cannot

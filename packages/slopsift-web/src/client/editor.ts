@@ -21,6 +21,8 @@ type Filter = 'all' | Lint['severity'];
 type WorkerOutput =
   | { type: 'progress'; stage: string; loaded?: number; total?: number }
   | { type: 'ready' }
+  | { type: 'standard-data-ready'; fingerprint: string }
+  | { type: 'standard-data-error'; message: string }
   | { type: 'result'; id: number; lints: Lint[]; wordCount: number; standardAssessment?: AsdSte100Issue9Assessment }
   | { type: 'error'; id?: number; message: string };
 
@@ -46,6 +48,9 @@ if (app) {
   const modeSelect = required<HTMLSelectElement>('[data-mode]');
   const presetSelect = required<HTMLSelectElement>('[data-rulepack-preset]');
   const fileInput = required<HTMLInputElement>('[data-file-input]');
+  const standardDataControl = required<HTMLElement>('[data-standard-data-control]');
+  const standardDataInput = required<HTMLInputElement>('[data-standard-data-input]');
+  const standardDataStatus = required<HTMLElement>('[data-standard-data-status]');
   const documentLabel = required<HTMLElement>('[data-document-label]');
   const parserState = required<HTMLElement>('[data-parser-state]');
   const parserStateLabel = required<HTMLElement>('[data-parser-state] span');
@@ -360,6 +365,7 @@ if (app) {
     preset = nextPreset;
     presetSelect.value = preset;
     lastAssessment = undefined;
+    standardDataControl.hidden = preset === 'ai-style';
     scheduleSave();
     scheduleLint();
   }
@@ -384,6 +390,13 @@ if (app) {
         parserState.classList.add('is-ready');
         parserStateLabel.textContent = 'Local parser ready';
         lintNow();
+      } else if (message.type === 'standard-data-ready') {
+        standardDataStatus.textContent = `Local dictionary loaded · ${message.fingerprint.slice(0, 18)}…`;
+        standardDataControl.classList.add('is-loaded');
+        lintNow();
+      } else if (message.type === 'standard-data-error') {
+        standardDataStatus.textContent = `Could not load this file: ${message.message}`;
+        standardDataControl.classList.remove('is-loaded');
       } else if (message.type === 'result') {
         if (message.id === requestId && currentText() === sentText && pathForLint() === sentPath && preset === sentPreset) {
           applyResult(message.lints, message.wordCount, message.standardAssessment);
@@ -430,6 +443,17 @@ if (app) {
   filenameInput.addEventListener('blur', () => setFilename(filenameInput.value));
   modeSelect.addEventListener('change', () => setMode(modeSelect.value === 'plain' ? 'plain' : 'markdown'));
   presetSelect.addEventListener('change', () => setPreset(normalizeRulepackPreset(presetSelect.value)));
+  standardDataInput.addEventListener('change', async () => {
+    const file = standardDataInput.files?.[0];
+    if (!file || !worker) return;
+    standardDataStatus.textContent = `Validating ${file.name} locally`;
+    try {
+      worker.postMessage({ type: 'standard-data', text: await file.text() });
+    } catch (error) {
+      standardDataStatus.textContent = `Could not read this file: ${error instanceof Error ? error.message : String(error)}`;
+    }
+    standardDataInput.value = '';
+  });
 
   required<HTMLButtonElement>('[data-new]').addEventListener('click', () => {
     if (currentText().trim() && !window.confirm('Start a new draft? The current version is saved in this browser.')) return;
@@ -503,5 +527,6 @@ if (app) {
   });
 
   renderFindings();
+  standardDataControl.hidden = preset === 'ai-style';
   startWorker();
 }

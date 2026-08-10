@@ -10,6 +10,19 @@ test('Markdown is linted as complete prose', () => {
   assert.equal(inputKind('README.md'), 'prose');
 });
 
+test('Markdown extraction exposes headings and list items as source regions', () => {
+  const source = '# Install the unit\n\nIntroductory text.\n\n1. Disconnect the power.\n2. Remove the cover.';
+  const extracted = extractInput('procedure.md', source);
+  const heading = extracted.regions?.find(({ role }) => role === 'heading');
+  const items = extracted.regions?.filter(({ role }) => role === 'list-item') ?? [];
+  assert.equal(extracted.text.slice(heading?.start, heading?.end), '# Install the unit');
+  assert.deepEqual(items.map(({ start, end }) => extracted.text.slice(start, end)), [
+    '1. Disconnect the power.',
+    '2. Remove the cover.',
+  ]);
+  assert.ok(extracted.regions?.some(({ role }) => role === 'paragraph'));
+});
+
 test('browser-style and URL-like paths resolve without node:path', () => {
   assert.equal(inputKind('C:\\drafts\\post.MD'), 'prose');
   assert.equal(inputKind('/drafts/post.md?mode=edit#section'), 'prose');

@@ -14,6 +14,14 @@ export interface DepToken {
   start: number;
   end: number;
   lemma?: string;
+  /** Parser-neutral Universal Dependencies morphological features. */
+  features?: Readonly<Record<string, string>>;
+  /** Calibrated probabilities when the parser can provide them. */
+  confidence?: {
+    upos?: number;
+    head?: number;
+    deprel?: number;
+  };
 }
 
 export interface ParsedSentence {

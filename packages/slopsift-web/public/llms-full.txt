@@ -10,6 +10,7 @@ npx slopsift "docs/**/*.md"
 npx slopsift . --level info --format json --exit-zero
 npx slopsift manual.md --rulepack asd-ste100
 npx slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
+npx slopsift procedure.md --rulepack asd-ste100 --technical-standard-data /local/ASD-STE100_ISSUE9.parsed.json
 ```
 
 Node.js 20 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
@@ -40,7 +41,7 @@ JSON messages include an ESLint-compatible numeric severity, SlopSift's textual 
 
 ## Rulepacks
 
-The default rulepack is `ai-style`. Use `--rulepack asd-ste100` for an independent, partial ASD-STE100 Issue 9 check. Repeat `--rulepack` to combine checks. The ASD-STE100 result is `nonconformant` when a high-confidence automated violation is present and `review-required` otherwise. It never claims full conformance without the controlled dictionary and human review.
+The default rulepack is `ai-style`. Use `--rulepack asd-ste100` for an independent, partial ASD-STE100 Issue 9 check. Repeat `--rulepack` to combine checks. If you have an authorized local copy, `--technical-standard-data` loads the validated Docling importer output for dictionary checks without redistributing it. The ASD-STE100 result is `nonconformant` when a high-confidence automated violation is present and `review-required` otherwise. It never claims full conformance without human review.
 
 ## Exit codes
 

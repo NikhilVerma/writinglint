@@ -25,6 +25,44 @@ function runWithInput(input: string, ...args: string[]) {
   });
 }
 
+function parsedStandardFixture(): object {
+  const ruleIds = [
+    ...Array.from({ length: 14 }, (_, index) => `1.${index + 1}`),
+    ...Array.from({ length: 2 }, (_, index) => `2.${index + 1}`),
+    ...Array.from({ length: 7 }, (_, index) => `3.${index + 1}`),
+    ...Array.from({ length: 5 }, (_, index) => `4.${index + 1}`),
+    ...Array.from({ length: 5 }, (_, index) => `5.${index + 1}`),
+    ...Array.from({ length: 6 }, (_, index) => `6.${index + 1}`),
+    ...Array.from({ length: 3 }, (_, index) => `7.${index + 1}`),
+    ...Array.from({ length: 7 }, (_, index) => `8.${index + 1}`),
+    ...Array.from({ length: 4 }, (_, index) => `9.${index + 1}`),
+  ];
+  const entry = (headword: string, approved: boolean, index: number) => ({
+    headword,
+    approved,
+    partOfSpeech: approved ? 'noun' : 'verb',
+    formsText: null,
+    source: { ref: `#/tables/${index}`, page: 149 + (index % 275) },
+  });
+  return {
+    schemaVersion: 1,
+    parserVersion: 'cli-test',
+    source: { filename: 'local.pdf', pages: 434, doclingJsonSha256: 'b'.repeat(64) },
+    writingRules: {
+      sections: Array.from({ length: 9 }, (_, index) => ({ number: index + 1 })),
+      rules: ruleIds.map((id) => ({ id })),
+    },
+    dictionary: {
+      stats: { tables: 275, entries: 2190, approvedEntries: 875 },
+      entries: [
+        ...Array.from({ length: 875 }, (_, index) => entry(`APPROVED${index}`, true, index)),
+        entry('utilize', false, 875),
+        ...Array.from({ length: 1314 }, (_, index) => entry(`unapproved${index}`, false, index + 876)),
+      ],
+    },
+  };
+}
+
 test('unmatched patterns fail loudly by default', () => {
   const result = run(missing);
   assert.equal(result.status, 2);
@@ -206,6 +244,44 @@ test('--rulepack requires a value', () => {
   const result = run('--rulepack');
   assert.equal(result.status, 2);
   assert.match(result.stderr, /--rulepack requires a value/);
+});
+
+test('--technical-standard-data validates local parser output and enables dictionary checks', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-ste100-data-'));
+  try {
+    const file = join(directory, 'manual.md');
+    const standard = join(directory, 'parsed-standard.json');
+    writeFileSync(file, 'Utilize the approved tool.');
+    writeFileSync(standard, JSON.stringify(parsedStandardFixture()));
+    const result = run(
+      file,
+      '--rulepack', 'asd-ste100',
+      '--technical-standard-data', standard,
+      '--format', 'json',
+      '--exit-zero',
+    );
+    assert.equal(result.status, 0, result.stderr);
+    const [output] = JSON.parse(result.stdout) as Array<{
+      messages: Array<{ ruleId: string; text: string }>;
+      standardAssessment: {
+        standardData: { loaded: boolean; fingerprint: string };
+        executedRules: string[];
+      };
+    }>;
+    assert.ok(output?.messages.some(({ ruleId, text }) =>
+      ruleId === 'technical-english/dictionary-word-approval' && text === 'Utilize'));
+    assert.equal(output?.standardAssessment.standardData.loaded, true);
+    assert.equal(output?.standardAssessment.standardData.fingerprint, `sha256:${'b'.repeat(64)}`);
+    assert.deepEqual(output?.standardAssessment.executedRules.slice(-2), ['1.1', '1.2']);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('--technical-standard-data cannot silently run without the technical rulepack', () => {
+  const result = run('--technical-standard-data', 'anything.json');
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /requires --rulepack asd-ste100/);
 });
 
 test('compressed technical comment regressions all produce a default warning', () => {

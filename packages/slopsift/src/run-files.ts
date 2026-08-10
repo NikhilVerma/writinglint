@@ -12,6 +12,7 @@ export interface LintFilesOptions {
   level: NonNullable<LintSourceOptions['level']>;
   rulepacks?: readonly NonNullable<LintSourceOptions['rulepacks']>[number][];
   technicalMode?: NonNullable<LintSourceOptions['technicalMode']>;
+  technicalStandardData?: LintSourceOptions['technicalStandardData'];
   explicitlySelectedFiles: ReadonlySet<string>;
   cwd?: string;
   readSource?: (filePath: string) => Promise<string>;
@@ -48,6 +49,7 @@ export async function lintFiles(
         reportEmpty: options.explicitlySelectedFiles.has(file),
         rulepacks: options.rulepacks,
         technicalMode: options.technicalMode,
+        technicalStandardData: options.technicalStandardData,
       });
       if (report) results.push(makeResult(
         label,
