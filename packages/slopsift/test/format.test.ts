@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { Lint } from 'writinglint-core';
-import { github, jsonResult, makeResult, stylish } from '../src/format.js';
+import { compact, github, jsonResult, makeResult, stylish } from '../src/format.js';
 
 const lint = (severity: Lint['severity'], confidence: Lint['confidence'], start: number): Lint => ({
   ruleId: `ai-style/${severity}`,
@@ -51,4 +51,22 @@ test('GitHub output emits escaped workflow annotations', () => {
     github([result]),
     '::warning file=docs/draft%2Cone.md,line=1,col=1,endLine=1,endColumn=5,title=ai-style/test%3Arule::First line%0Asecond line',
   );
+});
+
+test('compact output groups every finding by rule without source locations', () => {
+  const first = makeResult('one.md', 'slop slop', [
+    lint('warn', 'medium', 0),
+    lint('warn', 'medium', 5),
+  ]);
+  const second = makeResult('two.md', 'slop', [lint('error', 'high', 0)]);
+  const output = compact([first, second]);
+  assert.match(output, /^3 findings in 2 rule groups\./);
+  assert.match(output, /ai-style\/warn \[warning\] ×2/);
+  assert.match(output, /Examples: one\.md: “slop”/);
+  assert.match(output, /ai-style\/error \[error\] ×1/);
+  assert.doesNotMatch(output, /:\d+:\d+/);
+});
+
+test('compact output stays empty when there are no findings', () => {
+  assert.equal(compact([makeResult('clean.md', 'Clear text.', [])]), '');
 });

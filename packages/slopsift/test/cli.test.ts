@@ -56,6 +56,26 @@ test('GitHub format emits native annotations for CI', () => {
   assert.match(result.stdout, /::error file=.*high-confidence\.md,line=\d+,col=\d+,endLine=\d+,endColumn=\d+,title=ai-style\//);
 });
 
+test('normal linting accepts compact as a format and as feedback', () => {
+  for (const args of [['--format', 'compact'], ['--feedback', 'compact']]) {
+    const result = run(sloppy, '--level', 'error', '--exit-zero', ...args);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /finding(?:s)? in \d+ rule group/);
+    assert.match(result.stdout, /ai-style\/.+ \[error\] ×\d+/);
+    assert.doesNotMatch(result.stdout, /:\d+:\d+/);
+  }
+});
+
+test('text and legacy stylish formats produce the normal readable report', () => {
+  for (const format of ['text', 'stylish', 'detailed']) {
+    const flag = format === 'detailed' ? '--feedback' : '--format';
+    const result = run(sloppy, '--level', 'error', '--exit-zero', flag, format);
+    assert.equal(result.status, 0, result.stderr);
+    assert.match(result.stdout, /high-confidence\.md/);
+    assert.match(result.stdout, /\d+:\d+/);
+  }
+});
+
 test('--rulepack reader-first selects reader-load and jargon checks', () => {
   const directory = mkdtempSync(join(tmpdir(), 'slopsift-reader-first-'));
   try {
