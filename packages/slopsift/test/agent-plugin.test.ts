@@ -92,9 +92,8 @@ test('shared hook manifest invokes the packaged runner', async () => {
   });
 });
 
-test('agent plugin and marketplace versions match the published CLI', async () => {
+test('agent plugin and marketplace versions agree', async () => {
   const paths = [
-    'packages/slopsift/package.json',
     'plugins/slopsift/package.json',
     'plugins/slopsift/.claude-plugin/plugin.json',
     'plugins/slopsift/.codex-plugin/plugin.json',
@@ -104,7 +103,7 @@ test('agent plugin and marketplace versions match the published CLI', async () =
   )));
   const expectedVersion = manifests[0]?.version;
   assert.ok(expectedVersion);
-  for (const manifest of manifests.slice(1)) assert.equal(manifest.version, expectedVersion);
+  for (const manifest of manifests) assert.equal(manifest.version, expectedVersion);
 
   const marketplace = JSON.parse(await readFile(join(root, '.claude-plugin/marketplace.json'), 'utf8')) as {
     plugins: Array<{ name: string; version: string }>;

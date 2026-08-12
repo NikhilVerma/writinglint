@@ -479,6 +479,16 @@
   .surface-link { text-decoration: underline; text-underline-offset: 4px; }
   .surface-link:hover { color: var(--red); }
 
+  .agent-setup { display: grid; grid-template-columns: minmax(250px, .7fr) minmax(0, 1.3fr); gap: clamp(36px, 7vw, 100px); align-items: start; margin-top: 80px; border-top: 1px solid var(--ink); padding-top: 58px; }
+  .agent-setup__intro h3 { max-width: 470px; font-size: clamp(34px, 4.2vw, 62px); letter-spacing: -.055em; line-height: .98; }
+  .agent-setup__intro p { max-width: 440px; margin-top: 24px; color: var(--muted); font-size: 17px; }
+  .agent-prompt { border: 1px solid var(--ink); background: var(--paper-raised); }
+  .agent-prompt__bar { min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line); padding-inline: 18px; color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .04em; text-transform: uppercase; }
+  .agent-prompt > p { padding: clamp(24px, 4vw, 42px); font-family: var(--mono); font-size: clamp(14px, 1.35vw, 18px); line-height: 1.65; overflow-wrap: anywhere; }
+  .agent-prompt button { width: 100%; min-height: 52px; border: 0; border-top: 1px solid var(--ink); padding-inline: 20px; background: var(--ink); color: var(--paper); cursor: pointer; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .04em; text-align: left; text-transform: uppercase; }
+  .agent-prompt button:hover { background: var(--red-dark); }
+  .agent-prompt button:active { transform: translateY(1px); }
+
   .manifesto { display: grid; grid-template-columns: .48fr 1.52fr; gap: 60px; border-top: 1px solid var(--ink); padding-block: 110px 150px; }
   .manifesto__aside { color: var(--red-dark); font-family: var(--mono); font-size: 12px; }
   .manifesto h2 span { color: var(--red); }
@@ -727,7 +737,7 @@
     .hero { grid-template-columns: 1fr; padding-top: 58px; }
     .hero__summary { max-width: 650px; }
     .lint-demo { width: calc(100% - 14px); max-width: 880px; margin: 18px 14px 0 0; }
-    .section-heading, .method, .install { grid-template-columns: 1fr; }
+    .section-heading, .method, .agent-setup, .install { grid-template-columns: 1fr; }
     .section-heading > p:last-child { margin-top: 24px; }
     .method { gap: 55px; }
     .model-story { grid-template-columns: 1fr; gap: 50px; }
@@ -764,6 +774,8 @@
     .draft-stamp { right: 18px; }
     .rule-ticker { justify-content: flex-start; }
     .surfaces { padding-block: 100px; }
+    .agent-setup { margin-top: 60px; padding-top: 44px; }
+    .agent-prompt__bar { align-items: flex-start; flex-direction: column; gap: 2px; padding-block: 11px; }
     .section-heading { display: block; }
     .section-heading h2 { margin-top: 18px; }
     .demo-controls { align-items: flex-start; flex-direction: column; gap: 6px; }

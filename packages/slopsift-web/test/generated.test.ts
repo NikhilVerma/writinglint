@@ -56,3 +56,14 @@ test('agent discovery files link to the machine contracts', async () => {
   assert.match(full, /Running the command directly does not install a hook/);
   assert.match(full, /start a new session/i);
 });
+
+test('homepage gives people one complete instruction for coding-agent setup', async () => {
+  const page = await readFile(fileURLToPath(new URL('../src/pages/index.astro', import.meta.url)), 'utf8');
+  assert.match(page, /Paste this into your coding agent\./);
+  assert.match(page, /data-copy=\{agentSetupInstruction\}/);
+  assert.match(page, /Follow https:\/\/slopsift\.dev\/llms\.txt/);
+
+  const markdown = await readFile(fileURLToPath(new URL('../public/markdown/index.md', import.meta.url)), 'utf8');
+  assert.match(markdown, /## Set up automatic agent rewrites/);
+  assert.match(markdown, /preserve my existing settings, and test the hook after installation/);
+});

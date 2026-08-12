@@ -547,6 +547,12 @@ SlopSift finds recognizable AI-writing habits in Markdown, prose, HTML, and sour
 - [Install from npm](https://www.npmjs.com/package/slopsift)
 - [View the source](${REPOSITORY})
 
+## Set up automatic agent rewrites
+
+Paste this instruction into Claude Code or Codex:
+
+> Set up SlopSift as a user-level Stop hook for Claude Code and/or Codex. Follow ${SITE}/llms.txt, preserve my existing settings, and test the hook after installation.
+
 SlopSift checks writing patterns. It does not determine who or what wrote a document.
 `,
   'docs.md': fullReference,
