@@ -92,6 +92,30 @@ test('Stop hook allows a clean response and clears retry state', async () => {
   }
 });
 
+test('Stop hook forwards rulepack and technical-language options to every evidence source', async () => {
+  const seen: Array<Record<string, unknown>> = [];
+  const observingEngine = {
+    async lintSource(_filePath: string, _source: string, options: Record<string, unknown>) {
+      seen.push(options);
+      return { kind: 'prose' as const, lints: [], wordCount: 4 };
+    },
+  };
+  const technicalStandardData = { marker: 'local-standard' } as never;
+  await runStopHook(observingEngine, event({
+    last_assistant_message: 'Open the access panel.',
+  }), {
+    rulepacks: ['ai-style', 'asd-ste100'],
+    technicalMode: 'procedural',
+    technicalStandardData,
+  });
+  assert.deepEqual(seen, [{
+    level: 'warning',
+    rulepacks: ['ai-style', 'asd-ste100'],
+    technicalMode: 'procedural',
+    technicalStandardData,
+  }]);
+});
+
 test('Stop hook blocks with concise findings and caps correction retries', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'slopsift-stop-retry-'));
   try {

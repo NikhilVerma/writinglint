@@ -5,7 +5,13 @@ import { join, relative } from 'node:path';
 import type { Lint } from 'writinglint-core';
 import { readCurrentTurnTranscript } from './agent-transcript.js';
 import { listDirtyGitFiles } from './git-dirty.js';
-import type { LintSourceOptions, MinimumLevel, SlopSiftResult } from './index.js';
+import type {
+  LintSourceOptions,
+  MinimumLevel,
+  RulepackName,
+  SlopSiftResult,
+  TechnicalEnglishMode,
+} from './index.js';
 
 export interface StopHookEvent {
   session_id: string;
@@ -25,6 +31,9 @@ export interface StopHookOutput {
 
 export interface StopHookOptions {
   level?: MinimumLevel;
+  rulepacks?: readonly RulepackName[];
+  technicalMode?: TechnicalEnglishMode;
+  technicalStandardData?: LintSourceOptions['technicalStandardData'];
   maxRetries?: number;
   maxFindings?: number;
   stateDirectory?: string;
@@ -183,10 +192,10 @@ async function lintEvidence(
   label: string,
   filePath: string,
   source: string,
-  level: MinimumLevel,
+  lintOptions: LintSourceOptions,
   kind: EvidenceLint['kind'],
 ): Promise<EvidenceLint[]> {
-  const result = await engine.lintSource(filePath, source, { level });
+  const result = await engine.lintSource(filePath, source, lintOptions);
   return (result?.lints ?? []).map((lint) => ({ label, source, lint, kind }));
 }
 
@@ -204,6 +213,12 @@ export async function runStopHook(
   const maxFindings = options.maxFindings ?? DEFAULT_MAX_FINDINGS;
   const maxDirtyFiles = options.maxDirtyFiles ?? DEFAULT_MAX_DIRTY_FILES;
   const maxTranscriptMessages = options.maxTranscriptMessages ?? DEFAULT_MAX_TRANSCRIPT_MESSAGES;
+  const lintOptions: LintSourceOptions = {
+    level,
+    rulepacks: options.rulepacks,
+    technicalMode: options.technicalMode,
+    technicalStandardData: options.technicalStandardData,
+  };
   if (!Number.isInteger(maxRetries) || maxRetries < 0) throw new Error('maxRetries must be a non-negative integer');
   if (!Number.isInteger(maxFindings) || maxFindings < 1) throw new Error('maxFindings must be a positive integer');
   if (!Number.isInteger(maxDirtyFiles) || maxDirtyFiles < 1) throw new Error('maxDirtyFiles must be a positive integer');
@@ -215,7 +230,7 @@ export async function runStopHook(
   const limits: string[] = [];
   const response = event.last_assistant_message?.trim() ?? '';
   if (response) {
-    evidence.push(...await lintEvidence(engine, 'assistant response', 'assistant-response.md', response, level, 'response'));
+    evidence.push(...await lintEvidence(engine, 'assistant response', 'assistant-response.md', response, lintOptions, 'response'));
   }
 
   if (options.includeTranscript) {
@@ -232,7 +247,7 @@ export async function runStopHook(
         `${transcriptPath}#record-${message.record}`,
         'assistant-transcript.md',
         message.text,
-        level,
+        lintOptions,
         'transcript',
       ));
     }
@@ -247,7 +262,7 @@ export async function runStopHook(
     }
     for (const file of selected) {
       const source = await readFile(file, 'utf8');
-      evidence.push(...await lintEvidence(engine, relative(dirty.root, file), file, source, level, 'dirty-file'));
+      evidence.push(...await lintEvidence(engine, relative(dirty.root, file), file, source, lintOptions, 'dirty-file'));
     }
   }
 

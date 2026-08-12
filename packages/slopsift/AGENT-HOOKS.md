@@ -222,6 +222,9 @@ transcript options above. Run `slopsift hook stop --help` for the complete list.
 The plugin runner maps these environment variables to CLI options:
 
 - `SLOPSIFT_HOOK_LEVEL=warning|error`
+- `SLOPSIFT_HOOK_RULEPACKS=ai-style,asd-ste100`
+- `SLOPSIFT_HOOK_TECHNICAL_MODE=descriptive|procedural`
+- `SLOPSIFT_HOOK_TECHNICAL_STANDARD_DATA=/local/ASD-STE100_ISSUE9.parsed.json`
 - `SLOPSIFT_HOOK_MAX_RETRIES`
 - `SLOPSIFT_HOOK_MAX_FINDINGS`
 - `SLOPSIFT_HOOK_INCLUDE_DIRTY=1`
@@ -235,6 +238,38 @@ The plugin runner maps these environment variables to CLI options:
 The plugin never blocks on informational findings. Setting
 `SLOPSIFT_HOOK_LEVEL=info` therefore keeps the normal warning threshold. The
 standalone CLI still accepts `--level info` for manual editorial review.
+
+To check both AI-style habits and Simplified Technical English in every agent
+response, select both rulepacks. Add `--technical-standard-data` when you have
+parsed your own licensed copy of Issue 9; SlopSift validates and reads that file
+locally:
+
+```bash
+npx slopsift@latest hook stop \
+  --rulepack ai-style \
+  --rulepack asd-ste100 \
+  --technical-standard-data /local/ASD-STE100_ISSUE9.parsed.json
+```
+
+## Give the setup to another agent
+
+Paste this instruction into Claude Code or Codex:
+
+```text
+Install SlopSift as a user-scoped Stop hook for every local repository. Detect
+whether Claude Code, Codex, or both are installed. Preserve all existing
+settings and merge, rather than replace, their Stop hooks in
+~/.claude/settings.json and ~/.codex/hooks.json. Run this command from the hook:
+
+npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack asd-ste100 --technical-mode descriptive
+
+If I provide a local ASD-STE100 Issue 9 parsed JSON file, append
+--technical-standard-data with its absolute path. Do not enable dirty-tree or
+transcript checks unless I request them. Before editing settings, confirm that
+`slopsift hook stop --help` lists the rulepack options. Validate the resulting
+JSON, exercise one known-bad Stop event and one clean rewrite, and tell me to
+start a new agent session and approve the hook if the client asks for trust.
+```
 
 `PLUGIN_DATA` or `CLAUDE_PLUGIN_DATA` is used for bounded-retry state when the
 host provides it. Otherwise the command uses a hashed session key in the

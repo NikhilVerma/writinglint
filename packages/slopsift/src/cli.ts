@@ -69,6 +69,10 @@ Usage:
 
 Options:
   --level info|warning|error          Minimum level that requests a rewrite (default: warning)
+  --rulepack ai-style|asd-ste100      Select a rulepack (repeatable; default: ai-style)
+  --technical-mode descriptive|procedural
+                                      Text type for asd-ste100 (default: descriptive)
+  --technical-standard-data <file>    Load local parsed Issue 9 data for dictionary checks
   --max-retries <n>                   Automatic rewrite requests before fail-open (default: 2)
   --max-findings <n>                  Findings included in revision feedback (default: 5)
   --include-dirty                     Also lint prose in modified and untracked Git files
@@ -115,6 +119,9 @@ interface Options {
 
 interface HookOptions {
   level: MinimumLevel;
+  rulepacks: RulepackName[];
+  technicalMode: TechnicalEnglishMode;
+  technicalStandardData?: string;
   maxRetries: number;
   maxFindings: number;
   includeDirty: boolean;
@@ -185,6 +192,8 @@ function parseHook(argv: string[]): HookOptions | 'help' {
   if (argv[0] !== 'stop') throw new Error('expected hook type "stop"');
   const options: HookOptions = {
     level: 'warning',
+    rulepacks: [],
+    technicalMode: 'descriptive',
     maxRetries: 2,
     maxFindings: 5,
     includeDirty: false,
@@ -206,6 +215,9 @@ function parseHook(argv: string[]): HookOptions | 'help' {
     else if (arg === '--include-dirty') options.includeDirty = true;
     else if (arg === '--include-transcript') options.includeTranscript = true;
     else if (arg === '--level') options.level = nextValue() as MinimumLevel;
+    else if (arg === '--rulepack') options.rulepacks.push(nextValue() as RulepackName);
+    else if (arg === '--technical-mode') options.technicalMode = nextValue() as TechnicalEnglishMode;
+    else if (arg === '--technical-standard-data') options.technicalStandardData = nextValue();
     else if (arg === '--max-retries') options.maxRetries = Number(nextValue());
     else if (arg === '--max-findings') options.maxFindings = Number(nextValue());
     else if (arg === '--max-dirty-files') options.maxDirtyFiles = Number(nextValue());
@@ -217,6 +229,13 @@ function parseHook(argv: string[]): HookOptions | 'help' {
     else throw new Error(`unknown hook option: ${arg}`);
   }
   if (!['info', 'warning', 'error'].includes(options.level)) throw new Error(`unknown level: ${options.level}`);
+  if (options.rulepacks.some((rulepack) => !['ai-style', 'asd-ste100'].includes(rulepack))) {
+    throw new Error(`unknown rulepack: ${options.rulepacks.find((rulepack) => !['ai-style', 'asd-ste100'].includes(rulepack))}`);
+  }
+  if (!['descriptive', 'procedural'].includes(options.technicalMode)) throw new Error(`unknown technical mode: ${options.technicalMode}`);
+  if (options.technicalStandardData && !options.rulepacks.includes('asd-ste100')) {
+    throw new Error('--technical-standard-data requires --rulepack asd-ste100');
+  }
   if (!Number.isInteger(options.maxRetries) || options.maxRetries < 0) throw new Error('--max-retries must be a non-negative integer');
   if (!Number.isInteger(options.maxFindings) || options.maxFindings < 1) throw new Error('--max-findings must be a positive integer');
   if (!Number.isInteger(options.maxDirtyFiles) || options.maxDirtyFiles < 1) throw new Error('--max-dirty-files must be a positive integer');
@@ -224,6 +243,7 @@ function parseHook(argv: string[]): HookOptions | 'help' {
   if (options.transcriptPath === '') throw new Error('--transcript-path must not be empty');
   if (options.cwd === '') throw new Error('--cwd must not be empty');
   if (!options.stateDirectory) throw new Error('--state-dir must not be empty');
+  if (!options.rulepacks.length) options.rulepacks.push('ai-style');
   return options;
 }
 
@@ -395,6 +415,11 @@ async function runHook(argv: string[]): Promise<void> {
 
   try {
     const event = parseStopHookEvent(JSON.parse(readFileSync(0, 'utf8')) as unknown);
+    let technicalStandardData: AsdSte100Issue9StandardData | undefined;
+    if (options.technicalStandardData) {
+      const path = resolve(options.technicalStandardData);
+      technicalStandardData = parseAsdSte100Issue9StandardData(JSON.parse(readFileSync(path, 'utf8')));
+    }
     const slopsift = await createSlopSift({
       explicit: options.model,
       download: options.download,
@@ -402,6 +427,9 @@ async function runHook(argv: string[]): Promise<void> {
     });
     const output = await runStopHook(slopsift, event, {
       level: options.level,
+      rulepacks: options.rulepacks,
+      technicalMode: options.technicalMode,
+      technicalStandardData,
       maxRetries: options.maxRetries,
       maxFindings: options.maxFindings,
       stateDirectory: options.stateDirectory,
