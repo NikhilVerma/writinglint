@@ -119,3 +119,51 @@ export function stylish(results: Result[]): string {
   if (total) blocks.push(ansi('1', `✖ ${total} finding${total === 1 ? '' : 's'} (${errors} error${errors === 1 ? '' : 's'}, ${warnings} warning${warnings === 1 ? '' : 's'}, ${infos} info)`));
   return blocks.join('\n\n');
 }
+
+interface CompactGroup {
+  ruleId: string;
+  severity: Message['severity'];
+  messages: Array<{ filePath: string; message: Message }>;
+}
+
+/** Dense, location-free output for agents and other context-constrained consumers. */
+export function compact(results: Result[]): string {
+  const groups = new Map<string, CompactGroup>();
+  const filesWithFindings = results.filter((result) => result.messages.length);
+  for (const result of filesWithFindings) {
+    for (const message of result.messages) {
+      const key = `${message.severity}\0${message.ruleId}`;
+      const group = groups.get(key);
+      if (group) group.messages.push({ filePath: result.filePath, message });
+      else groups.set(key, {
+        ruleId: message.ruleId,
+        severity: message.severity,
+        messages: [{ filePath: result.filePath, message }],
+      });
+    }
+  }
+  const findings = [...groups.values()].reduce((total, group) => total + group.messages.length, 0);
+  if (!findings) return '';
+  const showFiles = filesWithFindings.length > 1;
+  const lines = [
+    `${findings} finding${findings === 1 ? '' : 's'} in ${groups.size} rule group${groups.size === 1 ? '' : 's'}.`,
+  ];
+  for (const group of groups.values()) {
+    const first = group.messages[0]!.message;
+    const message = first.message.replace(/\s+/g, ' ').trim();
+    const concise = message.length > 140 ? `${message.slice(0, 139)}…` : message;
+    const severity = group.severity === 'warn' ? 'warning' : group.severity;
+    lines.push(`${group.ruleId} [${severity}] ×${group.messages.length} — ${concise}`);
+    const examples = [...new Set(group.messages.map(({ filePath, message: finding }) => {
+      const text = finding.text.replace(/\s+/g, ' ').trim();
+      if (!text || text.length === 1) return '';
+      const excerpt = text.length > 60 ? `${text.slice(0, 59)}…` : text;
+      return `${showFiles ? `${filePath}: ` : ''}“${excerpt}”`;
+    }).filter(Boolean))].slice(0, 3);
+    const remaining = group.messages.length - examples.length;
+    if (examples.length) {
+      lines.push(`  Examples: ${examples.join('; ')}${remaining > 0 ? `; +${remaining} more` : ''}`);
+    }
+  }
+  return lines.join('\n');
+}

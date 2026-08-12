@@ -340,6 +340,7 @@ SlopSift ${packageJson.version} is a deterministic, local-first linter for recog
 \`\`\`sh
 bunx slopsift .
 npx slopsift "docs/**/*.md"
+npx slopsift . --format compact --exit-zero
 npx slopsift . --level info --format json --exit-zero
 npx slopsift . --rulepack ai-style --rulepack reader-first
 \`\`\`
@@ -363,7 +364,8 @@ Node.js 20 or newer is required. The npm package includes the compact parser wei
 
 ## Output formats
 
-- \`stylish\`: human-readable terminal report.
+- \`text\`: human-readable terminal report. \`stylish\` remains an alias.
+- \`compact\`: all rule groups and counts with short examples and no source locations. \`--feedback compact\` is an alias.
 - \`json\`: one JSON array. See [schema](${SITE}/schemas/slopsift-result-v1.schema.json).
 - \`json-lines\`: one file result per line, following \`$defs.fileResult\` in the schema.
 - \`github\`: GitHub Actions workflow annotations.

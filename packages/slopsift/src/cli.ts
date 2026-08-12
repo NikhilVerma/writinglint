@@ -16,7 +16,7 @@ import {
   type RulepackName,
 } from './index.js';
 import { findFiles } from './files.js';
-import { github, jsonResult, stylish } from './format.js';
+import { compact, github, jsonResult, stylish } from './format.js';
 import { lintFiles } from './run-files.js';
 import {
   defaultStopHookStateDirectory,
@@ -36,7 +36,9 @@ Usage:
   bunx slopsift .                    Lint the current project
 
 Options:
-  --format, -f stylish|json|json-lines|github
+  --format, -f text|compact|json|json-lines|github
+  --feedback text|compact|json|json-lines|github
+                                      Alias for --format
   --json                              Alias for --format json
   --ext .md,.txt,.ts                  Extensions to include
   --ignore-pattern <glob>             Additional ignore pattern (repeatable)
@@ -96,8 +98,10 @@ Options:
 Doctor is read-only. It can confirm that a plugin is installed and enabled, but
 the host may still require hook trust or a restart before the first live turn.`;
 
+type OutputFormat = 'text' | 'compact' | 'json' | 'json-lines' | 'github';
+
 interface Options {
-  patterns: string[]; format: 'stylish' | 'json' | 'json-lines' | 'github'; extensions?: string[];
+  patterns: string[]; format: OutputFormat; extensions?: string[];
   ignores: string[]; noIgnore: boolean; quiet: boolean; maxWarnings: number;
   model?: string; download: boolean; level: 'info' | 'warning' | 'error';
   errorOnUnmatchedPattern: boolean;
@@ -131,7 +135,7 @@ interface AgentOptions {
 }
 
 function parse(argv: string[]): Options | 'help' | 'version' {
-  const options: Options = { patterns: [], format: 'stylish', ignores: [], noIgnore: false, quiet: false, maxWarnings: -1, download: true, level: 'warning', errorOnUnmatchedPattern: true, exitZero: false, rulepacks: [] };
+  const options: Options = { patterns: [], format: 'text', ignores: [], noIgnore: false, quiet: false, maxWarnings: -1, download: true, level: 'warning', errorOnUnmatchedPattern: true, exitZero: false, rulepacks: [] };
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index]!;
     const nextValue = (): string => {
@@ -147,7 +151,10 @@ function parse(argv: string[]): Options | 'help' | 'version' {
     else if (arg === '--quiet') options.quiet = true;
     else if (arg === '--exit-zero') options.exitZero = true;
     else if (arg === '--no-download') options.download = false;
-    else if (arg === '-f' || arg === '--format') options.format = argv[++index] as Options['format'];
+    else if (arg === '-f' || arg === '--format' || arg === '--feedback') {
+      const format = nextValue();
+      options.format = (format === 'stylish' || format === 'detailed' ? 'text' : format) as OutputFormat;
+    }
     else if (arg === '--ext') options.extensions = (argv[++index] ?? '').split(',').filter(Boolean);
     else if (arg === '--ignore-pattern') options.ignores.push(argv[++index] ?? '');
     else if (arg === '--max-warnings') options.maxWarnings = Number(argv[++index]);
@@ -157,7 +164,7 @@ function parse(argv: string[]): Options | 'help' | 'version' {
     else if (arg.startsWith('-')) throw new Error(`unknown option: ${arg}`);
     else options.patterns.push(arg);
   }
-  if (!['stylish', 'json', 'json-lines', 'github'].includes(options.format)) throw new Error(`unknown format: ${options.format}`);
+  if (!['text', 'compact', 'json', 'json-lines', 'github'].includes(options.format)) throw new Error(`unknown format: ${options.format}`);
   if (!['info', 'warning', 'error'].includes(options.level)) throw new Error(`unknown level: ${options.level}`);
   if (options.rulepacks.some((rulepack) => !['ai-style', 'reader-first'].includes(rulepack))) {
     throw new Error(`unknown rulepack: ${options.rulepacks.find((rulepack) => !['ai-style', 'reader-first'].includes(rulepack))}`);
@@ -445,7 +452,7 @@ async function run(): Promise<void> {
     const slopsift = await createSlopSift({
       explicit: options.model,
       download: options.download,
-      onProgress: (message) => { if (options.format === 'stylish') console.error(message); },
+      onProgress: (message) => { if (options.format === 'text') console.error(message); },
     });
     const level: MinimumLevel = options.quiet ? 'error' : options.level;
     const explicitlySelectedFiles = new Set(options.patterns.map((pattern) => resolve(pattern)));
@@ -457,6 +464,7 @@ async function run(): Promise<void> {
     if (options.format === 'json') console.log(JSON.stringify(results.map(jsonResult), null, 2));
     else if (options.format === 'json-lines') for (const result of results) console.log(JSON.stringify(jsonResult(result)));
     else if (options.format === 'github') { const output = github(results); if (output) console.log(output); }
+    else if (options.format === 'compact') { const output = compact(results); if (output) console.log(output); }
     else { const output = stylish(results); if (output) console.log(output); }
     const warnings = results.reduce((sum, result) => sum + result.warningCount, 0);
     const errors = results.reduce((sum, result) => sum + result.errorCount, 0);
