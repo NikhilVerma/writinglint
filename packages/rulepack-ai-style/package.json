@@ -1,6 +1,6 @@
 {
   "name": "writinglint-rulepack-ai-style",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "AI-writing-style rulepack for the WritingLint grammar linter: authorable rules over the dependency graph, plus a stylometric document scorer.",
   "type": "module",
   "license": "MIT",
@@ -52,10 +52,10 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "writinglint-core": "^0.1.1"
+    "writinglint-core": "^0.2.0"
   },
   "devDependencies": {
-    "writinglint-parser-node": "^0.1.1"
+    "writinglint-parser-node": "^0.2.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

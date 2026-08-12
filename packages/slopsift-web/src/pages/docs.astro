@@ -4,9 +4,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 
 const flags = [
   ['--level info|warning|error', 'Choose the minimum finding level. The default is warning.'],
-  ['--rulepack ai-style|asd-ste100', 'Choose a writing policy. Repeat the flag to run both rulepacks.'],
-  ['--technical-mode descriptive|procedural', 'Choose the ASD-STE100 text type. The default is descriptive.'],
-  ['--technical-standard-data <file>', 'Load validated local Issue 9 parser output for dictionary checks.'],
+  ['--rulepack ai-style|reader-first', 'Choose a writing policy. Repeat the flag to run both rulepacks.'],
   ['--quiet', 'Show errors only. Equivalent to --level error.'],
   ['--format stylish|json|json-lines|github', 'Choose terminal, machine-readable, or GitHub annotation output.'],
   ['--ext .md,.txt,.ts', 'Limit the file extensions SlopSift reads.'],
@@ -21,6 +19,14 @@ const flags = [
 const quickStart = `bunx slopsift .
 bunx slopsift "docs/**/*.md" "src/**/*.{ts,tsx}"
 npx slopsift . --level info`;
+const agentCommand = `npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack reader-first --feedback compact`;
+const apiExample = `import { createSlopSift } from 'slopsift';
+
+const slopsift = await createSlopSift();
+const result = await slopsift.lintSource('draft.md', text, {
+  rulepacks: ['ai-style', 'reader-first'],
+  level: 'warning',
+});`;
 const ciExamples = `# High-confidence findings only
 bunx slopsift . --quiet
 
@@ -55,6 +61,8 @@ const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=Nikh
       <a href="#findings">Findings and output</a>
       <a href="#flags">CLI flags</a>
       <a href="#ci">Using it in CI</a>
+      <a href="#api">In-process API</a>
+      <a href="#stop-hook">Agent stop hook</a>
       <a href="#agent-skill">Agent skill</a>
       <a href="#model">The parser model</a>
     </nav>
@@ -71,8 +79,8 @@ const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=Nikh
       <section id="browser-editor">
         <p class="docs-index">Browser editor</p>
         <h2>Choose the rules before you edit.</h2>
-        <p>The homepage demo and the full editor include a Rules dropdown. Choose AI style, ASD-STE100 descriptive, or ASD-STE100 procedural. The selected rules and parser run locally in the browser.</p>
-        <p>The ASD-STE100 choices run an independent, partial Issue 9 check. If you have an authorized local copy, you can load the importer output to add dictionary checks without uploading the file. A detected error reports <code>nonconformant</code>. A run without automated errors remains <code>review-required</code> because meaning-based rules still need human review.</p>
+        <p>The homepage demo and the full editor include a Rules dropdown. Choose AI style, reader-first, or both. The selected rules and parser run locally in the browser.</p>
+        <p>Reader-first borrows general simplified-technical-writing techniques: introduce terms, expose relationships, keep the main point visible, and remove ornament that does not help the reader. It does not ship an external controlled dictionary or claim compliance with an external standard.</p>
         <a class="docs-source-link" href="/editor/">Open the local browser editor →</a>
       </section>
 
@@ -117,6 +125,21 @@ const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=Nikh
           </table>
         </div>
         <p>Run <code>slopsift --help</code> for the canonical list shipped with your installed version.</p>
+      </section>
+
+      <section id="api">
+        <p class="docs-index">API</p>
+        <h2>Use the same engine inside your tool.</h2>
+        <pre><code>{apiExample}</code></pre>
+        <p>Reuse one instance so the local parser stays loaded. Each finding includes an exact source range.</p>
+      </section>
+
+      <section id="stop-hook">
+        <p class="docs-index">Stop hook</p>
+        <h2>Make the agent fix its answer before it stops.</h2>
+        <pre><code>{agentCommand}</code></pre>
+        <p>Put this command in a Claude Code or Codex Stop hook. It reads the hook event from standard input and writes one JSON decision. Compact feedback groups duplicate findings, omits response locations already present in the model context, and shows up to 100 findings by default.</p>
+        <p>An agent can use this page as its setup source. Ask it to open <code>https://slopsift.dev/docs/</code>, install the user-level Stop hook for its host, use both rulepacks, and run a live reject-then-accept test.</p>
       </section>
 
       <section id="ci">

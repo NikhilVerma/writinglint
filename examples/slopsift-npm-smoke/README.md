@@ -9,7 +9,7 @@ npm run smoke:packed
 ```
 
 The fixture verifies the installed CLI, the transitive bundled parser, offline
-execution, JSON output, lexical and structural rules, the ASD-STE100 rulepack,
+execution, JSON output, lexical and structural rules, the reader-first rulepack,
 and the literal construction exemption. CI copies this directory into a fresh temporary directory before
 installing, so parent workspaces and existing `node_modules` cannot affect it.
 `npm run smoke:published` switches the same fixture to the exact registry

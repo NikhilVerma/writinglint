@@ -6,15 +6,8 @@ import {
   profileFor,
   type ProfileName,
   type RulepackName,
-  type TechnicalEnglishMode,
 } from './profiles.js';
 import { countWords } from './format.js';
-import {
-  asdSte100TerminologyProvider,
-  assessAsdSte100Issue9,
-  type AsdSte100Issue9StandardData,
-  type AsdSte100Issue9Assessment,
-} from 'writinglint-rulepack-technical-english';
 
 export type MinimumLevel = 'info' | 'warning' | 'error';
 
@@ -30,21 +23,13 @@ export interface LintSourceOptions {
   reportEmpty?: boolean;
   /** Rulepacks to run. Defaults to SlopSift's AI-style pack. */
   rulepacks?: readonly RulepackName[];
-  /** ASD-STE100 text type. Descriptive text is the default. */
-  technicalMode?: TechnicalEnglishMode;
-  /** Locally supplied, parser-validated Issue 9 data. SlopSift never uploads it. */
-  technicalStandardData?: AsdSte100Issue9StandardData;
 }
-
-export type StandardAssessment = AsdSte100Issue9Assessment;
 
 export interface SlopSiftResult {
   kind: InputKind;
   lints: Lint[];
   /** Words in the extracted prose/comments that were actually analyzed. */
   wordCount: number;
-  /** Present when an ASD-STE100 check was requested. */
-  standardAssessment?: StandardAssessment;
 }
 
 const profileForLevel = (level: MinimumLevel): ProfileName =>
@@ -86,9 +71,6 @@ export class SlopSift {
         kind,
         wordCount,
         lints,
-        standardAssessment: rulepacks.includes('asd-ste100')
-          ? assessAsdSte100Issue9(lints, { standardData: options.technicalStandardData })
-          : undefined,
       };
     }
     const profile = profileForLevel(options.level ?? 'warning');
@@ -96,23 +78,15 @@ export class SlopSift {
       kind,
       profile,
       rulepacks,
-      options.technicalMode,
-      options.technicalStandardData,
     ));
     const { lints } = await this.linter.lint(extracted.text, config, {
       language: extracted.language,
       regions: extracted.regions,
       annotations: extracted.annotations,
-      services: options.technicalStandardData
-        ? { terminology: asdSte100TerminologyProvider(options.technicalStandardData) }
-        : undefined,
     });
     return {
       kind,
       wordCount,
-      standardAssessment: rulepacks.includes('asd-ste100')
-        ? assessAsdSte100Issue9(lints, { standardData: options.technicalStandardData })
-        : undefined,
       lints: lints.map((lint) => {
         const [start, end] = extracted.sourceRange(lint.start, lint.end);
         const fixRange = lint.fix ? extracted.sourceRange(lint.fix.range[0], lint.fix.range[1]) : undefined;
@@ -145,4 +119,4 @@ export async function createSlopSift(options: SlopSiftOptions = {}): Promise<Slo
 export { DEFAULT_EXTENSIONS, extractInput, extractLintText, inputKind } from './extract.js';
 export type { ExtractedInput, InputKind } from './extract.js';
 export type { ModelOptions } from './model.js';
-export type { RulepackName, TechnicalEnglishMode } from './profiles.js';
+export type { RulepackName } from './profiles.js';

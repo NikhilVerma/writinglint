@@ -13,6 +13,12 @@
 - [Agent Skill](https://skills.sh/NikhilVerma/slopsift): Install SlopSift instructions for compatible coding agents.
 - [Source code](https://github.com/NikhilVerma/writinglint): WritingLint engine, SlopSift product, model notes, and tests.
 
+## Agent-ready usage
+
+- CLI: `npx slopsift . --rulepack ai-style --rulepack reader-first`
+- API: import `createSlopSift`, then pass `rulepacks: ['ai-style', 'reader-first']` to `lintSource`.
+- Stop hook: `npx slopsift hook stop --rulepack ai-style --rulepack reader-first` reads a hook event from stdin and returns one JSON decision.
+
 ## Machine-readable references
 
 - [Complete agent reference](https://slopsift.dev/llms-full.txt): CLI contract, exit codes, inputs, and all rules.

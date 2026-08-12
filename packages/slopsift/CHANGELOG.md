@@ -1,15 +1,29 @@
 # slopsift
 
-## 0.7.0
+## 0.8.0
 
 ### Minor Changes
 
-- Add a repeatable `--rulepack` option and an independent, partial ASD-STE100 Issue 9 check with descriptive and procedural modes. Structured results distinguish detected violations from work that still requires dictionary or human review.
+- Add reusable language foundations, the independent reader-first rulepack, and compact Stop-hook feedback for coding agents. Remove the standards-derived package, importer, corpus, dictionary, and conformance surface.
 
 ### Patch Changes
 
 - Updated dependencies
-  - writinglint-rulepack-technical-english@0.1.0
+  - writinglint-core@0.2.0
+  - writinglint-parser-node@0.2.0
+  - writinglint-rulepack-reader-first@0.1.0
+  - writinglint-rulepack-ai-style@0.5.1
+
+## 0.7.0
+
+### Minor Changes
+
+- Add a repeatable `--rulepack` option and the independent reader-first pack for cognitive load and unexplained jargon.
+
+### Patch Changes
+
+- Updated dependencies
+  - writinglint-rulepack-reader-first@0.1.0
 
 ## 0.6.0
 

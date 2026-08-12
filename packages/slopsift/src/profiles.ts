@@ -1,29 +1,28 @@
 import { defineConfig, type Config } from 'writinglint-core';
 import { ci, recommended, strict } from 'writinglint-rulepack-ai-style';
 import {
-  descriptive,
-  procedural,
-  withAsdSte100StandardData,
-  type AsdSte100Issue9StandardData,
-} from 'writinglint-rulepack-technical-english';
+  ci as readerFirstCi,
+  recommended as readerFirstRecommended,
+  strict as readerFirstStrict,
+} from 'writinglint-rulepack-reader-first';
 import type { InputKind } from './extract.js';
 
 export type ProfileName = 'recommended' | 'strict' | 'ci';
-export type RulepackName = 'ai-style' | 'asd-ste100';
-export type TechnicalEnglishMode = 'descriptive' | 'procedural';
+export type RulepackName = 'ai-style' | 'reader-first';
 
 export function profileFor(
   kind: InputKind,
   profile: ProfileName = 'recommended',
   rulepacks: readonly RulepackName[] = ['ai-style'],
-  technicalMode: TechnicalEnglishMode = 'descriptive',
-  standardData?: AsdSte100Issue9StandardData,
 ): Config {
-  const base = profile === 'strict' ? strict : profile === 'ci' ? ci : recommended;
+  const aiBase = profile === 'strict' ? strict : profile === 'ci' ? ci : recommended;
+  const readerBase = profile === 'strict'
+    ? readerFirstStrict
+    : profile === 'ci' ? readerFirstCi : readerFirstRecommended;
   const selected: Config[] = [];
   if (rulepacks.includes('ai-style')) {
-    selected.push(kind === 'prose' ? base : defineConfig({
-      extends: [base],
+    selected.push(kind === 'prose' ? aiBase : defineConfig({
+      extends: [aiBase],
       rules: {
         'ai-style/emoji': 'off',
         'ai-style/passive-actor-hiding': 'off',
@@ -31,11 +30,7 @@ export function profileFor(
       },
     }));
   }
-  if (rulepacks.includes('asd-ste100')) {
-    selected.push(standardData
-      ? withAsdSte100StandardData(technicalMode, standardData)
-      : technicalMode === 'procedural' ? procedural : descriptive);
-  }
+  if (rulepacks.includes('reader-first')) selected.push(readerBase);
   return defineConfig({
     extends: selected,
     minimumSeverity: profile === 'strict' ? 'info' : profile === 'ci' ? 'error' : 'warn',

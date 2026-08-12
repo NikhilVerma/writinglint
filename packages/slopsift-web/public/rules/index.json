@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0.0",
-  "packageVersion": "0.7.0",
-  "name": "SlopSift AI-style rule catalogue",
+  "packageVersion": "0.8.0",
+  "name": "SlopSift rule catalogue",
   "url": "https://slopsift.dev/rules/",
   "categories": [
     {
@@ -87,6 +87,18 @@
       "label": "Uniform rhythm",
       "description": "Sentence lengths and openings fall into a machine-like cadence.",
       "ruleCount": 5
+    },
+    {
+      "id": "load",
+      "label": "Reading load",
+      "description": "Sentences and paragraphs that ask the reader to track too much at once.",
+      "ruleCount": 2
+    },
+    {
+      "id": "jargon",
+      "label": "Jargon",
+      "description": "Terms and noun clusters that make readers reconstruct the meaning.",
+      "ruleCount": 2
     }
   ],
   "rules": [
@@ -1077,6 +1089,82 @@
       "url": "https://slopsift.dev/rules/uniform-rhythm/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-ai-style/src/rules/uniform-rhythm.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Funiform-rhythm"
+    },
+    {
+      "id": "reader-first/paragraph-load",
+      "name": "paragraph-load",
+      "title": "Paragraph Load",
+      "description": "A long paragraph hides changes of subject or purpose inside one block.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/paragraph-load/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/paragraph-load.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fparagraph-load"
+    },
+    {
+      "id": "reader-first/sentence-load",
+      "name": "sentence-load",
+      "title": "Sentence Load",
+      "description": "A sentence combines enough length, clauses, and technical labels to overload the main point.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/sentence-load/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/sentence-load.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fsentence-load"
+    },
+    {
+      "id": "reader-first/noun-pile",
+      "name": "noun-pile",
+      "title": "Noun Pile",
+      "description": "Four or more common nouns are stacked together without showing how they relate.",
+      "category": {
+        "id": "jargon",
+        "label": "Jargon",
+        "description": "Terms and noun clusters that make readers reconstruct the meaning."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/noun-pile/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/noun-pile.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fnoun-pile"
+    },
+    {
+      "id": "reader-first/unexplained-initialism",
+      "name": "unexplained-initialism",
+      "title": "Unexplained Initialism",
+      "description": "A repeated initialism appears without a plain-language introduction.",
+      "category": {
+        "id": "jargon",
+        "label": "Jargon",
+        "description": "Terms and noun clusters that make readers reconstruct the meaning."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/unexplained-initialism/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/unexplained-initialism.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Funexplained-initialism"
     }
   ]
 }
