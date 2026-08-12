@@ -22,11 +22,10 @@ test('programmatic API lints supported source in process', async () => {
   assert.deepEqual(result?.lints, []);
 });
 
-test('an empty technical-English run still reports that review is required', async () => {
+test('the programmatic API accepts the reader-first rulepack', async () => {
   const linter = new SlopSift(parser);
-  const result = await linter.lintSource('README.md', '', { rulepacks: ['asd-ste100'] });
-  assert.equal(result?.standardAssessment?.status, 'review-required');
-  assert.equal(result?.standardAssessment?.automatedRuleFindings, 0);
+  const result = await linter.lintSource('README.md', 'Plain prose.', { rulepacks: ['reader-first'] });
+  assert.deepEqual(result?.lints, []);
 });
 
 test('source metrics count extracted comments rather than code tokens', async () => {
@@ -35,7 +34,7 @@ test('source metrics count extracted comments rather than code tokens', async ()
   assert.equal(result?.wordCount, 3);
 });
 
-test('technical comments suppress paragraph-level semantic redundancy', async () => {
+test('source comments suppress paragraph-level semantic redundancy', async () => {
   const linter = new SlopSift(parser);
   const first = 'The registry replaces raw database identifiers with short references that the model can safely return.';
   const second = 'Short references replace raw database identifiers, allowing the model to return safe registry values.';

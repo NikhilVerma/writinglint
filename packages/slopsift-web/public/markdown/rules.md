@@ -1,6 +1,6 @@
 # SlopSift rule catalogue
 
-SlopSift 0.7.0 includes 52 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
+SlopSift 0.8.0 includes 56 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
 
 - [ai-style/evidence-cluster](https://slopsift.dev/rules/evidence-cluster/): Several independent slop signals cluster in one paragraph or across the document. (warn, document context)
 - [ai-style/copula-avoidance](https://slopsift.dev/rules/copula-avoidance/): “stands/serves as a …” dressing up a plain “is a …”. (warn, dependency graph)
@@ -54,5 +54,9 @@ SlopSift 0.7.0 includes 52 AI-style rules. Default levels derive from rule confi
 - [ai-style/referential-compression](https://slopsift.dev/rules/referential-compression/): Several nearby sentences open with bare pronouns instead of carrying the subject forward explicitly. (info, dependency graph)
 - [ai-style/repeated-sentence-frame](https://slopsift.dev/rules/repeated-sentence-frame/): Several nearby sentences repeat the same dependency frame and cadence. (info, dependency graph)
 - [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)
+- [reader-first/paragraph-load](https://slopsift.dev/rules/paragraph-load/): A long paragraph hides changes of subject or purpose inside one block. (warn, document context)
+- [reader-first/sentence-load](https://slopsift.dev/rules/sentence-load/): A sentence combines enough length, clauses, and technical labels to overload the main point. (warn, document context)
+- [reader-first/noun-pile](https://slopsift.dev/rules/noun-pile/): Four or more common nouns are stacked together without showing how they relate. (warn, dependency graph)
+- [reader-first/unexplained-initialism](https://slopsift.dev/rules/unexplained-initialism/): A repeated initialism appears without a plain-language introduction. (warn, document context)
 
 [Rule catalogue JSON](https://slopsift.dev/rules/index.json)

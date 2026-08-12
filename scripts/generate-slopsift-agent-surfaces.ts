@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { aiStyle, CATEGORIES, CATEGORY_ORDER, RULE_METHODS, type RuleMethod } from 'writinglint-rulepack-ai-style';
+import { CATEGORIES as READER_CATEGORIES, readerFirst } from 'writinglint-rulepack-reader-first';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const web = resolve(root, 'packages/slopsift-web');
@@ -50,7 +51,7 @@ const markdownSafe = (value: string): string => value
   .replace(/\s*—\s*/g, ', ')
   .replace(/\s*–\s*/g, '-');
 
-const rules = Object.entries(aiStyle.rules).map(([name, rule]) => {
+const aiRules = Object.entries(aiStyle.rules).map(([name, rule]) => {
   const confidence = rule.meta.defaultConfidence ?? 'low';
   const method = RULE_METHODS[name as keyof typeof RULE_METHODS];
   if (!method) throw new Error(`missing RULE_METHODS metadata for ${name}`);
@@ -75,8 +76,44 @@ const rules = Object.entries(aiStyle.rules).map(([name, rule]) => {
     sourceUrl: `${REPOSITORY}/blob/main/packages/rulepack-ai-style/src/rules/${sourceFileFor(name)}`,
     reportUrl: `${REPOSITORY}/issues/new?template=false-positive.yml&title=${encodeURIComponent(`rule: ai-style/${name}`)}`,
   };
-}).sort((a, b) => {
-  const category = CATEGORY_ORDER.indexOf(a.category.id) - CATEGORY_ORDER.indexOf(b.category.id);
+});
+
+const readerMethods: Record<keyof typeof readerFirst.rules, RuleMethod> = {
+  'noun-pile': 'dependency-graph',
+  'paragraph-load': 'document-context',
+  'sentence-load': 'document-context',
+  'unexplained-initialism': 'document-context',
+};
+
+const readerRules = Object.entries(readerFirst.rules).map(([name, rule]) => {
+  const confidence = rule.meta.defaultConfidence ?? 'low';
+  const method = readerMethods[name as keyof typeof readerFirst.rules];
+  const category = READER_CATEGORIES[rule.meta.category];
+  if (!category) throw new Error(`missing reader-first category metadata for ${name}: ${rule.meta.category}`);
+  return {
+    id: `reader-first/${name}`,
+    name,
+    title: titleCase(name),
+    description: markdownSafe(rule.meta.docs.description),
+    category: {
+      id: category.id,
+      label: category.label,
+      description: markdownSafe(category.blurb),
+    },
+    confidence,
+    defaultLevel: levelForConfidence[confidence],
+    method,
+    methodLabel: methodDetails[method].label,
+    methodDescription: methodDetails[method].description,
+    url: `${SITE}/rules/${name}/`,
+    sourceUrl: `${REPOSITORY}/blob/main/packages/rulepack-reader-first/src/rules/${name}.ts`,
+    reportUrl: `${REPOSITORY}/issues/new?template=false-positive.yml&title=${encodeURIComponent(`rule: reader-first/${name}`)}`,
+  };
+});
+
+const categoryOrder = [...CATEGORY_ORDER, ...Object.keys(READER_CATEGORIES)];
+const rules = [...aiRules, ...readerRules].sort((a, b) => {
+  const category = categoryOrder.indexOf(a.category.id) - categoryOrder.indexOf(b.category.id);
   return category || a.name.localeCompare(b.name);
 });
 
@@ -93,8 +130,9 @@ function sourceFileFor(name: string): string {
   return grouped[name] ?? `${name}.ts`;
 }
 
-const categories = CATEGORY_ORDER
-  .map((id) => CATEGORIES[id])
+const allCategories = { ...CATEGORIES, ...READER_CATEGORIES };
+const categories = categoryOrder
+  .map((id) => allCategories[id])
   .filter((category): category is NonNullable<typeof category> => Boolean(category))
   .map((category) => ({
     id: category.id,
@@ -106,7 +144,7 @@ const categories = CATEGORY_ORDER
 const catalog = {
   schemaVersion: SCHEMA_VERSION,
   packageVersion: packageJson.version,
-  name: 'SlopSift AI-style rule catalogue',
+  name: 'SlopSift rule catalogue',
   url: `${SITE}/rules/`,
   categories,
   rules,
@@ -143,56 +181,6 @@ const outputSchema = {
         infoCount: { type: 'integer', minimum: 0 },
         wordCount: { type: 'integer', minimum: 0 },
         findingsPerThousandWords: { type: 'number', minimum: 0 },
-        standardAssessment: { $ref: '#/$defs/standardAssessment' },
-      },
-    },
-    standardAssessment: {
-      type: 'object',
-      additionalProperties: false,
-      required: [
-        'standard',
-        'issue',
-        'publicationDate',
-        'status',
-        'automatedRuleFindings',
-        'automatedRules',
-        'executedRules',
-        'standardData',
-        'reviewRequired',
-        'disclaimer',
-      ],
-      properties: {
-        standard: { const: 'ASD-STE100' },
-        issue: { const: 9 },
-        publicationDate: { const: '2025-01-15' },
-        status: { enum: ['nonconformant', 'review-required'] },
-        automatedRuleFindings: { type: 'integer', minimum: 0 },
-        automatedRules: {
-          type: 'array',
-          items: { type: 'string' },
-          uniqueItems: true,
-        },
-        executedRules: {
-          type: 'array',
-          items: { type: 'string' },
-          uniqueItems: true,
-        },
-        standardData: {
-          type: 'object',
-          additionalProperties: false,
-          required: ['loaded'],
-          properties: {
-            loaded: { type: 'boolean' },
-            fingerprint: { type: 'string' },
-            parserVersion: { type: 'string' },
-          },
-        },
-        reviewRequired: {
-          type: 'array',
-          items: { type: 'string' },
-          minItems: 1,
-        },
-        disclaimer: { type: 'string' },
       },
     },
     message: {
@@ -301,6 +289,12 @@ const llms = `# SlopSift
 - [Agent Skill](${SKILL}): Install SlopSift instructions for compatible coding agents.
 - [Source code](${REPOSITORY}): WritingLint engine, SlopSift product, model notes, and tests.
 
+## Agent-ready usage
+
+- CLI: \`npx slopsift . --rulepack ai-style --rulepack reader-first\`
+- API: import \`createSlopSift\`, then pass \`rulepacks: ['ai-style', 'reader-first']\` to \`lintSource\`.
+- Stop hook: \`npx slopsift hook stop --rulepack ai-style --rulepack reader-first\` reads a hook event from stdin and returns one JSON decision.
+
 ## Machine-readable references
 
 - [Complete agent reference](${SITE}/llms-full.txt): CLI contract, exit codes, inputs, and all rules.
@@ -321,15 +315,13 @@ const fullReference = `# SlopSift agent reference
 
 SlopSift ${packageJson.version} is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
 
-## Install and run
+## CLI
 
 \`\`\`sh
 bunx slopsift .
 npx slopsift "docs/**/*.md"
 npx slopsift . --level info --format json --exit-zero
-npx slopsift manual.md --rulepack asd-ste100
-npx slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
-npx slopsift procedure.md --rulepack asd-ste100 --technical-standard-data /local/ASD-STE100_ISSUE9.parsed.json
+npx slopsift . --rulepack ai-style --rulepack reader-first
 \`\`\`
 
 Node.js 20 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
@@ -360,7 +352,29 @@ JSON messages include an ESLint-compatible numeric severity, SlopSift's textual 
 
 ## Rulepacks
 
-The default rulepack is \`ai-style\`. Use \`--rulepack asd-ste100\` for an independent, partial ASD-STE100 Issue 9 check. Repeat \`--rulepack\` to combine checks. If you have an authorized local copy, \`--technical-standard-data\` loads the validated Docling importer output for dictionary checks without redistributing it. The ASD-STE100 result is \`nonconformant\` when a high-confidence automated violation is present and \`review-required\` otherwise. It never claims full conformance without human review.
+The default rulepack is \`ai-style\`. The independent \`reader-first\` pack applies general simplified-technical-writing principles: introduce terms, show relationships, keep one main point visible, and remove unnecessary ornament. It does not include an external controlled dictionary or claim compliance with an external standard. Repeat \`--rulepack\` to combine packs. For agent responses, use both.
+
+## In-process API
+
+\`\`\`ts
+import { createSlopSift } from 'slopsift';
+
+const slopsift = await createSlopSift();
+const result = await slopsift.lintSource('draft.md', text, {
+  level: 'warning',
+  rulepacks: ['ai-style', 'reader-first'],
+});
+\`\`\`
+
+One \`SlopSift\` instance reuses its local parser. \`lintSource\` returns exact source ranges and does not upload the text.
+
+## Stop hook
+
+\`\`\`sh
+npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack reader-first --feedback compact
+\`\`\`
+
+Pass the Claude Code or Codex Stop event as JSON on stdin. The command writes one JSON decision to stdout. Compact feedback groups repeated findings, omits response locations that the model already has in context, and shows up to 100 findings by default. Use \`--feedback detailed\` for file-oriented diagnostics.
 
 ## Exit codes
 

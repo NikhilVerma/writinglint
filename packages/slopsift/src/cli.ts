@@ -14,12 +14,7 @@ import {
   createSlopSift,
   type MinimumLevel,
   type RulepackName,
-  type TechnicalEnglishMode,
 } from './index.js';
-import {
-  parseAsdSte100Issue9StandardData,
-  type AsdSte100Issue9StandardData,
-} from 'writinglint-rulepack-technical-english';
 import { findFiles } from './files.js';
 import { github, jsonResult, stylish } from './format.js';
 import { lintFiles } from './run-files.js';
@@ -50,10 +45,7 @@ Options:
   --quiet                             Report errors only
   --exit-zero                         Report findings without failing the run
   --level info|warning|error          Minimum level to report (default: warning)
-  --rulepack ai-style|asd-ste100      Select a rulepack (repeatable; default: ai-style)
-  --technical-mode descriptive|procedural
-                                      Text type for asd-ste100 (default: descriptive)
-  --technical-standard-data <file>    Load local parsed Issue 9 data for dictionary checks
+  --rulepack ai-style|reader-first    Select a rulepack (repeatable; default: ai-style)
   --max-warnings <n>                  Exit 1 above this warning count
   --model <directory>                 Use an explicit ONNX model bundle
   --no-download                       Fail instead of downloading a missing model
@@ -69,12 +61,10 @@ Usage:
 
 Options:
   --level info|warning|error          Minimum level that requests a rewrite (default: warning)
-  --rulepack ai-style|asd-ste100      Select a rulepack (repeatable; default: ai-style)
-  --technical-mode descriptive|procedural
-                                      Text type for asd-ste100 (default: descriptive)
-  --technical-standard-data <file>    Load local parsed Issue 9 data for dictionary checks
+  --rulepack ai-style|reader-first    Select a rulepack (repeatable; default: ai-style)
   --max-retries <n>                   Automatic rewrite requests before fail-open (default: 2)
-  --max-findings <n>                  Findings included in revision feedback (default: 5)
+  --feedback compact|detailed         Model-dense or location-rich feedback (default: compact)
+  --max-findings <n>                  Findings included in revision feedback (default: 100)
   --include-dirty                     Also lint prose in modified and untracked Git files
   --include-transcript                Also lint assistant prose stored for the active turn
   --transcript-path <file>            Override the transcript path supplied by the agent
@@ -113,15 +103,12 @@ interface Options {
   errorOnUnmatchedPattern: boolean;
   exitZero: boolean;
   rulepacks: RulepackName[];
-  technicalMode: TechnicalEnglishMode;
-  technicalStandardData?: string;
 }
 
 interface HookOptions {
   level: MinimumLevel;
+  feedback: 'compact' | 'detailed';
   rulepacks: RulepackName[];
-  technicalMode: TechnicalEnglishMode;
-  technicalStandardData?: string;
   maxRetries: number;
   maxFindings: number;
   includeDirty: boolean;
@@ -144,7 +131,7 @@ interface AgentOptions {
 }
 
 function parse(argv: string[]): Options | 'help' | 'version' {
-  const options: Options = { patterns: [], format: 'stylish', ignores: [], noIgnore: false, quiet: false, maxWarnings: -1, download: true, level: 'warning', errorOnUnmatchedPattern: true, exitZero: false, rulepacks: [], technicalMode: 'descriptive' };
+  const options: Options = { patterns: [], format: 'stylish', ignores: [], noIgnore: false, quiet: false, maxWarnings: -1, download: true, level: 'warning', errorOnUnmatchedPattern: true, exitZero: false, rulepacks: [] };
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index]!;
     const nextValue = (): string => {
@@ -166,20 +153,14 @@ function parse(argv: string[]): Options | 'help' | 'version' {
     else if (arg === '--max-warnings') options.maxWarnings = Number(argv[++index]);
     else if (arg === '--level') options.level = argv[++index] as Options['level'];
     else if (arg === '--rulepack') options.rulepacks.push(nextValue() as RulepackName);
-    else if (arg === '--technical-mode') options.technicalMode = nextValue() as TechnicalEnglishMode;
-    else if (arg === '--technical-standard-data') options.technicalStandardData = nextValue();
     else if (arg === '--model') options.model = argv[++index];
     else if (arg.startsWith('-')) throw new Error(`unknown option: ${arg}`);
     else options.patterns.push(arg);
   }
   if (!['stylish', 'json', 'json-lines', 'github'].includes(options.format)) throw new Error(`unknown format: ${options.format}`);
   if (!['info', 'warning', 'error'].includes(options.level)) throw new Error(`unknown level: ${options.level}`);
-  if (options.rulepacks.some((rulepack) => !['ai-style', 'asd-ste100'].includes(rulepack))) {
-    throw new Error(`unknown rulepack: ${options.rulepacks.find((rulepack) => !['ai-style', 'asd-ste100'].includes(rulepack))}`);
-  }
-  if (!['descriptive', 'procedural'].includes(options.technicalMode)) throw new Error(`unknown technical mode: ${options.technicalMode}`);
-  if (options.technicalStandardData && !options.rulepacks.includes('asd-ste100')) {
-    throw new Error('--technical-standard-data requires --rulepack asd-ste100');
+  if (options.rulepacks.some((rulepack) => !['ai-style', 'reader-first'].includes(rulepack))) {
+    throw new Error(`unknown rulepack: ${options.rulepacks.find((rulepack) => !['ai-style', 'reader-first'].includes(rulepack))}`);
   }
   if (!Number.isInteger(options.maxWarnings) || options.maxWarnings < -1) throw new Error('--max-warnings must be a non-negative integer');
   if (!options.rulepacks.length) options.rulepacks.push('ai-style');
@@ -192,10 +173,10 @@ function parseHook(argv: string[]): HookOptions | 'help' {
   if (argv[0] !== 'stop') throw new Error('expected hook type "stop"');
   const options: HookOptions = {
     level: 'warning',
+    feedback: 'compact',
     rulepacks: [],
-    technicalMode: 'descriptive',
     maxRetries: 2,
-    maxFindings: 5,
+    maxFindings: 100,
     includeDirty: false,
     includeTranscript: false,
     maxDirtyFiles: 50,
@@ -215,9 +196,8 @@ function parseHook(argv: string[]): HookOptions | 'help' {
     else if (arg === '--include-dirty') options.includeDirty = true;
     else if (arg === '--include-transcript') options.includeTranscript = true;
     else if (arg === '--level') options.level = nextValue() as MinimumLevel;
+    else if (arg === '--feedback') options.feedback = nextValue() as HookOptions['feedback'];
     else if (arg === '--rulepack') options.rulepacks.push(nextValue() as RulepackName);
-    else if (arg === '--technical-mode') options.technicalMode = nextValue() as TechnicalEnglishMode;
-    else if (arg === '--technical-standard-data') options.technicalStandardData = nextValue();
     else if (arg === '--max-retries') options.maxRetries = Number(nextValue());
     else if (arg === '--max-findings') options.maxFindings = Number(nextValue());
     else if (arg === '--max-dirty-files') options.maxDirtyFiles = Number(nextValue());
@@ -229,12 +209,9 @@ function parseHook(argv: string[]): HookOptions | 'help' {
     else throw new Error(`unknown hook option: ${arg}`);
   }
   if (!['info', 'warning', 'error'].includes(options.level)) throw new Error(`unknown level: ${options.level}`);
-  if (options.rulepacks.some((rulepack) => !['ai-style', 'asd-ste100'].includes(rulepack))) {
-    throw new Error(`unknown rulepack: ${options.rulepacks.find((rulepack) => !['ai-style', 'asd-ste100'].includes(rulepack))}`);
-  }
-  if (!['descriptive', 'procedural'].includes(options.technicalMode)) throw new Error(`unknown technical mode: ${options.technicalMode}`);
-  if (options.technicalStandardData && !options.rulepacks.includes('asd-ste100')) {
-    throw new Error('--technical-standard-data requires --rulepack asd-ste100');
+  if (!['compact', 'detailed'].includes(options.feedback)) throw new Error(`unknown feedback format: ${options.feedback}`);
+  if (options.rulepacks.some((rulepack) => !['ai-style', 'reader-first'].includes(rulepack))) {
+    throw new Error(`unknown rulepack: ${options.rulepacks.find((rulepack) => !['ai-style', 'reader-first'].includes(rulepack))}`);
   }
   if (!Number.isInteger(options.maxRetries) || options.maxRetries < 0) throw new Error('--max-retries must be a non-negative integer');
   if (!Number.isInteger(options.maxFindings) || options.maxFindings < 1) throw new Error('--max-findings must be a positive integer');
@@ -415,11 +392,6 @@ async function runHook(argv: string[]): Promise<void> {
 
   try {
     const event = parseStopHookEvent(JSON.parse(readFileSync(0, 'utf8')) as unknown);
-    let technicalStandardData: AsdSte100Issue9StandardData | undefined;
-    if (options.technicalStandardData) {
-      const path = resolve(options.technicalStandardData);
-      technicalStandardData = parseAsdSte100Issue9StandardData(JSON.parse(readFileSync(path, 'utf8')));
-    }
     const slopsift = await createSlopSift({
       explicit: options.model,
       download: options.download,
@@ -427,9 +399,8 @@ async function runHook(argv: string[]): Promise<void> {
     });
     const output = await runStopHook(slopsift, event, {
       level: options.level,
+      feedback: options.feedback,
       rulepacks: options.rulepacks,
-      technicalMode: options.technicalMode,
-      technicalStandardData,
       maxRetries: options.maxRetries,
       maxFindings: options.maxFindings,
       stateDirectory: options.stateDirectory,
@@ -463,11 +434,6 @@ async function run(): Promise<void> {
   if (options === 'version') { console.log(VERSION); return; }
 
   try {
-    let technicalStandardData: AsdSte100Issue9StandardData | undefined;
-    if (options.technicalStandardData) {
-      const path = resolve(options.technicalStandardData);
-      technicalStandardData = parseAsdSte100Issue9StandardData(JSON.parse(readFileSync(path, 'utf8')));
-    }
     const files = await findFiles(options.patterns, { noIgnore: options.noIgnore, ignorePatterns: options.ignores, extensions: options.extensions });
     if (!files.length) {
       if (options.errorOnUnmatchedPattern) {
@@ -486,8 +452,6 @@ async function run(): Promise<void> {
     const { results, runtimeFailures } = await lintFiles(slopsift, files, {
       level,
       rulepacks: options.rulepacks,
-      technicalMode: options.technicalMode,
-      technicalStandardData,
       explicitlySelectedFiles,
     });
     if (options.format === 'json') console.log(JSON.stringify(results.map(jsonResult), null, 2));

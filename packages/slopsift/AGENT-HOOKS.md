@@ -222,9 +222,8 @@ transcript options above. Run `slopsift hook stop --help` for the complete list.
 The plugin runner maps these environment variables to CLI options:
 
 - `SLOPSIFT_HOOK_LEVEL=warning|error`
-- `SLOPSIFT_HOOK_RULEPACKS=ai-style,asd-ste100`
-- `SLOPSIFT_HOOK_TECHNICAL_MODE=descriptive|procedural`
-- `SLOPSIFT_HOOK_TECHNICAL_STANDARD_DATA=/local/ASD-STE100_ISSUE9.parsed.json`
+- `SLOPSIFT_HOOK_RULEPACKS=ai-style,reader-first`
+- `SLOPSIFT_HOOK_FEEDBACK=compact|detailed`
 - `SLOPSIFT_HOOK_MAX_RETRIES`
 - `SLOPSIFT_HOOK_MAX_FINDINGS`
 - `SLOPSIFT_HOOK_INCLUDE_DIRTY=1`
@@ -239,16 +238,14 @@ The plugin never blocks on informational findings. Setting
 `SLOPSIFT_HOOK_LEVEL=info` therefore keeps the normal warning threshold. The
 standalone CLI still accepts `--level info` for manual editorial review.
 
-To check both AI-style habits and Simplified Technical English in every agent
-response, select both rulepacks. Add `--technical-standard-data` when you have
-parsed your own licensed copy of Issue 9; SlopSift validates and reads that file
-locally:
+To check both AI-style habits and reader load in every agent response, select
+both rulepacks:
 
 ```bash
 npx slopsift@latest hook stop \
   --rulepack ai-style \
-  --rulepack asd-ste100 \
-  --technical-standard-data /local/ASD-STE100_ISSUE9.parsed.json
+  --rulepack reader-first \
+  --feedback compact
 ```
 
 ## Give the setup to another agent
@@ -261,10 +258,9 @@ whether Claude Code, Codex, or both are installed. Preserve all existing
 settings and merge, rather than replace, their Stop hooks in
 ~/.claude/settings.json and ~/.codex/hooks.json. Run this command from the hook:
 
-npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack asd-ste100 --technical-mode descriptive
+npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack reader-first --feedback compact
 
-If I provide a local ASD-STE100 Issue 9 parsed JSON file, append
---technical-standard-data with its absolute path. Do not enable dirty-tree or
+Do not enable dirty-tree or
 transcript checks unless I request them. Before editing settings, confirm that
 `slopsift hook stop --help` lists the rulepack options. Validate the resulting
 JSON, exercise one known-bad Stop event and one clean rewrite, and tell me to

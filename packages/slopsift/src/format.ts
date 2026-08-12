@@ -1,5 +1,4 @@
 import type { Lint } from 'writinglint-core';
-import type { StandardAssessment } from './index.js';
 
 export interface Message extends Lint {
   line: number;
@@ -15,7 +14,6 @@ export interface Result {
   infoCount: number;
   wordCount: number;
   findingsPerThousandWords: number;
-  standardAssessment?: StandardAssessment;
 }
 
 export function countWords(text: string): number {
@@ -35,7 +33,6 @@ export function makeResult(
   source: string,
   lints: Lint[],
   analyzedWordCount = countWords(source),
-  standardAssessment?: StandardAssessment,
 ): Result {
   const messages = lints.map((lint) => ({
     ...lint,
@@ -52,7 +49,6 @@ export function makeResult(
     findingsPerThousandWords: analyzedWordCount
       ? Number(((messages.length / analyzedWordCount) * 1000).toFixed(1))
       : 0,
-    standardAssessment,
   };
 }
 
@@ -60,7 +56,7 @@ const eslintSeverity = { info: 0, warn: 1, error: 2 } as const;
 const ruleUrl = (ruleId: string): string | undefined => {
   const [pack, name] = ruleId.split('/');
   if (pack === 'ai-style' && name) return `https://slopsift.dev/rules/${encodeURIComponent(name)}/`;
-  if (pack === 'technical-english' && name) return 'https://www.asd-ste100.org/';
+  if (pack === 'reader-first' && name) return `https://slopsift.dev/rules/${encodeURIComponent(name)}/`;
   return undefined;
 };
 
@@ -115,16 +111,6 @@ export function stylish(results: Result[]): string {
       return `  ${ansi('2', where)}  ${ansi(colour, message.severity.padEnd(7))}  ${message.message}  ${ansi('2', message.ruleId)}`;
     });
     blocks.push(`${ansi('1;4', result.filePath)}\n${rows.join('\n')}`);
-  }
-  for (const result of results) {
-    const assessment = result.standardAssessment;
-    if (!assessment) continue;
-    const detail = assessment.status === 'nonconformant'
-      ? `${assessment.automatedRuleFindings} automated rule finding${assessment.automatedRuleFindings === 1 ? '' : 's'}`
-      : assessment.automatedRuleFindings
-        ? `${assessment.automatedRuleFindings} warning finding${assessment.automatedRuleFindings === 1 ? '' : 's'} and the remaining rules require review`
-        : 'no reported violations; dictionary and human review remain';
-    blocks.push(`${result.filePath}: ASD-STE100 Issue ${assessment.issue} ${assessment.status} (${detail})`);
   }
   const errors = results.reduce((sum, result) => sum + result.errorCount, 0);
   const warnings = results.reduce((sum, result) => sum + result.warningCount, 0);

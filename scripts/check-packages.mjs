@@ -11,7 +11,7 @@ const packagedProjects = [
   'writinglint-parser-node',
   'writinglint-rulepack-ai-style',
   'writinglint-rulepack-craft',
-  'writinglint-rulepack-technical-english',
+  'writinglint-rulepack-reader-first',
   'writinglint',
   'slopsift',
 ];

@@ -1,7 +1,6 @@
 ---
 import SiteLayout from '../layouts/SiteLayout.astro';
 import RulepackSelect from '../components/RulepackSelect.astro';
-import TechnicalStandardData from '../components/TechnicalStandardData.astro';
 import '../styles/editor.css';
 
 const sample = `# The real bottleneck
@@ -83,7 +82,6 @@ const editorSchema = {
               <span class="parser-state" data-parser-state><i aria-hidden="true"></i><span>Loading local parser</span></span>
             </span>
           </div>
-          <TechnicalStandardData id="editor-standard-data" />
           <div class="source-editor" data-editor-mount>
             <textarea aria-label="Markdown or plain-text draft" spellcheck="true">{sample}</textarea>
           </div>
