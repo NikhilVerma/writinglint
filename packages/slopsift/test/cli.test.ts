@@ -328,6 +328,39 @@ test('Stop-hook CLI turns a warning into a cross-agent continuation decision', (
   }
 });
 
+test('Stop-hook CLI can enforce AI-style and ASD-STE100 rulepacks together', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-hook-ste100-'));
+  try {
+    const result = runWithInput(JSON.stringify({
+      session_id: 'cli-hook-ste100',
+      hook_event_name: 'Stop',
+      stop_hook_active: false,
+      last_assistant_message: "Don't open the valve; inspect the seal.",
+    }),
+    'hook', 'stop',
+    '--state-dir', directory,
+    '--rulepack', 'ai-style',
+    '--rulepack', 'asd-ste100');
+    assert.equal(result.status, 0, result.stderr);
+    const output = JSON.parse(result.stdout) as { decision?: string; reason?: string };
+    assert.equal(output.decision, 'block');
+    assert.match(output.reason ?? '', /technical-english\/no-contractions/);
+    assert.match(output.reason ?? '', /technical-english\/no-semicolon/);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('Stop-hook CLI validates local Issue 9 data before loading it', () => {
+  const result = runWithInput('{}',
+    'hook', 'stop',
+    '--rulepack', 'asd-ste100',
+    '--technical-standard-data', '__missing_issue9_data__.json');
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(result.stdout) as { systemMessage?: string };
+  assert.match(output.systemMessage ?? '', /could not validate/);
+});
+
 test('Stop-hook CLI fails open with valid JSON when its input is malformed', () => {
   const result = runWithInput('{broken', 'hook', 'stop');
   assert.equal(result.status, 0, result.stderr);

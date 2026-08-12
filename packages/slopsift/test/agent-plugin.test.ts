@@ -28,6 +28,9 @@ test('agent plugin runner forwards opt-in evidence flags and emits only hook JSO
         SLOPSIFT_HOOK_INCLUDE_TRANSCRIPT: '1',
         SLOPSIFT_HOOK_MAX_DIRTY_FILES: '12',
         SLOPSIFT_HOOK_LEVEL: 'info',
+        SLOPSIFT_HOOK_RULEPACKS: 'ai-style, asd-ste100',
+        SLOPSIFT_HOOK_TECHNICAL_MODE: 'procedural',
+        SLOPSIFT_HOOK_TECHNICAL_STANDARD_DATA: '/tmp/issue9.parsed.json',
       },
     });
     assert.equal(result.status, 0, result.stderr);
@@ -37,6 +40,9 @@ test('agent plugin runner forwards opt-in evidence flags and emits only hook JSO
     assert.match(output.reason ?? '', /--include-dirty/);
     assert.match(output.reason ?? '', /--include-transcript/);
     assert.match(output.reason ?? '', /--max-dirty-files 12/);
+    assert.match(output.reason ?? '', /--rulepack ai-style --rulepack asd-ste100/);
+    assert.match(output.reason ?? '', /--technical-mode procedural/);
+    assert.match(output.reason ?? '', /--technical-standard-data \/tmp\/issue9\.parsed\.json/);
     assert.doesNotMatch(output.reason ?? '', /--level info/);
     assert.equal(result.stdout.trim().split('\n').length, 1);
 
