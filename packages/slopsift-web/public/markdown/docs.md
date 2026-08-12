@@ -1,6 +1,6 @@
 # SlopSift agent reference
 
-SlopSift 0.8.0 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
+SlopSift 0.8.1 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
 
 ## CLI
 

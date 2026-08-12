@@ -1,5 +1,11 @@
 # slopsift
 
+## 0.8.1
+
+### Patch Changes
+
+- 8ccc2fd: Document complete Claude Code and Codex Stop-hook installation, and make the maintained plugin use the AI-style and reader-first rulepacks with compact feedback by default.
+
 ## 0.8.0
 
 ### Minor Changes
