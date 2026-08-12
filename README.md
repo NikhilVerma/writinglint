@@ -143,7 +143,7 @@ release procedures are documented in
 
 SlopSift can send warning- and error-level writing problems back to Claude Code,
 Codex, or Pi for an automatic rewrite before the agent finishes. Run
-`npx slopsift@0.7.0 agent demo` to exercise the correction decision locally.
+`npx slopsift@0.8.0 agent demo` to exercise the correction decision locally.
 SlopSift also publishes the same rule and output contracts for people, CI, and
 agents:
 

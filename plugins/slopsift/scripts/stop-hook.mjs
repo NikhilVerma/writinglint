@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+
+const pluginPackage = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
 
 const input = await new Promise((resolve, reject) => {
   let source = '';
@@ -18,10 +21,12 @@ const requestedLevel = process.env.SLOPSIFT_HOOK_LEVEL;
 if (requestedLevel === 'warning' || requestedLevel === 'error') {
   options.push('--level', requestedLevel);
 }
-for (const rulepack of (process.env.SLOPSIFT_HOOK_RULEPACKS || '').split(',').map((value) => value.trim()).filter(Boolean)) {
+const configuredRulepacks = (process.env.SLOPSIFT_HOOK_RULEPACKS || '').split(',').map((value) => value.trim()).filter(Boolean);
+const rulepacks = configuredRulepacks.length > 0 ? configuredRulepacks : ['ai-style', 'reader-first'];
+for (const rulepack of rulepacks) {
   options.push('--rulepack', rulepack);
 }
-valueOption('SLOPSIFT_HOOK_FEEDBACK', '--feedback');
+options.push('--feedback', process.env.SLOPSIFT_HOOK_FEEDBACK || 'compact');
 valueOption('SLOPSIFT_HOOK_MAX_RETRIES', '--max-retries');
 valueOption('SLOPSIFT_HOOK_MAX_FINDINGS', '--max-findings');
 valueOption('SLOPSIFT_HOOK_MAX_DIRTY_FILES', '--max-dirty-files');
@@ -34,7 +39,7 @@ if (process.env.SLOPSIFT_HOOK_NO_DOWNLOAD === '1') options.push('--no-download')
 
 const localCli = process.env.SLOPSIFT_HOOK_CLI;
 const command = localCli ? process.execPath : (process.env.SLOPSIFT_HOOK_NPX || 'npx');
-const args = localCli ? [localCli, ...options] : ['--yes', 'slopsift@0.7.0', ...options];
+const args = localCli ? [localCli, ...options] : ['--yes', `slopsift@${pluginPackage.version}`, ...options];
 const result = spawnSync(command, args, {
   input,
   encoding: 'utf8',

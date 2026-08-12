@@ -63,6 +63,24 @@ npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack reader-first 
 
 Pass the Claude Code or Codex Stop event as JSON on stdin. The command writes one JSON decision to stdout. Compact feedback groups repeated findings, omits response locations that the model already has in context, and shows up to 100 findings by default. Use `--feedback detailed` for file-oriented diagnostics.
 
+Running the command directly does not install a hook. For a user-level installation, use the maintained plugin for each installed host. These commands preserve other hooks and settings.
+
+Claude Code:
+
+```sh
+claude plugin marketplace add NikhilVerma/writinglint
+claude plugin install --scope user slopsift@slopsift
+```
+
+Codex:
+
+```sh
+codex plugin marketplace add NikhilVerma/writinglint
+codex plugin add slopsift@slopsift
+```
+
+Start a new session after installation. Approve the hook if the client asks for trust. Test it with one response that should be rejected and one clean rewrite that should pass. Do not enable dirty-tree or transcript checks unless the user requests them.
+
 ## Exit codes
 
 - `0`: accepted result, including lint findings when `--exit-zero` is set.

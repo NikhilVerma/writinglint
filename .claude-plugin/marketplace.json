@@ -11,7 +11,7 @@
       "displayName": "SlopSift",
       "source": "./plugins/slopsift",
       "description": "Lint an agent's final prose and ask it to rewrite before stopping.",
-      "version": "0.7.0",
+      "version": "0.8.0",
       "author": {
         "name": "Nikhil Verma"
       },

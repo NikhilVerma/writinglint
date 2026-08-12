@@ -56,6 +56,8 @@ test('agent plugin runner forwards opt-in evidence flags and emits only hook JSO
     assert.equal(errorsOnly.status, 0, errorsOnly.stderr);
     const errorsOnlyOutput = JSON.parse(errorsOnly.stdout) as { reason?: string };
     assert.match(errorsOnlyOutput.reason ?? '', /--level error/);
+    assert.match(errorsOnlyOutput.reason ?? '', /--rulepack ai-style --rulepack reader-first/);
+    assert.match(errorsOnlyOutput.reason ?? '', /--feedback compact/);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
@@ -88,4 +90,24 @@ test('shared hook manifest invokes the packaged runner', async () => {
     command: 'node "${CLAUDE_PLUGIN_ROOT}/scripts/stop-hook.mjs"',
     timeout: 240,
   });
+});
+
+test('agent plugin and marketplace versions match the published CLI', async () => {
+  const paths = [
+    'packages/slopsift/package.json',
+    'plugins/slopsift/package.json',
+    'plugins/slopsift/.claude-plugin/plugin.json',
+    'plugins/slopsift/.codex-plugin/plugin.json',
+  ];
+  const manifests = await Promise.all(paths.map(async (path) => (
+    JSON.parse(await readFile(join(root, path), 'utf8')) as { version: string }
+  )));
+  const expectedVersion = manifests[0]?.version;
+  assert.ok(expectedVersion);
+  for (const manifest of manifests.slice(1)) assert.equal(manifest.version, expectedVersion);
+
+  const marketplace = JSON.parse(await readFile(join(root, '.claude-plugin/marketplace.json'), 'utf8')) as {
+    plugins: Array<{ name: string; version: string }>;
+  };
+  assert.equal(marketplace.plugins.find((plugin) => plugin.name === 'slopsift')?.version, expectedVersion);
 });

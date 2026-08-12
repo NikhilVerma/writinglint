@@ -24,9 +24,9 @@ Warnings and errors go back to the agent for a bounded rewrite; informational
 findings never interrupt the turn.
 
 ```bash
-npx slopsift@0.7.0 agent doctor --host claude-code
-npx slopsift@0.7.0 agent doctor --host codex
-npx slopsift@0.7.0 agent demo
+npx slopsift@0.8.0 agent doctor --host claude-code
+npx slopsift@0.8.0 agent doctor --host codex
+npx slopsift@0.8.0 agent demo
 ```
 
 The doctor checks the installed client and plugin, then exercises the real

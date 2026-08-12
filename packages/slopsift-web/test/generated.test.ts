@@ -45,9 +45,14 @@ test('agent discovery files link to the machine contracts', async () => {
   assert.match(llms, /\/rules\/index\.json/);
   assert.match(llms, /\/schemas\/slopsift-result-v1\.schema\.json/);
   assert.match(llms, /Accept: text\/markdown/);
+  assert.match(llms, /Running it does not install a hook/);
+  assert.match(llms, /claude plugin install --scope user slopsift@slopsift/);
+  assert.match(llms, /codex plugin add slopsift@slopsift/);
   const full = await readFile(fileURLToPath(new URL('../public/llms-full.txt', import.meta.url)), 'utf8');
   assert.match(full, /## CLI/);
   assert.match(full, /## In-process API/);
   assert.match(full, /## Stop hook/);
   assert.match(full, /--rulepack ai-style --rulepack reader-first/);
+  assert.match(full, /Running the command directly does not install a hook/);
+  assert.match(full, /start a new session/i);
 });
