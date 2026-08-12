@@ -1,6 +1,6 @@
 {
   "name": "slopsift",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Lint Markdown, prose, and source-code comments for AI writing slop.",
   "type": "module",
   "license": "MIT",
