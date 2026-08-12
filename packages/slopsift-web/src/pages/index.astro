@@ -4,6 +4,7 @@ import SiteFooter from '../components/SiteFooter.astro';
 import RulepackSelect from '../components/RulepackSelect.astro';
 
 const marketplaceUrl = 'https://marketplace.visualstudio.com/items?itemName=NikhilVerma01.slopsift-vscode';
+const agentSetupInstruction = 'Set up SlopSift as a user-level Stop hook for Claude Code and/or Codex. Follow https://slopsift.dev/llms.txt, preserve my existing settings, and test the hook after installation.';
 
 const sample = `As an AI language model, let's delve into the load-bearing idea behind this solution.
 
@@ -45,6 +46,7 @@ const productSchema = {
     'Exact finding ranges',
     'Markdown, HTML, prose, and source-code comment linting',
     'JSON output for CI',
+    'Automatic Claude Code and Codex response checks',
   ],
   sameAs: [
     'https://github.com/NikhilVerma/writinglint',
@@ -176,6 +178,17 @@ const productSchema = {
         <article><div class="surface-mark">$</div><div><h3>CLI</h3><p>Glob files, lint Markdown, inspect code comments, and emit ESLint-shaped JSON in CI.</p></div><a class="surface-link" href="/docs/#quick-start">CLI docs →</a></article>
         <article><div class="surface-mark">VS</div><div><h3>VS Code</h3><p>See SlopSift findings in the Problems panel while you edit Markdown, plain text, and source comments.</p></div><a class="surface-link" href={marketplaceUrl}>Install extension →</a></article>
         <article><div class="surface-mark">AI</div><div><h3>Agent skill</h3><p>Let coding agents run the real linter, interpret its findings, and edit without flattening your voice.</p></div><a class="surface-link" href="/docs/#agent-skill">Add the skill →</a></article>
+      </div>
+      <div class="agent-setup" id="agent-setup">
+        <div class="agent-setup__intro">
+          <h3>Paste this into your coding agent.</h3>
+          <p>The linked file explains how to install the plugin, preserve your settings, restart the agent, and prove the correction loop works.</p>
+        </div>
+        <div class="agent-prompt" role="group" aria-label="Coding agent setup instruction">
+          <div class="agent-prompt__bar"><span>Claude Code or Codex</span><span>user-level Stop hook</span></div>
+          <p>{agentSetupInstruction}</p>
+          <button type="button" data-copy={agentSetupInstruction}><span aria-live="polite">Copy instruction</span></button>
+        </div>
       </div>
     </section>
 
