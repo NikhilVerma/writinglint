@@ -293,7 +293,27 @@ const llms = `# SlopSift
 
 - CLI: \`npx slopsift . --rulepack ai-style --rulepack reader-first\`
 - API: import \`createSlopSift\`, then pass \`rulepacks: ['ai-style', 'reader-first']\` to \`lintSource\`.
-- Stop hook: \`npx slopsift hook stop --rulepack ai-style --rulepack reader-first\` reads a hook event from stdin and returns one JSON decision.
+- Stop hook executable: \`npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack reader-first --feedback compact\` reads a hook event from stdin and returns one JSON decision. Running it does not install a hook.
+
+## Install agent Stop hooks
+
+When asked to set up SlopSift, detect which supported agent is installed and use its maintained plugin. Plugin installation registers the Stop hook; do not replace the user's settings file or existing hooks.
+
+Claude Code:
+
+\`\`\`sh
+claude plugin marketplace add NikhilVerma/writinglint
+claude plugin install --scope user slopsift@slopsift
+\`\`\`
+
+Codex:
+
+\`\`\`sh
+codex plugin marketplace add NikhilVerma/writinglint
+codex plugin add slopsift@slopsift
+\`\`\`
+
+After installation, start a new agent session, approve the hook if the client asks, and run one known-bad response followed by a clean rewrite. Do not enable dirty-tree or transcript checks unless the user requests them. See the [complete agent reference](${SITE}/llms-full.txt) for validation and standalone configuration.
 
 ## Machine-readable references
 
@@ -375,6 +395,24 @@ npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack reader-first 
 \`\`\`
 
 Pass the Claude Code or Codex Stop event as JSON on stdin. The command writes one JSON decision to stdout. Compact feedback groups repeated findings, omits response locations that the model already has in context, and shows up to 100 findings by default. Use \`--feedback detailed\` for file-oriented diagnostics.
+
+Running the command directly does not install a hook. For a user-level installation, use the maintained plugin for each installed host. These commands preserve other hooks and settings.
+
+Claude Code:
+
+\`\`\`sh
+claude plugin marketplace add NikhilVerma/writinglint
+claude plugin install --scope user slopsift@slopsift
+\`\`\`
+
+Codex:
+
+\`\`\`sh
+codex plugin marketplace add NikhilVerma/writinglint
+codex plugin add slopsift@slopsift
+\`\`\`
+
+Start a new session after installation. Approve the hook if the client asks for trust. Test it with one response that should be rejected and one clean rewrite that should pass. Do not enable dirty-tree or transcript checks unless the user requests them.
 
 ## Exit codes
 

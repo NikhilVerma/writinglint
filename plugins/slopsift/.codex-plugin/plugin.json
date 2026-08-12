@@ -1,6 +1,6 @@
 {
   "name": "slopsift",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Lint an agent's final prose and ask it to rewrite before stopping.",
   "author": {
     "name": "Nikhil Verma"

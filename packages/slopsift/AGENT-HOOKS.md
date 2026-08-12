@@ -29,8 +29,8 @@ Start a new agent session after installation. Then check that the client,
 plugin, local model, and Stop-hook decision are ready:
 
 ```bash
-npx slopsift@0.7.0 agent doctor --host claude-code
-npx slopsift@0.7.0 agent doctor --host codex
+npx slopsift@0.8.0 agent doctor --host claude-code
+npx slopsift@0.8.0 agent doctor --host codex
 ```
 
 The doctor is read-only. It can confirm that the plugin is installed and
@@ -52,7 +52,7 @@ You can exercise the same reject-then-accept decision without launching an
 agent:
 
 ```bash
-npx slopsift@0.7.0 agent demo
+npx slopsift@0.8.0 agent demo
 ```
 
 ## How the Stop hook works
@@ -62,7 +62,11 @@ reads the hook event from standard input and writes one JSON object to standard
 output:
 
 ```bash
-npx slopsift@0.7.0 hook stop < hook-event.json
+npx slopsift@0.8.0 hook stop \
+  --rulepack ai-style \
+  --rulepack reader-first \
+  --feedback compact \
+  < hook-event.json
 ```
 
 For an initially clean response, the command writes `{}`. When it finds a
@@ -81,7 +85,7 @@ needed when an application must hide every rejected draft.
 ## Install the shared plugin from a checkout
 
 This repository contains one plugin directory that both Claude Code and Codex
-can load. The plugin runs the pinned `slopsift@0.7.0` package through `npx`, so
+can load. The plugin runs the pinned `slopsift@0.8.0` package through `npx`, so
 Node and npm must be available to the agent process.
 
 Use a local checkout when you are developing the plugin itself. In Claude Code:
@@ -115,7 +119,7 @@ You can call the CLI without the plugin. Add this handler under `hooks.Stop` in
         "hooks": [
           {
             "type": "command",
-            "command": "npx --yes slopsift@0.7.0 hook stop",
+            "command": "npx --yes slopsift@0.8.0 hook stop --rulepack ai-style --rulepack reader-first --feedback compact",
             "timeout": 240
           }
         ]
@@ -134,7 +138,11 @@ Pass `--include-dirty` when the agent should fix prose in files as well as its
 final response:
 
 ```bash
-npx slopsift@0.7.0 hook stop --include-dirty
+npx slopsift@0.8.0 hook stop \
+  --rulepack ai-style \
+  --rulepack reader-first \
+  --feedback compact \
+  --include-dirty
 ```
 
 SlopSift asks Git for modified, staged, renamed, and untracked files, skips
@@ -169,7 +177,10 @@ The hook event must supply `transcript_path`, or you must pass
 uploads it.
 
 ```bash
-npx slopsift@0.7.0 hook stop \
+npx slopsift@0.8.0 hook stop \
+  --rulepack ai-style \
+  --rulepack reader-first \
+  --feedback compact \
   --include-transcript \
   --transcript-path /path/to/session.jsonl
 ```
@@ -219,7 +230,8 @@ The command accepts `--level`, `--max-retries`, `--max-findings`,
 `--state-dir`, `--model`, and `--no-download` in addition to the Git and
 transcript options above. Run `slopsift hook stop --help` for the complete list.
 
-The plugin runner maps these environment variables to CLI options:
+The plugin uses both rulepacks and compact feedback by default. The plugin
+runner maps these environment variables to CLI options:
 
 - `SLOPSIFT_HOOK_LEVEL=warning|error`
 - `SLOPSIFT_HOOK_RULEPACKS=ai-style,reader-first`

@@ -21,9 +21,9 @@ After installing the plugin, use the published CLI to check the installation
 and exercise the correction decision:
 
 ```bash
-npx slopsift@0.7.0 agent doctor --host claude-code
-npx slopsift@0.7.0 agent doctor --host codex
-npx slopsift@0.7.0 agent demo
+npx slopsift@0.8.0 agent doctor --host claude-code
+npx slopsift@0.8.0 agent doctor --host codex
+npx slopsift@0.8.0 agent demo
 ```
 
 ## Try this checkout
