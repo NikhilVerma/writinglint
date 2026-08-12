@@ -211,13 +211,14 @@ used only after linting for contextual explanation and repair.
 - [ ] Investigate the work required to reproduce the necessary pipeline in
       TypeScript plus ONNX Runtime Web/WASM.
 
-## Controlled technical English from first principles
+## Reader-first writing from first principles
 
-Build the technical-English work as a capability of WritingLint, not as a
-growing collection of isolated SlopSift regexes. The first release of
-`writinglint-rulepack-technical-english` intentionally implements only five
-detectors. They cover selected parts of ASD-STE100 Issue 9 rules 3.6, 4.2, 5.1,
-6.3, 6.6, and 8.1. The other 47 references remain `review-required`.
+Build reader-first writing as a capability of WritingLint, not as a growing
+collection of isolated SlopSift regexes. The package must remain independently
+authored. It can use broad plain-language techniques such as explicit actors,
+introduced terms, visible relationships, short procedures, and consistent
+wording, but it must not embed an external corpus or claim compliance with an
+external standard.
 
 The present categories are only buckets for those five detectors. They do not
 describe complete coverage of words, sentences, paragraphs, or punctuation.
@@ -228,7 +229,7 @@ This program must improve the reusable engine before it expands the rulepack.
 The dependency order is:
 
 1. Preserve the structure and role of the source document.
-2. Expose the linguistic annotations that controlled-language rules need.
+2. Expose the linguistic annotations that reader-first rules need.
 3. Build deterministic terminology and word-count services on those contracts.
 4. Make every finding explain which capability and evidence produced it.
 5. Add detectors only after their evaluation data and release gates exist.
@@ -261,9 +262,8 @@ review. It must not claim that silence proves conformance.
 - [ ] Include executed, skipped, and human-only references with concise reasons
       in structured output. Version the result schema if this cannot remain a
       backward-compatible addition.
-- [ ] Audit the website, CLI, editor, README, and package metadata so they say
-      `partial ASD-STE100 checks` until the visible text also shows exact
-      coverage.
+- [ ] Audit the website, CLI, editor, README, and package metadata so visible
+      claims never exceed detector coverage.
 
 #### Acceptance criteria
 
@@ -330,7 +330,7 @@ structural findings.
 - [ ] Evaluate noun-phrase and proper-name grouping as separate deterministic
       or model-backed annotation stages instead of hiding them inside
       individual rules.
-- [ ] Train and evaluate on controlled technical prose, including valid STE
+- [ ] Train and evaluate on controlled technical prose, including valid simple
       constructions that differ from ordinary Standard English grammar.
 - [ ] Make every rule declare its required parser capabilities. The linter must
       skip or demote the rule explicitly when the active parser cannot supply
@@ -346,13 +346,13 @@ structural findings.
 - Per-capability accuracy and downstream rule precision are release gates; an
   increase in aggregate UAS or LAS is not sufficient.
 
-### 4. Build an STE-specific counting service
+### 4. Build a reader-first counting service
 
 Sentence length cannot use `sentence.words.length` as its final definition.
-ASD-STE100 gives special treatment to structural and lexical groups.
+Simple technical prose can give special treatment to structural and lexical groups.
 
 - [x] Introduce a parser-independent `CountUnit` service that explains how raw
-      source spans become controlled-language words.
+      source spans become countable reader units.
 - [ ] Implement the structural effect of a colon before a vertical list.
 - [ ] Count parenthetical text as one unit when the applicable rule requires it.
 - [ ] Group numbers with units of measurement, abbreviations, alphanumeric
@@ -397,10 +397,9 @@ obtained, a user-supplied local dataset, and organization-specific terminology.
       establish violations; ambiguous uses remain review candidates.
 - [ ] Add document-level identity tracking so the checker can find inconsistent
       terminology without assuming that every synonym refers to the same item.
-- [ ] Audit copyright, trademark, and redistribution rights before creating or
-      publishing a machine-readable derivative of the ASD-STE100 dictionary.
-      Until that audit is complete, require an independently authored or
-      user-supplied data source.
+- [ ] Audit copyright, trademark, and redistribution rights before publishing
+      any machine-readable third-party terminology source. Prefer independently
+      authored or user-supplied data.
 
 #### Acceptance criteria
 
@@ -518,7 +517,7 @@ its required contracts and evaluation fixtures exist.
 
 ### 8. Build the evaluation system before broad claims
 
-- [ ] Create an independently authored, provenance-tracked technical-English
+- [ ] Create an independently authored, provenance-tracked reader-first
       corpus with procedures, descriptions, notes, warnings, cautions, lists,
       tables, labels, quoted text, and mixed-role documents.
 - [ ] Give every detector triggering fixtures, boundary fixtures, and nearby
@@ -584,14 +583,14 @@ A standard reference can move to `implemented` only when:
 - [ ] Update agent feedback so it never asks a model to repair a skipped check
       or presents a review candidate as a proven violation.
 - [ ] Publish model, terminology, rule-catalogue, and evaluation provenance with
-      every release that changes technical-English behavior.
+      every release that changes reader-first behavior.
 
 ### Critical path
 
 1. Coverage catalogue and capability-aware assessment.
 2. Structured document and region-role contract.
 3. Parser capabilities, morphology, and confidence.
-4. STE-specific count units and sentence-length migration.
+4. Reader-first count units and sentence-load migration.
 5. Terminology provider and local glossary workflow.
 6. Evidence-bearing finding contract and debugger.
 7. Syntax and structure detector expansion.

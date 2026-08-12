@@ -18,6 +18,10 @@ const requestedLevel = process.env.SLOPSIFT_HOOK_LEVEL;
 if (requestedLevel === 'warning' || requestedLevel === 'error') {
   options.push('--level', requestedLevel);
 }
+for (const rulepack of (process.env.SLOPSIFT_HOOK_RULEPACKS || '').split(',').map((value) => value.trim()).filter(Boolean)) {
+  options.push('--rulepack', rulepack);
+}
+valueOption('SLOPSIFT_HOOK_FEEDBACK', '--feedback');
 valueOption('SLOPSIFT_HOOK_MAX_RETRIES', '--max-retries');
 valueOption('SLOPSIFT_HOOK_MAX_FINDINGS', '--max-findings');
 valueOption('SLOPSIFT_HOOK_MAX_DIRTY_FILES', '--max-dirty-files');

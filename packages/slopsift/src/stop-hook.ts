@@ -5,7 +5,12 @@ import { join, relative } from 'node:path';
 import type { Lint } from 'writinglint-core';
 import { readCurrentTurnTranscript } from './agent-transcript.js';
 import { listDirtyGitFiles } from './git-dirty.js';
-import type { LintSourceOptions, MinimumLevel, SlopSiftResult } from './index.js';
+import type {
+  LintSourceOptions,
+  MinimumLevel,
+  RulepackName,
+  SlopSiftResult,
+} from './index.js';
 
 export interface StopHookEvent {
   session_id: string;
@@ -25,6 +30,8 @@ export interface StopHookOutput {
 
 export interface StopHookOptions {
   level?: MinimumLevel;
+  feedback?: 'compact' | 'detailed';
+  rulepacks?: readonly RulepackName[];
   maxRetries?: number;
   maxFindings?: number;
   stateDirectory?: string;
@@ -45,7 +52,7 @@ interface RetryState {
 }
 
 const DEFAULT_MAX_RETRIES = 2;
-const DEFAULT_MAX_FINDINGS = 5;
+const DEFAULT_MAX_FINDINGS = 100;
 const DEFAULT_MAX_DIRTY_FILES = 50;
 const DEFAULT_MAX_TRANSCRIPT_MESSAGES = 20;
 
@@ -141,26 +148,26 @@ function lineAndColumn(source: string, offset: number): { line: number; column: 
   return { line, column };
 }
 
-function excerpt(lint: Lint): string {
+function excerpt(lint: Lint, maxLength = 140): string {
   const text = lint.text.replace(/\s+/g, ' ').trim();
   if (!text) return '';
-  return text.length > 140 ? `${text.slice(0, 137)}…` : text;
+  return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
 }
 
-function findingsReason(lints: readonly EvidenceLint[], maxFindings: number, limits: string[]): string {
+function correctionInstruction(lints: readonly EvidenceLint[]): string {
+  const kinds = new Set(lints.map(({ kind }) => kind));
+  const actions = [kinds.has('response')
+    ? 'Rewrite the response.'
+    : 'Write a clear response without repeating these problems.'];
+  if (kinds.has('dirty-file')) actions.push('Edit the listed files too.');
+  actions.push('Preserve facts, commands, links, caveats, and file references.');
+  actions.push('Fix each rule’s cause. Return only the revision; do not mention this review.');
+  return actions.join(' ');
+}
+
+function detailedFindingsReason(lints: readonly EvidenceLint[], maxFindings: number, limits: string[]): string {
   const shown = lints.slice(0, maxFindings);
   const omitted = lints.length - shown.length;
-  const kinds = new Set(lints.map(({ kind }) => kind));
-  const actions = [
-    kinds.has('response')
-      ? 'Rewrite the final response before stopping. Keep every fact, command, link, caveat, and file reference.'
-      : 'Write a clear final response without repeating the transcript problems below.',
-  ];
-  if (kinds.has('dirty-file')) {
-    actions.push('Edit the listed files before stopping. Keep their technical meaning and useful detail.');
-  }
-  actions.push('Address the reason for each finding instead of merely deleting the flagged text.');
-  actions.push('Return only the corrected response. Do not mention SlopSift or this review.');
   const findings = shown.map(({ label, source, lint }) => {
     const { line, column } = lineAndColumn(source, lint.start);
     const quoted = excerpt(lint);
@@ -170,7 +177,7 @@ function findingsReason(lints: readonly EvidenceLint[], maxFindings: number, lim
   if (omitted > 0) findings.push(`- ${omitted} additional finding${omitted === 1 ? '' : 's'} omitted.`);
   return [
     `The response needs another editing pass. SlopSift found ${lints.length} writing problem${lints.length === 1 ? '' : 's'} in this turn.`,
-    ...actions,
+    correctionInstruction(lints),
     ...limits,
     '',
     'Problems to fix:',
@@ -178,15 +185,65 @@ function findingsReason(lints: readonly EvidenceLint[], maxFindings: number, lim
   ].join('\n');
 }
 
+interface FindingGroup {
+  ruleId: string;
+  severity: Lint['severity'];
+  findings: EvidenceLint[];
+}
+
+function groupFindings(lints: readonly EvidenceLint[]): FindingGroup[] {
+  const groups = new Map<string, FindingGroup>();
+  for (const finding of lints) {
+    const key = `${finding.lint.severity}\0${finding.lint.ruleId}`;
+    const group = groups.get(key);
+    if (group) group.findings.push(finding);
+    else groups.set(key, {
+      ruleId: finding.lint.ruleId,
+      severity: finding.lint.severity,
+      findings: [finding],
+    });
+  }
+  return [...groups.values()];
+}
+
+function compactGroup(group: FindingGroup, includeLabels: boolean, exampleLimit: number): string[] {
+  const heading = `${group.ruleId} [${group.severity === 'warn' ? 'warning' : group.severity}] ×${group.findings.length}`;
+  const message = group.findings[0]?.lint.message.replace(/\s+/g, ' ').trim() ?? '';
+  const concise = message.length > 140 ? `${message.slice(0, 139)}…` : message;
+  const anchors = [...new Set(group.findings.map(({ label, lint }) => {
+    const text = excerpt(lint, 60);
+    if (!text || text.length === 1) return '';
+    return `${includeLabels ? `${label}: ` : ''}“${text}”`;
+  }).filter(Boolean))].slice(0, exampleLimit);
+  const remaining = group.findings.length - anchors.length;
+  return [
+    `${heading} — ${concise}`,
+    ...(anchors.length ? [`  Examples: ${anchors.join('; ')}${remaining > 0 ? `; +${remaining} more` : ''}`] : []),
+  ];
+}
+
+function compactFindingsReason(lints: readonly EvidenceLint[], maxFindings: number, limits: string[]): string {
+  const grouped = groupFindings(lints);
+  const includeLabels = lints.some(({ kind }) => kind !== 'response');
+  const exampleLimit = Math.max(1, Math.min(3, Math.floor(maxFindings / Math.max(1, grouped.length))));
+  const groups = grouped.flatMap((group) => compactGroup(group, includeLabels, exampleLimit));
+  return [
+    correctionInstruction(lints),
+    `${lints.length} finding${lints.length === 1 ? '' : 's'} in ${grouped.length} rule group${grouped.length === 1 ? '' : 's'}.`,
+    ...limits,
+    ...groups,
+  ].filter(Boolean).join('\n');
+}
+
 async function lintEvidence(
   engine: LintEngine,
   label: string,
   filePath: string,
   source: string,
-  level: MinimumLevel,
+  lintOptions: LintSourceOptions,
   kind: EvidenceLint['kind'],
 ): Promise<EvidenceLint[]> {
-  const result = await engine.lintSource(filePath, source, { level });
+  const result = await engine.lintSource(filePath, source, lintOptions);
   return (result?.lints ?? []).map((lint) => ({ label, source, lint, kind }));
 }
 
@@ -200,11 +257,17 @@ export async function runStopHook(
   options: StopHookOptions = {},
 ): Promise<StopHookOutput> {
   const level = options.level ?? 'warning';
+  const feedback = options.feedback ?? 'compact';
   const maxRetries = options.maxRetries ?? DEFAULT_MAX_RETRIES;
   const maxFindings = options.maxFindings ?? DEFAULT_MAX_FINDINGS;
   const maxDirtyFiles = options.maxDirtyFiles ?? DEFAULT_MAX_DIRTY_FILES;
   const maxTranscriptMessages = options.maxTranscriptMessages ?? DEFAULT_MAX_TRANSCRIPT_MESSAGES;
+  const lintOptions: LintSourceOptions = {
+    level,
+    rulepacks: options.rulepacks,
+  };
   if (!Number.isInteger(maxRetries) || maxRetries < 0) throw new Error('maxRetries must be a non-negative integer');
+  if (feedback !== 'compact' && feedback !== 'detailed') throw new Error('feedback must be compact or detailed');
   if (!Number.isInteger(maxFindings) || maxFindings < 1) throw new Error('maxFindings must be a positive integer');
   if (!Number.isInteger(maxDirtyFiles) || maxDirtyFiles < 1) throw new Error('maxDirtyFiles must be a positive integer');
   if (!Number.isInteger(maxTranscriptMessages) || maxTranscriptMessages < 1) throw new Error('maxTranscriptMessages must be a positive integer');
@@ -215,7 +278,7 @@ export async function runStopHook(
   const limits: string[] = [];
   const response = event.last_assistant_message?.trim() ?? '';
   if (response) {
-    evidence.push(...await lintEvidence(engine, 'assistant response', 'assistant-response.md', response, level, 'response'));
+    evidence.push(...await lintEvidence(engine, 'assistant response', 'assistant-response.md', response, lintOptions, 'response'));
   }
 
   if (options.includeTranscript) {
@@ -232,7 +295,7 @@ export async function runStopHook(
         `${transcriptPath}#record-${message.record}`,
         'assistant-transcript.md',
         message.text,
-        level,
+        lintOptions,
         'transcript',
       ));
     }
@@ -247,7 +310,7 @@ export async function runStopHook(
     }
     for (const file of selected) {
       const source = await readFile(file, 'utf8');
-      evidence.push(...await lintEvidence(engine, relative(dirty.root, file), file, source, level, 'dirty-file'));
+      evidence.push(...await lintEvidence(engine, relative(dirty.root, file), file, source, lintOptions, 'dirty-file'));
     }
   }
 
@@ -276,7 +339,9 @@ export async function runStopHook(
   await writeRetries(directory, path, storedRetries + 1);
   return {
     decision: 'block',
-    reason: findingsReason(evidence, maxFindings, limits),
+    reason: feedback === 'detailed'
+      ? detailedFindingsReason(evidence, maxFindings, limits)
+      : compactFindingsReason(evidence, maxFindings, limits),
   };
 }
 

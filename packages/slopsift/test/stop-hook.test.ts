@@ -92,6 +92,25 @@ test('Stop hook allows a clean response and clears retry state', async () => {
   }
 });
 
+test('Stop hook forwards selected rulepacks to every evidence source', async () => {
+  const seen: Array<Record<string, unknown>> = [];
+  const observingEngine = {
+    async lintSource(_filePath: string, _source: string, options: Record<string, unknown>) {
+      seen.push(options);
+      return { kind: 'prose' as const, lints: [], wordCount: 4 };
+    },
+  };
+  await runStopHook(observingEngine, event({
+    last_assistant_message: 'Open the access panel.',
+  }), {
+    rulepacks: ['ai-style', 'reader-first'],
+  });
+  assert.deepEqual(seen, [{
+    level: 'warning',
+    rulepacks: ['ai-style', 'reader-first'],
+  }]);
+});
+
 test('Stop hook blocks with concise findings and caps correction retries', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'slopsift-stop-retry-'));
   try {
@@ -101,10 +120,11 @@ test('Stop hook blocks with concise findings and caps correction retries', async
       maxFindings: 1,
     });
     assert.equal(first.decision, 'block');
-    assert.match(first.reason ?? '', /Rewrite the final response before stopping/);
-    assert.match(first.reason ?? '', /warning at assistant response:1:1 — ai-style\/agentless-rationale/);
-    assert.match(first.reason ?? '', /Keep every fact, command, link, caveat, and file reference/);
-    assert.match(first.reason ?? '', /Address the reason for each finding/);
+    assert.match(first.reason ?? '', /Rewrite the response/);
+    assert.match(first.reason ?? '', /ai-style\/agentless-rationale \[warning\] ×1/);
+    assert.doesNotMatch(first.reason ?? '', /assistant response:1:1/);
+    assert.match(first.reason ?? '', /Preserve facts, commands, links, caveats, and file references/);
+    assert.match(first.reason ?? '', /Fix each rule’s cause/);
 
     const second = await runStopHook(engine([warning()]), event({ stop_hook_active: true }), {
       stateDirectory: directory,
@@ -141,14 +161,29 @@ test('Stop hook tells the user when an automatic rewrite passes', async () => {
   }
 });
 
-test('Stop hook limits model-visible findings and handles empty responses', async () => {
+test('Stop hook groups many model-visible findings without source locations', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'slopsift-stop-findings-'));
   try {
-    const output = await runStopHook(engine([
-      warning('First compressed explanation.'),
-      { ...warning('Second compressed explanation.'), ruleId: 'ai-style/implementation-detail-pileup' },
-    ]), event(), { stateDirectory: directory, maxFindings: 1 });
-    assert.match(output.reason ?? '', /1 additional finding omitted/);
+    const findings = Array.from({ length: 48 }, (_, index) => warning(`Problem ${index + 1}.`));
+    const output = await runStopHook(engine(findings), event(), { stateDirectory: directory });
+    assert.match(output.reason ?? '', /48 findings in 1 rule group/);
+    assert.match(output.reason ?? '', /ai-style\/agentless-rationale \[warning\] ×48/);
+    assert.match(output.reason ?? '', /“Problem 3\.”; \+45 more/);
+    assert.equal((output.reason ?? '').match(/Name the subject before explaining the reason/g)?.length, 1);
+    assert.doesNotMatch(output.reason ?? '', /Problem 48/);
+    assert.doesNotMatch(output.reason ?? '', /assistant response:/);
+
+    const capped = await runStopHook(engine(findings), event(), {
+      stateDirectory: directory,
+      maxFindings: 10,
+    });
+    assert.match(capped.reason ?? '', /48 findings in 1 rule group/);
+
+    const detailed = await runStopHook(engine([warning()]), event(), {
+      stateDirectory: directory,
+      feedback: 'detailed',
+    });
+    assert.match(detailed.reason ?? '', /assistant response:1:1/);
 
     const empty = await runStopHook(engine([warning()]), event({
       stop_hook_active: true,
@@ -188,7 +223,8 @@ test('Stop hook can ask the agent to edit prose in its dirty Git tree', async ()
     });
     assert.equal(output.decision, 'block');
     assert.match(output.reason ?? '', /Edit the listed files/);
-    assert.match(output.reason ?? '', /docs\/notes\.md:1:1/);
+    assert.match(output.reason ?? '', /docs\/notes\.md/);
+    assert.doesNotMatch(output.reason ?? '', /docs\/notes\.md:1:1/);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }
@@ -211,8 +247,9 @@ test('Stop hook can use active-turn transcript prose as correction context', asy
       stateDirectory: join(directory, 'state'),
     });
     assert.equal(output.decision, 'block');
-    assert.match(output.reason ?? '', /without repeating the transcript problems/);
-    assert.match(output.reason ?? '', /session\.jsonl#record-2:1:1/);
+    assert.match(output.reason ?? '', /without repeating these problems/);
+    assert.match(output.reason ?? '', /session\.jsonl#record-2/);
+    assert.doesNotMatch(output.reason ?? '', /session\.jsonl#record-2:1:1/);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

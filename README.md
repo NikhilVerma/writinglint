@@ -41,9 +41,8 @@ Useful modes:
 
 ```bash
 slopsift . --level info
-slopsift manual.md --rulepack asd-ste100
-slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
-slopsift docs/ --rulepack ai-style --rulepack asd-ste100
+slopsift docs/ --rulepack reader-first
+slopsift docs/ --rulepack ai-style --rulepack reader-first
 slopsift . --quiet
 slopsift . --exit-zero
 slopsift . --format json
@@ -52,11 +51,10 @@ slopsift . --format github
 slopsift . --max-warnings 0
 ```
 
-The `asd-ste100` alias is an independent, partial ASD-STE100 Issue 9 check.
-It automates selected rules and reports a clean run as `review-required`, not
-`conformant`, until the controlled dictionary, project terminology, and
-meaning-based rules have also been reviewed. ASD does not certify, authorize,
-approve, or endorse SlopSift.
+The independent `reader-first` pack borrows general simplified-technical-writing
+techniques: introduce terms, show relationships, keep the main point visible,
+and remove ornament. It does not ship an external controlled dictionary or
+claim compliance with an external standard.
 
 The default view reports errors and warnings. `--level info` includes broad
 editorial review candidates, while `--quiet` reports high-confidence errors
@@ -77,7 +75,7 @@ The dependency direction is deliberate:
 
 ```text
 SlopSift CLI
-    -> WritingLint rulepacks (AI style, technical English, and others)
+    -> WritingLint rulepacks (AI style, reader-first, and others)
         -> WritingLint core + parser contract
             -> compact ONNX parser runtime
 ```

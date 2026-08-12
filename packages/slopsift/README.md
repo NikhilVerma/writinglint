@@ -45,25 +45,18 @@ bunx slopsift . --exit-zero
 ```
 
 Select a rulepack when you need a different writing policy. The option is
-repeatable, so AI-style and technical-English checks can run together:
+repeatable, so AI-style and reader-first checks can run together:
 
 ```bash
-slopsift manual.md --rulepack asd-ste100
-slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
-slopsift procedure.md --rulepack asd-ste100 --technical-standard-data /local/ASD-STE100_ISSUE9.parsed.json
-slopsift docs/ --rulepack ai-style --rulepack asd-ste100
+slopsift manual.md --rulepack reader-first
+slopsift docs/ --rulepack ai-style --rulepack reader-first
 ```
 
-The `asd-ste100` alias runs an independent, partial ASD-STE100 Issue 9 check. If you have an authorized local copy of the standard, `--technical-standard-data` accepts the validated output from the repository's Docling importer and adds conservative dictionary checks. SlopSift reads the file locally and reports its source fingerprint; the package does not contain or redistribute the controlled dictionary.
-It currently automates selected parts of rules 3.6, 4.2, 5.1, 6.3, 6.6, and
-8.1. JSON output includes `standardAssessment`: automated violations produce
-`nonconformant`; a clean automated run produces `review-required`. It cannot
-produce `conformant` until the controlled dictionary, project terminology, and
-meaning-based rules have also been reviewed.
-
-ASD does not certify, authorize, approve, or endorse SlopSift. ASD-STE100 is a
-registered trademark of ASD. Obtain the standard from the
-[official ASD-STE100 website](https://www.asd-ste100.org/).
+The `reader-first` pack applies general simplified-technical-writing techniques:
+introduce terms before relying on them, show relationships between nouns, keep
+one main point visible, and remove ornament that does not help the reader. It
+does not include an external controlled dictionary or claim compliance with an
+external standard.
 
 The `slopsift` package and executable deliberately share a name, so both
 `bunx slopsift .` and `npx slopsift .` work without a package override. CI

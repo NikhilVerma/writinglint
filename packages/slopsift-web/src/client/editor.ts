@@ -6,7 +6,6 @@ import { Compartment, EditorState, Prec } from '@codemirror/state';
 import { EditorView, keymap } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
 import type { Lint } from 'writinglint-core';
-import type { AsdSte100Issue9Assessment } from 'writinglint-rulepack-technical-english';
 import { EDITOR_SELECTION_THEME, selectEditorDocument } from './editor-interactions.js';
 import {
   emptyResultFor,
@@ -21,9 +20,7 @@ type Filter = 'all' | Lint['severity'];
 type WorkerOutput =
   | { type: 'progress'; stage: string; loaded?: number; total?: number }
   | { type: 'ready' }
-  | { type: 'standard-data-ready'; fingerprint: string }
-  | { type: 'standard-data-error'; message: string }
-  | { type: 'result'; id: number; lints: Lint[]; wordCount: number; standardAssessment?: AsdSte100Issue9Assessment }
+  | { type: 'result'; id: number; lints: Lint[]; wordCount: number }
   | { type: 'error'; id?: number; message: string };
 
 interface SavedDraft {
@@ -48,9 +45,6 @@ if (app) {
   const modeSelect = required<HTMLSelectElement>('[data-mode]');
   const presetSelect = required<HTMLSelectElement>('[data-rulepack-preset]');
   const fileInput = required<HTMLInputElement>('[data-file-input]');
-  const standardDataControl = required<HTMLElement>('[data-standard-data-control]');
-  const standardDataInput = required<HTMLInputElement>('[data-standard-data-input]');
-  const standardDataStatus = required<HTMLElement>('[data-standard-data-status]');
   const documentLabel = required<HTMLElement>('[data-document-label]');
   const parserState = required<HTMLElement>('[data-parser-state]');
   const parserStateLabel = required<HTMLElement>('[data-parser-state] span');
@@ -92,10 +86,9 @@ if (app) {
   const restored = restore();
   let filename = restored?.filename ?? filenameInput.value;
   let mode: Mode = restored?.mode ?? 'markdown';
-  let preset: RulepackPreset = restored?.preset ?? 'ai-style';
+  let preset: RulepackPreset = restored?.preset ?? 'combined';
   let activeFilter: Filter = 'all';
   let lastLints: Lint[] = [];
-  let lastAssessment: AsdSte100Issue9Assessment | undefined;
   let lastWordCount = 0;
   let ready = false;
   let inFlight = false;
@@ -281,7 +274,7 @@ if (app) {
       if (lastLints.length) {
         empty.textContent = 'No findings at this level.';
       } else {
-        const copy = emptyResultFor(preset, lastAssessment);
+        const copy = emptyResultFor();
         empty.textContent = `${copy.title} ${copy.detail}`;
       }
       findingsList.append(empty);
@@ -290,13 +283,12 @@ if (app) {
     findingsList.append(...visible.map(findingButton));
   }
 
-  function applyResult(lints: Lint[], wordCount: number, assessment?: AsdSte100Issue9Assessment): void {
+  function applyResult(lints: Lint[], wordCount: number): void {
     lastLints = lints;
     lastWordCount = wordCount;
-    lastAssessment = assessment;
     view.dispatch(setDiagnostics(view.state, diagnosticsFor(lints)));
     renderFindings();
-    status.textContent = statusForResult(lints, assessment);
+    status.textContent = statusForResult(lints);
     parserState.classList.add('is-ready');
     parserState.classList.remove('is-working', 'is-error');
     parserStateLabel.textContent = 'Local parser ready';
@@ -317,7 +309,6 @@ if (app) {
       requestId++;
       lastLints = [];
       lastWordCount = 0;
-      lastAssessment = undefined;
       view.dispatch(setDiagnostics(view.state, []));
       renderFindings();
       status.textContent = 'Start writing to run SlopSift';
@@ -364,8 +355,6 @@ if (app) {
   function setPreset(nextPreset: RulepackPreset): void {
     preset = nextPreset;
     presetSelect.value = preset;
-    lastAssessment = undefined;
-    standardDataControl.hidden = preset === 'ai-style';
     scheduleSave();
     scheduleLint();
   }
@@ -390,16 +379,9 @@ if (app) {
         parserState.classList.add('is-ready');
         parserStateLabel.textContent = 'Local parser ready';
         lintNow();
-      } else if (message.type === 'standard-data-ready') {
-        standardDataStatus.textContent = `Local dictionary loaded · ${message.fingerprint.slice(0, 18)}…`;
-        standardDataControl.classList.add('is-loaded');
-        lintNow();
-      } else if (message.type === 'standard-data-error') {
-        standardDataStatus.textContent = `Could not load this file: ${message.message}`;
-        standardDataControl.classList.remove('is-loaded');
       } else if (message.type === 'result') {
         if (message.id === requestId && currentText() === sentText && pathForLint() === sentPath && preset === sentPreset) {
-          applyResult(message.lints, message.wordCount, message.standardAssessment);
+          applyResult(message.lints, message.wordCount);
         }
         settle();
       } else if (message.type === 'error') {
@@ -443,17 +425,6 @@ if (app) {
   filenameInput.addEventListener('blur', () => setFilename(filenameInput.value));
   modeSelect.addEventListener('change', () => setMode(modeSelect.value === 'plain' ? 'plain' : 'markdown'));
   presetSelect.addEventListener('change', () => setPreset(normalizeRulepackPreset(presetSelect.value)));
-  standardDataInput.addEventListener('change', async () => {
-    const file = standardDataInput.files?.[0];
-    if (!file || !worker) return;
-    standardDataStatus.textContent = `Validating ${file.name} locally`;
-    try {
-      worker.postMessage({ type: 'standard-data', text: await file.text() });
-    } catch (error) {
-      standardDataStatus.textContent = `Could not read this file: ${error instanceof Error ? error.message : String(error)}`;
-    }
-    standardDataInput.value = '';
-  });
 
   required<HTMLButtonElement>('[data-new]').addEventListener('click', () => {
     if (currentText().trim() && !window.confirm('Start a new draft? The current version is saved in this browser.')) return;
@@ -515,7 +486,6 @@ if (app) {
       infoCount: lastLints.filter((lint) => lint.severity === 'info').length,
       wordCount: lastWordCount,
       findingsPerThousandWords: lastWordCount ? Number(((lastLints.length / lastWordCount) * 1000).toFixed(1)) : 0,
-      standardAssessment: lastAssessment,
     });
     try {
       await navigator.clipboard.writeText(`${output}\n`);
@@ -527,6 +497,5 @@ if (app) {
   });
 
   renderFindings();
-  standardDataControl.hidden = preset === 'ai-style';
   startWorker();
 }

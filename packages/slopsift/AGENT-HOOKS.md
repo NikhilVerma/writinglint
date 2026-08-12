@@ -222,6 +222,8 @@ transcript options above. Run `slopsift hook stop --help` for the complete list.
 The plugin runner maps these environment variables to CLI options:
 
 - `SLOPSIFT_HOOK_LEVEL=warning|error`
+- `SLOPSIFT_HOOK_RULEPACKS=ai-style,reader-first`
+- `SLOPSIFT_HOOK_FEEDBACK=compact|detailed`
 - `SLOPSIFT_HOOK_MAX_RETRIES`
 - `SLOPSIFT_HOOK_MAX_FINDINGS`
 - `SLOPSIFT_HOOK_INCLUDE_DIRTY=1`
@@ -235,6 +237,35 @@ The plugin runner maps these environment variables to CLI options:
 The plugin never blocks on informational findings. Setting
 `SLOPSIFT_HOOK_LEVEL=info` therefore keeps the normal warning threshold. The
 standalone CLI still accepts `--level info` for manual editorial review.
+
+To check both AI-style habits and reader load in every agent response, select
+both rulepacks:
+
+```bash
+npx slopsift@latest hook stop \
+  --rulepack ai-style \
+  --rulepack reader-first \
+  --feedback compact
+```
+
+## Give the setup to another agent
+
+Paste this instruction into Claude Code or Codex:
+
+```text
+Install SlopSift as a user-scoped Stop hook for every local repository. Detect
+whether Claude Code, Codex, or both are installed. Preserve all existing
+settings and merge, rather than replace, their Stop hooks in
+~/.claude/settings.json and ~/.codex/hooks.json. Run this command from the hook:
+
+npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack reader-first --feedback compact
+
+Do not enable dirty-tree or
+transcript checks unless I request them. Before editing settings, confirm that
+`slopsift hook stop --help` lists the rulepack options. Validate the resulting
+JSON, exercise one known-bad Stop event and one clean rewrite, and tell me to
+start a new agent session and approve the hook if the client asks for trust.
+```
 
 `PLUGIN_DATA` or `CLAUDE_PLUGIN_DATA` is used for bounded-retry state when the
 host provides it. Otherwise the command uses a hashed session key in the

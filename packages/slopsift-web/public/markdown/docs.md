@@ -1,16 +1,14 @@
 # SlopSift agent reference
 
-SlopSift 0.7.0 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
+SlopSift 0.8.0 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
 
-## Install and run
+## CLI
 
 ```sh
 bunx slopsift .
 npx slopsift "docs/**/*.md"
 npx slopsift . --level info --format json --exit-zero
-npx slopsift manual.md --rulepack asd-ste100
-npx slopsift procedure.md --rulepack asd-ste100 --technical-mode procedural
-npx slopsift procedure.md --rulepack asd-ste100 --technical-standard-data /local/ASD-STE100_ISSUE9.parsed.json
+npx slopsift . --rulepack ai-style --rulepack reader-first
 ```
 
 Node.js 20 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
@@ -41,7 +39,29 @@ JSON messages include an ESLint-compatible numeric severity, SlopSift's textual 
 
 ## Rulepacks
 
-The default rulepack is `ai-style`. Use `--rulepack asd-ste100` for an independent, partial ASD-STE100 Issue 9 check. Repeat `--rulepack` to combine checks. If you have an authorized local copy, `--technical-standard-data` loads the validated Docling importer output for dictionary checks without redistributing it. The ASD-STE100 result is `nonconformant` when a high-confidence automated violation is present and `review-required` otherwise. It never claims full conformance without human review.
+The default rulepack is `ai-style`. The independent `reader-first` pack applies general simplified-technical-writing principles: introduce terms, show relationships, keep one main point visible, and remove unnecessary ornament. It does not include an external controlled dictionary or claim compliance with an external standard. Repeat `--rulepack` to combine packs. For agent responses, use both.
+
+## In-process API
+
+```ts
+import { createSlopSift } from 'slopsift';
+
+const slopsift = await createSlopSift();
+const result = await slopsift.lintSource('draft.md', text, {
+  level: 'warning',
+  rulepacks: ['ai-style', 'reader-first'],
+});
+```
+
+One `SlopSift` instance reuses its local parser. `lintSource` returns exact source ranges and does not upload the text.
+
+## Stop hook
+
+```sh
+npx --yes slopsift@latest hook stop --rulepack ai-style --rulepack reader-first --feedback compact
+```
+
+Pass the Claude Code or Codex Stop event as JSON on stdin. The command writes one JSON decision to stdout. Compact feedback groups repeated findings, omits response locations that the model already has in context, and shows up to 100 findings by default. Use `--feedback detailed` for file-oriented diagnostics.
 
 ## Exit codes
 
@@ -114,6 +134,10 @@ Install the maintained [SlopSift Agent Skill](https://skills.sh/NikhilVerma/slop
 - [ai-style/referential-compression](https://slopsift.dev/rules/referential-compression/): Several nearby sentences open with bare pronouns instead of carrying the subject forward explicitly. (info, dependency graph)
 - [ai-style/repeated-sentence-frame](https://slopsift.dev/rules/repeated-sentence-frame/): Several nearby sentences repeat the same dependency frame and cadence. (info, dependency graph)
 - [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)
+- [reader-first/paragraph-load](https://slopsift.dev/rules/paragraph-load/): A long paragraph hides changes of subject or purpose inside one block. (warn, document context)
+- [reader-first/sentence-load](https://slopsift.dev/rules/sentence-load/): A sentence combines enough length, clauses, and technical labels to overload the main point. (warn, document context)
+- [reader-first/noun-pile](https://slopsift.dev/rules/noun-pile/): Four or more common nouns are stacked together without showing how they relate. (warn, dependency graph)
+- [reader-first/unexplained-initialism](https://slopsift.dev/rules/unexplained-initialism/): A repeated initialism appears without a plain-language introduction. (warn, document context)
 
 ## References
 

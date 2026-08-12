@@ -30,8 +30,8 @@ const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const expected = JSON.parse(await readFile(join(root, `packages/${packageDirectory}/package.json`), 'utf8')).version;
 const expectedParser = JSON.parse(await readFile(join(root, 'packages/parser-node/package.json'), 'utf8')).version;
 const expectedRulepack = JSON.parse(await readFile(join(root, 'packages/rulepack-ai-style/package.json'), 'utf8')).version;
-const expectedTechnicalRulepack = JSON.parse(
-  await readFile(join(root, 'packages/rulepack-technical-english/package.json'), 'utf8'),
+const expectedReaderFirstRulepack = JSON.parse(
+  await readFile(join(root, 'packages/rulepack-reader-first/package.json'), 'utf8'),
 ).version;
 
 function runNpm(args, options = {}) {
@@ -80,7 +80,7 @@ try {
       'writinglint-core',
       'writinglint-parser-node',
       'writinglint-rulepack-ai-style',
-      'writinglint-rulepack-technical-english',
+      'writinglint-rulepack-reader-first',
       'slopsift',
     ]) {
       const output = execFileSync('npm', [
@@ -101,7 +101,7 @@ try {
     await waitUntilPublished('writinglint-parser-node', expectedParser);
     await waitUntilPublished('writinglint-rulepack-ai-style', expectedRulepack);
     if (packageName === 'slopsift') {
-      await waitUntilPublished('writinglint-rulepack-technical-english', expectedTechnicalRulepack);
+      await waitUntilPublished('writinglint-rulepack-reader-first', expectedReaderFirstRulepack);
     }
   }
 
@@ -131,7 +131,7 @@ try {
       EXPECTED_PACKAGE_VERSION: expected,
       EXPECTED_PARSER_VERSION: expectedParser,
       EXPECTED_RULEPACK_VERSION: expectedRulepack,
-      EXPECTED_TECHNICAL_RULEPACK_VERSION: expectedTechnicalRulepack,
+      EXPECTED_READER_FIRST_RULEPACK_VERSION: expectedReaderFirstRulepack,
     },
   });
   if (verification.status !== 0) {

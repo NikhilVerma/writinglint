@@ -68,7 +68,7 @@ test('agent demo rejects its bad draft and accepts the clean rewrite', async () 
       },
     }, directory);
     assert.equal(demo.rejectedDraft.decision, 'block');
-    assert.match(demo.rejectedDraft.reason ?? '', /Problems to fix/);
+    assert.match(demo.rejectedDraft.reason ?? '', /ai-style\/agentless-rationale \[warning\] ×1/);
     assert.match(demo.acceptedRewrite.systemMessage ?? '', /accepted the response after 1 automatic rewrite/);
   } finally {
     await rm(directory, { recursive: true, force: true });
