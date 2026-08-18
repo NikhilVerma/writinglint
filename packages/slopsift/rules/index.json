@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "packageVersion": "0.8.1",
+  "packageVersion": "0.8.2",
   "name": "SlopSift rule catalogue",
   "url": "https://slopsift.dev/rules/",
   "categories": [
@@ -99,6 +99,18 @@
       "label": "Jargon",
       "description": "Terms and noun clusters that make readers reconstruct the meaning.",
       "ruleCount": 2
+    },
+    {
+      "id": "directness",
+      "label": "Directness",
+      "description": "Abstract setup and vague references that delay the concrete point.",
+      "ruleCount": 3
+    },
+    {
+      "id": "economy",
+      "label": "Economy",
+      "description": "Repeated asides and commentary that restate rather than explain.",
+      "ruleCount": 1
     }
   ],
   "rules": [
@@ -1113,7 +1125,7 @@
       "id": "reader-first/sentence-load",
       "name": "sentence-load",
       "title": "Sentence Load",
-      "description": "A sentence combines enough length, clauses, and technical labels to overload the main point.",
+      "description": "A sentence combines enough length, clauses, labels, or asides to overload the main point.",
       "category": {
         "id": "load",
         "label": "Reading load",
@@ -1165,6 +1177,82 @@
       "url": "https://slopsift.dev/rules/unexplained-initialism/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/unexplained-initialism.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Funexplained-initialism"
+    },
+    {
+      "id": "reader-first/abstract-reference-chain",
+      "name": "abstract-reference-chain",
+      "title": "Abstract Reference Chain",
+      "description": "Nearby sentences keep referring to generic problems, shapes, paths, or capabilities instead of naming the concrete facts.",
+      "category": {
+        "id": "directness",
+        "label": "Directness",
+        "description": "Abstract setup and vague references that delay the concrete point."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/abstract-reference-chain/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/abstract-reference-chain.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fabstract-reference-chain"
+    },
+    {
+      "id": "reader-first/fragment-chain",
+      "name": "fragment-chain",
+      "title": "Fragment Chain",
+      "description": "Several nearby prose fragments omit their subjects or main clauses and read like compressed notes.",
+      "category": {
+        "id": "directness",
+        "label": "Directness",
+        "description": "Abstract setup and vague references that delay the concrete point."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/fragment-chain/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/fragment-chain.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Ffragment-chain"
+    },
+    {
+      "id": "reader-first/label-led-explanation",
+      "name": "label-led-explanation",
+      "title": "Label Led Explanation",
+      "description": "Nearby paragraphs or list items repeatedly open with bold headline fragments before explaining the concrete behavior.",
+      "category": {
+        "id": "directness",
+        "label": "Directness",
+        "description": "Abstract setup and vague references that delay the concrete point."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/label-led-explanation/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/label-led-explanation.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Flabel-led-explanation"
+    },
+    {
+      "id": "reader-first/aside-pileup",
+      "name": "aside-pileup",
+      "title": "Aside Pileup",
+      "description": "Explanations sit in brackets or after dashes instead of being stated directly, with nearby asides treated more severely.",
+      "category": {
+        "id": "economy",
+        "label": "Economy",
+        "description": "Repeated asides and commentary that restate rather than explain."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/aside-pileup/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/aside-pileup.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Faside-pileup"
     }
   ]
 }

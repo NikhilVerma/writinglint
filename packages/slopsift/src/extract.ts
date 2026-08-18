@@ -221,6 +221,14 @@ function separateMarkdownTables(output: string[], source: string): void {
   }
 }
 
+/** Give each Markdown list item its own parser boundary without changing offsets. */
+function separateMarkdownListItems(output: string[], source: string): void {
+  for (const match of source.matchAll(/^(\s{0,3}(?:[-+*]|\d+[.)]))([\t ]+)/gmu)) {
+    const separator = match.index + match[1]!.length;
+    output[separator] = '\u2029';
+  }
+}
+
 /** Remove Markdown syntax regions that are not authorial prose, preserving offsets. */
 function extractMarkdown(source: string): string {
   const output = [...source];
@@ -251,6 +259,7 @@ function extractMarkdown(source: string): string {
     if (/^(?: {4}|\t)/.test(line)) maskRange(output, source, start, start + line.length);
   }
   separateMarkdownTables(output, source);
+  separateMarkdownListItems(output, source);
 
   const visible = output.join('');
   // Attributed inline quotations followed by a footnote belong to the cited

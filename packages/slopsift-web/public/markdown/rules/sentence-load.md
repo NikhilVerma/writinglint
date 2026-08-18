@@ -1,6 +1,6 @@
 # reader-first/sentence-load
 
-A sentence combines enough length, clauses, and technical labels to overload the main point.
+A sentence combines enough length, clauses, labels, or asides to overload the main point.
 
 - Default level: `warn`
 - Confidence: `medium`

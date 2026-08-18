@@ -79,6 +79,10 @@ const aiRules = Object.entries(aiStyle.rules).map(([name, rule]) => {
 });
 
 const readerMethods: Record<keyof typeof readerFirst.rules, RuleMethod> = {
+  'abstract-reference-chain': 'document-context',
+  'aside-pileup': 'document-context',
+  'fragment-chain': 'document-context',
+  'label-led-explanation': 'document-context',
   'noun-pile': 'dependency-graph',
   'paragraph-load': 'document-context',
   'sentence-load': 'document-context',

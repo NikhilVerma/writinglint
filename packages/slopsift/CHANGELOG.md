@@ -1,5 +1,14 @@
 # slopsift
 
+## 0.8.2
+
+### Patch Changes
+
+- Make reader-first linting stricter for loaded sentences, repeated fragments, label-led explanations, abstract reference chains, and explanatory brackets or dashes. Keep Markdown list items as separate parser sentences so the stricter limits judge each item instead of the complete list.
+- 024ce1f: Add compact output to normal CLI linting through `--format compact` or `--feedback compact`. Use `text` as the normal format name while preserving `stylish` and `detailed` as compatibility aliases.
+- Updated dependencies
+  - writinglint-rulepack-reader-first@0.2.0
+
 ## 0.8.1
 
 ### Patch Changes
