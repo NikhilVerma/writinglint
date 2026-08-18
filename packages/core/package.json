@@ -1,6 +1,6 @@
 {
   "name": "writinglint-core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Grammar-linter engine: a Document model over a dependency-parse + POS graph, an authorable Rule API, config resolution, and the Linter.",
   "type": "module",
   "license": "MIT",

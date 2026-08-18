@@ -1,5 +1,19 @@
 # slopsift
 
+## 0.9.0
+
+### Minor Changes
+
+- 2a392fa: Require Node.js 24 or newer across the published WritingLint and SlopSift packages. Node.js 20 is no longer maintained, and the repository now builds, tests, deploys, and publishes with the current long-term support release.
+
+### Patch Changes
+
+- Updated dependencies [2a392fa]
+  - writinglint-core@0.3.0
+  - writinglint-parser-node@0.3.0
+  - writinglint-rulepack-ai-style@0.6.0
+  - writinglint-rulepack-reader-first@0.3.0
+
 ## 0.8.2
 
 ### Patch Changes

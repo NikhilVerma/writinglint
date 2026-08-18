@@ -1,6 +1,6 @@
 {
   "name": "slopsift",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "Lint Markdown, prose, and source-code comments for AI writing slop.",
   "type": "module",
   "license": "MIT",
@@ -88,10 +88,10 @@
   "dependencies": {
     "ignore": "^7.0.5",
     "tinyglobby": "^0.2.17",
-    "writinglint-core": "^0.2.0",
-    "writinglint-parser-node": "^0.2.0",
-    "writinglint-rulepack-ai-style": "^0.5.1",
-    "writinglint-rulepack-reader-first": "^0.2.0"
+    "writinglint-core": "^0.3.0",
+    "writinglint-parser-node": "^0.3.0",
+    "writinglint-rulepack-ai-style": "^0.6.0",
+    "writinglint-rulepack-reader-first": "^0.3.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').chmodSync('dist/cli.js', 0o755)\"",
