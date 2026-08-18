@@ -22,7 +22,7 @@ recognizable AI-writing habits in prose and source-code comments.
 
 ## Try SlopSift
 
-SlopSift is published on npm and requires Node.js 20 or newer. No global install
+SlopSift is published on npm and requires Node.js 24 or newer. No global install
 is required:
 
 ```bash

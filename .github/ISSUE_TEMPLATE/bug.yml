@@ -33,7 +33,7 @@ body:
     attributes:
       label: Environment
       description: OS, Node.js version, package manager, browser/editor version, as applicable.
-      placeholder: macOS 15, Node.js 22.14, npm 11.6
+      placeholder: macOS 15, Node.js 24, npm 11.6
     validations:
       required: true
   - type: textarea

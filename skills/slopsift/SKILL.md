@@ -2,7 +2,7 @@
 name: slopsift
 description: Lint prose with the SlopSift CLI and interpret its structural AI-writing findings without guessing authorship. Use when reviewing or editing Markdown, documentation, website copy, release notes, plain text, or source-code comments for canned arguments, vague attribution, unsupported certainty, repetitive structure, AI vocabulary, and related writing tells.
 license: MIT
-compatibility: Requires Node.js 20 or newer, or Bun, plus permission to run the public slopsift package in the target workspace.
+compatibility: Requires Node.js 24 or newer, or Bun, plus permission to run the public slopsift package in the target workspace.
 ---
 
 # SlopSift

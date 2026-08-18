@@ -73,7 +73,7 @@
     "AGENT-HOOKS.md"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "keywords": [
     "ai-slop",

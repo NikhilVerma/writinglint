@@ -349,7 +349,7 @@ npx slopsift . --level info --format json --exit-zero
 npx slopsift . --rulepack ai-style --rulepack reader-first
 \`\`\`
 
-Node.js 20 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
+Node.js 24 or newer is required. The npm package includes the compact parser weights. Normal CLI use does not require Python, an API key, or a hosted inference service.
 
 ## Inputs
 
