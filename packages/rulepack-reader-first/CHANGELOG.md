@@ -1,5 +1,11 @@
 # writinglint-rulepack-reader-first
 
+## 0.2.0
+
+### Minor Changes
+
+- Make reader-first linting stricter for loaded sentences, repeated fragments, label-led explanations, abstract reference chains, and explanatory brackets or dashes. Keep Markdown list items as separate parser sentences so the stricter limits judge each item instead of the complete list.
+
 ## 0.1.0
 
 ### Minor Changes

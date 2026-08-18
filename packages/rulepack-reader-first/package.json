@@ -1,6 +1,6 @@
 {
   "name": "writinglint-rulepack-reader-first",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Deterministic WritingLint rules that reduce cognitive load and unexplained jargon.",
   "type": "module",
   "license": "MIT",

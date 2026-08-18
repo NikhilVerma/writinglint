@@ -1,11 +1,19 @@
 import { defineConfig, definePack, type RuleSetting } from 'writinglint-core';
 import { CATEGORIES } from './categories.js';
+import { abstractReferenceChain } from './rules/abstract-reference-chain.js';
+import { asidePileup } from './rules/aside-pileup.js';
+import { fragmentChain } from './rules/fragment-chain.js';
+import { labelLedExplanation } from './rules/label-led-explanation.js';
 import { nounPile } from './rules/noun-pile.js';
 import { paragraphLoad } from './rules/paragraph-load.js';
 import { sentenceLoad } from './rules/sentence-load.js';
 import { unexplainedInitialism } from './rules/unexplained-initialism.js';
 
 const rules = {
+  'abstract-reference-chain': abstractReferenceChain,
+  'aside-pileup': asidePileup,
+  'fragment-chain': fragmentChain,
+  'label-led-explanation': labelLedExplanation,
   'noun-pile': nounPile,
   'paragraph-load': paragraphLoad,
   'sentence-load': sentenceLoad,
@@ -47,6 +55,10 @@ export const ci = defineConfig({
 });
 
 export { CATEGORIES } from './categories.js';
+export { abstractReferenceChain } from './rules/abstract-reference-chain.js';
+export { asidePileup } from './rules/aside-pileup.js';
+export { fragmentChain } from './rules/fragment-chain.js';
+export { labelLedExplanation } from './rules/label-led-explanation.js';
 export { nounPile } from './rules/noun-pile.js';
 export { paragraphLoad } from './rules/paragraph-load.js';
 export { sentenceLoad } from './rules/sentence-load.js';

@@ -1,6 +1,6 @@
 # SlopSift agent reference
 
-SlopSift 0.8.1 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
+SlopSift 0.8.2 is a deterministic, local-first linter for recognizable AI-writing habits. It parses grammatical relationships, runs named rules, and returns exact source ranges. A finding is an editorial signal, not evidence of authorship.
 
 ## CLI
 
@@ -155,9 +155,13 @@ Install the maintained [SlopSift Agent Skill](https://skills.sh/NikhilVerma/slop
 - [ai-style/repeated-sentence-frame](https://slopsift.dev/rules/repeated-sentence-frame/): Several nearby sentences repeat the same dependency frame and cadence. (info, dependency graph)
 - [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)
 - [reader-first/paragraph-load](https://slopsift.dev/rules/paragraph-load/): A long paragraph hides changes of subject or purpose inside one block. (warn, document context)
-- [reader-first/sentence-load](https://slopsift.dev/rules/sentence-load/): A sentence combines enough length, clauses, and technical labels to overload the main point. (warn, document context)
+- [reader-first/sentence-load](https://slopsift.dev/rules/sentence-load/): A sentence combines enough length, clauses, labels, or asides to overload the main point. (warn, document context)
 - [reader-first/noun-pile](https://slopsift.dev/rules/noun-pile/): Four or more common nouns are stacked together without showing how they relate. (warn, dependency graph)
 - [reader-first/unexplained-initialism](https://slopsift.dev/rules/unexplained-initialism/): A repeated initialism appears without a plain-language introduction. (warn, document context)
+- [reader-first/abstract-reference-chain](https://slopsift.dev/rules/abstract-reference-chain/): Nearby sentences keep referring to generic problems, shapes, paths, or capabilities instead of naming the concrete facts. (warn, document context)
+- [reader-first/fragment-chain](https://slopsift.dev/rules/fragment-chain/): Several nearby prose fragments omit their subjects or main clauses and read like compressed notes. (warn, document context)
+- [reader-first/label-led-explanation](https://slopsift.dev/rules/label-led-explanation/): Nearby paragraphs or list items repeatedly open with bold headline fragments before explaining the concrete behavior. (warn, document context)
+- [reader-first/aside-pileup](https://slopsift.dev/rules/aside-pileup/): Explanations sit in brackets or after dashes instead of being stated directly, with nearby asides treated more severely. (warn, document context)
 
 ## References
 

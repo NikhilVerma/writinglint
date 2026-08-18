@@ -16,9 +16,13 @@ test('Markdown extraction exposes headings and list items as source regions', ()
   const heading = extracted.regions?.find(({ role }) => role === 'heading');
   const items = extracted.regions?.filter(({ role }) => role === 'list-item') ?? [];
   assert.equal(extracted.text.slice(heading?.start, heading?.end), '# Install the unit');
-  assert.deepEqual(items.map(({ start, end }) => extracted.text.slice(start, end)), [
+  assert.deepEqual(items.map(({ start, end }) => source.slice(start, end)), [
     '1. Disconnect the power.',
     '2. Remove the cover.',
+  ]);
+  assert.deepEqual(splitSentences(extracted.text).filter((sentence) => /Disconnect|Remove/u.test(sentence.text)).map((sentence) => sentence.text.trim()), [
+    'Disconnect the power.',
+    'Remove the cover.',
   ]);
   assert.ok(extracted.regions?.some(({ role }) => role === 'paragraph'));
 });

@@ -9,4 +9,6 @@ import { recommended } from 'writinglint-rulepack-reader-first';
 const result = await new Linter(parser).lint(text, resolveConfig(recommended));
 ```
 
-The first release checks loaded sentences, oversized paragraphs, noun piles, and repeated initialisms that were never introduced. Each detector provides exact source ranges and nearby clear cases in its test suite.
+The pack checks loaded sentences, oversized paragraphs, noun piles, repeated initialisms, abstract reference chains, subjectless fragment chains, repeated label-led explanations, and bracketed or dashed commentary. It reviews sentences after 24 words and warns at 32 words, even when the grammar is simple. The cross-sentence rules become stricter when weak habits repeat: one isolated fragment can pass while several nearby fragments become an error.
+
+The `eval/strict-cases.jsonl` dataset contains generic bad/fixed pairs for these habits. The examples preserve the writing patterns found during private audits, but contain no private names, identifiers, or copied prose. Tests require each bad example to trigger its expected rule and each fixed example to pass the complete recommended pack.
