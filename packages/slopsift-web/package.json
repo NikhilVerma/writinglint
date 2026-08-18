@@ -39,7 +39,7 @@
     "writinglint-rulepack-reader-first": "*"
   },
   "devDependencies": {
-    "esbuild": "^0.28.1",
-    "wrangler": "^4.116.0"
+    "esbuild": "^0.28.2",
+    "wrangler": "^4.123.0"
   }
 }
