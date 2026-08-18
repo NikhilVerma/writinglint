@@ -49,23 +49,6 @@ jobs:
         working-directory: training/parser
         run: python -m unittest discover -p 'test_*.py'
 
-  compatibility:
-    name: Node.js 20 compatibility
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v7
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
-        with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npm run setup-model
-      - run: npm test
-      - run: npm run pack:check
-
   quality:
     name: Test, typecheck, and build
     runs-on: ubuntu-latest
@@ -76,7 +59,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22.14.0
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run setup-model
@@ -92,7 +75,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22.14.0
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run build:libs
@@ -110,7 +93,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v7
         with:
-          node-version: 22.14.0
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run check -w slopsift-chrome-extension

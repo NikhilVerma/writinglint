@@ -17,7 +17,7 @@ editor integrations. Small, focused changes are easiest to review.
 
 ## Local setup
 
-Use Node.js 22.14 or newer and npm 11.5.1 or newer. The repository includes an
+Use Node.js 24 or newer and npm 11.5.1 or newer. The repository includes an
 `.nvmrc` for the minimum supported Node release.
 
 ```sh
