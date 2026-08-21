@@ -1,0 +1,36 @@
+{"id":"p001","role":"blog","prompt":"Write a blog post about why standing desks are worth the money"}
+{"id":"p002","role":"blog","prompt":"write a ~700 word blog post on the benefits of meal prepping for busy professionals"}
+{"id":"p003","role":"howto","prompt":"How do I set up a home network with a mesh router? Write a step-by-step guide I can put on my blog."}
+{"id":"p004","role":"readme","prompt":"Write a README for an open source CLI tool called imgshrink that compresses images in a folder. It supports png, jpg and webp, has --quality and --out flags, and is MIT licensed."}
+{"id":"p005","role":"announcement","prompt":"Write a launch announcement blog post for our app TrailBuddy, a hiking app that tracks routes offline and shares them with friends."}
+{"id":"p006","role":"email","prompt":"Write a newsletter email to our customers announcing that our pottery studio is adding weekend wheel-throwing classes starting in October, $45 per session, max 8 people per class."}
+{"id":"p007","role":"comparison","prompt":"Write an article comparing renting vs buying a home in 2026 for first time buyers"}
+{"id":"p008","role":"faq","prompt":"Write an FAQ page for a small business that sells sourdough starter kits online. Cover shipping, feeding schedule, troubleshooting, and refunds."}
+{"id":"p009","role":"product","prompt":"Write the product description page copy for a $129 mechanical keyboard with hot-swappable switches, an aluminum case and a 75% layout"}
+{"id":"p010","role":"report","prompt":"Write a short post-incident report for our internal wiki: our checkout service was down for 43 minutes on Tuesday because a database migration locked the orders table. Include a timeline, root cause, and action items."}
+{"id":"p011","role":"explainer","prompt":"Explain how compound interest works for a personal finance site aimed at people in their 20s"}
+{"id":"p012","role":"tutorial","prompt":"Write a beginner tutorial on making cold brew coffee at home"}
+{"id":"p013","role":"docs","prompt":"Write documentation for a REST API endpoint POST /v1/invoices that creates an invoice. Fields: customer_id, line_items, due_date, currency. Returns 201 with the invoice object."}
+{"id":"p014","role":"blog","prompt":"Write a blog post for our company engineering blog about lessons we learned migrating from a monolith to microservices"}
+{"id":"p015","role":"howto","prompt":"step by step guide to repotting a root-bound houseplant without killing it"}
+{"id":"p016","role":"announcement","prompt":"Write a changelog entry and short announcement for version 2.0 of our note-taking app: it adds offline sync, dark mode, and markdown export, and drops support for the legacy XML format."}
+{"id":"p017","role":"email","prompt":"Write a cold outreach email template for a freelance web designer contacting local restaurants that don't have websites"}
+{"id":"p018","role":"explainer","prompt":"Explain the difference between HDD and SSD storage for a computer buying guide"}
+{"id":"p019","role":"comparison","prompt":"Compare intermittent fasting and calorie counting for weight loss in an article for a general fitness blog."}
+{"id":"p020","role":"faq","prompt":"Write an FAQ for tenants of an apartment building about the upcoming elevator modernization project. The elevator is out November 3 to 21, movers need to book the freight lift with the super, and ground-floor mail delivery is unchanged."}
+{"id":"p021","role":"tutorial","prompt":"write a tutorial on setting up automatic backups on a mac with time machine, for non technical readers"}
+{"id":"p022","role":"report","prompt":"Write a quarterly update for our community garden's members: 12 new plots were added, there is tomato blight in section C, the harvest festival is on September 26, and dues rise from $40 to $50 next season."}
+{"id":"p023","role":"product","prompt":"Write an About page for a family-run olive oil company in Crete that ships small batches direct to customers in Europe"}
+{"id":"p024","role":"blog","prompt":"Write an opinion piece on whether kids should have smartphones before high school"}
+{"id":"p025","role":"pr","prompt":"Write a pull request description for a PR that migrates our React app's state management from Redux to Zustand. Touches 40 files, removes the store boilerplate, keeps the same selectors API."}
+{"id":"p026","role":"pr","prompt":"write a PR description: I added retry with exponential backoff to our Python payment webhook handler, max 5 retries, moved the handler to a Celery task, added tests"}
+{"id":"p027","role":"pr","prompt":"Write a pull request description for adding an index on orders(customer_id, created_at) in Postgres because the customer order history page was doing a seq scan. Include before/after query timings (2.3s to 40ms)."}
+{"id":"p028","role":"pr","prompt":"Write a PR description for a Rust change that replaces a Mutex<HashMap> with DashMap in our metrics collector to fix lock contention under load"}
+{"id":"p029","role":"pr","prompt":"PR description please: bumped our GitHub Actions CI to use dependency caching and split the test suite into 4 shards, cut CI time from 22 min to 7 min"}
+{"id":"p030","role":"pr","prompt":"Write a pull request description for a Kubernetes change: we moved the api-gateway deployment from 2 replicas with no limits to 4 replicas with cpu/memory requests and limits, and added a PodDisruptionBudget."}
+{"id":"p031","role":"pr","prompt":"Write a PR description for a TypeScript change that fixes a race condition in our file upload queue where two workers could claim the same job. I added a version column and optimistic locking."}
+{"id":"p032","role":"pr","prompt":"Write a pull request description for upgrading our Django app from 4.2 to 5.1: swapped deprecated APIs, new STORAGES setting, updated 12 packages, one behavior change in form rendering we had to work around."}
+{"id":"p033","role":"docs","prompt":"Write a design doc proposal for adding rate limiting to our public REST API. We're considering token bucket per API key, Redis-backed, 429 with Retry-After."}
+{"id":"p034","role":"report","prompt":"Write release notes for v3.4 of our database backup tool: adds incremental backups, S3-compatible storage targets, fixes a bug where restores failed on tables with generated columns."}
+{"id":"p035","role":"docs","prompt":"Write a runbook page for on-call engineers: what to do when the message queue consumer lag alert fires. Check Grafana dashboard, common causes are a stuck consumer or a poison message, how to restart consumers and dead-letter a message."}
+{"id":"p036","role":"blog","prompt":"Write a technical blog post about how we cut our Docker image size from 1.2GB to 180MB using multi-stage builds and distroless base images"}

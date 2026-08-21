@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MeaningJudgeResponse",
+  "type": "object",
+  "properties": {
+    "missing_facts": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Facts, numbers, names, instructions, caveats, or examples present in the original but absent from the rewrite"
+    },
+    "changed_claims": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Claims whose meaning, strength, or modality differs between original and rewrite"
+    },
+    "added_claims": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Claims, facts, or examples in the rewrite that the original does not contain"
+    },
+    "lost_links_or_references": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Links, references, or quotations that were dropped or altered"
+    },
+    "modality_changes": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Places where certainty or obligation changed, e.g. may/will, should/must"
+    },
+    "verdict": { "type": "string", "enum": ["pass", "fail"] },
+    "reasoning": {
+      "type": "string",
+      "description": "One short paragraph explaining the verdict"
+    }
+  },
+  "required": [
+    "missing_facts",
+    "changed_claims",
+    "added_claims",
+    "lost_links_or_references",
+    "modality_changes",
+    "verdict",
+    "reasoning"
+  ],
+  "additionalProperties": false
+}

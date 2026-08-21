@@ -1,0 +1,139 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import { loadConfig } from '../src/lib/env.ts';
+import { scoreRewrite } from '../src/lib/reward.ts';
+
+const config = loadConfig().reward;
+
+// Excerpt of a real pull-request description — the input that exposed the
+// copying, not text written for this test.
+const SOURCE = [
+  'An `xref` on a framework statement CLAIMS byte-identity with a source statement at a pinned commit.',
+  'API offline **4146 pass / 0 fail**; L2 **225/225** (two specs, `--repeat-each=15`).',
+  'Mutation-verified: 6 fixes, each mutation made the intended test fail.',
+  'Reviewed by a Codex peer (verdict REVISE — 5 findings) and CodeRabbit (11 findings).',
+].join('\n\n');
+
+const score = (output: string, outputFindings: number, sourceFindings = 8) =>
+  scoreRewrite({ source: SOURCE, output, sourceFindings, outputFindings, config });
+
+test('a verbatim copy earns almost nothing despite perfect faithfulness', () => {
+  const result = score(SOURCE, 8);
+  assert.equal(result.faithfulness, 1);
+  assert.equal(result.length, 1);
+  assert.ok(result.reward < 0.05, `reward was ${result.reward}`);
+});
+
+test('a rewrite that keeps its anchors and cuts findings scores well', () => {
+  const rewrite = [
+    'An `xref` on a framework statement claims byte-identity with a source statement at a pinned commit.',
+    'The offline API run records 4146 pass and 0 fail. L2 records 225/225 over two specs, run with `--repeat-each=15`.',
+    'Six fixes are mutation-verified. Every mutation failed the test it was meant to fail.',
+    'A Codex peer reviewed it and returned REVISE with 5 findings. CodeRabbit returned 11 findings.',
+  ].join('\n\n');
+  const result = score(rewrite, 2);
+  assert.equal(result.droppedAnchors.length, 0, `dropped: ${result.droppedAnchors.join(', ')}`);
+  assert.ok(result.echoRate < 0.5);
+  assert.ok(result.reward > 0.6, `reward was ${result.reward}`);
+});
+
+test('dropping and inventing facts sinks the score even when the lint is clean', () => {
+  const confabulated = [
+    'The API is offline at this time, so the suite could not run.',
+    'A reviewer looked over the change and asked for revisions.',
+    'Several fixes landed and the tests now pass on the 9271 build.',
+    'The team expects to merge it once the remaining questions are settled.',
+  ].join('\n\n');
+  const result = score(confabulated, 0);
+  assert.equal(result.lint, 1, 'lint term should be perfect');
+  assert.ok(result.anchorKeptRate < 0.4, `keptRate was ${result.anchorKeptRate}`);
+  assert.ok(result.reward < 0.45, `reward was ${result.reward}`);
+});
+
+test('a repetition loop scores exactly zero', () => {
+  const looped = `${'The pointer moves forward along the commit graph. '.repeat(40)}`;
+  const result = score(looped, 0);
+  assert.equal(result.degenerate, 'repetition loop');
+  assert.equal(result.reward, 0);
+});
+
+test('a two-line summary is rejected as too short', () => {
+  const result = score('The change makes an xref claim hold on the write path.', 0);
+  assert.equal(result.degenerate, 'too short');
+  assert.equal(result.reward, 0);
+});
+
+test('an already clean source earns the lint term only by staying clean', () => {
+  const rewrite = SOURCE.replace('CLAIMS', 'claims');
+  assert.equal(score(rewrite, 0, 0).lint, 1);
+  assert.ok(score(rewrite, 3, 0).lint < score(rewrite, 0, 0).lint);
+});
+
+// The pull-request excerpt above is 52 words, so one finding there is already
+// 19 per 1k — the whole clean band the floor exists for cannot be expressed on
+// it. These tests measure the lint term alone, so they use a longer piece of
+// this project's own README instead, where a finding is worth ~6 per 1k.
+const PROSE = [
+  'WritingLint is the reusable engine. It parses text once, runs rulepacks over a dependency graph and document structure, and returns exact source ranges with plain-language diagnostics. Rules can inspect tokens, parts of speech, dependency relations, sentences, paragraphs, and whole documents.',
+  'The independent `reader-first` pack borrows general simplified-technical-writing techniques: introduce terms, show relationships, keep the main point visible, and remove ornament. It does not ship an external controlled dictionary or claim compliance with an external standard.',
+  'WritingLint owns reusable parsing, configuration, rule execution, graph helpers, and rulepacks. It can support house style, personal preferences, grammar, clarity, or any other prose policy a team can encode.',
+  'SlopSift owns the narrower AI-slop experience: file discovery, prose/comment extraction, confidence defaults, ESLint-like output, JSON contracts, and product ergonomics. It consumes WritingLint rather than existing as a mode inside the general WritingLint CLI.',
+  'Extracted ranges are mapped back to original UTF-16 source locations so CLI and editor diagnostics point to the right text.',
+].join('\n\n');
+
+const PROSE_WORDS = PROSE.split(/\s+/).filter(Boolean).length;
+const findingsFor = (per1k: number) => Math.round((per1k * PROSE_WORDS) / 1000);
+
+/** Source and output are the same text, so both densities convert the same way
+ * and the test can state the findings per 1k words it actually means. */
+const lintAt = (sourcePer1k: number, outputPer1k: number) =>
+  scoreRewrite({
+    source: PROSE,
+    output: PROSE,
+    sourceFindings: findingsFor(sourcePer1k),
+    outputFindings: findingsFor(outputPer1k),
+    config,
+  }).lint;
+
+test('leaving decent prose alone pays, and making it worse costs', () => {
+  // The cut alone paid nothing here: a source already near the floor cannot be
+  // cut, so every rollout tied at zero and the group taught nothing. That dead
+  // zone covered 24% of held-out documents, and it is where the model was
+  // measured making clean text worse rather than leaving it alone.
+  const held = lintAt(12, 12);
+  assert.ok(held > 0.3, `holding a clean source should pay, got ${held}`);
+  assert.ok(lintAt(12, 6) > held, 'cleaning further should pay more');
+  assert.ok(lintAt(12, 25) < held, 'adding findings should cost');
+});
+
+test('a dirty source is still scored on how much it cut', () => {
+  // The floor only lifts sources below it. Anything dirtier keeps the old
+  // behaviour, so the change cannot quietly re-scale the sloppy end.
+  assert.ok(lintAt(37, 37) < 0.05, 'no cut earns nothing');
+  assert.ok(lintAt(37, 19) > 0.4, 'cutting the density in half earns about half');
+});
+
+test('reordered words are caught as a shuffle, not paid as a rewrite', () => {
+  // Word salad keeps every anchor, echoes no phrase, and holds the source's
+  // length, so it outscored a real rewrite before this check existed.
+  const shuffled = SOURCE.split(/\s+/).reverse().join(' ');
+  const result = score(shuffled, 4);
+  assert.equal(result.faithfulness, 1, 'a shuffle keeps every anchor');
+  assert.ok(result.echoRate < 0.05);
+  assert.ok(result.vocabularyOverlap > 0.9);
+  assert.equal(result.degenerate, 'shuffled');
+  assert.equal(result.reward, 0);
+});
+
+test('a real rewrite is not mistaken for a shuffle', () => {
+  const rewrite = [
+    'An `xref` on a framework statement claims byte-identity with a source statement at a pinned commit.',
+    'The offline API run records 4146 pass and 0 fail. L2 records 225/225 over two specs, run with `--repeat-each=15`.',
+    'Six fixes are mutation-verified. Every mutation failed the test it was meant to fail.',
+    'A Codex peer reviewed it and returned REVISE with 5 findings. CodeRabbit returned 11 findings.',
+  ].join('\n\n');
+  const result = score(rewrite, 2);
+  assert.equal(result.degenerate, null);
+  assert.ok(result.echoRate > 0.05, `echo was ${result.echoRate}`);
+});

@@ -1,0 +1,48 @@
+{
+  "capUsd": 100,
+  "attemptLimit": 8,
+  "seed": 42,
+  "promptVersion": "v1",
+  "fixerPromptVersion": "fixer-v1",
+  "judgePromptVersion": "judge-v2",
+  "rulepacks": [
+    "ai-style",
+    "reader-first"
+  ],
+  "generatorModels": [
+    "anthropic/claude-opus-5",
+    "openai/gpt-5.6-luna",
+    "google/gemini-3.7-flash",
+    "deepseek/deepseek-v4-pro-0813",
+    "minimax/minimax-m3",
+    "qwen/qwen3.8-max",
+    "x-ai/grok-4.6",
+    "moonshotai/kimi-k3"
+  ],
+  "judgeModels": [
+    "openai/gpt-5.6-terra",
+    "x-ai/grok-4.6",
+    "qwen/qwen3.8-max"
+  ],
+  "fixerModel": "opus",
+  "fixerChatPromptVersion": "fixer-chat-v1",
+  "fixerChatMaxTokens": 12000,
+  "generatorMaxTokens": 3000,
+  "judgeMaxTokens": 12000,
+  "fixerMaxTurns": 40,
+  "fixerTimeoutMs": 1200000,
+  "reward": {
+    "weights": {
+      "lint": 0.95,
+      "length": 0.05
+    },
+    "echoFloor": 0.35,
+    "echoStrength": 1.0,
+    "inventedPenalty": 0.35,
+    "lengthBand": [
+      0.6,
+      1.15
+    ],
+    "lintFloor": 20
+  }
+}

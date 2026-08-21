@@ -59,3 +59,10 @@ a-b-test/
 examples/**/node_modules/
 examples/**/models/
 examples/**/package-lock.json
+
+# simplification dataset pipeline: generated corpora and run state stay local
+training/simplify/sources/
+training/simplify/runs/
+training/simplify/.durably/
+# human-vs-AI paired corpus: private, never published or committed
+training/simplify/corpus/

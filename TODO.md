@@ -169,6 +169,171 @@ used only after linting for contextual explanation and repair.
       change protected names, numbers, quotations, or modality.
 - [ ] Offer minimal, stronger, and explanatory edit modes.
 
+## Simplification dataset trial and model path
+
+Build a local, file-backed pipeline that turns difficult AI prose into audited
+rewrite examples. The pipeline must improve readability without teaching a
+future model to delete facts or merely game SlopSift's rules.
+
+The deterministic linter supplies constraints. A separate meaning judge checks
+that each rewrite keeps facts, commands, caveats, links, names, numbers,
+quotations, and modality. Human review supplies the final quality check.
+
+### Data layout
+
+Keep source prose in Markdown and run records in JSON Lines (JSONL). Do not
+commit private conversations, credentials, model caches, or unlicensed source
+text.
+
+```text
+training/
+  README.md
+  prompts/
+    rewrite.md
+    judge.md
+  sources/
+    source-000001.md
+  runs/<run-id>/
+    manifest.json
+    attempts.jsonl
+    accepted.jsonl
+    rejected.jsonl
+    unresolved.jsonl
+    human-review.jsonl
+    report.json
+  schemas/
+    attempt.schema.json
+    accepted.schema.json
+```
+
+Every run records the source hash, model identifiers, prompt versions,
+SlopSift version, rulepack configuration, random seed, timestamps, findings,
+judge decisions, and human-review decisions. Write each attempt as it finishes
+so an interrupted run can resume without losing work.
+
+### Rewrite loop
+
+1. Load one Markdown source.
+2. Extract a fact and requirement checklist from the original.
+3. Run SlopSift with the selected `ai-style` and `reader-first` packs.
+4. Ask the rewrite model to fix every error and warning while preserving the
+   checklist.
+5. Run SlopSift on the rewrite.
+6. Ask an independent meaning judge to compare the source and rewrite.
+7. Accept only when SlopSift reports no errors or warnings and the judge finds
+   no missing facts or changed claims. Notes remain suggestions, not blockers.
+8. Repeat when either check fails.
+9. Stop after a configurable safety limit, such as eight attempts, and write
+   the passage to `unresolved.jsonl` if it still fails.
+
+The attempt limit prevents runaway cost. It does not impose a fixed number of
+rewrites on passages that become clean sooner.
+
+### Dataset roles
+
+- `accepted`: clean rewrites that pass the meaning check. These are the only
+  records eligible for supervised fine-tuning.
+- `rejected`: rewrites that lose meaning or retain a hard finding. Keep them
+  for error analysis and future preference training.
+- `unresolved`: passages that reach the safety limit. Keep them out of the
+  training set until a human resolves them.
+- `human-review`: decisions from a seeded 10% sample of accepted records,
+  plus every judge disagreement and every unresolved record.
+
+Select the 10% sample across source model, topic, rule family, and attempt
+count. Human review should record whether the rewrite is clear, complete,
+faithful, and natural for its document role.
+
+### Model plan
+
+Keep the model interface provider-neutral so local and hosted models can be
+swapped without changing the dataset format.
+
+- Source generator: Claude, Codex, or another strong model creates realistic
+  AI prose from public or intentionally synthetic prompts.
+- Rewriter: start with `Qwen/Qwen3-1.7B` for a fast local baseline. Compare
+  `Qwen/Qwen3-0.6B` for speed and `Qwen/Qwen3-4B` for quality.
+- Meaning judge: use a stronger independent model. Do not use the same model
+  and prompt that produced the rewrite.
+- Comparison model: run `Phi-4-mini-instruct` as an independent local option.
+
+The first trial should use supervised fine-tuning on accepted input/output
+pairs. Use low-rank adaptation (LoRA) or quantized LoRA (QLoRA) so the base
+model stays frozen and the adapter remains small. Consider direct preference
+optimization only after the accepted and rejected records have enough human
+review.
+
+### Running taskboard
+
+#### Phase 0: contracts and safety
+
+- [ ] Add `training/README.md` with the data policy, provenance rules, run
+      commands, resume behavior, and acceptance criteria.
+- [ ] Define JSON schemas for attempts, accepted records, rejected records,
+      unresolved records, and human-review decisions.
+- [ ] Define a provider-neutral text-generation interface with model name,
+      prompt version, temperature, token limit, and request identifier.
+- [ ] Define a meaning-judge response with missing facts, changed claims,
+      added claims, preserved links, and a pass/fail decision.
+- [ ] Add source and output hashing so every record can be traced without
+      duplicating the same text in metadata.
+
+#### Phase 1: local dataset runner
+
+- [ ] Add a resumable runner that reads Markdown sources and appends JSONL
+      records after every attempt.
+- [ ] Add SlopSift execution with errors and warnings as hard failures and
+      notes as non-blocking suggestions.
+- [ ] Add the eight-attempt safety limit as a configuration value.
+- [ ] Add atomic accepted, rejected, and unresolved output files.
+- [ ] Add a seeded 10% human-review sample and include all disagreements and
+      unresolved records.
+- [ ] Add a report with acceptance rate, attempts per source, findings by rule,
+      meaning-judge failures, and human-review outcomes.
+
+#### Phase 2: first trial
+
+- [ ] Create 100–200 public or synthetic source passages across document roles.
+- [ ] Run three source models or prompt families so the data does not reflect
+      one model's habits.
+- [ ] Run the local rewriter and independent judge through the full loop.
+- [ ] Review the seeded 10% sample and every disagreement manually.
+- [ ] Freeze the first development dataset and record its manifest.
+- [ ] Keep 20% of sources as a held-out split by source, topic, and prompt
+      family. Do not train on it or use it while changing the prompts.
+
+#### Phase 3: baseline evaluation
+
+- [ ] Measure rule violations before and after rewriting.
+- [ ] Measure missing facts, changed claims, added claims, and link loss.
+- [ ] Measure human ratings for clarity, completeness, faithfulness, and
+      naturalness.
+- [ ] Compare the 0.6B, 1.7B, 4B, and Phi-4-mini local models on the same
+      sources and prompts.
+- [ ] Publish no quality claim until the held-out results and human sample are
+      complete.
+
+#### Phase 4: adapter training
+
+- [ ] Convert accepted records into supervised fine-tuning chat examples.
+- [ ] Train a LoRA adapter for the selected small model.
+- [ ] Evaluate the adapter against the untouched held-out split and naturally
+      written control text.
+- [ ] Compare the adapter with the base model and with the rule-driven rewrite
+      loop.
+- [ ] Add rejected versus accepted pairs for preference training only after
+      human review confirms that the preference labels are sound.
+
+#### Phase 5: product integration
+
+- [ ] Add the trained adapter as an optional `WritingAssistant` backend.
+- [ ] Keep SlopSift as the final deterministic check after every model rewrite.
+- [ ] Expose the run manifest and evaluation provenance in model releases.
+- [ ] Add fixtures for clean rewrites, meaning loss, unresolved loops, and
+      model output that tries to game a rule.
+- [ ] Document local inference, hosted-provider adapters, data privacy, and
+      the limits of the model's simplification claims.
+
 ### 5. Product direction
 
 - [ ] Position the product around intentional, specific, reader-friendly prose

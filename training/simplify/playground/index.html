@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simplifier playground</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #fbfbfa;
+        --panel: #ffffff;
+        --ink: #1c1c1a;
+        --muted: #6b6b66;
+        --line: #e2e2dd;
+        --accent: #2f6f4f;
+        --warn: #a05a1f;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #16171a;
+          --panel: #1e2024;
+          --ink: #e8e8e4;
+          --muted: #9a9a94;
+          --line: #32343a;
+          --accent: #6fbf92;
+          --warn: #d9a05a;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--ink);
+        font: 15px/1.55 ui-sans-serif, -apple-system, "Segoe UI", sans-serif;
+      }
+      h1 { font-size: 18px; margin: 0 0 4px; }
+      p.sub { margin: 0 0 20px; color: var(--muted); font-size: 13px; }
+      fieldset {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 12px 14px;
+        margin: 0 0 16px;
+      }
+      legend { font-size: 12px; color: var(--muted); padding: 0 6px; }
+      label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+      input, textarea, button, select {
+        font: inherit;
+        color: var(--ink);
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 8px 10px;
+        width: 100%;
+      }
+      textarea { resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+      .row { display: flex; gap: 12px; flex-wrap: wrap; }
+      .row > div { flex: 1 1 260px; }
+      .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+      .cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: start; margin-top: 18px; }
+      .cols > div { min-width: 0; }
+      @media (max-width: 980px) { .cols { grid-template-columns: 1fr; } }
+      /* Words the rewrite lifted from the source, dimmed so the model's own
+         writing is what the eye lands on. */
+      .lift { color: var(--muted); opacity: 0.55; }
+      .own { font-size: 13px; font-weight: 600; }
+      /* Grid children default to min-width:auto, so one long code line in the
+         output stretches its column and crushes the other. */
+      .panes > div { min-width: 0; }
+      @media (max-width: 820px) { .panes { grid-template-columns: 1fr; } }
+      .pane-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 6px;
+      }
+      .pane-head strong { font-size: 13px; }
+      .count { font-size: 12px; color: var(--muted); white-space: nowrap; }
+      .count.warn { color: var(--warn); }
+      .out {
+        min-height: 340px;
+        max-height: 70vh;
+        overflow-y: auto;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: var(--panel);
+        padding: 10px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+        overflow-x: auto;
+      }
+      .actions { display: flex; gap: 10px; align-items: center; margin: 14px 0; }
+      button {
+        width: auto;
+        cursor: pointer;
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        padding: 8px 18px;
+      }
+      button.ghost { background: transparent; color: var(--ink); border-color: var(--line); font-weight: 400; }
+      button:disabled { opacity: 0.55; cursor: default; }
+      #status { font-size: 12px; color: var(--muted); }
+      details summary { cursor: pointer; font-size: 12px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <h1>Simplifier playground</h1>
+    <p class="sub">Paste anything. All three models rewrite it at once, so the only difference between the columns is the adapter.</p>
+
+    <fieldset>
+      <legend>Endpoint</legend>
+      <div class="row">
+        <div>
+          <label for="url">Base URL</label>
+          <input id="url" placeholder="https://you--slopsift-simplify-serve-serve.modal.run" />
+        </div>
+        <div>
+          <label for="key">API key</label>
+          <input id="key" type="password" placeholder="token from the Modal secret" />
+        </div>
+      </div>
+    </fieldset>
+
+    <details>
+      <summary>System prompt (defaults to the one used in training)</summary>
+      <textarea id="system" rows="10" style="margin-top: 8px"></textarea>
+    </details>
+
+    <div class="actions">
+      <button id="go">Simplify</button>
+      <button id="stop" class="ghost" disabled>Stop</button>
+      <span id="status"></span>
+    </div>
+
+    <div>
+      <div class="pane-head">
+        <strong>Your text</strong>
+        <span class="count" id="inCount">0 words</span>
+      </div>
+      <textarea id="in" rows="14" placeholder="Paste a draft, a PR description, a README, anything."></textarea>
+    </div>
+
+    <p class="sub" style="margin: 14px 0 0">
+      Dimmed words are lifted from your text: any run of four words the rewrite shares with the
+      input, the same test the training reward scored. Read the words that stay dark.
+    </p>
+
+    <div class="cols" id="cols"></div>
+
+    <script>
+      const DEFAULT_SYSTEM = `You are a copy editor. Rewrite the document so a busy reader can follow it in
+one pass.
+
+Make the writing direct:
+
+- Keep sentences short. One idea per sentence; split anything past ~25 words.
+- Keep paragraphs short. Split them where the subject or purpose changes.
+- Name the actor. Say who does what; avoid passive voice that hides the doer.
+- Unstack noun piles. Add verbs and prepositions to show how ideas relate.
+- Spell out an initialism at its first use.
+- Cut filler: hype adjectives, "in today's world" framing, restatements,
+  decorative fragments, and em-dash chains.
+- Prefer plain words over jargon when they say the same thing.
+
+Never change the substance:
+
+- Preserve every fact, number, date, name, link, command, instruction,
+  caveat, and quotation.
+- Keep the original modality. Do not add or remove "must", "should", or
+  "may". Do not turn a suggestion into a rule.
+- Do not add claims, examples, or actors the original does not contain.
+- Keep the document's structure and role: a list stays a list, a procedure
+  stays a procedure.
+
+Return only the complete revised document as markdown.`;
+
+      const $ = (id) => document.getElementById(id);
+      const words = (s) => (s.trim() ? s.trim().split(/\s+/).length : 0);
+
+      // Settings persist locally so a reload does not lose the endpoint.
+      // A #url=…&key=… fragment seeds them on first open and then clears
+      // itself, which keeps the token out of the address bar.
+      // Browsers block localStorage on file:// pages, so every access is
+      // guarded: the playground still works, it just forgets the endpoint.
+      const store = {
+        get(id) {
+          try {
+            return localStorage.getItem('slopsift-playground-' + id);
+          } catch {
+            return null;
+          }
+        },
+        set(id, value) {
+          try {
+            localStorage.setItem('slopsift-playground-' + id, value);
+          } catch {
+            /* not persisted */
+          }
+        },
+      };
+      const seed = new URLSearchParams(location.hash.slice(1));
+      for (const id of ['url', 'key', 'system']) {
+        const saved = seed.get(id) ?? store.get(id);
+        if (saved !== null && saved !== '') {
+          $(id).value = saved;
+          store.set(id, saved);
+        }
+        $(id).addEventListener('input', () => store.set(id, $(id).value));
+      }
+      try {
+        if (location.hash) history.replaceState(null, '', location.pathname);
+      } catch {
+        /* file:// forbids replaceState; the fragment stays in the bar */
+      }
+      if (!$('system').value) $('system').value = DEFAULT_SYSTEM;
+
+      // The three models the endpoint serves. `base` is the untrained Qwen3-8B;
+      // the other two are 50 training steps apart and are not meaningfully
+      // different from each other, so the comparison that matters is base
+      // against either adapter.
+      const MODELS = [
+        { id: 'base', label: 'base', note: 'untrained Qwen3-8B' },
+        { id: 'grpo', label: 'grpo (final)', note: 'step 500' },
+        { id: 'grpo-450', label: 'grpo-450', note: 'step 450' },
+      ];
+
+      const escapeHtml = (text) =>
+        text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      // Same 4-gram test the reward uses, so the page agrees with the score.
+      const ECHO_N = 4;
+      const norm = (word) => word.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const tokenize = (text) => text.split(/([^\s]+)/).filter((part) => part !== '');
+
+      function sourceGrams(source) {
+        const tokens = tokenize(source).map(norm).filter(Boolean);
+        const grams = new Set();
+        for (let i = 0; i + ECHO_N <= tokens.length; i += 1) grams.add(tokens.slice(i, i + ECHO_N).join(' '));
+        return grams;
+      }
+
+      function render(output, grams) {
+        const parts = tokenize(output);
+        const wordAt = [];
+        const normed = [];
+        parts.forEach((part, i) => {
+          const n = norm(part);
+          if (n) { wordAt.push(i); normed.push(n); }
+        });
+        const lifted = new Set();
+        for (let i = 0; i + ECHO_N <= normed.length; i += 1) {
+          if (!grams.has(normed.slice(i, i + ECHO_N).join(' '))) continue;
+          for (let k = i; k < i + ECHO_N; k += 1) lifted.add(wordAt[k]);
+        }
+        const html = parts
+          .map((part, i) => (lifted.has(i) ? `<span class="lift">${escapeHtml(part)}</span>` : escapeHtml(part)))
+          .join('');
+        const own = wordAt.length ? 1 - lifted.size / wordAt.length : 0;
+        return { html, own, count: wordAt.length };
+      }
+
+      function buildColumns() {
+        $('cols').innerHTML = MODELS.map(
+          (m) => `<div>
+            <div class="pane-head">
+              <strong>${m.label}</strong>
+              <span class="count" id="own-${m.id}"></span>
+            </div>
+            <div class="count" style="margin-bottom:6px" id="meta-${m.id}">${m.note}</div>
+            <div class="out" id="out-${m.id}"></div>
+          </div>`,
+        ).join('');
+      }
+      buildColumns();
+
+      function refreshCounts() {
+        $('inCount').textContent = words($('in').value) + ' words';
+      }
+      $('in').addEventListener('input', refreshCounts);
+
+      let controller = null;
+
+      async function runOne(model, base, text, grams, signal) {
+        const out = $('out-' + model.id);
+        const started = performance.now();
+        let raw = '';
+        const paint = () => {
+          const { html, own, count } = render(raw, grams);
+          out.innerHTML = html;
+          $('own-' + model.id).textContent = `${(own * 100).toFixed(0)}% its own words`;
+          const ratio = words(text) ? count / words(text) : 0;
+          $('meta-' + model.id).textContent = `${model.note} · ${count} words · ${ratio.toFixed(2)}× your text`;
+        };
+        try {
+          const res = await fetch(base + '/v1/chat/completions', {
+            method: 'POST',
+            signal,
+            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + $('key').value.trim() },
+            body: JSON.stringify({
+              model: model.id,
+              stream: true,
+              temperature: 0.7,
+              top_p: 0.8,
+              max_tokens: 4096,
+              // Training ran with thinking off, so inference must match or
+              // Qwen3 opens every answer with an empty <think> block.
+              chat_template_kwargs: { enable_thinking: false },
+              messages: [
+                { role: 'system', content: $('system').value },
+                { role: 'user', content: 'Simplify this:\n\n' + text },
+              ],
+            }),
+          });
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              const payload = line.slice(6).trim();
+              if (payload === '[DONE]') continue;
+              try {
+                const chunk = JSON.parse(payload).choices?.[0]?.delta?.content;
+                if (chunk) { raw += chunk; paint(); }
+              } catch {
+                /* partial frame; the next read completes it */
+              }
+            }
+          }
+          paint();
+          $('meta-' + model.id).textContent += ` · ${((performance.now() - started) / 1000).toFixed(1)}s`;
+        } catch (err) {
+          out.textContent = err.name === 'AbortError' ? 'stopped' : 'error: ' + err.message;
+        }
+      }
+
+      async function run() {
+        const base = $('url').value.trim().replace(/\/$/, '');
+        const text = $('in').value.trim();
+        if (!base || !text) {
+          $('status').textContent = 'Need an endpoint URL and some text.';
+          return;
+        }
+        buildColumns();
+        $('go').disabled = true;
+        $('stop').disabled = false;
+        $('status').textContent = 'generating… (a cold start takes a couple of minutes)';
+        controller = new AbortController();
+        const grams = sourceGrams(text);
+        // All three share one prompt and run together, so a slow cold start is
+        // paid once rather than three times.
+        await Promise.all(MODELS.map((m) => runOne(m, base, text, grams, controller.signal)));
+        $('status').textContent = 'done';
+        $('go').disabled = false;
+        $('stop').disabled = true;
+        controller = null;
+      }
+
+      $('go').addEventListener('click', run);
+      $('stop').addEventListener('click', () => controller?.abort());
+      refreshCounts();
+    </script>
+  </body>
+</html>
