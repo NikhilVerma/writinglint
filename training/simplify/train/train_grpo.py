@@ -114,12 +114,14 @@ def train(
     steps: int = 500,
     lr: float = 1e-5,
     num_generations: int = 8,
+    init_adapter: str = "",
 ):
     import glob
 
+    import torch
     from datasets import Dataset
-    from peft import LoraConfig
-    from transformers import AutoTokenizer, TrainerCallback
+    from peft import LoraConfig, PeftModel
+    from transformers import AutoModelForCausalLM, AutoTokenizer, TrainerCallback
     from trl import GRPOConfig, GRPOTrainer
 
     # Read the file directly rather than through load_dataset. Its parsed-arrow
@@ -275,12 +277,28 @@ def train(
         def on_save(self, args, state, control, **kwargs):
             vol.commit()
 
+    # `init_adapter` warm-starts from an adapter an earlier run produced, e.g.
+    # "qwen3-8b-grpo-v6/final". Resuming from a checkpoint restores the step
+    # counter, the optimizer, and the dataloader position, so it can only ever
+    # continue the same run against the same prompts. A warm start takes the
+    # weights alone: fresh optimizer, fresh step counter, new prompt set, new
+    # reward. That is what carries a policy across a reward change.
+    if init_adapter:
+        base = AutoModelForCausalLM.from_pretrained(
+            base_model, torch_dtype=torch.bfloat16, device_map=None
+        )
+        model = PeftModel.from_pretrained(base, f"/out/{init_adapter}", is_trainable=True)
+        print(f"[init] warm start from /out/{init_adapter}", flush=True)
+    else:
+        model = base_model
+
     trainer = GRPOTrainer(
-        model=base_model,
+        model=model,
         args=cfg,
         train_dataset=ds,
         reward_funcs=reward_simplification,
-        peft_config=peft_config,
+        # A model that already carries an adapter must not be wrapped again.
+        peft_config=None if init_adapter else peft_config,
         callbacks=[CommitOnSave()],
     )
     checkpoints = sorted(
@@ -301,6 +319,7 @@ def main(
     steps: int = 500,
     lr: float = 1e-5,
     num_generations: int = 8,
+    init_adapter: str = "",
     spawn: bool = True,
 ):
     """Fire the job and exit.
@@ -317,6 +336,7 @@ def main(
         steps=steps,
         lr=lr,
         num_generations=num_generations,
+        init_adapter=init_adapter,
     )
     if not spawn:
         print(train.remote(**kwargs))
