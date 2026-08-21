@@ -1084,6 +1084,27 @@ test('filler-intensifiers flags the first-person stance shape and gates the spra
   assert.ok(!fired(await lint('The button is really close to the edge.'), 'filler-intensifiers'));
 });
 
+test('throat-clearing catches the expletive frame but not a real subject', async () => {
+  // The expletive "it" parses as `expl`, not `nsubj`. The rule asked only for
+  // `nsubj`, so it never fired on the phrasing its own docs name.
+  for (const opener of [
+    'It is important to note that the release removed the flag.',
+    'It is worth noting that the release removed the flag.',
+    'It is crucial to remember that the release removed the flag.',
+    // Same frame, three different parses: the parser moves `worth` between
+    // `advmod`, `mark`, and root, and `is` between `aux` and `cop`, on nothing
+    // but the complement clause. All of them are the same tell.
+    'It is worth noting that the flag is gone.',
+    'It is worth mentioning that the flag is gone.',
+  ]) {
+    assert.ok(fired(await lint(opener), 'throat-clearing'), opener);
+  }
+  // A named subject is doing real work, and an importance claim with no
+  // cognition verb is an ordinary sentence. Neither is throat-clearing.
+  assert.equal(fired(await lint('This detail is important to remember before you upgrade.'), 'throat-clearing'), false);
+  assert.equal(fired(await lint('It is important that the release removed the flag.'), 'throat-clearing'), false);
+});
+
 test('modal redundancy removes only the duplicated future modal', async () => {
   assert.ok(fired(
     await lint('You can rewrite every line or hire an editor; both will give you a cleaner draft.'),
