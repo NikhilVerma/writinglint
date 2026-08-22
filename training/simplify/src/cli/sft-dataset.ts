@@ -27,12 +27,12 @@ const { values } = parseArgs({
     benchMinWords: { type: 'string', default: '150' },
     benchMaxWords: { type: 'string', default: '1800' },
     seed: { type: 'string', default: '42' },
+    holdoutShare: { type: 'string', default: '0.05' },
   },
 });
 
 interface Pair { messages: { role: string; content: string }[]; sourceId: string }
 const train = readJsonl<Pair>('runs/human-pairs-export/train.jsonl');
-const holdout = readJsonl<Pair>('runs/human-pairs-export/holdout.jsonl');
 
 const roleOf = (p: Pair, role: string) => p.messages.find((m) => m.role === role)?.content ?? '';
 const system = roleOf(train[0], 'system');
@@ -72,41 +72,71 @@ for (const p of repair) {
 const docs = [...uniqueDocs.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 
 const share = Number(values.selfTargetShare);
-// Solve for a self-target count that is `share` of the finished set.
-const wanted = Math.round((share * repair.length) / (1 - share));
-const stride = Math.max(1, Math.floor(docs.length / Math.min(wanted, docs.length)));
-const selfTarget = docs
-  .filter((_, i) => i % stride === 0)
-  .slice(0, wanted)
-  .map(([sourceId, text]) => ({
-    sourceId,
-    kind: 'self-target',
-    messages: [
-      { role: 'system', content: system },
-      { role: 'user', content: `Simplify this:\n\n${text}` },
-      { role: 'assistant', content: text },
-    ],
-  }));
+const holdoutShare = Number(values.holdoutShare);
 
-const rows = [
-  ...repair.map((p) => ({ sourceId: p.sourceId, kind: 'repair', messages: p.messages })),
-  ...selfTarget,
-];
+// Seeded shuffle so the split is random but reproducible. The previous build
+// ordered everything by sourceId, which walked the corpus alphabetically and
+// put each document's repair and self-target rows next to each other.
+let state = (Number(values.seed) || 42) >>> 0;
+const nextRandom = (): number => {
+  state ^= state << 13;
+  state ^= state >>> 17;
+  state ^= state << 5;
+  return (state >>> 0) / 0x100000000;
+};
+const shuffled = <T>(items: readonly T[]): T[] => {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(nextRandom() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
 
-// Interleaved rather than concatenated. Grouped by kind, the trainer would see
-// every repair example before any self-target one and the lesson would arrive
-// as a late correction instead of a constraint held throughout.
-rows.sort((a, b) => {
-  const key = (r: typeof a) => `${r.sourceId}|${r.kind}`;
-  return key(a).localeCompare(key(b));
+// Split on documents, not rows. A document's repair row targets the same human
+// text its self-target row reproduces, so splitting per row would put that text
+// on both sides and leak the answer into the holdout.
+const splitDocs = shuffled(docs.map(([sourceId]) => sourceId));
+const holdoutDocs = new Set(splitDocs.slice(0, Math.round(splitDocs.length * holdoutShare)));
+
+const selfTargetFor = (sourceId: string, text: string) => ({
+  sourceId,
+  kind: 'self-target',
+  messages: [
+    { role: 'system', content: system },
+    { role: 'user', content: `Simplify this:\n\n${text}` },
+    { role: 'assistant', content: text },
+  ],
 });
+
+/** Both sides are built the same way and carry the same mix of kinds. The old
+ * holdout was 100% repair, so eval loss never measured the one behaviour this
+ * stage exists to teach and stayed flat while the model learned it. */
+function build(wantHoldout: boolean) {
+  const pairs = repair.filter((p) => holdoutDocs.has(p.sourceId) === wantHoldout);
+  const eligible = docs.filter(([sourceId]) => holdoutDocs.has(sourceId) === wantHoldout);
+  const wanted = Math.round((share * pairs.length) / (1 - share));
+  const picked = shuffled(eligible).slice(0, Math.min(wanted, eligible.length));
+  return shuffled([
+    ...pairs.map((p) => ({ sourceId: p.sourceId, kind: 'repair', messages: p.messages })),
+    ...picked.map(([sourceId, text]) => selfTargetFor(sourceId, text)),
+  ]);
+}
+
+const rows = build(false);
+const holdoutRows = build(true);
 
 const outDir = values.out as string;
 mkdirSync(outDir, { recursive: true });
-writeFileSync(path.join(outDir, 'train.jsonl'), `${rows.map((r) => JSON.stringify(r)).join('\n')}\n`, 'utf8');
-writeFileSync(path.join(outDir, 'holdout.jsonl'), `${holdout.map((r) => JSON.stringify({ sourceId: r.sourceId, kind: 'repair', messages: r.messages })).join('\n')}\n`, 'utf8');
+const write = (name: string, list: unknown[]) =>
+  writeFileSync(path.join(outDir, name), `${list.map((r) => JSON.stringify(r)).join('\n')}\n`, 'utf8');
+write('train.jsonl', rows);
+write('holdout.jsonl', holdoutRows);
 
-const actual = selfTarget.length / rows.length;
-console.error(`train: ${rows.length} rows (${repair.length} repair, ${selfTarget.length} self-target = ${(actual * 100).toFixed(0)}%)`);
-console.error(`holdout: ${holdout.length} rows`);
+const describe = (label: string, list: { kind: string }[]) => {
+  const self = list.filter((r) => r.kind === 'self-target').length;
+  console.error(`${label}: ${list.length} rows (${list.length - self} repair, ${self} self-target = ${((self / list.length) * 100).toFixed(0)}%)`);
+};
+describe('train', rows);
+describe('holdout', holdoutRows);
 console.error(`wrote ${outDir}/train.jsonl and ${outDir}/holdout.jsonl`);
