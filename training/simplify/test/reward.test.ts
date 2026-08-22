@@ -168,3 +168,20 @@ test('a real rewrite is not mistaken for a shuffle', () => {
   assert.equal(result.degenerate, null);
   assert.ok(result.echoRate > 0.05, `echo was ${result.echoRate}`);
 });
+
+test('handing back a source that is already clean is not punished as a copy', () => {
+  // The point of the human band: when the source needs no work, returning it
+  // is the correct move and the echo gate must not zero it.
+  const words = SOURCE.split(/\s+/).filter((w) => w !== '').length;
+  const clean = (20 * words) / 1000; // 20 per 1k, inside the band
+  const result = score(SOURCE, clean, clean);
+  assert.equal(result.echo, 1, 'the gate must not fire on a source that needs no work');
+  assert.ok(result.reward > 0.5, `returning clean prose scored ${result.reward}`);
+});
+
+test('a dirty source still cannot be copied out of the work', () => {
+  const words = SOURCE.split(/\s+/).filter((w) => w !== '').length;
+  const dirty = (80 * words) / 1000;
+  const result = score(SOURCE, dirty, dirty);
+  assert.equal(result.reward, 0, 'a verbatim copy of dirty text must still score zero');
+});

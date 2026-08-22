@@ -79,7 +79,13 @@ console.error(`${pool.length} eligible, ${picked.length} sampled x ${samples} dr
 async function rewrite(text: string, seed: number): Promise<string> {
   const res = await fetch(`${base}/v1/chat/completions`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    // devbox serves without auth; the Modal endpoint requires a key. Sending a
+    // bare "Bearer " header makes vLLM reject the request, so it is only added
+    // when SIMPLIFY_SERVE_KEY is set.
+    headers: {
+      'Content-Type': 'application/json',
+      ...(process.env.SIMPLIFY_SERVE_KEY ? { Authorization: `Bearer ${process.env.SIMPLIFY_SERVE_KEY}` } : {}),
+    },
     body: JSON.stringify({
       model: arm,
       temperature: 0.7,

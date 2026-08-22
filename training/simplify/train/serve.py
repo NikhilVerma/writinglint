@@ -16,6 +16,10 @@ GPU = os.environ.get("SIMPLIFY_SERVE_GPU", "L40S")
 # only question that matters: does either fine-tune beat the untrained model
 # on the same input? Pick between them with the request's `model` field.
 ADAPTERS = {
+    # Stage 1 of the mixed run: supervised repair + self-target pairs. Served
+    # alongside v7 so the idempotence benchmark can hit both through the same
+    # protocol it used to freeze the baseline.
+    "sft-v8": "/out/qwen3-8b-sft-v8/final",
     "v7": "/out/qwen3-8b-grpo-v7/checkpoint-450",
     "v6": "/out/qwen3-8b-grpo-v6/final",
 }

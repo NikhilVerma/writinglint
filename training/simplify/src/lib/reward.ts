@@ -89,7 +89,15 @@ export function scoreRewrite(args: {
   }
 
   // Echo: full marks at or below the floor, falling to zero at a verbatim copy.
-  const echoTerm = clamp(1 - (echo - config.echoFloor) / (1 - config.echoFloor));
+  //
+  // The gate exists to stop the model copying its way out of the work. When
+  // there is no work — the source already sits inside the human band — copying
+  // is the correct answer, and gating it to zero punishes exactly the behaviour
+  // this reward was rebuilt to produce. So the gate only applies to sources
+  // that need cutting. Note this reads the SOURCE, not the output: a model
+  // cannot earn the exemption by scrubbing dirty text until it looks clean.
+  const sourceNeedsWork = srcPer1k > bandHigh;
+  const echoTerm = sourceNeedsWork ? clamp(1 - (echo - config.echoFloor) / (1 - config.echoFloor)) : 1;
 
   const faithTerm = clamp(anchors.keptRate - config.inventedPenalty * anchors.inventedCount);
 
