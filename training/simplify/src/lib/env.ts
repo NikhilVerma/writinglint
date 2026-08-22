@@ -51,28 +51,46 @@ export interface LevelWeights {
   info: number;
 }
 
+/** One domain's targets. See `domains` below for how they were measured. */
+export interface DomainConfig {
+  band: [number, number];
+  echoFloor: number;
+}
+
 /** Weights and thresholds for the GRPO reward. Tunable without a code change
  * so a training run can be re-weighted from config.json alone. */
 export interface RewardConfig {
   /** Split between the two terms a faithful rewrite competes on. Faithfulness
    * and echo are gates rather than terms, so they carry no weight here. */
   weights: { lint: number; length: number };
-  /** Echo at or below this scores full marks; identifier-dense text cannot
-   * reach zero, so demanding it would reward dropping facts. */
-  echoFloor: number;
   /** How hard echo scales the other terms. At 1 a verbatim copy earns zero. */
   echoStrength: number;
   /** Subtracted from the faithfulness term per invented anchor. */
   inventedPenalty: number;
   /** Output-to-input word ratio that earns the full length term. */
   lengthBand: [number, number];
-  /** Weighted findings per 1k that count as human-level prose, taken from p10
-   * and p75 of 1,221 untouched originals in the human-pairs corpus. A rewrite
-   * landing inside scores full marks on the lint term, so already-clean text
-   * can be handed back unchanged. See the lint term in reward.ts. */
-  humanBand: [number, number];
-  /** Narrowest run-up above the band the lint term measures across, so a source
-   * starting just above it still yields a usable gradient. */
+  /** Per-domain targets. Essays and technical documents are different kinds of
+   * writing and a single set of numbers cannot serve both.
+   *
+   * `band` is weighted findings per 1k that count as human-level, taken from
+   * p10 and p75 of untouched human originals in that domain: 250 blog essays
+   * give [7, 15], and 125 pull-request descriptions and release notes give
+   * [3, 23]. A rewrite landing inside scores full marks on the lint term, so
+   * already-clean text can be handed back unchanged.
+   *
+   * `echoFloor` is the share of source 4-grams a rewrite may keep before the
+   * anti-copy gate starts charging. It is measured the same way, from what a
+   * legitimate rewrite in that domain actually echoes: essays 0.11 at the
+   * median, technical text 0.74, because names and numbers have to survive.
+   *
+   * See the domain split and the lint term in reward.ts. */
+  domains: { prose: DomainConfig; technical: DomainConfig };
+  /** Anchors per 100 words at or above which a document is scored as technical.
+   * Essays reach 3.5 at the 95th percentile and 98% of technical documents
+   * clear 4, so the threshold sits in a wide empty gap. */
+  technicalAnchorsPer100Words: number;
+  /** Floor on the denominator of the lint term, so a source sitting one finding
+   * above the band does not make that term all-or-nothing across one finding. */
   lintSpan: number;
   /** How hard the lint term tapers below the band. At 0.5, prose with no
    * findings at all keeps half the term. Stops the model editing past the

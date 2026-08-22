@@ -66,3 +66,5 @@ training/simplify/runs/
 training/simplify/.durably/
 # human-vs-AI paired corpus: private, never published or committed
 training/simplify/corpus/
+# built SFT datasets: they are the private corpus, reshaped
+training/simplify/train/data/

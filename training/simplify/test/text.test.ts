@@ -41,3 +41,19 @@ test('a reasoning block is dropped before the rewrite is scored', () => {
 test('a rewrite that never escaped the reasoning block scores as empty', () => {
   assert.equal(normalizeOutput('<think>Let me consider the opening paragraph'), '');
 });
+
+test('a think block that opens after the answer does not eat the answer', () => {
+  // lastIndexOf threw away everything before the LAST closing tag, so a model
+  // that answered and then second-guessed itself scored a silent degenerate
+  // zero. Where the block opens is what decides which side the rewrite is on.
+  const trailing = 'The API run records 4146 pass and 0 fail.<think>Should I have kept the bold?</think>';
+  assert.equal(normalizeOutput(trailing), 'The API run records 4146 pass and 0 fail.');
+
+  // A leading block still goes, with or without the opening tag the chat
+  // template may have supplied already.
+  assert.equal(normalizeOutput('<think>weighing it up</think>The rewrite.'), 'The rewrite.');
+  assert.equal(normalizeOutput('weighing it up</think>The rewrite.'), 'The rewrite.');
+
+  // And thinking on both sides leaves the rewrite in the middle.
+  assert.equal(normalizeOutput('<think>first</think>The rewrite.<think>second</think>'), 'The rewrite.');
+});

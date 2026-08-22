@@ -79,6 +79,39 @@ Band moved from `[17, 36]` to `[7, 15]`, and `lintSpan` from 10 to 4. Leaving
 the old band would have put most human prose below its own floor and paid the
 model to add findings back in.
 
+### One band could not serve both kinds of writing
+
+`[7, 15]` was measured on blog essays and then enforced on release notes and
+pull-request descriptions, which are a different kind of prose. Ordinary human
+technical writing was being told it was slop.
+
+| corpus | p50 | p75 | p90 | mean `work` | `work` at 1.0 |
+| --- | --- | --- | --- | --- | --- |
+| 250 human essays | 11.6 | 15.5 | 20.2 | 0.09 | 3% |
+| 125 PR and release notes | 16.4 | 23.3 | 30.2 | 0.30 | 12% |
+
+The echo floor was wrong in both directions for the same reason. A legitimate
+essay rewrite echoes 0.11 of its source at the median, so a floor of 0.35 paid
+full anti-copy credit to a rewrite doing half the work. A legitimate technical
+rewrite echoes 0.74, because names and numbers have to survive, so the same
+floor charged a faithful one 60% of its credit.
+
+Anchors per 100 words separate the two cleanly, and nothing else was needed:
+essays reach 3.5 at the 95th percentile, technical documents sit at 13.1 at the
+median, and 98% of them clear 4. The threshold is 4 and sits in a wide gap.
+
+| domain | band | echo floor |
+| --- | --- | --- |
+| prose | `[7, 15]` | 0.25 |
+| technical | `[3, 23]` | 0.75 |
+
+Two anchor bugs fell out of measuring this. Number words were read on both
+sides of the comparison, which made every essay anchor-dense on words carrying
+no fact: 19% of all anchors and **40% of every dropped-anchor penalty** came
+from "one" through "twelve". They are now read on the output side only, with a
+loose source reading kept purely as the reference for what counts as invented,
+because dropping them everywhere scored a verbatim copy at 0.65 faithfulness.
+
 ### The reward was indifferent to drift
 
 Scoring v7's own outputs against themselves. 155 verbatim-copy rows against
@@ -97,50 +130,152 @@ between its members and teaches nothing.
 
 ### Drift across passes
 
-n = 155 rows over 63 documents.
+n = 155 rows over 63 documents, averaged inside each document.
 
-| arm | input to p1 | p1 to p2 mean | p1 to p2 median | p2 to p3 | length ratio |
-| --- | --- | --- | --- | --- | --- |
-| base | 61.4% | 6.0% | 3.2% | 2.5% | 0.710 |
-| v7 | 71.9% | 10.9% | 7.5% | 4.0% | 0.704 |
-| **v9** | 52.7% | **5.3%** | **0.3%** | **1.6%** | **0.951** |
+| arm | input to p1 | +/-95% | p1 to p2 | +/-95% | median | p90 | p2 to p3 | length |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| base | 58.3% | 4.8 | 6.7% | 1.6 | 4.6% | 15.8% | 2.8% | 0.988 |
+| v7 | 69.7% | 3.4 | 11.1% | 2.6 | 7.9% | 27.6% | 4.2% | 0.985 |
+| **v9** | 44.1% | 7.1 | **4.8%** | 2.3 | **0.6%** | 19.1% | **1.7%** | **0.996** |
 
 v9 is stage-1 SFT with self-target examples mixed in at 25%, repair-only,
-1 epoch, 369 steps, final `eval_loss` 1.078.
+1 epoch, 369 steps, final `eval_loss` 1.078. Its p90 of 19.1% is the real
+story: the median is a fixed point and a tenth of documents still churn a
+fifth of their words on pass 2.
 
-### Pass-1 quality, and the ranking bug it exposed
+## The half of the eval that did not exist
 
-| arm | src /1k | out /1k | echoRate | anchors | length | reward | in band | below |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| base | 16.2 | 9.8 | 0.386 | 0.863 | 0.710 | 0.405 | 47% | 39% |
-| v7 | 16.2 | 7.5 | 0.281 | 0.896 | 0.704 | **0.409** | 39% | 54% |
-| v9 | 16.2 | **13.9** | 0.473 | **0.960** | **0.951** | 0.372 | **55%** | **9%** |
+Drift answers "does it leave finished text alone". Nothing answered "does it
+clean dirty text at all", and v9 was declared a success on drift alone.
+`clean-report.ts` answers the second question, and it reverses the verdict.
 
-v9 won every quality measure and scored last. The sources average 16.2/1k
-against a band top of 15, so they barely need work, yet the hard-edged gate
-demanded the same rewriting it would ask of filthy text.
+Everything below is per document, split two ways that both turned out to be
+load-bearing: by domain, because the bands differ, and by whether the
+**source** was above its band, because averaging a document that needed work
+with one that did not describes neither.
 
-After the `echoWorkSpan` blend, with the **document** as the independent unit
-(n=63, draws averaged):
+### Dirty prose (68 rows / 42 docs, source at 21.6/1k)
 
-| arm | reward before | reward after |
+| arm | out /1k | cut | dirtier | faith | invented | reward |
+| --- | --- | --- | --- | --- | --- | --- |
+| copy | 21.6 | 0.0 | 0% | 1.000 | 0.00 | **0.032** |
+| base | 11.5 | 10.1 | 6% | 0.885 | 0.29 | 0.325 |
+| **v7** | 9.4 | **12.2** | 0% | 0.934 | 0.35 | **0.346** |
+| v9 | 15.9 | 5.7 | **21%** | 0.989 | 0.33 | 0.245 |
+
+### Clean prose (71 rows / 44 docs, source at 11.2/1k)
+
+| arm | out /1k | cut | dirtier | faith | invented | reward |
+| --- | --- | --- | --- | --- | --- | --- |
+| copy | 11.2 | 0.0 | 0% | 1.000 | 0.00 | **1.000** |
+| v9 | 10.9 | 0.3 | 37% | 0.955 | 0.62 | 0.342 |
+| base | 8.4 | 2.8 | 20% | 0.895 | 0.32 | 0.295 |
+| v7 | 6.5 | 4.7 | 13% | 0.930 | 0.37 | 0.201 |
+
+Both tables read correctly, which is the point of the split: on dirty text a
+copy is worthless and v7 wins, on finished text a copy is the right answer and
+v9 comes closest to it. **v7 is the better model under the corrected reward.**
+v9 cuts less than the untuned base and leaves a fifth of dirty documents worse
+than it found them.
+
+### Technical, where it gets embarrassing
+
+16 rows over 10 documents, so treat these as a flag rather than a measurement.
+
+| arm | invented anchors per doc | docs that came out dirtier |
 | --- | --- | --- |
-| base | 0.420 ±0.055 | 0.341 ±0.050 |
-| v7 | 0.418 ±0.055 | 0.301 ±0.045 |
-| **v9** | 0.390 ±0.076 | **0.354 ±0.071** |
+| base | 0.39 | 18% |
+| v7 | 0.39 | 9% |
+| **v9** | **1.56** | **64%** |
 
-Honest reading: the fix stops the reward ranking the best model last, which was
-a blocking defect. It does not make the reward sharp. v9 beats v7 on 52% of
-documents at +0.053 ±0.089, and beats base on 48% at +0.013 ±0.074. Both
-intervals span zero.
+v9 invents numbers in release notes and pull-request descriptions and adds slop
+to two thirds of them. It had **no technical training data at all**. This is the
+concrete publish risk, and it is a data gap rather than a reward defect.
+
+## The reward paid for doing nothing
+
+Found by scoring a verbatim-copy arm, which had never been scored before.
+On the mixed benchmark a copy took **0.631** against 0.352 for the best trained
+model. A stage-2 GRPO run on that reward would have learned to hand the input
+straight back.
+
+The cause was in the lint term, not the echo gate. Above the band it measured
+progress from an inflated starting point rather than from the source, so a copy
+of a document at 16.2/1k collected 0.70 of the term for free. The numerator is
+now the cut actually made, so a copy closes nothing and scores nothing;
+`lintSpan` survives only as a floor on the denominator. A test now asserts
+`lint(dirt, dirt) == 0` at four dirt levels.
+
+Even after the fix the mixed mean read 0.533, because 45% of the benchmark is
+already in band where a copy correctly scores 1.0. That is what forced the
+clean/dirty split above. Split properly, a copy scores 0.032 on dirty prose.
+
+## The data was the ceiling
+
+The single most useful measurement of the project. Every SFT pair was scored on
+the reward's own metric (`pair-quality.ts`, n=3,444):
+
+| | mean | median | p10 | p90 |
+| --- | --- | --- | --- | --- |
+| gap taught, all pairs (v9's data) | **2.6** | 2.5 | -6.0 | 12.0 |
+
+34% of pairs have a target **dirtier** than its input. v9 was taught a 2.6/1k
+cleanup and delivers 5.7/1k on dirty prose. It learned its data almost exactly.
+No amount of reward tuning fixes that. The fix is the data.
+
+Failure modes, on the 1,680 pairs scored at the time of the breakdown:
+
+| | share |
+| --- | --- |
+| weak cut, because the source was already clean | 48% |
+| usable repair | 31% |
+| weak cut and the target is still dirty | 16% |
+| good cut but the target is still above band | 4% |
+
+Half the corpus gave the fixer nothing to do. Where the source really was dirty,
+53% of the time it produced a real repair. Those are the examples worth keeping.
+
+### v10
+
+`sft-dataset.ts` now keeps a repair pair only when the cut is at least 5/1k, the
+target lands inside its own domain band, and the target is not a near-copy of
+its input. Technical pairs are wired in as a second source for the first time.
+
+| | rows | mean gap taught | targets dirtier |
+| --- | --- | --- | --- |
+| essay repair | 881 | **10.7** | 0% |
+| technical repair | 142 | **15.7** | 0% |
+| self-target (exact identity) | 294 | n/a | n/a |
+| **train total** | **1,317** | | |
+
+Holdout is 45 rows. Verified: every self-target row is an exact identity pair,
+no holdout id appears in train, no benchmark document appears in train, and no
+row mentions slopsift or this repository.
+
+The prediction this sets up, to be checked and not assumed: v10 should cut like
+v7 on dirty text, because that is what its data teaches, while the identity
+rows hold it steady on finished text the way v9 is.
+
+## Ideas that were measured and rejected
+
+- **Chunked cosine similarity as an echo or faithfulness gate.** The hypothesis
+  was that 4-gram overlap cannot tell rewriting from synonym-swapping, so
+  semantic drift would expose v7's churn as empty. It does not. Measured with a
+  pinned MiniLM over all three arms, the ratio of semantic to lexical drift is
+  nearly flat: base 0.82, v7 0.86, v9 0.89. Every model changes words far more
+  than meaning, including the untuned one, so the ratio separates nothing.
+  Chunk coverage (0.791 / 0.766 / 0.886) does order the arms, but in the same
+  order `echoRate` already gives. Not worth a GPU dependency in the reward.
+  `train/semantic_probe.py` keeps the measurement reproducible.
 
 ## Known defects
 
-- **`drift-report.ts` treats rows as independent.** The benchmark has 155 rows
-  over only 63 unique document ids, about 2.5 draws each. Every drift
-  confidence interval reported before 2026-08-22 is too narrow. The point
-  estimates hold. Fix by averaging draws inside a document first.
-- **The reward cannot separate the three arms** at n=63. See above.
+- **v9 must not be published.** It cuts less than the untuned base model on
+  dirty text, leaves 21% of dirty prose documents worse than it found them, and
+  invents 1.56 anchors per technical document. It is stable and it is not good.
+- **The technical benchmark is 16 rows over 10 documents.** Every technical
+  number here is a flag, not a measurement. `runs/drift-inputs-v2.jsonl` holds
+  215 inputs including 60 held-out technical documents and needs a GPU pass.
 - **The warm-start path has never run.** `--init-adapter` in `train_grpo.py`
   has no execution behind it. Smoke it at 25 steps under a throwaway
   `run_name` before any real run, so the smoke checkpoint is not resumed by
@@ -170,33 +305,24 @@ intervals span zero.
 
 ## What to do next
 
-Recommended order, and the reasoning behind holding the GRPO run.
+The order changed. GRPO is no longer the next thing, because stage 1 is where
+the loss is: v9 was trained on data that taught a 2.6/1k cleanup, and a reward
+that paid 0.631 for doing nothing would have made stage 2 worse, not better.
 
-Two facts changed the picture. v9 already meets the drift target from
-supervision alone, at 0.3% median. And the reward cannot rank the arms. GRPO
-consumes something narrower than the between-arm comparison above: the reward
-spread between rollouts of a **single** prompt. If that spread is near zero,
-every advantage is zero and 500 steps teach nothing.
-
-1. **Commit the `echoWorkSpan` blend.** Done in the same commit as this file.
-2. **Fix `drift-report.ts`** to average draws within a document. Costs nothing,
-   and every drift interval is wrong until it lands.
-3. **Measure the fuel.** Sample 8 rollouts per prompt over about 40 prompts
-   from `qwen3-8b-sft-v9/final` at temperature 0.7, score them through
-   `src/cli/score.ts`, and take the median within-group reward standard
-   deviation. About one H100-hour, roughly $3. Rewards sit near 0.35 and the
-   arms differ by about 0.05, so a within-group std under roughly 0.02 means
-   there is nothing for GRPO to climb.
-4. **Branch on that number.**
-   - Real spread: 25-step warm-start smoke test, then the full run. About six
-     H100-hours and $30.
-   - Flat: GRPO is the wrong tool at this operating point. Spend the money on
-     the reward or on wider self-target supervision instead.
-
-Worth weighing separately: **v9 may be the thing to ship.** Its mean pass-2
-drift is 5.3% while its median is 0.3%, so a small tail of documents is doing
-all the damage. Reading those tail documents costs nothing and may show the
-remaining instability is one recognisable failure that supervision can fix.
+1. **Train v10 on the filtered dataset.** 1,317 rows, built and verified. One
+   epoch, same recipe as v9. About one H100-hour.
+2. **Run both halves of the eval on `drift-inputs-v2.jsonl`,** which carries
+   real technical documents. Report `clean-report.ts` split by clean and dirty
+   source alongside `drift-report.ts`. A model is only shippable if it cuts
+   like v7 on dirty text and holds like v9 on clean text, with invented anchors
+   at base level or below.
+3. **Only then measure GRPO fuel.** Sample 8 rollouts per prompt over about 40
+   prompts at temperature 0.7, score them, take the median within-group reward
+   standard deviation. Under roughly 0.02 there is nothing to climb and the
+   money belongs in supervision instead. The corrected lint term should widen
+   this spread, because a copy and a real cut no longer score alike.
+4. **Branch on that number.** Real spread: 25-step warm-start smoke, then the
+   full run, about six H100-hours. Flat: more and better stage-1 data.
 
 ### Held ready, not yet run
 
@@ -212,7 +338,10 @@ remaining instability is one recognisable failure that supervision can fix.
 - `train/MODEL_CARD.md` still has `NUMBERS_PENDING` and `REPO_ID` placeholders.
   `train/space/app.py` has `REPO_ID` too.
 - The Space needs a degenerate-output guard.
-- Faithfulness is measured on anchors. A claim-level check is still missing.
+- Faithfulness is measured on anchors, so a dropped argument is invisible to
+  it. Chunk coverage from `semantic_probe.py` is the cheapest candidate: v7's
+  10th percentile sits at 0.671, which is the tail where source content really
+  is being dropped. Rejected as a general gate, possibly useful as a floor.
 - Issue #58: sweep for registered rules with no positive fixture.
 
 ## Budget

@@ -22,6 +22,9 @@ export interface RewardTerms {
   droppedAnchors: string[];
   findingsPer1kWords: number;
   sourceFindingsPer1kWords: number;
+  /** Which band and echo floor this document was scored against. */
+  domain: 'prose' | 'technical';
+  anchorsPer100Words: number;
   words: number;
   lengthRatio: number;
 }
@@ -56,6 +59,26 @@ export function scoreRewrite(args: {
   const srcPer1k = findingsPer1kWords(sourceFindings, sourceWords);
   const anchors = faithfulness(source, output);
   const echo = echoRate(source, output);
+
+  // Which kind of writing this is, decided by anchor density and nothing else.
+  //
+  // One band cannot serve both. A single [7, 15] was measured on 250 blog
+  // essays and then enforced on release notes and pull-request descriptions,
+  // which sit at a median of 16.4 weighted findings per 1k in the same units.
+  // Ordinary human technical prose was being told it was slop.
+  //
+  // The echo floor was mis-set in both directions by the same mistake. A
+  // legitimate essay rewrite echoes a median 0.11 of its source, so a floor of
+  // 0.35 handed full anti-copy credit to a rewrite doing half the work. A
+  // legitimate technical rewrite echoes 0.74, because names and numbers have
+  // to survive, so the same floor charged a faithful one 60% of its credit.
+  //
+  // Anchors per 100 words separates the two cleanly: essays reach 3.5 at the
+  // 95th percentile, technical documents sit at 13.1 at the median, and 98% of
+  // them clear 4. The gap is wide enough that the threshold is not delicate.
+  const anchorsPer100 = (100 * anchors.anchorCount) / Math.max(sourceWords, 1);
+  const technical = anchorsPer100 >= config.technicalAnchorsPer100Words;
+  const domain = technical ? config.domains.technical : config.domains.prose;
   const vocabulary = vocabularyOverlap(source, output);
 
   // Lint: how close the rewrite lands to the way people actually write.
@@ -74,14 +97,24 @@ export function scoreRewrite(args: {
   // score tracks the distance closed toward the band. Below it, the score
   // tapers, because prose cleaner than 90% of measured human writing has had something
   // taken out of it.
-  const [bandLow, bandHigh] = config.humanBand;
+  const [bandLow, bandHigh] = domain.band;
   let lint: number;
   if (outPer1k > bandHigh) {
-    // A source that starts just above the band would otherwise make the term
-    // all-or-nothing across a one-finding gap, so the run-up is at least
-    // `lintSpan` wide.
-    const start = Math.max(srcPer1k, bandHigh + config.lintSpan);
-    lint = clamp((start - outPer1k) / (start - bandHigh));
+    // Still above the band: score the distance actually closed, out of the
+    // distance there was to close.
+    //
+    // This used to measure from an inflated starting point rather than from the
+    // source, and the inflation was pure profit for doing nothing. On the drift
+    // benchmark, whose sources average 16.2 per 1k against a band top of 15, a
+    // VERBATIM COPY scored 0.70 on this term and 0.631 overall — twice what
+    // either trained model earned. A stage-2 run on that reward would have
+    // learned to hand the input straight back. Now the numerator is the cut, so
+    // a copy closes nothing and scores nothing.
+    //
+    // `lintSpan` survives as a floor on the denominator only. Without it a
+    // source one finding above the band makes this term all-or-nothing across
+    // that one finding.
+    lint = clamp((srcPer1k - outPer1k) / Math.max(srcPer1k - bandHigh, config.lintSpan));
   } else if (outPer1k >= bandLow) {
     lint = 1;
   } else {
@@ -129,7 +162,7 @@ export function scoreRewrite(args: {
   // buys is the minimal edit that reaches the band, which is the same thing as
   // a fixed point: change what needs changing and leave the rest alone.
   const work = clamp((srcPer1k - bandHigh) / config.echoWorkSpan);
-  const antiCopy = clamp(1 - (echo - config.echoFloor) / (1 - config.echoFloor));
+  const antiCopy = domain.echoFloor >= 1 ? 0 : clamp(1 - (echo - domain.echoFloor) / (1 - domain.echoFloor));
   const stability = clamp(1 - config.stabilityStrength * (1 - echo));
   const echoTerm = work * antiCopy + (1 - work) * stability;
 
@@ -173,6 +206,8 @@ export function scoreRewrite(args: {
     droppedAnchors: anchors.droppedSample,
     findingsPer1kWords: Math.round(outPer1k * 1e3) / 1e3,
     sourceFindingsPer1kWords: Math.round(srcPer1k * 1e3) / 1e3,
+    domain: technical ? 'technical' : 'prose',
+    anchorsPer100Words: Math.round(anchorsPer100 * 1e2) / 1e2,
     words,
     lengthRatio: Math.round(lengthRatio * 1e4) / 1e4,
   };

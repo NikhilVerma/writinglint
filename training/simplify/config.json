@@ -36,14 +36,10 @@
       "lint": 0.95,
       "length": 0.05
     },
-    "echoFloor": 0.35,
     "echoWorkSpan": 15,
     "echoStrength": 1.0,
     "inventedPenalty": 0.35,
-    "lengthBand": [
-      0.6,
-      1.15
-    ],
+    "lengthBand": [0.8, 1.15],
     "scoredRules": [
       "ai-style",
       "reader-first/aside-pileup"
@@ -53,10 +49,11 @@
       "warn": 1,
       "info": 0.4
     },
-    "humanBand": [
-      7,
-      15
-    ],
+    "domains": {
+      "prose": { "band": [7, 15], "echoFloor": 0.25 },
+      "technical": { "band": [3, 23], "echoFloor": 0.75 }
+    },
+    "technicalAnchorsPer100Words": 4,
     "lintSpan": 4,
     "belowBandPenalty": 0.5,
     "stabilityStrength": 1.0

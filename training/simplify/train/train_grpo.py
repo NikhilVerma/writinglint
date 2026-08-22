@@ -173,20 +173,28 @@ def train(
     # scorer broken from the start reads as "every rollout earned zero" —
     # indistinguishable from a policy that is merely terrible. Two texts of
     # obviously different quality must score differently, or stop.
-    probe_src = prompts[0]["source"]
-    probe = score_batch([{"id": "probe", "input": probe_src, "output": probe_src}])[0]
+    # Eight prompts, not one. The set is seeded-shuffled and now mixes in the
+    # model's own clean outputs, so prompts[0] can legitimately carry zero
+    # priced findings — and the zero-findings check below would then abort a
+    # perfectly healthy run. One dirty prompt among the sample is enough.
+    probe_rows = [
+        {"id": f"probe-{i}", "input": p["source"], "output": p["source"]}
+        for i, p in enumerate(prompts[:8])
+    ]
+    probes = score_batch(probe_rows)
+    probe = probes[0] if probes else {}
     print(f"[preflight] scorer returned {probe}", flush=True)
     # score.ts emits the full term breakdown on success and {id, reward, error}
     # on failure, so a missing `lint` key means the scorer never ran. Checking
     # the reward value instead would be useless: a verbatim copy legitimately
     # scores zero, which is exactly what a dead scorer also returns.
-    if "lint" not in probe:
-        raise RuntimeError(f"reward scorer failed; refusing to train. Got {probe}")
+    if not probes or any("lint" not in p for p in probes):
+        raise RuntimeError(f"reward scorer failed; refusing to train. Got {probes}")
     # And a source with no priced findings at all means slopsift ran but nothing
     # it reported survived config.reward.scoredRules — a rulepack name typo, or
     # a slopsift whose JSON no longer carries ruleId. Either way the lint term
     # would be a constant and the run would teach nothing.
-    if float(probe.get("sourceFindingsPer1kWords", 0)) <= 0:
+    if max(float(p.get("sourceFindingsPer1kWords", 0)) for p in probes) <= 0:
         raise RuntimeError(
             f"scorer priced zero findings on real slop; check reward.scoredRules "
             f"against this slopsift's rule ids. Got {probe}"

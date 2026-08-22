@@ -54,9 +54,22 @@ export function normalizeOutput(text: string): string {
   // the think block, and scoring the reasoning with it halves the measured echo
   // and inflates the length ratio, so drop it. An unclosed block means the
   // model ran out of budget mid-thought and never reached the rewrite.
+  //
+  // Where the block sits decides what to keep. A block that opens at the top,
+  // or whose opening tag the chat template already supplied, is reasoning and
+  // the answer follows it. A block that opens partway through is an
+  // afterthought and the answer came first. `lastIndexOf` handled neither: a
+  // model that thought twice lost its whole rewrite and scored a silent zero.
   let clean = text.trim();
-  if (clean.includes('</think>')) clean = clean.slice(clean.lastIndexOf('</think>') + '</think>'.length);
-  else if (clean.startsWith('<think>')) clean = '';
+  for (let guard = 0; guard < 8; guard += 1) {
+    const open = clean.indexOf('<think>');
+    const close = clean.indexOf('</think>');
+    if (open > 0) clean = clean.slice(0, open);
+    else if (close !== -1) clean = clean.slice(close + '</think>'.length);
+    else if (open === 0) clean = '';
+    else break;
+    clean = clean.trim();
+  }
   clean = stripEmoji(clean.trim());
   if (clean.startsWith('```')) {
     clean = clean.replace(/^```[a-z]*\r?\n/i, '').replace(/\r?\n```\s*$/, '');

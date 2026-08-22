@@ -69,15 +69,42 @@ test('a two-line summary is rejected as too short', () => {
 });
 
 test('an already clean source earns the lint term by landing in the band, not by scrubbing', () => {
-  const rewrite = SOURCE.replace('CLAIMS', 'claims');
-  // 52 words, so half a weighted finding is 10 per 1k and a whole one is 19.
-  // The first sits inside the band and the second above it.
-  assert.equal(score(rewrite, 0.5, 0.5).lint, 1, 'staying inside the band is full marks');
-  assert.ok(score(rewrite, 1, 0.5).lint < 1, 'drifting above the band costs');
+  // Measured on PROSE rather than the pull-request excerpt. That excerpt runs
+  // at 13 anchors per 100 words, so it is scored as technical against a band
+  // of [3, 23], and 19 findings per 1k sits comfortably inside it. Asserting
+  // the prose band edge on technical text was the old test's mistake.
+  assert.equal(lintAt(12, 12), 1, 'staying inside the band is full marks');
+  assert.ok(lintAt(12, 18) < 1, 'drifting above the band costs');
   // Scrubbing every finding out of a clean source now scores below holding it
   // steady. That is the whole point: v7 wrote at half the human density
   // because the old term paid all the way to zero.
-  assert.ok(score(rewrite, 0, 0.5).lint < score(rewrite, 0.5, 0.5).lint, 'over-editing must not outscore leaving it alone');
+  assert.ok(lintAt(12, 0) < lintAt(12, 12), 'over-editing must not outscore leaving it alone');
+});
+
+test('technical prose is scored against its own band and its own echo floor', () => {
+  // One set of numbers cannot serve both kinds of writing. Human pull-request
+  // descriptions and release notes run at a median 16.4 weighted findings per
+  // 1k, above a prose band top of 15, so the single band called ordinary
+  // technical writing slop. A legitimate technical rewrite also echoes a
+  // median 0.74 of its source, because names and numbers have to survive,
+  // against 0.11 for an essay rewrite.
+  const technical = scoreRewrite({ source: SOURCE, output: SOURCE, sourceFindings: 1, outputFindings: 1, config });
+  assert.equal(technical.domain, 'technical', `anchors/100w was ${technical.anchorsPer100Words}`);
+  const prose = scoreRewrite({ source: PROSE, output: PROSE, sourceFindings: 1, outputFindings: 1, config });
+  assert.equal(prose.domain, 'prose', `anchors/100w was ${prose.anchorsPer100Words}`);
+
+  // 19 findings per 1k: above the prose band, inside the technical one.
+  assert.equal(technical.lint, 1, 'technical text at 19 per 1k is inside its band');
+  assert.ok(lintAt(19, 19) < 1, 'the same density is above the prose band');
+
+  // Handing this back unchanged is the right move, and scores it. That is the
+  // fixed point working in the technical domain too.
+  assert.equal(technical.reward, 1, 'clean technical text returned as-is is finished work');
+
+  // Copying a DIRTY technical source is still worthless. Two findings on 52
+  // words is 38 per 1k, well above the technical band top of 23.
+  const dirtyCopy = scoreRewrite({ source: SOURCE, output: SOURCE, sourceFindings: 2, outputFindings: 2, config });
+  assert.ok(dirtyCopy.reward < 0.05, `a dirty technical copy scored ${dirtyCopy.reward}`);
 });
 
 // The pull-request excerpt above is 52 words, so one finding there is already
@@ -140,10 +167,20 @@ test('a dirty source is still scored on how much it cut', () => {
 });
 
 test('a source barely above the band still has a gradient to climb', () => {
-  // Without lintSpan this was all-or-nothing across a one-finding gap.
-  const held = lintAt(16, 16);
-  assert.ok(held > 0.05 && held < 1, `expected a partial score, got ${held}`);
-  assert.ok(lintAt(16, 15) > held, 'reaching the band must pay more than missing it');
+  // Without the lintSpan floor this was all-or-nothing across a one-finding gap.
+  const half = lintAt(16, 15.5);
+  assert.ok(half > 0 && half < 1, `expected a partial score, got ${half}`);
+  assert.equal(lintAt(16, 15), 1, 'reaching the band is the whole term');
+});
+
+test('handing back a dirty source unchanged earns nothing, however dirty', () => {
+  // This was the reward's worst defect and it was invisible until a verbatim
+  // copy was scored as its own arm. A copy of a source at 16.2 per 1k took 0.70
+  // on this term and 0.631 overall, against 0.352 for the best trained model.
+  // Whatever else the reward pays for, it must never pay for doing nothing.
+  for (const dirt of [16, 20, 34, 60]) {
+    assert.equal(lintAt(dirt, dirt), 0, `a copy at ${dirt} per 1k must earn zero`);
+  }
 });
 
 test('reordered words are caught as a shuffle, not paid as a rewrite', () => {

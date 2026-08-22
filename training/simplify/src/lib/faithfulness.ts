@@ -47,7 +47,10 @@ const IDENTIFIERS = [
   /\b(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b/g, // commit shas
 ];
 
-export function extractAnchors(text: string): Anchors {
+/** @param numberWords whether "six" alone may create a number anchor. The two
+ * sides of a comparison want different answers, which is why this is a
+ * parameter. See `faithfulness` below. */
+export function extractAnchors(text: string, numberWords = false): Anchors {
   const numbers = new Set<string>();
   const symbols = new Set<string>();
 
@@ -61,8 +64,24 @@ export function extractAnchors(text: string): Anchors {
     for (const match of bare.matchAll(pattern)) symbols.add(match[0]);
   }
   for (const match of bare.matchAll(NUMBER)) numbers.add(numberKey(match[0].replace(/,/g, '')));
-  for (const word of SMALL_NUMBERS) {
-    if (new RegExp(`\\b${word}\\b`, 'i').test(bare)) numbers.add(numberKey(word));
+  // Number words are read on the output side only.
+  //
+  // Reading them on both sides made every essay anchor-dense on words that
+  // carry no fact: over the 155 drift documents, 19% of all anchors and 40% of
+  // every dropped-anchor PENALTY came from "one" through "twelve". A rewrite
+  // turning "one of the reasons" into "a reason" is correct, and it was being
+  // charged for it, which pushed the model toward copying in exactly the essay
+  // domain where preservation is already rewarded.
+  //
+  // Dropping them everywhere is wrong too, and briefly broke the opposite
+  // case: with no sweep at all, a source saying "6 fixes" and a rewrite saying
+  // "Six fixes" scored as a dropped fact. Reading them only on the output side
+  // gives both answers. A word can satisfy a digit the source really carried,
+  // and a word alone can never invent an anchor for the source to lose.
+  if (numberWords) {
+    for (const word of SMALL_NUMBERS) {
+      if (new RegExp(`\\b${word}\\b`, 'i').test(bare)) numbers.add(numberKey(word));
+    }
   }
   return { numbers, symbols };
 }
@@ -84,8 +103,16 @@ export interface FaithfulnessResult {
  * dropped or altered identifier still counts against it.
  */
 export function faithfulness(input: string, output: string): FaithfulnessResult {
+  // Three readings, because the two halves of this comparison need different
+  // ones. `from` is strict, so a bare "one" in the source is never an anchor
+  // the rewrite can be charged with losing. `fromLoose` is what invention is
+  // judged against, so a "two" the source really said is not then counted as a
+  // number the rewrite made up. `to` is loose, so a spelled-out word can
+  // satisfy a digit. Reading the source strictly on both sides scored a
+  // verbatim copy at 0.65 faithfulness, which is how this was caught.
   const from = extractAnchors(input);
-  const to = extractAnchors(output);
+  const fromLoose = extractAnchors(input, true);
+  const to = extractAnchors(output, true);
   const outputLower = output.toLowerCase();
 
   const dropped: string[] = [];
@@ -101,7 +128,7 @@ export function faithfulness(input: string, output: string): FaithfulnessResult 
     if (!from.symbols.has(symbol) && !input.toLowerCase().includes(symbol.toLowerCase())) invented.push(symbol);
   }
   for (const number of to.numbers) {
-    if (!from.numbers.has(number)) invented.push(number);
+    if (!fromLoose.numbers.has(number)) invented.push(number);
   }
 
   const anchorCount = from.symbols.size + from.numbers.size;
