@@ -352,6 +352,76 @@ opposite failure — the technical half teaches a 19.8/1k cut, nearly twice the
 essay half, and 22% of train is technical. If v10 over-cuts, that is where it
 came from.
 
+## v10 measured: it learned to under-edit
+
+Trained 2 epochs on the 1,488-row corpus, eval loss 0.944 at epoch 1 and 0.950
+at epoch 2 (a mild overfit; one epoch may be enough). Scored on a rebuilt
+benchmark of 215 rows over 123 documents, which for the first time carries a
+real technical half: 54 prose documents (38 above band) and 69 technical (39
+above band), against the old benchmark's 10 technical documents.
+
+Every number below is on that v2 benchmark. Earlier tables in this document are
+on the 63-document v1 benchmark and are not comparable.
+
+Cut, in weighted findings per 1k, on sources that were above their band:
+
+| arm | prose | technical | prose dirtier | tech dirtier | tech still above band |
+| --- | --- | --- | --- | --- | --- |
+| base | 8.7 | 6.8 | 9% | 33% | 56% |
+| v7 | **12.3** | **9.5** | 0% | 15% | 28% |
+| v9 | 1.1 | -1.1 | 19% | 59% | 92% |
+| v10 | 5.8 | 1.4 | 4% | 23% | **97%** |
+
+Drift across passes:
+
+| arm | input->p1 | p1->p2 | p2->p3 |
+| --- | --- | --- | --- |
+| base | 44.0% | 6.0% | 2.3% |
+| v7 | 58.5% | 12.9% | 5.9% |
+| v9 | 25.5% | 3.4% | 1.3% |
+| v10 | 20.0% | 1.5% | **0.1%** |
+
+v10 is the best fixed point trained so far and the second-weakest cleaner. Its
+median input->p1 drift is 0.0%: for more than half the benchmark it returns the
+input unchanged.
+
+### The transfer hypothesis was wrong
+
+The first explanation was that corruption teaches deletion — corrupted documents
+are 1.42x inflated and the human target is 0.70x the corrupted length — so the
+learned move would find nothing to delete in naturally sloppy prose. That
+predicts v10 cleans held-out CORRUPTED documents well and natural ones badly.
+
+Measured on 60 held-out corrupted documents (`drift-inputs-heldcorrupt.jsonl`),
+none of them in training, all with a real corruption gap:
+
+| arm | prose cut | tech cut | still above band | invented (prose) | p2->p3 |
+| --- | --- | --- | --- | --- | --- |
+| v7 | **25.3** | **26.2** | 48% / 26% | **1.82** | 14.8% |
+| v10 | 12.4 | 10.1 | 80% / 84% | 0.07 | 0.3% |
+
+v10 underperforms v7 by half on the exact distribution it was trained on, so
+transfer is not the problem. It under-edits everywhere, at echo 0.833 on prose
+it was trained to clean. The likelier cause is composition: 290 exact-identity
+rows plus 132 technical pairs above 0.8 echo is 28% of training rows whose
+correct answer is to hand the document back.
+
+Caveat on the comparison: v7 is GRPO-trained against the reward, v10 is SFT
+only. SFT reproduces its data; GRPO optimises the objective directly. v10 is
+the SFT stage of a two-stage plan, and comparing its cut magnitude against a
+reward-optimised policy flatters v7.
+
+### What the in-distribution run exposed about v7
+
+v7 invents **1.82 anchors per corrupted prose document** and churns 26.5% on
+its second pass and 14.8% on its third. On heavily padded input it fabricates
+numbers and identifiers at scale. It is the hardest cleaner in the series and
+the least trustworthy, and the small benchmark hid this. On the v2 benchmark it
+also cuts 4.6/1k out of prose that was ALREADY clean and returns it at 0.693 of
+its length — it strips a third of finished text.
+
+None of base, v7, v9 or v10 is publishable.
+
 ## Ideas that were measured and rejected
 
 - **Chunked cosine similarity as an echo or faithfulness gate.** The hypothesis
