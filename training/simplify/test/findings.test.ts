@@ -62,21 +62,30 @@ test('the human band stays calibrated against what actually feeds it', () => {
   assert.equal(levelWeights.info, 0.4, 'weights changed; re-measure both bands');
   assert.deepEqual(scoredRules, ['ai-style', 'reader-first/aside-pileup'], 'rule set changed; re-measure both bands');
   assert.deepEqual(domains.prose.band, [7, 15]);
-  assert.deepEqual(domains.technical.band, [3, 23]);
+  assert.deepEqual(domains.technical.band, [2.5, 16.8]);
 });
 
 test('each band brackets where its own measured human prose actually sits', () => {
   // Median human writing is 11.6 weighted findings per 1k over 250 blog-essay
-  // originals under the priced rule set, and 16.4 over 125 pull-request
-  // descriptions and release notes. A band that excluded its own median would
-  // train the model away from the writing it is meant to imitate.
+  // originals under the priced rule set, and 10.3 over 561 pull requests merged
+  // between 2018 and 2019. A band that excluded its own median would train the
+  // model away from the writing it is meant to imitate.
+  //
+  // The technical figure used to be 16.4, measured on CURRENT pull requests, and
+  // that number was contamination rather than a property of technical writing.
+  // 24 of those 639 documents say "Generated with [Claude Code]" in the body, 12
+  // name Copilot, and 48 carry GitHub's generative-AI disclosure prompt; the
+  // undeclared share is unknowable. Re-measured on prose merged before GPT-3
+  // existed, every percentile drops: p50 19.6 to 10.3, p75 29.3 to 16.8. The
+  // reward had been telling the model that 23 findings per 1k was human.
   const { domains } = loadConfig().reward;
   const [pLow, pHigh] = domains.prose.band;
   assert.ok(pLow < 11.6 && pHigh > 11.6, 'the essay median must fall inside the prose band');
   const [tLow, tHigh] = domains.technical.band;
-  assert.ok(tLow < 16.4 && tHigh > 16.4, 'the technical median must fall inside the technical band');
-  // And the two must stay distinct, or the split is doing nothing.
-  assert.ok(tHigh > pHigh, 'technical writing carries more findings than essay prose');
+  assert.ok(tLow < 10.3 && tHigh > 10.3, 'the technical median must fall inside the technical band');
+  // The two bands stay distinct because technical prose varies more, not
+  // because it is sloppier. Its median now sits BELOW the essay median.
+  assert.ok(tLow < pLow && tHigh > pHigh, 'the technical band is wider at both ends');
 });
 
 test('the echo floors match what a legitimate rewrite in each domain echoes', () => {

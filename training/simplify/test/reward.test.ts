@@ -82,20 +82,21 @@ test('an already clean source earns the lint term by landing in the band, not by
 });
 
 test('technical prose is scored against its own band and its own echo floor', () => {
-  // One set of numbers cannot serve both kinds of writing. Human pull-request
-  // descriptions and release notes run at a median 16.4 weighted findings per
-  // 1k, above a prose band top of 15, so the single band called ordinary
-  // technical writing slop. A legitimate technical rewrite also echoes a
-  // median 0.74 of its source, because names and numbers have to survive,
-  // against 0.11 for an essay rewrite.
-  const technical = scoreRewrite({ source: SOURCE, output: SOURCE, sourceFindings: 1, outputFindings: 1, config });
+  // One set of numbers cannot serve both kinds of writing, but not for the
+  // reason first assumed. Technical prose is WIDER, not dirtier: measured on
+  // 561 pull requests merged in 2018 and 2019 it runs p10 2.5 to p75 16.8, a
+  // median of 10.3 that sits below the essay median of 11.6. A legitimate
+  // technical rewrite also echoes a median 0.74 of its source, because names
+  // and numbers have to survive, against 0.11 for an essay rewrite.
+  const technical = scoreRewrite({ source: SOURCE, output: SOURCE, sourceFindings: 0.85, outputFindings: 0.85, config });
   assert.equal(technical.domain, 'technical', `anchors/100w was ${technical.anchorsPer100Words}`);
   const prose = scoreRewrite({ source: PROSE, output: PROSE, sourceFindings: 1, outputFindings: 1, config });
   assert.equal(prose.domain, 'prose', `anchors/100w was ${prose.anchorsPer100Words}`);
 
-  // 19 findings per 1k: above the prose band, inside the technical one.
-  assert.equal(technical.lint, 1, 'technical text at 19 per 1k is inside its band');
-  assert.ok(lintAt(19, 19) < 1, 'the same density is above the prose band');
+  // 16.3 findings per 1k: above the prose band top of 15, inside the technical
+  // one. The window between the two tops is narrow now, which is the point.
+  assert.equal(technical.lint, 1, 'technical text at 16.3 per 1k is inside its band');
+  assert.ok(lintAt(16.3, 16.3) < 1, 'the same density is above the prose band');
 
   // Handing this back unchanged is the right move, and scores it. That is the
   // fixed point working in the technical domain too.

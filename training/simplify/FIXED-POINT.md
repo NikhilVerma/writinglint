@@ -103,7 +103,49 @@ median, and 98% of them clear 4. The threshold is 4 and sits in a wide gap.
 | domain | band | echo floor |
 | --- | --- | --- |
 | prose | `[7, 15]` | 0.25 |
-| technical | `[3, 23]` | 0.75 |
+| technical | `[2.5, 16.8]` | 0.75 |
+
+### Most of the technical band was contamination
+
+The technical band was first measured on current pull requests and came out at
+`[3, 23]`. Then somebody looked at what those documents actually were.
+
+| marker in the body | documents |
+| --- | --- |
+| "Generated with [Claude Code]" | 24 / 639 |
+| GitHub's generative-AI disclosure prompt | 48 / 639 |
+| Copilot | 12 / 639 |
+
+Those are only the ones that declare it. So the reward was calibrating "human
+technical writing" partly on machine writing, and then paying a rewriter to
+imitate it.
+
+Re-fetched from the same twelve repositories, restricted to pull requests
+**merged between 2018-01-01 and 2019-12-31**. GPT-2 shipped in February 2019
+and GPT-3 not until June 2020, so nothing in that window was machine-written at
+any scale, while pull-request prose had already settled into its modern shape.
+Going back to 2013 costs more than it buys, because pull-request bodies then
+were mostly one line.
+
+| corpus | p10 | p25 | p50 | p75 | p90 | AI markers |
+| --- | --- | --- | --- | --- | --- | --- |
+| current PRs (n=639) | 5.9 | 12.2 | 19.6 | 29.3 | 39.5 | 84 |
+| **2018-19 PRs (n=561)** | **2.5** | 6.8 | **10.3** | **16.8** | 27.4 | **0** |
+
+Every percentile drops, and the gap survives both controls: same three
+repositories gives 10.3 against 16.0, and length-matched at 150-500 words gives
+10.6 against 15.8.
+
+The technical median of 10.3 now sits **below** the essay median of 11.6. The
+premise the domain split was built on — that technical writing is inherently
+denser in findings — was false. Technical writing is *wider*, spanning 2.5 to
+16.8 where essays span 7 to 15, and that is the only real difference. The rules
+were right the whole time and the corpus was lying.
+
+Band moved to `[2.5, 16.8]`. `band-measure.ts` exists now so this can be
+re-checked whenever the corpus or the pricing moves; nothing did that before,
+and `measure-corpus.ts` looks like it does but reports raw unfiltered findings
+in units that are not band units.
 
 Two anchor bugs fell out of measuring this. Number words were read on both
 sides of the comparison, which made every essay anchor-dense on words carrying

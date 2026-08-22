@@ -74,9 +74,18 @@ export interface RewardConfig {
    *
    * `band` is weighted findings per 1k that count as human-level, taken from
    * p10 and p75 of untouched human originals in that domain: 250 blog essays
-   * give [7, 15], and 125 pull-request descriptions and release notes give
-   * [3, 23]. A rewrite landing inside scores full marks on the lint term, so
-   * already-clean text can be handed back unchanged.
+   * give [7, 15], and 561 pull requests merged between 2018 and 2019 give
+   * [2.5, 16.8]. A rewrite landing inside scores full marks on the lint term,
+   * so already-clean text can be handed back unchanged.
+   *
+   * The merge window is the whole point of the technical figure. It was first
+   * measured on CURRENT pull requests and came out at [3, 23], and that was
+   * contamination: 24 of those 639 documents say "Generated with [Claude Code]"
+   * in the body, 12 name Copilot, 48 carry GitHub's generative-AI disclosure
+   * prompt, and the undeclared share cannot be known. Re-measured on prose
+   * merged before GPT-3 existed, every percentile drops and the technical
+   * median lands BELOW the essay median. Technical writing is not sloppier
+   * than essay writing; the corpus was.
    *
    * `echoFloor` is the share of source 4-grams a rewrite may keep before the
    * anti-copy gate starts charging. It is measured the same way, from what a

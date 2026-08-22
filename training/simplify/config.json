@@ -51,7 +51,7 @@
     },
     "domains": {
       "prose": { "band": [7, 15], "echoFloor": 0.25 },
-      "technical": { "band": [3, 23], "echoFloor": 0.75 }
+      "technical": { "band": [2.5, 16.8], "echoFloor": 0.75 }
     },
     "technicalAnchorsPer100Words": 4,
     "lintSpan": 4,
