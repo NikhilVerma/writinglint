@@ -85,7 +85,17 @@ export function scoreRewrite(args: {
   } else if (outPer1k >= bandLow) {
     lint = 1;
   } else {
-    lint = clamp(1 - config.belowBandPenalty * ((bandLow - outPer1k) / bandLow));
+    // The floor drops to meet a source that already sits below the band.
+    //
+    // A model handed thin prose cannot be asked to fatten it back up: the only
+    // way to raise findings per 1k is to put slop in. With a fixed floor, a
+    // source at 10 per 1k scored 0.79 for being returned untouched and 1.00 for
+    // being pushed back up to 17, so the reward paid for damage. That never
+    // fired while every prompt was slop, and it fires on every prompt once the
+    // model's own output is a prompt. So holding steady is full marks, and only
+    // cutting further costs.
+    const floor = Math.min(bandLow, srcPer1k);
+    lint = floor <= 0 ? 1 : clamp(1 - config.belowBandPenalty * ((floor - outPer1k) / floor));
   }
 
   // Echo: full marks at or below the floor, falling to zero at a verbatim copy.

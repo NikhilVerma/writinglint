@@ -185,3 +185,12 @@ test('a dirty source still cannot be copied out of the work', () => {
   const result = score(SOURCE, dirty, dirty);
   assert.equal(result.reward, 0, 'a verbatim copy of dirty text must still score zero');
 });
+
+test('a source already below the band is not asked to fatten itself back up', () => {
+  // This is what makes the model's own output safe to use as a prompt. Its
+  // outputs land under the band, and the only way to raise findings per 1k is
+  // to put slop back in. Holding steady has to be the top score.
+  assert.equal(lintAt(10, 10), 1, 'holding thin prose steady is full marks');
+  assert.equal(lintAt(10, 17), lintAt(10, 10), 'adding findings must earn nothing extra');
+  assert.ok(lintAt(10, 5) < lintAt(10, 10), 'cutting further still costs');
+});
