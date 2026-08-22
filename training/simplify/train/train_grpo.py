@@ -25,7 +25,14 @@ PROMPTS = Path(
 )
 GPU = os.environ.get("SIMPLIFY_GRPO_GPU", "H100:2")
 TIMEOUT_S = int(os.environ.get("SIMPLIFY_GRPO_TIMEOUT_S", 8 * 3600))
-SLOPSIFT_VERSION = os.environ.get("SIMPLIFY_SLOPSIFT_VERSION", "latest")
+# Pinned, not "latest". The reward's human band is p10-p75 of human prose as
+# measured by ONE version of these rules, so floating the version silently
+# redefines the target the model is trained against. 0.9.0 also requires Node
+# 24 while this image ships Node 22, so "latest" would have installed a
+# slopsift that cannot run — and score_batch turns a dead scorer into a batch
+# of zero rewards rather than a crash, so the run would have trained on
+# nothing for 500 steps without ever saying so.
+SLOPSIFT_VERSION = os.environ.get("SIMPLIFY_SLOPSIFT_VERSION", "0.8.2")
 
 app = modal.App("slopsift-simplify-grpo")
 vol = modal.Volume.from_name("slopsift-simplify-lora", create_if_missing=True)
@@ -160,6 +167,31 @@ def train(
 
     log_path = f"/out/{run_name}/reward-log.jsonl"
     Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+
+    # Prove the scorer works before training on it. score_batch deliberately
+    # swallows failures so one bad batch cannot kill a long run, which means a
+    # scorer broken from the start reads as "every rollout earned zero" —
+    # indistinguishable from a policy that is merely terrible. Two texts of
+    # obviously different quality must score differently, or stop.
+    probe_src = prompts[0]["source"]
+    probe = score_batch([{"id": "probe", "input": probe_src, "output": probe_src}])[0]
+    print(f"[preflight] scorer returned {probe}", flush=True)
+    # score.ts emits the full term breakdown on success and {id, reward, error}
+    # on failure, so a missing `lint` key means the scorer never ran. Checking
+    # the reward value instead would be useless: a verbatim copy legitimately
+    # scores zero, which is exactly what a dead scorer also returns.
+    if "lint" not in probe:
+        raise RuntimeError(f"reward scorer failed; refusing to train. Got {probe}")
+    # And a source with no priced findings at all means slopsift ran but nothing
+    # it reported survived config.reward.scoredRules — a rulepack name typo, or
+    # a slopsift whose JSON no longer carries ruleId. Either way the lint term
+    # would be a constant and the run would teach nothing.
+    if float(probe.get("sourceFindingsPer1kWords", 0)) <= 0:
+        raise RuntimeError(
+            f"scorer priced zero findings on real slop; check reward.scoredRules "
+            f"against this slopsift's rule ids. Got {probe}"
+        )
+    print("[preflight] scorer healthy", flush=True)
 
     def reward_simplification(completions, source, **kwargs) -> list[float]:
         """TRL passes the dataset's `source` column through untouched, which is
