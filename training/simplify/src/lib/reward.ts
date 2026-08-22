@@ -98,16 +98,40 @@ export function scoreRewrite(args: {
     lint = floor <= 0 ? 1 : clamp(1 - config.belowBandPenalty * ((floor - outPer1k) / floor));
   }
 
-  // Echo: full marks at or below the floor, falling to zero at a verbatim copy.
+  // Echo, in one of two directions depending on whether the source needs work.
   //
-  // The gate exists to stop the model copying its way out of the work. When
-  // there is no work — the source already sits inside the human band — copying
-  // is the correct answer, and gating it to zero punishes exactly the behaviour
-  // this reward was rebuilt to produce. So the gate only applies to sources
-  // that need cutting. Note this reads the SOURCE, not the output: a model
-  // cannot earn the exemption by scrubbing dirty text until it looks clean.
-  const sourceNeedsWork = srcPer1k > bandHigh;
-  const echoTerm = sourceNeedsWork ? clamp(1 - (echo - config.echoFloor) / (1 - config.echoFloor)) : 1;
+  // Above the band there is work to do, and the gate stops the model copying
+  // its way out of it: full marks at or below the floor, zero at a verbatim
+  // copy.
+  //
+  // At or below the band the job is already done, and the gate flips. Merely
+  // exempting a clean source was not enough. Scoring v7's own outputs against
+  // themselves, a verbatim copy beat an 11%-churned rewrite on 35% of
+  // documents with a median reward gap of exactly zero — the two are the same
+  // score, so a GRPO group of rollouts on finished text has no advantage
+  // between them and teaches nothing. The signal was there and the reward was
+  // discarding it: echoRate reads 1.000 for a copy against 0.891 for the
+  // churn. So preservation is paid for directly.
+  //
+  // Note this reads the SOURCE, not the output, in both branches: a model
+  // cannot earn the flip by scrubbing dirty text until it looks clean.
+  //
+  // The two directions are blended by how much work the source actually needs,
+  // rather than switched on a hard edge at the band. The edge ranked the wrong
+  // model first: measured over 155 documents whose sources average 16.2 per 1k
+  // — barely above a band top of 15 — it paid v7 more for rewriting 72% of the
+  // text than v9 for landing closer to human density, more faithfully, without
+  // cutting a third of the words. "Barely above the band" and "filthy" were
+  // being asked for the same amount of rewriting.
+  //
+  // So a source one finding above the band is treated almost like finished
+  // text, and only one well clear of it is asked for a full rewrite. What this
+  // buys is the minimal edit that reaches the band, which is the same thing as
+  // a fixed point: change what needs changing and leave the rest alone.
+  const work = clamp((srcPer1k - bandHigh) / config.echoWorkSpan);
+  const antiCopy = clamp(1 - (echo - config.echoFloor) / (1 - config.echoFloor));
+  const stability = clamp(1 - config.stabilityStrength * (1 - echo));
+  const echoTerm = work * antiCopy + (1 - work) * stability;
 
   const faithTerm = clamp(anchors.keptRate - config.inventedPenalty * anchors.inventedCount);
 

@@ -37,6 +37,7 @@
       "length": 0.05
     },
     "echoFloor": 0.35,
+    "echoWorkSpan": 15,
     "echoStrength": 1.0,
     "inventedPenalty": 0.35,
     "lengthBand": [

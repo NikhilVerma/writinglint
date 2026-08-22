@@ -85,6 +85,10 @@ the Hugging Face Hub; it uploads weights and the card only, never corpus text.
 
 ## Reinforcement learning on the lint score
 
+**See [FIXED-POINT.md](FIXED-POINT.md) first.** It carries the measured
+evidence behind the current reward, the known defects, and the reason the
+stage-2 GRPO run is on hold.
+
 Supervised fine-tuning can only reward the target it is shown. That is why the
 v2 adapter returned its input verbatim on documents unlike its training set:
 the copy satisfies every rule SFT taught it — same facts, same order, same

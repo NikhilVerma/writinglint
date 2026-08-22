@@ -78,6 +78,11 @@ export interface RewardConfig {
    * findings at all keeps half the term. Stops the model editing past the
    * humans it is meant to sound like. */
   belowBandPenalty: number;
+  /** How far above the band a source must sit before the echo gate asks for a
+   * full rewrite rather than a minimal edit. At the band the gate rewards
+   * preservation; this many findings per 1k above it, the gate is pure
+   * anti-copy; in between it blends. See the echo gate in reward.ts. */
+  echoWorkSpan: number;
   /** How hard preservation is rewarded when the source needs no work. The echo
    * gate flips direction there: instead of punishing a copy it pays for one,
    * because holding finished text steady is the whole fixed-point objective.
