@@ -277,26 +277,80 @@ Failure modes, on the 1,680 pairs scored at the time of the breakdown:
 Half the corpus gave the fixer nothing to do. Where the source really was dirty,
 53% of the time it produced a real repair. Those are the examples worth keeping.
 
+### Reversing the arrow: corrupt the human text instead
+
+The fixer approach asks a model to clean slop, and models are bad at that even
+when told exactly what to remove. Going the other way is easy: hand a model
+real human prose and ask it to write badly. The human original becomes the
+target, the corrupted version becomes the input, and the pair is correct by
+construction rather than by a judge's opinion.
+
+The source corpus is 561 pull-request bodies merged between 2018-01-01 and
+2019-12-31 — before GPT-3 existed, so the writing is human by provenance and
+not by filter. 15 Claude subagents, alternating Sonnet and Opus, each corrupted
+38 documents. Each agent got one heavy habit plus two light ones, rotated by
+index, from five clusters: rhetorical scaffolding, hedging and vagueness,
+throat-clearing and hollow structure, assistant register, density and syntax.
+The habits were described as plain writing instructions and never by rule name,
+so nothing about the linter reached the generator. Hard rules: keep every fact
+and identifier, invent nothing, grow 1.3-1.8x, leave code blocks alone, output
+only the document.
+
+15/15 agents, 0 errors, 559 files, 982 seconds, no OpenRouter spend.
+
+`corpus-check.ts` validates every pair on three questions: do the facts
+survive, did slop actually land, did any tooling leak.
+
+| | value |
+| --- | --- |
+| slop added, mean | **14.0**/1k (median 13.0) |
+| anchors kept | 0.999 |
+| anchors invented | 0.09 |
+| length grew | 559/559, mean 1.42x |
+| **pass** | **410/559 (73%)** |
+
+Rejected: 146 too weak (under 5/1k), 1 unfaithful, 2 leaked. Against the fixer
+pipeline's 2.6/1k at 31% usable, this is about five times the signal at more
+than twice the yield.
+
+The contrast is itself a finding. A model rewriting an essay in its own words —
+not trying to be bad — adds 2.6 findings per 1k. A model deliberately writing
+badly adds 14. The reward is being trained on both, which is the intent.
+Flagged confound: natural slop currently appears only in essays and deliberate
+slop only in technical text, so "domain" and "how the slop got there" are not
+yet separable. Fixing that means naturally rewriting a slice of the 2018 docs.
+
 ### v10
 
-`sft-dataset.ts` now keeps a repair pair only when the cut is at least 5/1k, the
+`sft-dataset.ts` keeps a repair pair only when the cut is at least 5/1k, the
 target lands inside its own domain band, and the target is not a near-copy of
-its input. Technical pairs are wired in as a second source for the first time.
+its input. Corrupted technical pairs are wired in as a second source for the
+first time.
 
-| | rows | mean gap taught | targets dirtier |
-| --- | --- | --- | --- |
-| essay repair | 881 | **10.7** | 0% |
-| technical repair | 142 | **15.7** | 0% |
-| self-target (exact identity) | 294 | n/a | n/a |
-| **train total** | **1,317** | | |
+| | rows | mean gap taught | median | targets dirtier |
+| --- | --- | --- | --- | --- |
+| essay repair | 869 | **10.7** | 9.1 | 0% |
+| technical repair | 329 | **19.8** | 19.1 | 0% |
+| self-target (exact identity) | 290 | n/a | n/a | n/a |
+| **train total** | **1,488** | | | |
 
-Holdout is 45 rows. Verified: every self-target row is an exact identity pair,
-no holdout id appears in train, no benchmark document appears in train, and no
-row mentions slopsift or this repository.
+Holdout is 57 rows, built the same way and carrying the same mix. Verified:
+every self-target row is an exact identity pair, no holdout id appears in
+train, none of the 120 benchmark documents appears in train, and no row
+mentions slopsift or this repository. Four rows still match the leak regex and
+all four are ordinary human prose ("I rewrote my function", "the original
+post"); the two real hits were a generator preamble baked into an essay input,
+now stripped at source.
+
+Set against v9's data, which taught a 2.6/1k cut with 34% of targets dirtier
+than their input, v10 teaches a 10.7 to 19.8/1k cut with none.
 
 The prediction this sets up, to be checked and not assumed: v10 should cut like
-v7 on dirty text, because that is what its data teaches, while the identity
-rows hold it steady on finished text the way v9 is.
+v7 on dirty text, because that is what its data now teaches, while the identity
+rows hold it steady on finished text the way v9 is. The risk to watch is the
+opposite failure — the technical half teaches a 19.8/1k cut, nearly twice the
+essay half, and 22% of train is technical. If v10 over-cuts, that is where it
+came from.
 
 ## Ideas that were measured and rejected
 
@@ -322,6 +376,14 @@ rows hold it steady on finished text the way v9 is.
   has no execution behind it. Smoke it at 25 steps under a throwaway
   `run_name` before any real run, so the smoke checkpoint is not resumed by
   the full run.
+- **Every technical number predates the band move.** The technical band went
+  from [3, 23] to [2.5, 16.8] once the corpus was decontaminated, so base, v7
+  and v9's technical rows all need re-scoring before they can be compared with
+  v10.
+- **Slop provenance is confounded with domain.** All natural LLM slop in the
+  training mix is essays; all deliberate slop is technical. The model cannot
+  be shown to generalise across that split until a slice of the 2018 documents
+  is rewritten naturally too.
 - **`runs/pr-eval/` holds six duplicate copies** of the same PR document.
 
 ## Guardrails that must not be quietly broken
