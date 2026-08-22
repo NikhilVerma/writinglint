@@ -57,3 +57,24 @@ test('a think block that opens after the answer does not eat the answer', () => 
   // And thinking on both sides leaves the rewrite in the middle.
   assert.equal(normalizeOutput('<think>first</think>The rewrite.<think>second</think>'), 'The rewrite.');
 });
+
+test('a chat preamble is dropped, but only when it is the whole first line', () => {
+  // These two survived into a training corpus as the OPENING of a document the
+  // model was asked to simplify, which teaches it that rewrites start by
+  // announcing themselves.
+  assert.equal(
+    normalizeOutput("Here's a rewritten version of the essay:\n\n# Links & Curiosities\n\nBody."),
+    '# Links & Curiosities\n\nBody.',
+  );
+  assert.equal(
+    normalizeOutput("Here's a rewritten version:\n\n# Google Handed Me Sitelinks\n\nBody."),
+    '# Google Handed Me Sitelinks\n\nBody.',
+  );
+  assert.equal(normalizeOutput('Sure! Here is the simplified text:\n\nHello.'), 'Hello.');
+  // Real prose that opens with the same words is not a preamble.
+  assert.equal(
+    normalizeOutput('Here is the rewritten paragraph I promised, and it changed nothing.'),
+    'Here is the rewritten paragraph I promised, and it changed nothing.',
+  );
+  assert.equal(normalizeOutput('This is the updated policy:\n\nit is a real document heading.').startsWith('This is'), false);
+});

@@ -49,6 +49,13 @@ export function stripEmoji(text: string): string {
  * before any scoring so slopsift, the judges, and the reward all see the same
  * text. A whole answer wrapped in ```markdown otherwise reads as pure code.
  */
+const PREAMBLE =
+  /^(?:(?:sure|certainly|of course|absolutely|got it)[,.!—-]?\s*)?(?:here(?:'|\u2019)?s|here is|below is|this is)?\s*(?:the|a|my)?\s*(?:rewritten|revised|simplified|edited|updated|cleaned(?:[- ]up)?|clearer|plain(?:er)?[- ]?(?:english|language)?)\s*(?:version|document|essay|text|draft|rewrite)?[^\n]{0,60}:\s*\n+/i;
+
+export function stripPreamble(text: string): string {
+  return text.replace(PREAMBLE, '');
+}
+
 export function normalizeOutput(text: string): string {
   // A reasoning model narrates before it answers. The rewrite is what follows
   // the think block, and scoring the reasoning with it halves the measured echo
@@ -71,6 +78,14 @@ export function normalizeOutput(text: string): string {
     clean = clean.trim();
   }
   clean = stripEmoji(clean.trim());
+  // A chat model often hands the rewrite over before it hands it out: "Here's
+  // the rewritten version:" on its own line, then the document. That line is
+  // conversation, not prose. Left in it is scored as part of the text, and
+  // three of them had already been baked into a training corpus as document
+  // openings, teaching the next model to write the preamble itself. Only a
+  // whole first line counts, so a document that genuinely opens with those
+  // words mid-sentence survives.
+  clean = stripPreamble(clean);
   if (clean.startsWith('```')) {
     clean = clean.replace(/^```[a-z]*\r?\n/i, '').replace(/\r?\n```\s*$/, '');
   }

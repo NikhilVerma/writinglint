@@ -43,6 +43,7 @@ import { parseArgs } from 'node:util';
 import { loadConfig } from '../lib/env.ts';
 import { extractAnchors } from '../lib/faithfulness.ts';
 import { readJsonl } from '../lib/store.ts';
+import { stripPreamble } from '../lib/text.ts';
 
 const { values } = parseArgs({
   options: {
@@ -68,11 +69,19 @@ const { values } = parseArgs({
      * 316 survive at either threshold. */
     maxOverlap: { type: 'string', default: '0.9' },
     /** Corrupted-technical pairs, as <inputDir>:<targetDir>, plus the file
-     * pair-quality.ts scored them into. The essay corpus contains no technical
-     * writing at all, which is why v9 makes pull-request descriptions WORSE:
-     * it cuts -2.3 findings per 1k on them and leaves half of them dirtier. */
-    techPairs: { type: 'string', default: 'runs/docs-corrupt:runs/docs-prose' },
-    techQuality: { type: 'string', default: 'runs/pair-quality-tech.jsonl' },
+     * pair-quality.ts scored them into.
+     *
+     * The essay corpus contains no technical writing at all, which is why v9
+     * makes pull-request descriptions WORSE: it cuts -2.3 findings per 1k on
+     * them, leaves half of them dirtier, and invents 1.56 anchors per document.
+     *
+     * The targets are pull requests merged between 2018 and 2019, and the merge
+     * window is the point. The first version of this corpus used current pull
+     * requests, 24 of which say "Generated with [Claude Code]" in the body. A
+     * target the model learns to imitate has to be written by a person, and a
+     * date before GPT-3 is the only way to know that it was. */
+    techPairs: { type: 'string', default: 'runs/docs-2018-corrupt:runs/docs-2018' },
+    techQuality: { type: 'string', default: 'runs/pair-quality-2018.jsonl' },
   },
 });
 
@@ -250,8 +259,29 @@ if (values.techPairs && existsSync(values.techQuality as string)) {
 
 // Technical pairs go entirely into train. There are too few to split, and the
 // holdout already measures the behaviour this stage teaches.
-const rows = shuffled([...build(false), ...techRows]);
-const holdoutRows = build(true);
+
+// One last sweep for the model's own conversation. Three essay inputs opened
+// with "Here's a rewritten version:" because the generator that produced them
+// announced its answer and the export kept the announcement. On the input side
+// that teaches the model to expect a preamble; on the target side it would
+// teach it to write one. Cheaper to strip here than to trust every producer.
+const PROMPT = 'Simplify this:\n\n';
+const clean = <T extends { messages: { role: string; content: string }[] }>(list: T[]): T[] =>
+  list.map((r) => ({
+    ...r,
+    messages: r.messages.map((m) => {
+      if (m.role === 'system') return m;
+      // The user turn carries our own instruction in front of the document, so
+      // strip from the document rather than from the turn.
+      if (m.content.startsWith(PROMPT)) {
+        return { ...m, content: PROMPT + stripPreamble(m.content.slice(PROMPT.length)) };
+      }
+      return { ...m, content: stripPreamble(m.content) };
+    }),
+  }));
+
+const rows = clean(shuffled([...build(false), ...techRows]));
+const holdoutRows = clean(build(true));
 
 const outDir = values.out as string;
 mkdirSync(outDir, { recursive: true });
