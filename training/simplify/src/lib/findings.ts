@@ -12,6 +12,26 @@ import type { LevelWeights } from './env.ts';
 
 export interface LeveledFinding {
   level: string;
+  ruleId?: string;
+}
+
+/** Whether a finding counts toward the reward.
+ *
+ * The reward and the product measure different things. slopsift reports every
+ * rule to users, and should. The reward has to measure one narrow question —
+ * does this read as AI-written — and most of `reader-first` cannot answer it.
+ * Measured over 250 paired documents, the whole pack scored -0.32 ± 0.72
+ * findings per 1k on the sloppified side against the human original it was
+ * made from: it fires marginally HARDER on the humans. `sentence-load` alone
+ * was a third of all findings at 12.9 per 1k against 13.2. The cheapest way to
+ * cut that is to chop sentences, which is what the reward was really paying
+ * for, and it is why v7 cuts 29% of the words and never reaches a stable point.
+ *
+ * Entries are a rulepack name or a full rule id. An empty list scores
+ * everything, which is what the non-reward callers want. */
+export function isScoredRule(ruleId: string | undefined, scored: readonly string[]): boolean {
+  if (scored.length === 0 || ruleId === undefined) return true;
+  return scored.includes(ruleId) || scored.includes(ruleId.split('/')[0]);
 }
 
 /** slopsift's own name for the middle level is `warn`, not `warning`. */
@@ -27,9 +47,15 @@ export function weightFor(level: string, weights: LevelWeights): number {
  * The fixer loop deliberately still counts paid findings only: it exits at zero
  * paid findings, and pricing info there without moving that bar would spend
  * budget on a target nothing checks. See `runChatFixer` and `fix.ts`. */
-export function weighFindings(findings: readonly LeveledFinding[], weights: LevelWeights): number {
+export function weighFindings(
+  findings: readonly LeveledFinding[],
+  weights: LevelWeights,
+  scoredRules: readonly string[] = [],
+): number {
   let total = 0;
-  for (const finding of findings) total += weightFor(finding.level, weights);
+  for (const finding of findings) {
+    if (isScoredRule(finding.ruleId, scoredRules)) total += weightFor(finding.level, weights);
+  }
   return total;
 }
 

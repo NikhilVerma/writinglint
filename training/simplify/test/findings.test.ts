@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { countByLevel, weighFindings, weightFor } from '../src/lib/findings.ts';
+import { countByLevel, isScoredRule, weighFindings, weightFor } from '../src/lib/findings.ts';
 import { loadConfig } from '../src/lib/env.ts';
 
 const weights = { error: 1, warn: 1, info: 0.4 };
@@ -46,18 +46,42 @@ test('the shipped config prices info below the paid levels but above zero', () =
   assert.ok(levelWeights.info < levelWeights.warn, 'info must cost less than a warning');
 });
 
-test('the human band stays calibrated against the level weights', () => {
-  // The band is p10 and p75 of 1,221 untouched human originals, measured in
-  // weighted findings per 1k. Change the weights and those percentiles move,
-  // so the band has to be re-measured or the target silently drifts.
-  const { levelWeights, humanBand } = loadConfig().reward;
+test('the human band stays calibrated against what actually feeds it', () => {
+  // The band is p10 and p75 of untouched human originals in weighted findings
+  // per 1k. Three things move those percentiles: the level weights, the rules
+  // being priced, and the corpus. Change any of them without re-measuring and
+  // the target silently drifts.
+  //
+  // This has already bitten once. Narrowing scoredRules to ai-style plus
+  // aside-pileup dropped the human median from 31.7 to 12.5 per 1k, so the old
+  // [17, 36] would have put most human writing BELOW its own floor and paid
+  // the model to add findings back.
+  const { levelWeights, humanBand, scoredRules } = loadConfig().reward;
   assert.equal(levelWeights.info, 0.4, 'weights changed; re-measure the human band');
-  assert.deepEqual(humanBand, [17, 36]);
+  assert.deepEqual(scoredRules, ['ai-style', 'reader-first/aside-pileup'], 'rule set changed; re-measure the human band');
+  assert.deepEqual(humanBand, [7, 15]);
 });
 
 test('the band brackets where measured human prose actually sits', () => {
-  // Median human writing is 30.8 weighted findings per 1k. A band that excluded
-  // it would train the model away from the writing it is meant to imitate.
+  // Median human writing is 12.5 weighted findings per 1k over 250 originals
+  // under the priced rule set. A band that excluded it would train the model
+  // away from the writing it is meant to imitate.
   const [low, high] = loadConfig().reward.humanBand;
-  assert.ok(low < 30.8 && high > 30.8, 'the human median must fall inside the band');
+  assert.ok(low < 12.5 && high > 12.5, 'the human median must fall inside the band');
+});
+
+test('the reward prices only its own rule set', () => {
+  const weights = { error: 1, warn: 1, info: 0.4 };
+  const findings = [
+    { ruleId: 'ai-style/absolute-claim', level: 'warn' },
+    { ruleId: 'reader-first/sentence-load', level: 'warn' },
+    { ruleId: 'reader-first/aside-pileup', level: 'info' },
+  ];
+  // Empty list means score everything, which is what reporting callers want.
+  assert.equal(weighFindings(findings, weights), 2.4);
+  // The reward's set: a whole pack by name, plus one rule lifted out of another.
+  assert.equal(weighFindings(findings, weights, ['ai-style', 'reader-first/aside-pileup']), 1.4);
+  assert.equal(isScoredRule('ai-style/rule-of-three', ['ai-style']), true, 'a pack name covers its rules');
+  assert.equal(isScoredRule('reader-first/sentence-load', ['ai-style', 'reader-first/aside-pileup']), false);
+  assert.equal(isScoredRule(undefined, ['ai-style']), true, 'an unnamed finding is not silently dropped');
 });

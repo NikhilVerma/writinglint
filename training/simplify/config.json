@@ -43,16 +43,21 @@
       0.6,
       1.15
     ],
+    "scoredRules": [
+      "ai-style",
+      "reader-first/aside-pileup"
+    ],
     "levelWeights": {
       "error": 1,
       "warn": 1,
       "info": 0.4
     },
     "humanBand": [
-      17,
-      36
+      7,
+      15
     ],
-    "lintSpan": 10,
-    "belowBandPenalty": 0.5
+    "lintSpan": 4,
+    "belowBandPenalty": 0.5,
+    "stabilityStrength": 1.0
   }
 }

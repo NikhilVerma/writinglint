@@ -78,6 +78,16 @@ export interface RewardConfig {
    * findings at all keeps half the term. Stops the model editing past the
    * humans it is meant to sound like. */
   belowBandPenalty: number;
+  /** How hard preservation is rewarded when the source needs no work. The echo
+   * gate flips direction there: instead of punishing a copy it pays for one,
+   * because holding finished text steady is the whole fixed-point objective.
+   * At 1 a rewrite that changes a fifth of the phrasing loses a fifth of the
+   * reward. See the echo gate in reward.ts. */
+  stabilityStrength: number;
+  /** Which rules the reward prices, as rulepack names or full rule ids. The
+   * product still reports every rule; this narrows only what the rewriter is
+   * paid for. See `isScoredRule` in findings.ts for the measurement behind it. */
+  scoredRules: string[];
   /** Per-level price of a finding. See `weighFindings` in findings.ts. */
   levelWeights: LevelWeights;
 }

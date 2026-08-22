@@ -61,6 +61,10 @@ async function lintMany(texts: Map<string, string>): Promise<Map<string, number>
     // `--level info` on purpose: the reward prices info findings below the two
     // paid levels rather than discarding them. Without this flag slopsift never
     // reports them, so their weight would silently be zero.
+    //
+    // Every configured rulepack still runs. `scoredRules` decides what gets
+    // PRICED, not what gets looked at, so one lint pass serves both the reward
+    // and anything that wants the full picture.
     const args = ['--format', 'json', '--level', 'info', ...config.rulepacks.flatMap((pack) => ['--rulepack', pack]), ...names];
     let stdout = '';
     try {
@@ -71,10 +75,13 @@ async function lintMany(texts: Map<string, string>): Promise<Map<string, number>
       if (failure.code === 1 && failure.stdout) stdout = failure.stdout;
       else throw new Error(`slopsift failed (exit ${failure.code ?? '?'}): ${failure.message ?? 'unknown'}`);
     }
-    const files = JSON.parse(stdout) as { filePath: string; messages: { level: string }[] }[];
+    const files = JSON.parse(stdout) as { filePath: string; messages: { level: string; ruleId: string }[] }[];
     const counts = new Map<string, number>();
     for (const file of files) {
-      counts.set(path.basename(file.filePath, '.md'), weighFindings(file.messages, config.reward.levelWeights));
+      counts.set(
+        path.basename(file.filePath, '.md'),
+        weighFindings(file.messages, config.reward.levelWeights, config.reward.scoredRules),
+      );
     }
     return counts;
   } finally {
