@@ -146,7 +146,13 @@ async function runChatFixer(trial: string, sourceId: string, feedback: JudgeFeed
   const started = Date.now();
   const lint = await lintDraft(trial, sourceId);
   const draft = readFileSync(draftPath(trial, sourceId), 'utf8');
+  // Paid levels only, matching the loop's own stopping condition in fix.ts.
+  // `lintDraft` reports info findings now so the reward can price them, but
+  // this loop still exits at zero paid findings. Showing the fixer info it is
+  // never required to clear would burn rounds and OpenRouter budget chasing a
+  // bar nothing checks. Raise both together or neither.
   const findings = lint.findings
+    .filter((f) => f.level === 'error' || f.level === 'warn')
     .map((f) => `- ${f.ruleId} [${f.level}] line ${f.line}: ${f.message}\n  offending text: "${f.text}"`)
     .join('\n');
   const template = readFileSync(path.join(simplifyRoot, 'prompts', `${config.fixerChatPromptVersion}.md`), 'utf8');

@@ -42,6 +42,15 @@ export interface SimplifyConfig {
   reward: RewardConfig;
 }
 
+/** How much one finding counts toward the lint term, by slopsift level. Info
+ * findings are graded as review candidates rather than defects, so they are
+ * priced below the two paid levels instead of being dropped. */
+export interface LevelWeights {
+  error: number;
+  warn: number;
+  info: number;
+}
+
 /** Weights and thresholds for the GRPO reward. Tunable without a code change
  * so a training run can be re-weighted from config.json alone. */
 export interface RewardConfig {
@@ -57,10 +66,20 @@ export interface RewardConfig {
   inventedPenalty: number;
   /** Output-to-input word ratio that earns the full length term. */
   lengthBand: [number, number];
-  /** Findings-per-1k floor the lint term measures against. A source already
-   * below it is scored on how clean the rewrite is, not on a cut it cannot
-   * make. See the lint term in reward.ts. */
-  lintFloor: number;
+  /** Weighted findings per 1k that count as human-level prose, taken from p10
+   * and p75 of 1,221 untouched originals in the human-pairs corpus. A rewrite
+   * landing inside scores full marks on the lint term, so already-clean text
+   * can be handed back unchanged. See the lint term in reward.ts. */
+  humanBand: [number, number];
+  /** Narrowest run-up above the band the lint term measures across, so a source
+   * starting just above it still yields a usable gradient. */
+  lintSpan: number;
+  /** How hard the lint term tapers below the band. At 0.5, prose with no
+   * findings at all keeps half the term. Stops the model editing past the
+   * humans it is meant to sound like. */
+  belowBandPenalty: number;
+  /** Per-level price of a finding. See `weighFindings` in findings.ts. */
+  levelWeights: LevelWeights;
 }
 
 export function loadConfig(): SimplifyConfig {

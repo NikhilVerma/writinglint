@@ -6,6 +6,7 @@ import path from 'node:path';
 import { promisify } from 'node:util';
 
 import { loadConfig } from '../lib/env.ts';
+import { weighFindings } from '../lib/findings.ts';
 import { scoreRewrite, type RewardTerms } from '../lib/reward.ts';
 import { normalizeOutput } from '../lib/text.ts';
 
@@ -57,7 +58,10 @@ async function lintMany(texts: Map<string, string>): Promise<Map<string, number>
       writeFileSync(path.join(dir, name), text.endsWith('\n') ? text : `${text}\n`, 'utf8');
       names.push(name);
     }
-    const args = ['--format', 'json', ...config.rulepacks.flatMap((pack) => ['--rulepack', pack]), ...names];
+    // `--level info` on purpose: the reward prices info findings below the two
+    // paid levels rather than discarding them. Without this flag slopsift never
+    // reports them, so their weight would silently be zero.
+    const args = ['--format', 'json', '--level', 'info', ...config.rulepacks.flatMap((pack) => ['--rulepack', pack]), ...names];
     let stdout = '';
     try {
       ({ stdout } = await execFileAsync('slopsift', args, { cwd: dir, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024 }));
@@ -67,10 +71,10 @@ async function lintMany(texts: Map<string, string>): Promise<Map<string, number>
       if (failure.code === 1 && failure.stdout) stdout = failure.stdout;
       else throw new Error(`slopsift failed (exit ${failure.code ?? '?'}): ${failure.message ?? 'unknown'}`);
     }
-    const files = JSON.parse(stdout) as { filePath: string; errorCount: number; warningCount: number }[];
+    const files = JSON.parse(stdout) as { filePath: string; messages: { level: string }[] }[];
     const counts = new Map<string, number>();
     for (const file of files) {
-      counts.set(path.basename(file.filePath, '.md'), file.errorCount + file.warningCount);
+      counts.set(path.basename(file.filePath, '.md'), weighFindings(file.messages, config.reward.levelWeights));
     }
     return counts;
   } finally {

@@ -288,7 +288,20 @@ def train(
             base_model, torch_dtype=torch.bfloat16, device_map=None
         )
         model = PeftModel.from_pretrained(base, f"/out/{init_adapter}", is_trainable=True)
-        print(f"[init] warm start from /out/{init_adapter}", flush=True)
+        # The adapter carries the SFT run's dropout in its own config, and
+        # loading it this way silently overrides the peft_config below — which
+        # is the one that deliberately sets dropout to zero for the reasons
+        # above. Turn it off on the loaded modules so a warm start trains under
+        # the same rule a cold start does.
+        import torch.nn as nn
+
+        from peft.tuners.lora import LoraLayer
+
+        for module in model.modules():
+            if isinstance(module, LoraLayer):
+                for key in module.lora_dropout:
+                    module.lora_dropout[key] = nn.Identity()
+        print(f"[init] warm start from /out/{init_adapter}, dropout off", flush=True)
     else:
         model = base_model
 

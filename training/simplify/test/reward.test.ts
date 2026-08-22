@@ -45,7 +45,10 @@ test('dropping and inventing facts sinks the score even when the lint is clean',
     'Several fixes landed and the tests now pass on the 9271 build.',
     'The team expects to merge it once the remaining questions are settled.',
   ].join('\n\n');
-  const result = score(confabulated, 0);
+  // One finding on a 52-word sample is 19 per 1k, which sits inside the human
+  // band, so the lint term is perfect and the reward still has to sink on the
+  // faithfulness gate alone.
+  const result = score(confabulated, 1);
   assert.equal(result.lint, 1, 'lint term should be perfect');
   assert.ok(result.anchorKeptRate < 0.4, `keptRate was ${result.anchorKeptRate}`);
   assert.ok(result.reward < 0.45, `reward was ${result.reward}`);
@@ -64,10 +67,16 @@ test('a two-line summary is rejected as too short', () => {
   assert.equal(result.reward, 0);
 });
 
-test('an already clean source earns the lint term only by staying clean', () => {
+test('an already clean source earns the lint term by landing in the band, not by scrubbing', () => {
   const rewrite = SOURCE.replace('CLAIMS', 'claims');
-  assert.equal(score(rewrite, 0, 0).lint, 1);
-  assert.ok(score(rewrite, 3, 0).lint < score(rewrite, 0, 0).lint);
+  // 52 words, so one finding is 19 per 1k and two are 38. The first sits inside
+  // the band and the second above it.
+  assert.equal(score(rewrite, 1, 1).lint, 1, 'staying inside the band is full marks');
+  assert.ok(score(rewrite, 2, 1).lint < 1, 'drifting above the band costs');
+  // Scrubbing every finding out of a clean source now scores below holding it
+  // steady. That is the whole point: v7 wrote at half the human density
+  // because the old term paid all the way to zero.
+  assert.ok(score(rewrite, 0, 1).lint < score(rewrite, 1, 1).lint, 'over-editing must not outscore leaving it alone');
 });
 
 // The pull-request excerpt above is 52 words, so one finding there is already
@@ -83,7 +92,9 @@ const PROSE = [
 ].join('\n\n');
 
 const PROSE_WORDS = PROSE.split(/\s+/).filter(Boolean).length;
-const findingsFor = (per1k: number) => Math.round((per1k * PROSE_WORDS) / 1000);
+// Not rounded. Weighted counts are fractional by construction, and rounding to
+// whole findings on a sample this short cannot express a one-per-1k difference.
+const findingsFor = (per1k: number) => (per1k * PROSE_WORDS) / 1000;
 
 /** Source and output are the same text, so both densities convert the same way
  * and the test can state the findings per 1k words it actually means. */
@@ -96,22 +107,42 @@ const lintAt = (sourcePer1k: number, outputPer1k: number) =>
     config,
   }).lint;
 
-test('leaving decent prose alone pays, and making it worse costs', () => {
-  // The cut alone paid nothing here: a source already near the floor cannot be
-  // cut, so every rollout tied at zero and the group taught nothing. That dead
-  // zone covered 24% of held-out documents, and it is where the model was
-  // measured making clean text worse rather than leaving it alone.
-  const held = lintAt(12, 12);
-  assert.ok(held > 0.3, `holding a clean source should pay, got ${held}`);
-  assert.ok(lintAt(12, 6) > held, 'cleaning further should pay more');
-  assert.ok(lintAt(12, 25) < held, 'adding findings should cost');
+test('prose already inside the human band scores full marks for being left alone', () => {
+  // The point of the band. Measured human writing sits at 30.8 weighted
+  // findings per 1k, so a rewrite landing at 25 is done. Paying more for going
+  // lower is what trained v7 to write twice as clean as Paul Graham, and it is
+  // why pasting simplified text back in produced another round of churn.
+  assert.equal(lintAt(25, 25), 1, 'holding inside the band is finished work');
+  assert.equal(lintAt(25, 20), 1, 'no extra credit for cleaning past the band');
+  assert.equal(lintAt(60, 30), 1, 'reaching the band from above is full marks');
+});
+
+test('scrubbing past the human floor costs', () => {
+  // Prose cleaner than 90% of Hemingway has had something taken out of it.
+  // The taper is gentle on purpose: being clean is not a crime, it just stops
+  // being worth more.
+  assert.ok(lintAt(40, 8) < lintAt(40, 20), 'over-editing should score below the band');
+  assert.ok(lintAt(40, 0) > 0.4, 'the taper must not zero the term');
+  assert.ok(lintAt(40, 0) < lintAt(40, 10), 'the taper is monotonic');
+});
+
+test('adding findings to decent prose still costs', () => {
+  assert.ok(lintAt(25, 60) < lintAt(25, 25), 'making clean prose worse must cost');
 });
 
 test('a dirty source is still scored on how much it cut', () => {
-  // The floor only lifts sources below it. Anything dirtier keeps the old
-  // behaviour, so the change cannot quietly re-scale the sloppy end.
-  assert.ok(lintAt(37, 37) < 0.05, 'no cut earns nothing');
-  assert.ok(lintAt(37, 19) > 0.4, 'cutting the density in half earns about half');
+  // Above the band nothing changed in spirit: credit tracks the distance
+  // closed. The target is the top of the band rather than zero.
+  assert.ok(lintAt(80, 80) < 0.05, 'no cut earns nothing');
+  assert.ok(lintAt(80, 48) > 0.6, 'closing most of the gap earns most of the term');
+  assert.ok(lintAt(80, 60) < lintAt(80, 48), 'a smaller cut earns less');
+});
+
+test('a source barely above the band still has a gradient to climb', () => {
+  // Without lintSpan this was all-or-nothing across a one-finding gap.
+  const held = lintAt(37, 37);
+  assert.ok(held > 0.05 && held < 1, `expected a partial score, got ${held}`);
+  assert.ok(lintAt(37, 36) > held, 'reaching the band must pay more than missing it');
 });
 
 test('reordered words are caught as a shuffle, not paid as a rewrite', () => {

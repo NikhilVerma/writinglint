@@ -110,18 +110,18 @@
   </head>
   <body>
     <h1>Simplifier playground</h1>
-    <p class="sub">Paste anything. All three models rewrite it at once, so the only difference between the columns is the adapter.</p>
+    <p class="sub">Paste anything. Every model rewrites it at once, so the only difference between the columns is the adapter.</p>
 
     <fieldset>
       <legend>Endpoint</legend>
       <div class="row">
         <div>
           <label for="url">Base URL</label>
-          <input id="url" placeholder="https://you--slopsift-simplify-serve-serve.modal.run" />
+          <input id="url" value="http://127.0.0.1:8000" placeholder="http://127.0.0.1:8000" />
         </div>
         <div>
           <label for="key">API key</label>
-          <input id="key" type="password" placeholder="token from the Modal secret" />
+          <input id="key" type="password" placeholder="blank for devbox; token for Modal" />
         </div>
       </div>
     </fieldset>
@@ -219,14 +219,22 @@ Return only the complete revised document as markdown.`;
       }
       if (!$('system').value) $('system').value = DEFAULT_SYSTEM;
 
-      // The three models the endpoint serves. `base` is the untrained Qwen3-8B;
-      // the other two are 50 training steps apart and are not meaningfully
-      // different from each other, so the comparison that matters is base
-      // against either adapter.
+      // The models the endpoint serves. `base` is the untrained Qwen3-8B and
+      // `v7` is the ship candidate, so every column pair is the same weights
+      // with and without the adapter. devbox loads one adapter at a time; the
+      // Modal deployment also serves `v6` for a run-to-run comparison.
+      // devbox serves without an API key. Sending a bare "Bearer " header makes
+      // vLLM reject the request, so the header is only added when a key exists.
+      function authHeaders() {
+        const h = { 'Content-Type': 'application/json' };
+        const key = $('key').value.trim();
+        if (key) h.Authorization = 'Bearer ' + key;
+        return h;
+      }
+
       const MODELS = [
         { id: 'base', label: 'base', note: 'untrained Qwen3-8B' },
-        { id: 'grpo', label: 'grpo (final)', note: 'step 500' },
-        { id: 'grpo-450', label: 'grpo-450', note: 'step 450' },
+        { id: 'v7', label: 'v7 (ship candidate)', note: 'step 450, cuts 42% of findings' },
       ];
 
       const escapeHtml = (text) =>
@@ -300,13 +308,16 @@ Return only the complete revised document as markdown.`;
           const res = await fetch(base + '/v1/chat/completions', {
             method: 'POST',
             signal,
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + $('key').value.trim() },
+            headers: authHeaders(),
             body: JSON.stringify({
               model: model.id,
               stream: true,
               temperature: 0.7,
               top_p: 0.8,
-              max_tokens: 4096,
+              // The server allows 32k for prompt plus output. A simplified
+              // draft is never longer than the source, so this only has to
+              // clear the input, not double it.
+              max_tokens: 8192,
               // Training ran with thinking off, so inference must match or
               // Qwen3 opens every answer with an empty <think> block.
               chat_template_kwargs: { enable_thinking: false },

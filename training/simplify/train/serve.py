@@ -16,8 +16,8 @@ GPU = os.environ.get("SIMPLIFY_SERVE_GPU", "L40S")
 # only question that matters: does either fine-tune beat the untrained model
 # on the same input? Pick between them with the request's `model` field.
 ADAPTERS = {
-    "grpo": "/out/qwen3-8b-grpo-v6/final",
-    "grpo-450": "/out/qwen3-8b-grpo-v6/checkpoint-450",
+    "v7": "/out/qwen3-8b-grpo-v7/checkpoint-450",
+    "v6": "/out/qwen3-8b-grpo-v6/final",
 }
 
 app = modal.App("slopsift-simplify-serve")

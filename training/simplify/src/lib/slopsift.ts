@@ -2,6 +2,7 @@ import { execFile, execFileSync } from 'node:child_process';
 import { promisify } from 'node:util';
 
 import { fakeLlm, loadConfig } from './env.ts';
+import { countByLevel, weighFindings } from './findings.ts';
 
 const execFileAsync = promisify(execFile);
 import { readDraft, workDir } from './store.ts';
@@ -18,6 +19,9 @@ export interface LintFinding {
 export interface LintResult {
   errorCount: number;
   warningCount: number;
+  infoCount: number;
+  /** Findings priced by level. The lint term measures this, not a raw count. */
+  weightedCount: number;
   findings: LintFinding[];
   slopsiftExitCode: number;
 }
@@ -36,7 +40,9 @@ export async function lintDraft(trial: string, sourceId: string): Promise<LintRe
  * never went through a trial work dir, so this takes a plain cwd. */
 export async function lintDir(cwd: string): Promise<LintResult> {
   const config = loadConfig();
-  const args = ['--format', 'json', ...config.rulepacks.flatMap((pack) => ['--rulepack', pack]), 'draft.md'];
+  // slopsift reports warnings and above by default. The reward prices info
+  // findings rather than discarding them, so they have to be requested.
+  const args = ['--format', 'json', '--level', 'info', ...config.rulepacks.flatMap((pack) => ['--rulepack', pack]), 'draft.md'];
   let stdout = '';
   let exitCode = 0;
   try {
@@ -57,12 +63,21 @@ export async function lintDir(cwd: string): Promise<LintResult> {
   }[];
   const file = files[0];
   if (!file) throw new Error('slopsift returned no file results for draft.md');
+  const findings = file.messages.map(({ ruleId, level, message, line, column, text }) => ({
+    ruleId,
+    level,
+    message,
+    line,
+    column,
+    text,
+  }));
+  const counts = countByLevel(findings);
   return {
-    errorCount: file.errorCount,
-    warningCount: file.warningCount,
-    findings: file.messages
-      .filter((m) => m.level === 'error' || m.level === 'warn')
-      .map(({ ruleId, level, message, line, column, text }) => ({ ruleId, level, message, line, column, text })),
+    errorCount: counts.error,
+    warningCount: counts.warn,
+    infoCount: counts.info,
+    weightedCount: weighFindings(findings, config.reward.levelWeights),
+    findings,
     slopsiftExitCode: exitCode,
   };
 }
@@ -78,6 +93,8 @@ function fakeLint(trial: string, sourceId: string): LintResult {
   return {
     errorCount: dirty ? 1 : 0,
     warningCount: 0,
+    infoCount: 0,
+    weightedCount: dirty ? 1 : 0,
     findings: dirty
       ? [{ ruleId: 'ai-style/promo-idioms', level: 'error', message: 'fake finding', line: 1, column: 1, text: 'game-changer' }]
       : [],

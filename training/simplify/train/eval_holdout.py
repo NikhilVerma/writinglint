@@ -103,14 +103,27 @@ def evaluate(
         for i in range(len(prompts))
     ]
 
+    # A missing adapter kills the vLLM engine, and every variant already
+    # generated dies with it because results only return at the end. Checkpoints
+    # are pruned by save_total_limit, so naming one that has aged out is easy.
+    # Skip it loudly instead.
     variants = [("base", None)]
     for i, name in enumerate(a.strip() for a in adapter.split(",") if a.strip()):
         label = name.rsplit("/", 1)[-1]
+        if not os.path.isdir(f"/out/{name}"):
+            print(f"[eval] SKIP {name}: not on the volume", flush=True)
+            continue
         variants.append((label, LoRARequest(label, i + 1, f"/out/{name}")))
+    print(f"[eval] variants: {', '.join(l for l, _ in variants)}", flush=True)
 
     results = {}
     for label, lora in variants:
-        outs = llm.generate(prompts, params, lora_request=lora)
+        # One variant failing must not discard the ones that already ran.
+        try:
+            outs = llm.generate(prompts, params, lora_request=lora)
+        except Exception as exc:
+            print(f"[eval] FAILED {label}: {exc}", flush=True)
+            continue
         results[label] = [
             {
                 "id": name,

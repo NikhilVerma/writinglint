@@ -43,6 +43,16 @@
       0.6,
       1.15
     ],
-    "lintFloor": 20
+    "levelWeights": {
+      "error": 1,
+      "warn": 1,
+      "info": 0.4
+    },
+    "humanBand": [
+      17,
+      36
+    ],
+    "lintSpan": 10,
+    "belowBandPenalty": 0.5
   }
 }

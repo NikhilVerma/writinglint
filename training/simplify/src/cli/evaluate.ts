@@ -103,6 +103,7 @@ interface EvalRecord {
   lengthRatio: number;
   errorCount: number;
   warningCount: number;
+  infoCount: number;
   findingsPer1kWords: number;
   repetitionRatio: number;
   echoRate: number;
@@ -163,7 +164,11 @@ async function evaluateOne(task: ArmText): Promise<void> {
     lengthRatio: round(words / (originalWords.get(task.sourceId) as number)),
     errorCount: lint.errorCount,
     warningCount: lint.warningCount,
-    findingsPer1kWords: round(((lint.errorCount + lint.warningCount) * 1000) / Math.max(words, 1)),
+    infoCount: lint.infoCount,
+    // Weighted, so this matches what the reward actually measured. The raw
+    // per-level counts stay alongside it, because weighting hides whether a
+    // run traded many info findings for one error.
+    findingsPer1kWords: round((lint.weightedCount * 1000) / Math.max(words, 1)),
     repetitionRatio: round(repetitionRatio(task.text)),
     echoRate: round(echoRate(source, task.text)),
     anchorKeptRate: round(anchors.keptRate),

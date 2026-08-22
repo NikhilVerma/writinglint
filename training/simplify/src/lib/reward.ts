@@ -58,19 +58,35 @@ export function scoreRewrite(args: {
   const echo = echoRate(source, output);
   const vocabulary = vocabularyOverlap(source, output);
 
-  // Lint: how clean the rewrite is, measured against the source or against a
-  // fixed floor, whichever is dirtier.
+  // Lint: how close the rewrite lands to the way people actually write.
   //
-  // Scoring the cut alone — (src - out) / src — pays nothing for leaving good
-  // prose alone. A source at 8 findings per 1k that comes back at 8 clamps to
-  // zero, and so does every rollout that lands above it, so the whole group
-  // ties and teaches nothing. The model floors around 10 findings per 1k, so
-  // that dead zone covered 24% of held-out documents and 48% of the cleanest
-  // quarter, which is exactly where the model was measured making text worse.
-  // Holding the denominator at `lintFloor` leaves the sloppy end untouched and
-  // gives the clean end something to compete for.
-  const lintBase = Math.max(srcPer1k, config.lintFloor);
-  const lint = lintBase === 0 ? (outPer1k === 0 ? 1 : 0) : clamp((lintBase - outPer1k) / lintBase);
+  // This used to score the cut against a floor, which paid all the way down to
+  // zero findings and never stopped. Measuring 1,221 untouched human originals
+  // (the human-pairs corpus) showed
+  // where that leads: they sit at 30.8 weighted findings per 1k at the median,
+  // and v7 was writing at 20.4. The model had trained past the humans it was
+  // supposed to sound like and kept going, because nothing above zero was ever
+  // good enough.
+  //
+  // So the target is a band taken from that measurement, p10 to p75 of real
+  // human prose. Inside it the rewrite is done and scores full marks, which is
+  // what finally lets the model hand back clean text unchanged. Above it, the
+  // score tracks the distance closed toward the band. Below it, the score
+  // tapers, because prose cleaner than 90% of measured human writing has had something
+  // taken out of it.
+  const [bandLow, bandHigh] = config.humanBand;
+  let lint: number;
+  if (outPer1k > bandHigh) {
+    // A source that starts just above the band would otherwise make the term
+    // all-or-nothing across a one-finding gap, so the run-up is at least
+    // `lintSpan` wide.
+    const start = Math.max(srcPer1k, bandHigh + config.lintSpan);
+    lint = clamp((start - outPer1k) / (start - bandHigh));
+  } else if (outPer1k >= bandLow) {
+    lint = 1;
+  } else {
+    lint = clamp(1 - config.belowBandPenalty * ((bandLow - outPer1k) / bandLow));
+  }
 
   // Echo: full marks at or below the floor, falling to zero at a verbatim copy.
   const echoTerm = clamp(1 - (echo - config.echoFloor) / (1 - config.echoFloor));
