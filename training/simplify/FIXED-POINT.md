@@ -599,3 +599,54 @@ configuration never tried.
 Build the real technical pairs first. They are cheap, they run on OpenRouter
 rather than Modal, and they close the only gap that a reward run would otherwise
 inherit.
+
+## v12: removing the wrong training data beat adding more instruction
+
+The plan above was to build real technical pairs before any reward run. We did
+the opposite, and the reason is that the synthetic pairs turned out to be
+measurably the wrong input rather than merely a thin one.
+
+Weighted findings per 1k, by rule family:
+
+| | synthetic corruption | real AI rewrites | benchmark |
+| --- | --- | --- | --- |
+| total | 38.8 | 24.1 | 21.3 |
+| passive-actor-hiding | 17.44 | 2.73 | 4.15 |
+| ai-vocabulary | 1.50 | 0.18 | 0.28 |
+| absolute-claim | 2.21 | 5.70 | 5.08 |
+| filler-intensifiers | 0.15 | 2.31 | 0.44 |
+
+The corruption script hides the actor six times more often than a real AI
+rewrite does, and makes half as many absolute claims. A model trained on it
+learns to hunt passives and to ignore the habits that actually show up. So v12
+drops the 329 synthetic rows entirely: 966 rows, 869 repair and 97 self-target.
+
+Scored on the 123 documents v11 was scored on, so the pools match:
+
+| | v11 | v12 |
+| --- | --- | --- |
+| prose dirty: cut | 6.9 | 5.6 |
+| prose dirty: landed in band | 51% | 59% |
+| prose: came out dirtier | 6% | 10% |
+| technical dirty: cut | 0.9 | 2.5 |
+| technical: still above band | 97% | 90% |
+| technical dirty: reward | 0.060 | 0.136 |
+| technical: echo | 0.963 | 0.928 |
+| drift p1 -> p2 | 1.8% | 2.5% |
+
+The technical half was inert in v11 and is no longer inert. Cut nearly triples
+and echo falls. It is still bad in absolute terms, but it responds.
+
+The prose cut falling from 6.9 to 5.6 is not the regression it looks like. Cut
+is the means; landing inside the human band is the goal, and that rose from 51%
+to 59%. v12 removes less because it overshoots less often.
+
+Two marks against it. Prose documents that come out dirtier rose from 6% to 10%,
+and pass-two churn is 2.5% against the 2% target v11 met at 1.8%. v12 cleans
+better and holds still slightly worse. The reward pays for both terms at once,
+which is what the run starting from v12 is meant to settle.
+
+Note what this says about the earlier finding. Naming all 48 habits in the
+prompt moved per-rule totals by 2.5%. Removing 329 rows of the wrong data moved
+the dead half of the benchmark on its own. Under supervised fine-tuning the data
+is the instruction.
