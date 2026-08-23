@@ -122,8 +122,8 @@ def train(
     lr: float = 1e-5,
     num_generations: int = 8,
     init_adapter: str = "",
-    probe_docs: int = 16,
-    probe_every: int = 25,
+    probe_docs: int = 12,
+    probe_every: int = 15,
     probe_patience: int = 2,
     probe_min_delta: float = 0.02,
 ):
