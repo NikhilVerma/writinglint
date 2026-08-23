@@ -1074,3 +1074,47 @@ report a benchmark number.
 
 Second gate: paired against base 8B on prose-dirty, at least +3.0 with the
 interval clear of zero, at faithfulness no worse than 0.909.
+
+## A third of what the product reports, the reward cannot see
+
+The goal names both rulepacks, and `arm-diff` cannot answer whether both are
+served: it reports one number in reward units, which folds all of `ai-style`
+and exactly two `reader-first` rules together. `pack-diff.ts` splits the same
+paired difference by pack and by rule, and counts every rule in both packs
+including the ones the reward does not pay for.
+
+v15 against base 8B, prose-dirty, 48 documents, unweighted findings per 1k:
+
+| pack | in the source | v15 leaves | base leaves | paired diff |
+| --- | --- | --- | --- | --- |
+| ai-style | 52.5 | 34.5 | 33.9 | −0.59 ±2.86 SAME |
+| reader-first | 27.3 | 10.2 | 11.6 | +1.46 ±1.67 SAME |
+
+Both packs SAME, which is the same story as everywhere else. One rule is
+BETTER: `reader-first/aside-pileup`, +0.62 ±0.61.
+
+The number worth keeping is what sits at the top of the rule table:
+
+| rule | in the source | paid? |
+| --- | --- | --- |
+| ai-style/passive-actor-hiding | 18.94 | **no** |
+| reader-first/sentence-load | 14.74 | yes |
+| ai-style/evidence-cluster | 12.27 | yes |
+| reader-first/abstract-reference-chain | 4.45 | **no** |
+| reader-first/aside-pileup | 4.23 | yes |
+
+`passive-actor-hiding` alone is 36% of every ai-style finding in dirty
+benchmark prose, and the reward is silent on it. Add the unpaid `reader-first`
+rules and about a third of everything the product reports on this slice is
+invisible to training.
+
+That is not a bug. The exclusion is evidence-backed: measured on 400 paired
+documents the rule fires HARDER on the human original than on the slop made
+from it, −0.18 ±0.10, so paying to remove it teaches the model to write less
+like a person. Both facts are true at once, and they define the shape of the
+gap rather than a mistake to fix.
+
+What it means for the goal is concrete. "Cleans bad writing better" can be
+demonstrated on the paid rules and still leave the largest single habit in the
+corpus untouched, and no summary in reward units would show it. Every claim
+about v16 gets reported per pack, from this tool, with the unpaid rules visible.
