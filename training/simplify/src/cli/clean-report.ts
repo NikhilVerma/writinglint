@@ -58,13 +58,17 @@ for (const arm of values.arm as string[]) {
     .split('\n')
     .filter((l) => l.trim() !== '')
     .map((l) => JSON.parse(l) as { id: string; passes: string[] })
-    .map((r) => ({ id: r.id, input: r.passes[0], output: normalizeOutput(r.passes[1] ?? '') }))
-    .filter((r) => r.input.trim() !== '' && r.output.trim() !== '');
+    .map((r) => ({ id: r.id, input: r.passes[0], output: normalizeOutput(r.passes[1] ?? '') }));
+
+  // A model that answers nothing scores nothing, and dropping those rows quietly
+  // would grade a small model only on the documents it managed to reply to.
+  const usable = rows.filter((r) => r.input.trim() !== '' && r.output.trim() !== '');
+  const empty = rows.length - usable.length;
 
   const scored: { id: string; value: RewardTerms }[] = [];
   const chunkSize = Number(values.chunk);
-  for (let start = 0; start < rows.length; start += chunkSize) {
-    const batch = rows.slice(start, start + chunkSize);
+  for (let start = 0; start < usable.length; start += chunkSize) {
+    const batch = usable.slice(start, start + chunkSize);
     const texts = new Map<string, string>();
     batch.forEach((r, i) => {
       texts.set(`i-${start + i}`, r.input);
@@ -87,7 +91,10 @@ for (const arm of values.arm as string[]) {
     });
   }
 
-  console.log(`\n${arm}  (${scored.length} rows over ${new Set(scored.map((s) => s.id)).size} documents)`);
+  console.log(
+    `\n${arm}  (${scored.length} rows over ${new Set(scored.map((s) => s.id)).size} documents` +
+      `${empty > 0 ? `, ${empty} EMPTY OUTPUTS not scored` : ''})`,
+  );
   for (const domainName of ['prose', 'technical'] as const) {
     for (const needsWork of [true, false]) {
       report(arm, domainName, needsWork, scored);
