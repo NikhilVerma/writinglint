@@ -73,7 +73,17 @@ async function mix(sources: string[]): Promise<{ per1k: Map<string, number>; doc
 const train = readFileSync(values.train as string, 'utf8')
   .split('\n')
   .filter((l) => l.trim() !== '')
-  .map((l) => (JSON.parse(l).messages as { content: string }[])[1].content.split('Simplify this:\n\n')[1] ?? '');
+  // Three shapes have to read the same here: an SFT pair (`messages`), a prompt
+  // set (`prompt`), and anything that already carries a plain `source`. The
+  // question this tool answers is about the INPUT text, and which file happens
+  // to hold it is not part of the question.
+  .map((l) => {
+    const row = JSON.parse(l) as { source?: string; messages?: { content: string }[]; prompt?: { content: string }[] };
+    if (typeof row.source === 'string') return row.source;
+    const turns = row.messages ?? row.prompt ?? [];
+    const user = turns[1]?.content ?? '';
+    return user.split('Simplify this:\n\n')[1] ?? user;
+  });
 
 const seen = new Set<string>();
 const bench: string[] = [];
