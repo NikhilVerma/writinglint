@@ -40,7 +40,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { loadConfig } from '../lib/env.ts';
+import { loadConfig, simplifyRoot } from '../lib/env.ts';
 import { extractAnchors } from '../lib/faithfulness.ts';
 import { readJsonl } from '../lib/store.ts';
 import { stripPreamble } from '../lib/text.ts';
@@ -48,7 +48,21 @@ import { stripPreamble } from '../lib/text.ts';
 const { values } = parseArgs({
   options: {
     out: { type: 'string', default: 'runs/sft-v8' },
-    selfTargetShare: { type: 'string', default: '0.25' },
+    /** The system prompt the model is trained under. It used to be inherited
+     * from the first row of the human-pairs export, which meant the prompt that
+     * shaped the corpus was also the prompt shipped with the model, and neither
+     * could be changed without changing the other. They are different jobs. The
+     * export's prompt asked a frontier model to produce a target; this one tells
+     * an 8B model what to remove, and it has to name every habit the reward
+     * prices or the model is being graded on instructions it never received. */
+    system: { type: 'string', default: 'prompts/rewrite-sft-v3.md' },
+    /** Share of rows whose target IS their input. These teach the model to stop
+     * when a document is already finished, and 0.25 was too much: v10 came out
+     * timid, cutting half what v7 cut and leaving 97% of dirty technical prose
+     * above its band. Combined with the technical repair pairs, which are
+     * near-identity by design, a quarter here meant 28% of the corpus asked for
+     * almost no edit. */
+    selfTargetShare: { type: 'string', default: '0.10' },
     benchN: { type: 'string', default: '120' },
     benchMinWords: { type: 'string', default: '150' },
     benchMaxWords: { type: 'string', default: '1800' },
@@ -89,7 +103,7 @@ interface Pair { messages: { role: string; content: string }[]; sourceId: string
 const train = readJsonl<Pair>('runs/human-pairs-export/train.jsonl');
 
 const roleOf = (p: Pair, role: string) => p.messages.find((m) => m.role === role)?.content ?? '';
-const system = roleOf(train[0], 'system');
+const system = readFileSync(path.join(simplifyRoot, values.system as string), 'utf8').trim();
 const wordCount = (t: string) => t.split(/\s+/).filter((w) => w !== '').length;
 
 const config = loadConfig().reward;
@@ -223,7 +237,16 @@ function build(wantHoldout: boolean) {
   const wanted = Math.round((share * pairs.length) / (1 - share));
   const picked = shuffled(eligible).slice(0, Math.min(wanted, eligible.length));
   return shuffled([
-    ...pairs.map((p) => ({ sourceId: p.sourceId, kind: 'repair', messages: p.messages })),
+    // Rebuild the turn list rather than passing the export's through. These rows
+    // arrive carrying the system prompt the GENERATOR ran under, so reusing them
+    // verbatim trained two thirds of the corpus on one prompt and the rest on
+    // another, and the model saw a rule list only on the rows that needed it
+    // least.
+    ...pairs.map((p) => ({
+      sourceId: p.sourceId,
+      kind: 'repair',
+      messages: p.messages.map((m) => (m.role === 'system' ? { ...m, content: system } : m)),
+    })),
     ...picked.map(([sourceId, text]) => selfTargetFor(sourceId, text)),
   ]);
 }

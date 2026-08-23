@@ -28,7 +28,7 @@ image = (
     .pip_install("torch", "transformers>=4.51", "peft>=0.15", "vllm")
     .env({"VLLM_USE_FLASHINFER_SAMPLER": "0"})
     .add_local_file(INPUTS, "/data/inputs.jsonl")
-    .add_local_file(SIMPLIFY_DIR / "prompts" / "rewrite-sft-v2.md", "/data/system.md")
+    .add_local_file(SIMPLIFY_DIR / "prompts" / "rewrite-sft-v3.md", "/data/system.md")
 )
 
 
