@@ -779,11 +779,16 @@ data — see below.
 
 ## Human originals are bad targets under this reward
 
-Scoring the human-pair corpus on the reward metric: the human original cuts
-only 4.5 per 1k below the slop it was spoiled from (median 4.1), and on 21%
-of pairs the human "answer" is DIRTIER than the input. The 8B's own best-of-8
-cuts 26. Training on human targets is training the model down. Self-
-distillation is not a compromise here, it is the stronger signal.
+Scoring 3120 human pairs on the reward metric: the human original cuts only
+2.2 per 1k below the slop it was spoiled from (median 2.6), and on 37% of
+pairs the human "answer" is DIRTIER than the input. Even on the hard slop
+(n=558, 41.0 per 1k) the human cuts 10.0. The base 8B's own best-of-8 cuts
+26. Training on human targets is training the model down. Self-distillation
+is not a compromise here, it is the stronger signal.
+
+Overlap between the human target and its slop input is 0.13, so this is not
+a copying problem hiding as a quality problem. The human simply writes to a
+different objective than the one being graded.
 
 The idea worth trying for v16, from the off-policy SFT literature: where the
 model's own best-of-n fails the gate, do not fall back to the human original
