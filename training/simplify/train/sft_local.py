@@ -27,6 +27,14 @@ parser.add_argument("--lr", type=float, default=5e-5)
 parser.add_argument("--max-len", type=int, default=4096)
 parser.add_argument("--batch", type=int, default=1)
 parser.add_argument("--accum", type=int, default=8)
+# fp32 Adam wants about 16 bytes per parameter, which puts a 1.7B over a 24GB
+# card before a single activation. The 8-bit states cost a third of that.
+parser.add_argument("--optim", default="adamw_torch")
+# An 8B does not fit a 24GB card as a full fine-tune, so the big model trains
+# through an adapter and the small ones do not. Same script, same data, same
+# eval — only the memory strategy differs.
+parser.add_argument("--lora", action="store_true")
+parser.add_argument("--lora-r", type=int, default=32)
 args = parser.parse_args()
 
 tok = AutoTokenizer.from_pretrained(args.base_model)
@@ -78,6 +86,22 @@ def collate(batch):
 
 
 model = AutoModelForCausalLM.from_pretrained(args.base_model, dtype=torch.bfloat16)
+if args.lora:
+    from peft import LoraConfig, get_peft_model
+
+    # Matches the adapters trained on rented GPUs, so a checkpoint from either
+    # place loads in the other.
+    model = get_peft_model(
+        model,
+        LoraConfig(
+            r=args.lora_r,
+            lora_alpha=args.lora_r * 2,
+            lora_dropout=0.05,
+            target_modules="all-linear",
+            task_type="CAUSAL_LM",
+        ),
+    )
+    model.print_trainable_parameters()
 model.gradient_checkpointing_enable()
 model.config.use_cache = False
 
@@ -95,7 +119,7 @@ Trainer(
         logging_steps=10,
         save_strategy="no",
         report_to=[],
-        optim="adamw_torch",
+        optim=args.optim,
     ),
     train_dataset=Pairs(args.data),
     data_collator=collate,
