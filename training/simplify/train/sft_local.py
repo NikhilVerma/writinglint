@@ -102,7 +102,12 @@ if args.lora:
         ),
     )
     model.print_trainable_parameters()
-model.gradient_checkpointing_enable()
+    # Checkpointed activations enter the frozen embedding, which has no grad, so
+    # the backward pass finds nothing to differentiate. Ask the input embedding
+    # for grads and use the non-reentrant checkpoint; without both, a LoRA run
+    # dies at step 1 with "element 0 of tensors does not require grad".
+    model.enable_input_require_grads()
+model.gradient_checkpointing_enable(gradient_checkpointing_kwargs={"use_reentrant": False})
 model.config.use_cache = False
 
 Trainer(
