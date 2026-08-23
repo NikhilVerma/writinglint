@@ -346,32 +346,51 @@ def train(
 
         def __init__(self):
             self.history: list[float] = []
+            self.broken = False
 
         def on_step_end(self, args, state, control, **kwargs):
-            if state.global_step % probe_every != 0 or not probe_set:
+            if state.global_step % probe_every != 0 or not probe_set or self.broken:
                 return
-            model = kwargs["model"]
+            try:
+                self.probe(state, control, kwargs["model"])
+            except Exception as err:
+                # A probe is instrumentation and must never be on the failure
+                # path of a paid job. The first version of it raised inside
+                # on_step_end at step 14, and because this function retries on
+                # cancellation, the crash was about to be bought five times over
+                # for a run that had produced nothing.
+                self.broken = True
+                print(f"[probe] DISABLED after error: {err!r}", flush=True)
+
+        def probe(self, state, control, model):
             was_training = model.training
             model.eval()
             texts = []
             with torch.no_grad():
                 for row in probe_set:
-                    ids = tokenizer.apply_chat_template(
+                    enc = tokenizer.apply_chat_template(
                         row["prompt"],
                         tokenize=True,
                         add_generation_prompt=True,
                         enable_thinking=False,
                         return_tensors="pt",
-                    ).to(model.device)
+                        # Newer transformers hand back a BatchEncoding here, not
+                        # a tensor, so .shape raised KeyError('shape'). Ask for
+                        # the dict explicitly rather than depending on which it
+                        # is this version.
+                        return_dict=True,
+                    )
+                    enc = {k: v.to(model.device) for k, v in enc.items()}
+                    prompt_len = enc["input_ids"].shape[-1]
                     # Greedy, so a probe measures the policy rather than the
                     # sampler. Two probes must be comparable.
                     out = model.generate(
-                        ids,
+                        **enc,
                         max_new_tokens=2048,
                         do_sample=False,
                         pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
                     )
-                    texts.append(tokenizer.decode(out[0][ids.shape[-1]:], skip_special_tokens=True))
+                    texts.append(tokenizer.decode(out[0][prompt_len:], skip_special_tokens=True))
             if was_training:
                 model.train()
 
@@ -463,6 +482,8 @@ def main(
     lr: float = 1e-5,
     num_generations: int = 8,
     init_adapter: str = "",
+    probe_docs: int = 12,
+    probe_every: int = 15,
     spawn: bool = True,
 ):
     """Fire the job and exit.
@@ -486,6 +507,8 @@ def main(
         lr=lr,
         num_generations=num_generations,
         init_adapter=init_adapter,
+        probe_docs=probe_docs,
+        probe_every=probe_every,
     )
     if not spawn:
         print(train.remote(**kwargs))
