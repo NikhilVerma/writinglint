@@ -31,13 +31,21 @@ const { values } = parseArgs({
     'self-share': { type: 'string', default: '0.25' },
     'max-words': { type: 'string', default: '2200' },
     'min-words': { type: 'string', default: '120' },
+    /** Must match the prompt the adapter was fine-tuned under. It was pinned to
+     * v2 while training moved to v3, which would have had the reward run score
+     * rollouts produced under instructions the policy never saw in SFT. */
+    system: { type: 'string', default: 'prompts/rewrite-sft-v3.md' },
+    /** Benchmark inputs to keep out of the prompt set, as drift-input jsonl.
+     * Every document here is scored in the eval, and a reward run that has
+     * practised on them reports a number about its own training set. */
+    exclude: { type: 'string', multiple: true, default: [] },
   },
 });
 
 const maxWords = Number(values['max-words']);
 const minWords = Number(values['min-words']);
 const config = loadConfig();
-const system = readFileSync(path.join(simplifyRoot, 'prompts', 'rewrite-sft-v2.md'), 'utf8').trim();
+const system = readFileSync(path.join(simplifyRoot, values.system as string), 'utf8').trim();
 
 const userPrefix = 'Simplify this:';
 const wordCount = (text: string) => text.split(/\s+/).filter((w) => w !== '').length;
@@ -76,16 +84,33 @@ for (const file of values.self as string[]) {
   }
 }
 
+// Benchmark documents, keyed on their first 400 characters with whitespace
+// collapsed, so a document still matches after a trailing newline or a reflowed
+// paragraph moves. Exact equality is too brittle for text that has been through
+// a jsonl round trip.
+const fingerprint = (text: string) => text.replace(/\s+/g, ' ').trim().slice(0, 400);
+const banned = new Set<string>();
+for (const file of values.exclude as string[]) {
+  for (const row of readJsonl<{ input?: string; passes?: string[] }>(file)) {
+    const text = row.input ?? row.passes?.[0];
+    if (text) banned.add(fingerprint(text));
+  }
+}
+console.error(`excluding ${banned.size} benchmark documents`);
+
 const seen = new Set<string>();
+let benchDropped = 0;
 const usable = (text: string) => {
   const words = wordCount(text);
   if (words < minWords || words > maxWords) return false;
+  if (banned.has(fingerprint(text))) { benchDropped += 1; return false; }
   if (seen.has(text)) return false;
   seen.add(text);
   return true;
 };
 const slop = sources.filter(usable);
 const selfKept = selfSources.filter(usable);
+console.error(`dropped ${benchDropped} prompts that appear in the benchmark`);
 
 // Held to a share of the final set rather than taken whole. Self-prompts teach
 // stability, and stability is cheap to satisfy by copying, so a run made mostly
