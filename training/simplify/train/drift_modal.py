@@ -87,8 +87,22 @@ def run(base_model: str = "Qwen/Qwen3-8B", adapter: str = "", base_seed: int = 4
 
 
 @app.local_entrypoint()
-def main(adapter: str = "", out_name: str = "base", base_seed: int = 42, passes: int = 3):
-    rows = run.remote(adapter=adapter, base_seed=base_seed, passes=passes)
+def main(
+    adapter: str = "",
+    out_name: str = "base",
+    base_seed: int = 42,
+    passes: int = 3,
+    base_model: str = "Qwen/Qwen3-8B",
+):
+    """--base-model runs the same benchmark against a different size.
+
+    The eval never depended on the 8B; only this entrypoint did. Exposing it is
+    what lets one harness score a ladder of candidate on-device models against
+    the numbers the 8B already has.
+    """
+    rows = run.remote(
+        adapter=adapter, base_seed=base_seed, passes=passes, base_model=base_model
+    )
     out = SIMPLIFY_DIR / "runs" / f"drift-{out_name}.jsonl"
     out.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf8")
     print(f"wrote {len(rows)} rows to {out}")
