@@ -965,15 +965,31 @@ on both sides, so this is not the teacher being careless. The entire gap is
 length. Best-of-8 removes 34% of the words. The teacher removes 12%.
 
 The metric pays for compression, and a careful editor will not compress that
-hard. That is the finding. It is not a fact about teachers; it is a fact about
-what "cleans bad writing" has been operationalised as here, and every result in
-this file has to be read through it.
+hard.
 
-Note what faithfulness is not doing. It counts anchors — numbers, symbols,
-identifiers — and you can delete a third of a blog post while keeping every
-number in it. So a 0.993 faithfulness score is entirely compatible with
-throwing away a third of the argument. The gate stops fact loss and does not
-stop content loss, and nothing else in the reward does either.
+The obvious next thought was that best-of-8 wins by deleting, and that
+faithfulness cannot see it because it counts anchors — numbers, symbols,
+identifiers — which survive while a third of the argument goes. That thought
+was tested and it is wrong. `content-loss.ts` scored best-of-8 at 53.4% of
+source sentences dropped against the teacher's 9.2%, and reading the
+worst-scoring document showed the measure, not the model, was at fault:
+
+    source  "It is important to note that were we to encounter intelligent
+             life elsewhere in the cosmos, there are certain facts we would
+             inevitably have in common."
+    output  "If we encountered intelligent life elsewhere in the universe, we
+             would share some basic facts."
+
+Scored 95% dropped. Nothing is dropped. Content-word overlap cannot separate
+deleted from reworded, and it favours whichever rewrite stays closest to the
+source wording — the teacher, by construction.
+
+So the best-of-8 targets are not gutted documents. They are good rewrites. A
+738-word corrupted essay becomes 381 clean words that carry the same argument.
+That is what the reward is paying for, and it is right to pay for it.
+
+Which makes the plateau harder to explain, not easier. The targets are good.
+The student saw 963 of them. It did not move.
 
 ### Two instrument bugs, both mine, both worth remembering
 
