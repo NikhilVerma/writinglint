@@ -122,6 +122,10 @@ def train(
     lr: float = 1e-5,
     num_generations: int = 8,
     init_adapter: str = "",
+    probe_docs: int = 16,
+    probe_every: int = 25,
+    probe_patience: int = 2,
+    probe_min_delta: float = 0.02,
 ):
     import glob
 
@@ -156,6 +160,18 @@ def train(
         f"(largest {max(oversized) if oversized else 0}), {len(prompts)} remain",
         flush=True,
     )
+    # Hold a fixed slice out of training and re-score it on the same documents
+    # every probe_every steps.
+    #
+    # The per-step [reward] line cannot show whether the policy is improving.
+    # Each step draws four prompts, so consecutive means differ mostly by which
+    # four documents came up: a 52-step run swung between 0.23 and 0.39 with no
+    # trend, while the within-prompt reward spread stayed at 0.19 and 95% of
+    # prompt groups carried a usable gradient. The signal was there; the
+    # instrument could not see it. Same documents every probe removes that
+    # variance, which is the only thing that makes a short run readable.
+    probe_set = prompts[:probe_docs]
+    prompts = prompts[probe_docs:]
     ds = Dataset.from_list(prompts)
     words = sorted(len(row["source"].split()) for row in prompts)
     print(
@@ -317,6 +333,80 @@ def train(
         def on_save(self, args, state, control, **kwargs):
             vol.commit()
 
+    class HeldOutProbe(TrainerCallback):
+        """Score the same held-out documents every probe_every steps, and stop
+        the run when two consecutive probes fail to beat the best one.
+
+        This is the kill switch the last run did not have. It cost roughly ten
+        dollars to watch an unreadable curve and conclude nothing, and the
+        decision to stop came from a person reading tea leaves rather than from
+        a rule agreed in advance. A stop rule stated up front is cheaper than a
+        judgement call made late, and it is auditable afterwards.
+        """
+
+        def __init__(self):
+            self.history: list[float] = []
+
+        def on_step_end(self, args, state, control, **kwargs):
+            if state.global_step % probe_every != 0 or not probe_set:
+                return
+            model = kwargs["model"]
+            was_training = model.training
+            model.eval()
+            texts = []
+            with torch.no_grad():
+                for row in probe_set:
+                    ids = tokenizer.apply_chat_template(
+                        row["prompt"],
+                        tokenize=True,
+                        add_generation_prompt=True,
+                        enable_thinking=False,
+                        return_tensors="pt",
+                    ).to(model.device)
+                    # Greedy, so a probe measures the policy rather than the
+                    # sampler. Two probes must be comparable.
+                    out = model.generate(
+                        ids,
+                        max_new_tokens=2048,
+                        do_sample=False,
+                        pad_token_id=tokenizer.pad_token_id or tokenizer.eos_token_id,
+                    )
+                    texts.append(tokenizer.decode(out[0][ids.shape[-1]:], skip_special_tokens=True))
+            if was_training:
+                model.train()
+
+            scored = score_batch(
+                [
+                    {"id": f"probe-{i}", "input": row["source"], "output": text}
+                    for i, (row, text) in enumerate(zip(probe_set, texts))
+                ]
+            )
+            mean = lambda xs: sum(xs) / len(xs) if xs else 0.0
+            score = mean([float(r.get("reward", 0.0)) for r in scored])
+            cut = mean(
+                [
+                    float(r.get("sourceFindingsPer1kWords", 0.0)) - float(r.get("findingsPer1kWords", 0.0))
+                    for r in scored
+                ]
+            )
+            self.history.append(score)
+            best = max(self.history)
+            stale = sum(1 for s in self.history[-probe_patience:] if s < best - probe_min_delta)
+            print(
+                f"[probe] step={state.global_step} n={len(scored)} reward={score:.3f} "
+                f"cut={cut:.1f} echo={mean([float(r.get('echoRate', 0.0)) for r in scored]):.2f} "
+                f"kept={mean([float(r.get('anchorKeptRate', 0.0)) for r in scored]):.2f} "
+                f"best={best:.3f} history={[round(h, 3) for h in self.history]}",
+                flush=True,
+            )
+            if len(self.history) > probe_patience and stale >= probe_patience:
+                print(
+                    f"[probe] STOP: {probe_patience} probes without beating {best:.3f} "
+                    f"by {probe_min_delta}. Not paying for more.",
+                    flush=True,
+                )
+                control.should_training_stop = True
+
     # `init_adapter` warm-starts from an adapter an earlier run produced, e.g.
     # "qwen3-8b-grpo-v6/final". Resuming from a checkpoint restores the step
     # counter, the optimizer, and the dataloader position, so it can only ever
@@ -352,7 +442,7 @@ def train(
         reward_funcs=reward_simplification,
         # A model that already carries an adapter must not be wrapped again.
         peft_config=None if init_adapter else peft_config,
-        callbacks=[CommitOnSave()],
+        callbacks=[CommitOnSave(), HeldOutProbe()],
     )
     checkpoints = sorted(
         glob.glob(f"/out/{run_name}/checkpoint-*"),
@@ -381,7 +471,13 @@ def main(
     and twice a dropped connection on this laptop turned into a cancellation
     signal on the GPU: v6 died at step 146 and again at 277. spawn() hands the
     call to Modal and returns in seconds, so the client is no longer on the
-    failure path. Follow the run with `modal app logs <app-id>`.
+    failure path.
+
+    spawn=True is NOT safe from here, though. `modal run` builds an ephemeral
+    app and stops it as soon as this function returns, which takes the spawned
+    call down with it and resolves it to a RemoteError carrying no message.
+    Deploy the app and spawn through train/spawn_deployed.py instead. This path
+    is kept for `--no-spawn` debug runs, which block and are therefore fine.
     """
     kwargs = dict(
         base_model=base_model,
