@@ -1021,3 +1021,47 @@ ratio, and v15 produces 0.738, longer than the 0.716 base it started from.
 
 That is the sharpest statement of the plateau in this file. The model was shown
 900 examples of aggressive compression and did not become more compressive.
+
+## v15 never fit its own training data
+
+Five generations of data work, and the explanation was never in the data.
+
+`train-recall.ts` runs the student over 150 of the documents it trained on and
+scores the target it was shown as a third arm. Held-out evaluation cannot
+separate "learned it and cannot generalise" from "never learned it"; this can.
+
+| on 150 documents v15 TRAINED on | cut per 1k | faithfulness | length ratio |
+| --- | --- | --- | --- |
+| the target it was shown | **28.4 ±1.4** | 0.991 | 0.673 |
+| v15 | 23.8 ±1.5 | 0.927 | 0.708 |
+
+It is 4.6 short on documents it memorised, and less faithful than its own
+targets on them. So it is not a generalisation failure and it is not a data
+failure. v15 is underfit: 963 examples, LoRA rank 32, 2 epochs at accumulation
+8 is about 240 optimizer steps to teach a behaviour change, and it did not take.
+
+Read the earlier sections of this file through that. The +6.42 selection
+headroom is real and so is every measurement of it, but "v15 captured none of
+it" was never evidence about rejection sampling — it is evidence that the run
+which was supposed to capture it stopped before it had learned anything. The
+same holds for v14. Both were graded on data they never absorbed.
+
+### v16 changes the training and nothing else
+
+Same 963 pairs, same prompt, same gates, same benchmark. Rank 64, 6 epochs,
+accumulation 4 — four times the rank and six times the optimizer steps. The
+data is held fixed deliberately: if this moves the model, then four generations
+of dataset work were all measuring the same missing training, and that is worth
+knowing before another corpus is built.
+
+Recall is checked BEFORE the benchmark. If v16 still misses 28.4 on documents
+it trained on, no held-out number is worth reading and the knobs move again.
+
+### The stop rule for v16
+
+First gate: at least 27.5 cut per 1k on the 150 training documents at
+faithfulness 0.97 or better. Miss it and the training is still wrong, so do not
+report a benchmark number.
+
+Second gate: paired against base 8B on prose-dirty, at least +3.0 with the
+interval clear of zero, at faithfulness no worse than 0.909.
