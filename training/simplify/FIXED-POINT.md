@@ -826,3 +826,62 @@ text that needed no work. Add the floor only if that number moves.
 Selection on the first 200 sampled documents: 164 kept (82%), mean cut 22.5
 per 1k. Of the 1600 samples, 568 were rejected for dropping facts, 57 for
 cutting too little, 57 for barely changing the source, 0 degenerate.
+
+## v15 measured: matched difficulty did not move it either
+
+The stop rule was prose-dirty cut >= 28.0 at faithfulness >= 0.909.
+**v15 cut 26.1 at faithfulness 0.908. FAIL.**
+
+| prose dirty (n=87, 71 docs) | v15  | v14  | base 8B |
+| --------------------------- | ---- | ---- | ------- |
+| findings/1k 40.9 ->          | 14.8 | 15.1 | 14.9    |
+| cut                         | 26.1 | 25.7 | 26.0    |
+| landed in band              | 74%  | 71%  | 69%     |
+| came out dirtier            |  1%  |  0%  |  0%     |
+| faithfulness                | 0.908| 0.893| 0.909   |
+| length ratio                | 0.738| 0.722| 0.716   |
+
+The headline means cannot settle this, so `arm-diff.ts` compares the same
+document under both arms and reports the paired difference. Both arms rewrite
+the same source, so document-to-document variance cancels.
+
+| slice, v15 minus base | paired cut     | v15 ahead on | verdict |
+| --------------------- | -------------- | ------------ | ------- |
+| prose dirty           | +2.19 +/-2.38  | 65%          | SAME    |
+| prose clean           | -0.47 +/-1.22  | 49%          | SAME    |
+| technical dirty       | -0.20 +/-2.56  | 42%          | SAME    |
+| technical clean       | -0.69 +/-2.49  | 46%          | SAME    |
+
+Every interval spans zero. v15 is the base model with extra steps. The one
+real difference is length: +0.028 +/-0.015, so v15 deletes slightly LESS than
+base. The shortening drift in the training targets did not become a
+shortening model, which is the one thing that was worth watching. No length
+floor is needed.
+
+The regression to watch: prose-clean "came out dirtier" went 3% (base) to 9%
+(v15). Small n, but it is the wrong direction on documents that needed no work.
+
+### What four generations of this say
+
+| version | the lever pulled                          | result vs base |
+| ------- | ----------------------------------------- | -------------- |
+| v11     | rewrite the instruction prompt            | inert          |
+| v12     | delete the training data that taught copying | small gain  |
+| v14     | self-distil from best-of-8                | same as base   |
+| v15     | match the benchmark's difficulty and habits | same as base |
+
+Every one of these is a data-side fix, and every one lands on the base model's
+own behaviour. That is what rejection-sampling SFT does: best-of-n selects the
+tail of the base model's OWN distribution, and training on that tail moves the
+mean by a fraction of the gap. Measured headroom on the hard slice was 5.13;
+v15 captured about 2.2 of it, and not significantly.
+
+The target has to come from outside the base model's distribution. The
+untried levers, cheapest first:
+
+1. Measure a stronger model's ceiling on the SAME benchmark before buying
+   anything. If a stronger teacher only cuts 27, teacher distillation has no
+   headroom either and the reward metric is the thing that is saturated.
+2. Teacher distillation: a stronger model writes the targets.
+3. GRPO on-policy, which optimises the reward directly instead of imitating
+   samples drawn from it.
