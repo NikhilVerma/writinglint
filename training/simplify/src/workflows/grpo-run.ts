@@ -6,10 +6,17 @@
 // twice.
 //
 // The load-bearing detail is that spawning the training job and waiting for it
-// are SEPARATE steps. train_grpo.py hands the call to Modal and returns in
-// seconds, so the recorded value of the spawn step is a call id. A crash three
-// hours in re-enters at the await step holding that id and rejoins the job that
-// is already running, instead of starting a second one.
+// are SEPARATE steps. The spawn returns in seconds, so the recorded value of
+// that step is a call id. A crash three hours in re-enters at the await step
+// holding that id and rejoins the job that is already running, instead of
+// starting a second one.
+//
+// The job has to be spawned against a DEPLOYED app, not through `modal run`.
+// `modal run` builds an ephemeral app and stops it the moment the local
+// entrypoint returns, which takes the spawned call down with it: two attempts
+// resolved to an empty RemoteError inside a minute and read like a crash in the
+// training code. So the deploy is its own step, and the spawn goes through
+// Function.from_name.
 
 import { execFile, execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -24,7 +31,7 @@ const exec = promisify(execFile);
 // Same switch the OpenRouter client uses. A test that really shells out to
 // `modal` either hangs on the network or bills a GPU, and neither is a test.
 const fake = (bin: string, args: string[]) =>
-  bin === 'modal' && args[1]?.includes('train_grpo')
+  args.some((a) => a.includes('spawn_deployed'))
     ? 'spawned test-run: call fc-fake-0001\n'
     : `fake ${bin} ${args.join(' ')}\n`;
 
@@ -53,13 +60,13 @@ const modalPython = (() => {
   return 'python3';
 })();
 
-async function python(args: string[], timeoutMs: number): Promise<string> {
+async function python(args: string[], timeoutMs: number, env: Record<string, string> = {}): Promise<string> {
   if (fakeLlm) return fake('python3', args);
   const { stdout } = await exec(modalPython, args, {
     cwd: simplifyRoot,
     timeout: timeoutMs,
     maxBuffer: 64 * 1024 * 1024,
-    env: { ...process.env },
+    env: { ...process.env, ...env },
   });
   return stdout;
 }
@@ -80,14 +87,21 @@ export interface GrpoInput {
 }
 
 export const grpoRun = workflow<GrpoInput>()(async (ctx, input) => {
+  // Bakes the prompt set into the image, so it has to carry the same env var
+  // the spawn used to. Idempotent and free, but it still gets its own step
+  // because a rebuild can take ten minutes and should not be redone on resume.
+  await ctx.step(
+    () => modal(['deploy', 'train/train_grpo.py'], 25 * 60_000, { SIMPLIFY_GRPO_PROMPTS: input.promptsFile }),
+    { name: 'grpo-deploy', timeoutMs: 30 * 60_000, retry: { attempts: 2, backoff: 'exponential', baseMs: 20_000 } },
+  );
+
   // Fire and record the call id. Cheap, and the only step that must never run
   // twice: a second spawn is a second GPU bill for the same work.
   const callId = await ctx.step(
     async () => {
-      const out = await modal(
+      const out = await python(
         [
-          'run',
-          'train/train_grpo.py',
+          'train/spawn_deployed.py',
           '--run-name',
           input.runName,
           '--init-adapter',
@@ -97,14 +111,13 @@ export const grpoRun = workflow<GrpoInput>()(async (ctx, input) => {
           '--num-generations',
           String(input.numGenerations),
         ],
-        15 * 60_000,
-        { SIMPLIFY_GRPO_PROMPTS: input.promptsFile },
+        10 * 60_000,
       );
       const match = out.match(/call\s+(\S+)/);
       if (!match) throw new Error(`no call id in spawn output: ${out.slice(-500)}`);
       return match[1];
     },
-    { name: 'grpo-spawn', timeoutMs: 20 * 60_000 },
+    { name: 'grpo-spawn', timeoutMs: 15 * 60_000 },
   );
 
   ctx.log(`grpo spawned as ${callId}`);

@@ -20,6 +20,10 @@ const { values } = parseArgs({
     prompts: { type: 'string', default: 'runs/grpo/prompts-v12.jsonl' },
     'drift-input': { type: 'string', default: 'runs/drift-inputs-v11.jsonl' },
     'drift-out': { type: 'string', default: 'grpo-v12-merged' },
+    // The key remembers the input it was bound to, so a run launched with a
+    // different flag set will not resume onto it. Pass this to abandon that run
+    // and start a new one under the same name.
+    fresh: { type: 'boolean', default: false },
   },
 });
 
@@ -38,6 +42,7 @@ const result = await run(
     // Each step is a GPU job. Checkpoint after every one of them.
     checkpointEvery: 1,
     key: `grpo-${values['run-name']}`,
+    fresh: values.fresh as boolean,
     onStep: (s) => console.error(`[${s.status}] ${s.label}${s.attempt > 1 ? ` attempt ${s.attempt}` : ''}`),
   },
 );
