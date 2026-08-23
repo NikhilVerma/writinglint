@@ -3,6 +3,9 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 
 import { loadConfig, runsDir, simplifyRoot } from '../lib/env.ts';
+import { weighFindings } from '../lib/findings.ts';
+import { lintTexts } from '../lib/lint-batch.ts';
+import { scoreRewrite } from '../lib/reward.ts';
 import { readJsonl } from '../lib/store.ts';
 
 // Builds the GRPO prompt set. GRPO learns from a reward on its own rollouts,
@@ -25,6 +28,11 @@ import { readJsonl } from '../lib/store.ts';
 const { values } = parseArgs({
   options: {
     from: { type: 'string', multiple: true, default: [] },
+    /** An existing prompt file to re-filter, read for its `source` fields.
+     * Rebuilding a set from the original corpora re-derives every exclusion
+     * and share along the way; this keeps a known-good composition and only
+     * changes the filter under test. */
+    'from-prompts': { type: 'string', multiple: true, default: [] },
     docs: { type: 'string', multiple: true, default: [] },
     out: { type: 'string', default: path.join(runsDir, 'grpo', 'prompts.jsonl') },
     self: { type: 'string', multiple: true, default: [] },
@@ -39,6 +47,14 @@ const { values } = parseArgs({
      * Every document here is scored in the eval, and a reward run that has
      * practised on them reports a number about its own training set. */
     exclude: { type: 'string', multiple: true, default: [] },
+    /** Share of the set allowed to be sources that already sit inside their
+     * human band. Those documents have no headroom: the correct answer is to
+     * return them unchanged, which the reward pays about 0.80 for while a
+     * genuine attempt on a dirty document pays 0.184. At 40% of the set they
+     * were the highest-paying strategy available, and fifty steps of GRPO
+     * learned exactly that — technical echo rose to 0.975 and the cut halved.
+     * Keep a few so the model does not forget to leave good writing alone. */
+    'in-band-share': { type: 'string', default: '0.15' },
   },
 });
 
@@ -51,6 +67,12 @@ const userPrefix = 'Simplify this:';
 const wordCount = (text: string) => text.split(/\s+/).filter((w) => w !== '').length;
 
 const sources: string[] = [];
+
+for (const file of values['from-prompts'] as string[]) {
+  for (const row of readJsonl<{ source?: string }>(file)) {
+    if (row.source) sources.push(row.source);
+  }
+}
 
 for (const file of values.from as string[]) {
   const rows = readJsonl<{ messages: { role: string; content: string }[] }>(file);
@@ -117,7 +139,42 @@ console.error(`dropped ${benchDropped} prompts that appear in the benchmark`);
 // of them would drift toward a model that never edits anything.
 const selfShare = Number(values['self-share']);
 const selfWanted = Math.min(selfKept.length, Math.round((selfShare * slop.length) / (1 - selfShare)));
-const kept = [...slop, ...selfKept.slice(0, selfWanted)];
+const withSelf = [...slop, ...selfKept.slice(0, selfWanted)];
+
+// Split by headroom. A source already inside its band cannot teach cleaning.
+const inBandShare = Number(values['in-band-share']);
+const hasHeadroom: string[] = [];
+const inBand: string[] = [];
+for (let start = 0; start < withSelf.length; start += 60) {
+  const batch = withSelf.slice(start, start + 60);
+  const texts = new Map<string, string>();
+  batch.forEach((text, i) => texts.set(`s-${start + i}`, text));
+  const findings = await lintTexts(texts, config);
+  batch.forEach((text, i) => {
+    const weighed = weighFindings(
+      findings.get(`s-${start + i}`) ?? [],
+      config.reward.levelWeights,
+      config.reward.scoredRules,
+    );
+    const terms = scoreRewrite({
+      source: text,
+      output: text,
+      sourceFindings: weighed,
+      outputFindings: weighed,
+      config: config.reward,
+    });
+    const [, bandHigh] = config.reward.domains[terms.domain].band;
+    (terms.sourceFindingsPer1kWords > bandHigh ? hasHeadroom : inBand).push(text);
+  });
+}
+const inBandWanted = Math.min(
+  inBand.length,
+  Math.round((inBandShare * hasHeadroom.length) / (1 - inBandShare)),
+);
+console.error(
+  `headroom: ${hasHeadroom.length} above band, ${inBand.length} already in band, keeping ${inBandWanted} of the latter`,
+);
+const kept = [...hasHeadroom, ...inBand.slice(0, inBandWanted)];
 
 // Sources arrive grouped: every essay, then every technical document. Written
 // in that order the trainer walks the essays for hundreds of steps and reaches
