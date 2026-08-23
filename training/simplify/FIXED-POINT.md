@@ -704,3 +704,90 @@ The probe is instrumentation and is wrapped so it can never fail the job. The
 first version raised inside on_step_end at step 14, and because the function
 retries five times on cancellation, a bug in the measurement was about to be
 bought five times over for a run that had produced nothing.
+
+## v14 plateaued because the training pool was easier than the benchmark
+
+Under both rulepacks, v14 and the base 8B are the same model on prose:
+cut 25.7 +/-2.7 vs 26.0 +/-2.8, in band 71% vs 69%, faithfulness 0.893 vs
+0.909. Two years of pipeline and the adapter is a rounding error away from
+what it started from. That is the whole reason v15 exists.
+
+The evidence chain, in order:
+
+1. Training prose sits at 21.1 weighted findings per 1k. The benchmark's
+   prose sits at 31.3.
+2. That gap is not an artefact of the best-of-n filter. Keep rate by
+   difficulty band is 53% / 77% / 76% / 67% — flat. The filter is not
+   throwing hard documents away.
+3. The benchmark's prose is two populations: 40 deliberately corrupted
+   documents at 39.9 per 1k, and 54 real essays at 19.1. The training pool
+   matches the real essays almost exactly. Half the graded slice is a kind of
+   document the model has never once been shown.
+4. Self-distillation is not the ceiling. On that hard slice, best-of-8
+   headroom is 5.13 +/-1.25 over the average sample, and faithfulness is
+   BETTER at best-of-8 than at the mean (0.938 vs 0.909). The data was the
+   ceiling, again.
+
+This is the documented failure mode for synthetic training data in error
+correction: when the synthetic error distribution does not cover the errors
+seen at test time, correction ability degrades, and matching the error TYPE
+distribution matters more than matching the error RATE.
+
+## Both rulepacks are now paid for, and one rule inside a paid pack is not
+
+`reader-first` was demoted to unscored during the v7 chopping pathology. The
+demotion outlived its cause: the band-with-taper reward already fixed the
+"pay all the way to zero" behaviour that made v7 delete 29% of the words.
+Measured on 400 documents paired with the human original they were made from:
+
+| rule                        | slop | human | paired difference |
+| --------------------------- | ---- | ----- | ----------------- |
+| reader-first/sentence-load  | 14.9 | 13.7  | +1.24 +/-0.27     |
+| reader-first/aside-pileup   |  4.2 |  3.4  | +0.79 +/-0.19     |
+| ai-style/passive-actor-hiding | 0.9 | 1.1  | -0.18 +/-0.10     |
+
+`sentence-load` is the single biggest finding family in the corpus and it
+discriminates. It is now paid. `passive-actor-hiding` fires HARDER on the
+human original; paying to remove it teaches the model to write less like a
+person. It is now named in `unscoredRules`. A rulepack is the right unit to
+enable and the wrong unit to trust.
+
+## The two corpora fail differently, which is why v15 uses both
+
+Weighted findings per 1k, by rule:
+
+| rule                        | benchmark | 8B corruption | stronger-model slop |
+| --------------------------- | --------- | ------------- | ------------------- |
+| reader-first/sentence-load  | 14.60     |  9.08         | 14.92               |
+| reader-first/aside-pileup   |  4.26     |  3.24         |  4.19               |
+| ai-style/throat-clearing    |  1.04     |  3.73         |  0.02               |
+| ai-style/chatbot-idioms     |  1.13     |  2.22         |  0.15               |
+
+The stronger model reproduces the structural habits an 8B cannot manufacture.
+The 8B overshoots the lexical tells the stronger model never adds, and which
+are absent from every human corpus by construction. Neither alone covers the
+benchmark. Measured over 200 seeds, the 8B corruption pass moves text from
+29.0 to 36.5 per 1k (p50 36.1, p75 42.8) at 1.17x length and only 2% of
+documents come out shorter — it spoils style rather than deleting content.
+
+### v15 stop rule
+
+Prose-dirty cut >= 28.0 with faithfulness >= 0.909. The base is 26.0 at
+0.909. Measured headroom says best-of-8 reaches past that, so it is inside
+reach and not free. If v15 misses it, the next lever is the target, not more
+data — see below.
+
+## Human originals are bad targets under this reward
+
+Scoring the human-pair corpus on the reward metric: the human original cuts
+only 4.5 per 1k below the slop it was spoiled from (median 4.1), and on 21%
+of pairs the human "answer" is DIRTIER than the input. The 8B's own best-of-8
+cuts 26. Training on human targets is training the model down. Self-
+distillation is not a compromise here, it is the stronger signal.
+
+The idea worth trying for v16, from the off-policy SFT literature: where the
+model's own best-of-n fails the gate, do not fall back to the human original
+and do not drop the document. Show the model the human original and ask it to
+redo the rewrite in its own words, then re-gate that. It converts an
+unusable off-policy target into an on-policy one, and it only costs a second
+sampling pass on the documents best-of-n already lost.
