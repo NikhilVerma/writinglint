@@ -17,6 +17,7 @@ const { values } = parseArgs({
     'init-adapter': { type: 'string', default: 'qwen3-8b-sft-v12/final' },
     steps: { type: 'string', default: '150' },
     'num-generations': { type: 'string', default: '8' },
+    prompts: { type: 'string', default: 'runs/grpo/prompts-v12.jsonl' },
     'drift-input': { type: 'string', default: 'runs/drift-inputs-v11.jsonl' },
     'drift-out': { type: 'string', default: 'grpo-v12-merged' },
   },
@@ -27,6 +28,7 @@ const result = await run(
   {
     runName: values['run-name'] as string,
     initAdapter: values['init-adapter'] as string,
+    promptsFile: values.prompts as string,
     steps: Number(values.steps),
     numGenerations: Number(values['num-generations']),
     driftInput: values['drift-input'] as string,

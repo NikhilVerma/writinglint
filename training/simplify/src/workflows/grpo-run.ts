@@ -11,7 +11,8 @@
 // hours in re-enters at the await step holding that id and rejoins the job that
 // is already running, instead of starting a second one.
 
-import { execFile } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { promisify } from 'node:util';
 
 import { workflow } from '@nikhilverma/durably';
@@ -38,9 +39,23 @@ async function modal(args: string[], timeoutMs: number, env: Record<string, stri
   return stdout;
 }
 
+// The interpreter that can `import modal`, which is the one the `modal` CLI
+// itself runs under. A bare `python3` is whatever is first on PATH, and here
+// that is a different install without the package.
+const modalPython = (() => {
+  try {
+    const shebang = readFileSync(execFileSync('which', ['modal']).toString().trim(), 'utf8').split('\n')[0];
+    const match = shebang.match(/^#!\s*(\S+)/);
+    if (match) return match[1];
+  } catch {
+    // Fall through to the PATH interpreter and let the step report the failure.
+  }
+  return 'python3';
+})();
+
 async function python(args: string[], timeoutMs: number): Promise<string> {
   if (fakeLlm) return fake('python3', args);
-  const { stdout } = await exec('python3', args, {
+  const { stdout } = await exec(modalPython, args, {
     cwd: simplifyRoot,
     timeout: timeoutMs,
     maxBuffer: 64 * 1024 * 1024,
@@ -51,6 +66,11 @@ async function python(args: string[], timeoutMs: number): Promise<string> {
 
 export interface GrpoInput {
   runName: string;
+  /** The prompt set to bake into the image. train_grpo.py falls back to
+   * runs/grpo/prompts.jsonl, which is a stale file from an earlier generation
+   * that still contains benchmark documents, so leaving it unset trains the
+   * reward run on its own eval. */
+  promptsFile: string;
   initAdapter: string;
   steps: number;
   numGenerations: number;
@@ -78,6 +98,7 @@ export const grpoRun = workflow<GrpoInput>()(async (ctx, input) => {
           String(input.numGenerations),
         ],
         15 * 60_000,
+        { SIMPLIFY_GRPO_PROMPTS: input.promptsFile },
       );
       const match = out.match(/call\s+(\S+)/);
       if (!match) throw new Error(`no call id in spawn output: ${out.slice(-500)}`);

@@ -8,6 +8,7 @@ import { grpoRun } from '../src/workflows/grpo-run.ts';
 const input = {
   runName: 'test-run',
   initAdapter: 'test-sft/final',
+  promptsFile: 'runs/grpo/prompts-test.jsonl',
   steps: 10,
   numGenerations: 8,
   driftInput: 'runs/inputs.jsonl',
