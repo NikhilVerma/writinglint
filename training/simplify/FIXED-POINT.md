@@ -526,3 +526,76 @@ OpenRouter calls. Modal spend is separate and sits around $15 to $20.
 Hugging Face is deferred until the results are good enough to publish. The
 token is created by hand with `modal secret create huggingface-token
 HF_TOKEN=<write token>` and never touched by an agent.
+
+## v11: the prompt is nearly inert under supervised fine-tuning
+
+v10 was under-instructed and inconsistently instructed. The prompt taught ten
+generic plain-English improvements while the reward priced 48 specific habits,
+and the model had never been shown the rubric it was graded on. Worse, only 419
+of its 1,488 rows carried that prompt at all: the 869 essay-repair rows passed
+the export's turn list straight through, so two thirds of the corpus trained
+under the prompt the GENERATOR had run under.
+
+v11 fixed both. `prompts/rewrite-sft-v3.md` names every priced habit in plain
+writing advice, grouped into five themes, in about 1,070 tokens, and the dataset
+now reads its system prompt from a file instead of inheriting it from row zero
+of the corpus. Identity targets dropped from 25% of the pool to 10%, which took
+near-identity rows from 29% of the corpus to 18%.
+
+The result, counted per rule over the 123 benchmark documents:
+
+| rule | input | v7 | v10 | v11 |
+| --- | --- | --- | --- | --- |
+| absolute-claim | 913 | 441 | 672 | 629 |
+| evidence-cluster | 773 | 176 | 625 | 636 |
+| passive-actor-hiding | 758 | 482 | 661 | 658 |
+| filler-intensifiers | 106 | 3 | 53 | 61 |
+| rule-of-three | 54 | 13 | 63 | 68 |
+| passive-voice-density | 52 | 19 | 46 | 53 |
+| TOTAL | 3838 | 1884 | 3097 | 3018 |
+
+Naming all 48 habits bought 2.5%. Four of the habits named explicitly came out
+worse than in v10. v7 was never told a single rule and removes half of
+everything, because it was scored on them rather than instructed about them.
+
+That is the finding, and it is worth more than the model: under SFT the system
+prompt barely reaches the behaviour. The model imitates what its targets do, not
+what its prompt says. Clear rules do produce better output, but the channel that
+carries a rule to the model is the reward, not the instruction.
+
+The aggregate numbers moved the way that implies. Cut on dirty prose went 5.8 to
+6.9 with a 2.5 confidence interval, so the gain is real only in sign. The fixed
+point held: 22.5% on pass 1, 1.8%, then 0.3%.
+
+### v11 is more faithful than base, not just more timid
+
+Base cuts 8.7 on dirty prose against v11's 6.9, which reads as an argument that
+the whole corpus is net-harmful. It is not. Base buys that cut by deleting: it
+keeps 0.889 of the source anchors and 0.740 of the length. v11 keeps 0.993 and
+0.945. Base removes findings by removing the text they live in, which the
+faithfulness term is there to forbid. The gap between them is damage, not skill.
+
+v11 still under-edits. Both things are true.
+
+### The technical half did not move, and no prompt will move it
+
+Echo on dirty technical documents is 0.963: v11 hands a current pull-request
+description back nearly verbatim, and 97% stay above their band. On the held-out
+CORRUPTED technical set it cuts 12.2. Same model, same prompt, opposite result.
+
+The 329 technical rows are corrupted-2018 pull requests paired with their clean
+originals, so they teach targeted repair of injected corruption. The benchmark
+asks for cleaning of natural slop in modern pull requests. That is a distribution
+gap in the corpus, and instruction cannot close it.
+
+### What follows
+
+GRPO starting from v11 rather than from base. v7 proved the reward teaches these
+habits; its failures were inventing 1.82 anchors per corrupted prose document and
+never converging, at 14.8% churn on pass 3. v11 answers both directly, at 0.15
+invention and 0.3% churn. A faithful, converged starting policy is the one
+configuration never tried.
+
+Build the real technical pairs first. They are cheap, they run on OpenRouter
+rather than Modal, and they close the only gap that a reward run would otherwise
+inherit.
