@@ -885,3 +885,53 @@ untried levers, cheapest first:
 2. Teacher distillation: a stronger model writes the targets.
 3. GRPO on-policy, which optimises the reward directly instead of imitating
    samples drawn from it.
+
+## The metric is not saturated — the 8B is
+
+Four generations of data work landed on the same number, and the honest next
+question was whether 27 weighted findings per 1k is simply all the metric will
+pay for. If a much stronger writer cuts what the 8B already cuts, then no
+teacher, no reward change, and no amount of RL can move it, and the right
+answer is to stop.
+
+So: twelve dirty prose documents from the benchmark, written out as plain
+files, rewritten by hand by a stronger model reading the same style guide the
+student trains under, scored on the same metric, paired against the same
+documents.
+
+| arm | paired cut vs base 8B | ahead on | faithfulness | length ratio |
+| --- | --- | --- | --- | --- |
+| stronger writer | **+7.69 ±5.48** | 75% | 1.000 | 0.873 |
+| v15 | +2.28 ±3.20 | 70% | 0.941 | 0.773 |
+
+The teacher wins on every axis at once. It cuts far more, it keeps every
+anchor rather than 96%, and it deletes *less* text while doing it. That last
+column matters most: the cheap way to cut findings is to delete sentences, and
+the teacher is not doing that. It is rewriting.
+
+So there is a real target, roughly three times the paired gain v15 managed,
+and it is reachable without deleting content. The ceiling belongs to the
+model, not to the metric.
+
+### Why this makes v16 different from v11, v12, v14 and v15
+
+Every previous generation drew its targets from the base model's own
+distribution — a prompt change, a data filter, best-of-8 over its own samples.
+Rejection sampling selects the tail of a distribution; training on that tail
+moves the mean by a fraction of the gap, which is exactly the +2.2 that keeps
+showing up. A teacher target is not drawn from that distribution at all. That
+is the only thing v16 changes, and it is the first change in four generations
+that is not a re-arrangement of what the 8B already does.
+
+The gates stay identical. `teacher-collect.ts` writes the rewrites into the
+shape `best-of-n.ts` already consumes, so faithfulness, echo, minimum cut, and
+the benchmark near-duplicate check all apply to a teacher target exactly as
+they apply to a sample. A teacher that drops a fact is thrown out like anything
+else.
+
+### The stop rule for v16
+
+Prose-dirty paired cut against base 8B of at least +5.0 with the interval clear
+of zero, at faithfulness no worse than 0.909 and length ratio no lower than
+0.716. Anything less and the conclusion is that an 8B cannot absorb this
+teacher, not that the data was wrong again.
