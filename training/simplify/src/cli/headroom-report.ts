@@ -48,7 +48,7 @@ for (let i = 0; i < rows.length; i += chunk) {
     r.outputs.forEach((o, k) => texts.set(`o-${i + j}-${k}`, normalizeOutput(o)));
   });
   const found = await lintTexts(texts, config);
-  const w = (k: string) => weighFindings(found.get(k) ?? [], config.reward.levelWeights, config.reward.scoredRules);
+  const w = (k: string) => weighFindings(found.get(k) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
   batch.forEach((r, j) => {
     const src = w(`s-${i + j}`);
     const terms: RewardTerms[] = r.outputs.map((o, k) =>

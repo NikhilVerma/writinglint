@@ -17,7 +17,7 @@ for (let s = 0; s < rows.length; s += 40) {
   const texts = new Map<string, string>();
   batch.forEach((r, i) => { texts.set(`s-${s + i}`, r.source); texts.set(`t-${s + i}`, r.target); });
   const f = await lintTexts(texts, config);
-  const w = (k: string) => weighFindings(f.get(k) ?? [], config.reward.levelWeights, config.reward.scoredRules);
+  const w = (k: string) => weighFindings(f.get(k) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
   batch.forEach((r, i) => {
     const t = scoreRewrite({ source: r.source, output: r.target, sourceFindings: w(`s-${s + i}`), outputFindings: w(`t-${s + i}`), config: config.reward });
     cuts.push(t.sourceFindingsPer1kWords - t.findingsPer1kWords);

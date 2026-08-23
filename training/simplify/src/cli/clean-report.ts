@@ -76,7 +76,7 @@ for (const arm of values.arm as string[]) {
     });
     const findings = await lintTexts(texts, config);
     const weigh = (key: string) =>
-      weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules);
+      weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
     batch.forEach((r, i) => {
       scored.push({
         id: r.id,

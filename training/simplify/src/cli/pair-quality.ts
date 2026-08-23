@@ -93,11 +93,11 @@ for (let start = 0; start < pending.length; start += chunkSize) {
     const tgtWords = wordCount(target);
     if (inWords === 0 || tgtWords === 0) continue;
     const srcPer1k = findingsPer1kWords(
-      weighFindings(findings.get(`i-${index}`) ?? [], config.reward.levelWeights, config.reward.scoredRules),
+      weighFindings(findings.get(`i-${index}`) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules),
       inWords,
     );
     const tgtPer1k = findingsPer1kWords(
-      weighFindings(findings.get(`t-${index}`) ?? [], config.reward.levelWeights, config.reward.scoredRules),
+      weighFindings(findings.get(`t-${index}`) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules),
       tgtWords,
     );
     appendFileSync(

@@ -57,7 +57,7 @@ for (const arm of values.arm as string[]) {
     });
     const findings = await lintTexts(texts, config);
     const weigh = (key: string) =>
-      weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules);
+      weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
     for (const r of batch) {
       const i = live.indexOf(r);
       scored.push({

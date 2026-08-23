@@ -34,7 +34,7 @@ for (let i = 0; i < rows.length; i += chunk) {
   batch.forEach((r, j) => texts.set(`s-${i + j}`, r.source));
   const f = await lintTexts(texts, config);
   batch.forEach((r, j) => {
-    const w = weighFindings(f.get(`s-${i + j}`) ?? [], config.reward.levelWeights, config.reward.scoredRules);
+    const w = weighFindings(f.get(`s-${i + j}`) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
     const t = scoreRewrite({ source: r.source, output: r.source, sourceFindings: w, outputFindings: w, config: config.reward });
     scored.push({ kept: r.kept, d: t.domain, s: t.sourceFindingsPer1kWords });
   });

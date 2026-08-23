@@ -29,8 +29,13 @@ export interface LeveledFinding {
  *
  * Entries are a rulepack name or a full rule id. An empty list scores
  * everything, which is what the non-reward callers want. */
-export function isScoredRule(ruleId: string | undefined, scored: readonly string[]): boolean {
+export function isScoredRule(
+  ruleId: string | undefined,
+  scored: readonly string[],
+  unscored: readonly string[] = [],
+): boolean {
   if (scored.length === 0 || ruleId === undefined) return true;
+  if (unscored.includes(ruleId)) return false;
   return scored.includes(ruleId) || scored.includes(ruleId.split('/')[0]);
 }
 
@@ -51,10 +56,11 @@ export function weighFindings(
   findings: readonly LeveledFinding[],
   weights: LevelWeights,
   scoredRules: readonly string[] = [],
+  unscoredRules: readonly string[] = [],
 ): number {
   let total = 0;
   for (const finding of findings) {
-    if (isScoredRule(finding.ruleId, scoredRules)) total += weightFor(finding.level, weights);
+    if (isScoredRule(finding.ruleId, scoredRules, unscoredRules)) total += weightFor(finding.level, weights);
   }
   return total;
 }

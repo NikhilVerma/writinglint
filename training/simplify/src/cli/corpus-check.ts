@@ -59,7 +59,7 @@ for (let start = 0; start < pairs.length; start += chunk) {
   }
   const findings = await lintTexts(texts, config);
   const per1k = (key: string, text: string) =>
-    (weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules) * 1000) /
+    (weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules) * 1000) /
     Math.max(1, words(text));
   for (const f of batch) {
     const corrupt = texts.get(`c-${f}`) as string;

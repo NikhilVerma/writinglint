@@ -24,6 +24,10 @@ const { values } = parseArgs({
     bench: { type: 'string', default: 'drift-inputs-v11' },
     domain: { type: 'string', default: 'prose' },
     chunk: { type: 'string', default: '40' },
+    // The reward scores ai-style plus one reader-first rule. Everything else in
+    // reader-first is invisible to every number this project reports, so it
+    // needs a way to be looked at directly.
+    allRules: { type: 'boolean', default: false },
   },
 });
 
@@ -45,14 +49,14 @@ async function mix(sources: string[]): Promise<{ per1k: Map<string, number>; doc
     const found = await lintTexts(texts, config);
     batch.forEach((s, j) => {
       const raw = found.get(`s-${i + j}`) ?? [];
-      const w = weighFindings(raw, config.reward.levelWeights, config.reward.scoredRules);
+      const w = weighFindings(raw, config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
       const t = scoreRewrite({ source: s, output: s, sourceFindings: w, outputFindings: w, config: config.reward });
       if (t.domain !== values.domain) return;
       if (t.sourceFindingsPer1kWords <= config.reward.domains[t.domain].band[1]) return;
       docs += 1;
       const words = Math.max(1, s.split(/\s+/).filter(Boolean).length);
       for (const f of raw as { level: string; ruleId?: string }[]) {
-        if (!isScoredRule(f.ruleId, config.reward.scoredRules)) continue;
+        if (!values.allRules && !isScoredRule(f.ruleId, config.reward.scoredRules, config.reward.unscoredRules)) continue;
         // The family, not the individual rule: "one habit" is what a writing
         // instruction can name, and rule ids never reach the model anyway.
         const family = String(f.ruleId ?? 'unknown');

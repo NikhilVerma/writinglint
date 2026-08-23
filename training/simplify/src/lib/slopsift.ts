@@ -79,7 +79,7 @@ export async function lintDir(cwd: string): Promise<LintResult> {
     // Priced by the reward's rule set, matching score.ts. `findings` below is
     // deliberately unfiltered: the reward measures a narrow question, reporting
     // shows everything.
-    weightedCount: weighFindings(findings, config.reward.levelWeights, config.reward.scoredRules),
+    weightedCount: weighFindings(findings, config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules),
     findings,
     slopsiftExitCode: exitCode,
   };

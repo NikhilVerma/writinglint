@@ -52,7 +52,7 @@ for (let i = 0; i < docs.length; i += 40) {
   batch.forEach((d, j) => texts.set(`s-${i + j}`, d.source));
   const f = await lintTexts(texts, config);
   batch.forEach((d, j) => {
-    const w = weighFindings(f.get(`s-${i + j}`) ?? [], config.reward.levelWeights, config.reward.scoredRules);
+    const w = weighFindings(f.get(`s-${i + j}`) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
     const t = scoreRewrite({ source: d.source, output: d.source, sourceFindings: w, outputFindings: w, config: config.reward });
     // Only the half that needs work. A document already in band has no ceiling
     // to measure: handing it back untouched is the right answer.

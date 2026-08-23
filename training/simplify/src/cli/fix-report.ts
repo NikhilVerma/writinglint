@@ -63,7 +63,7 @@ for (let start = 0; start < usable.length; start += chunkSize) {
   });
   const findings = await lintTexts(texts, config);
   const weigh = (key: string) =>
-    weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules);
+    weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
   batch.forEach((r, i) => {
     const src = weigh(`s-${start + i}`);
     scored.push({

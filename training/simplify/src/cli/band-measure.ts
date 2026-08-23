@@ -31,6 +31,13 @@ console.log(
     `${'p75'.padStart(8)}${'p90'.padStart(8)}${'anch/100'.padStart(10)}${'technical'.padStart(11)}`,
 );
 
+/** Percentiles have to be taken WITHIN a domain, not across a corpus that
+ * contains both. The bands are per domain, and a corpus that is 87% technical
+ * sets a "prose" band almost entirely from technical documents. That is how a
+ * band measured on mixed writing gets enforced on prose that never resembled
+ * it. */
+const byDomain = { prose: [] as number[], technical: [] as number[] };
+
 for (const dir of dirs) {
   const full = path.resolve(simplifyRoot, dir);
   const files = readdirSync(full).filter((f) => f.endsWith('.md'));
@@ -45,10 +52,13 @@ for (const dir of dirs) {
     for (const [file, text] of texts) {
       const n = words(text);
       if (n < 40) continue;
-      const weighted = weighFindings(findings.get(file) ?? [], config.reward.levelWeights, config.reward.scoredRules);
-      per1k.push((weighted * 1000) / n);
+      const weighted = weighFindings(findings.get(file) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
+      const value = (weighted * 1000) / n;
+      per1k.push(value);
       const a = extractAnchors(text);
-      anchors.push((100 * (a.numbers.size + a.symbols.size)) / n);
+      const per100 = (100 * (a.numbers.size + a.symbols.size)) / n;
+      anchors.push(per100);
+      byDomain[per100 >= config.reward.technicalAnchorsPer100Words ? 'technical' : 'prose'].push(value);
     }
   }
   per1k.sort((a, b) => a - b);
@@ -60,6 +70,17 @@ for (const dir of dirs) {
       [0.1, 0.25, 0.5, 0.75, 0.9].map((q) => quantile(per1k, q).toFixed(1).padStart(8)).join('') +
       quantile(sortedAnchors, 0.5).toFixed(1).padStart(10) +
       `${((100 * technical) / Math.max(1, anchors.length)).toFixed(0)}%`.padStart(11),
+  );
+}
+console.log('');
+for (const domain of ['prose', 'technical'] as const) {
+  const xs = byDomain[domain].sort((a, b) => a - b);
+  if (xs.length === 0) continue;
+  console.log(
+    `ALL CORPORA, ${domain}`.padEnd(26) +
+      String(xs.length).padStart(6) +
+      [0.1, 0.25, 0.5, 0.75, 0.9].map((q) => quantile(xs, q).toFixed(1).padStart(8)).join('') +
+      `   band [${quantile(xs, 0.1).toFixed(1)}, ${quantile(xs, 0.75).toFixed(1)}]`,
   );
 }
 console.log('\nBands in config.json are p10 to p75. Re-measure and update both when the corpus moves.');

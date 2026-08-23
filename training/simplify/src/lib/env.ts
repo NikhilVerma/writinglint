@@ -120,6 +120,14 @@ export interface RewardConfig {
    * product still reports every rule; this narrows only what the rewriter is
    * paid for. See `isScoredRule` in findings.ts for the measurement behind it. */
   scoredRules: string[];
+  /** Rules that a scored pack contains but the reward must not pay for.
+   *
+   * Measured on 400 documents paired with the human original they were made
+   * from, `ai-style/passive-actor-hiding` fires 0.18 +/-0.10 findings per 1k
+   * HARDER on the human. Paying to remove it teaches the model to write less
+   * like a person, which is the opposite of the goal. A pack is the right unit
+   * to enable and the wrong unit to trust. */
+  unscoredRules?: string[];
   /** Per-level price of a finding. See `weighFindings` in findings.ts. */
   levelWeights: LevelWeights;
 }

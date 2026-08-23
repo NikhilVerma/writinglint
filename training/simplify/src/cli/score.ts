@@ -48,7 +48,7 @@ async function lintMany(texts: Map<string, string>): Promise<Map<string, number>
   const findings = await lintTexts(texts, config);
   const counts = new Map<string, number>();
   for (const [key, messages] of findings) {
-    counts.set(key, weighFindings(messages, config.reward.levelWeights, config.reward.scoredRules));
+    counts.set(key, weighFindings(messages, config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules));
   }
   return counts;
 }

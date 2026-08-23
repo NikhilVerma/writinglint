@@ -37,7 +37,7 @@ async function profile(label: string, sources: string[]) {
     batch.forEach((s, j) => texts.set(`s-${i + j}`, s));
     const f = await lintTexts(texts, config);
     batch.forEach((s, j) => {
-      const w = weighFindings(f.get(`s-${i + j}`) ?? [], config.reward.levelWeights, config.reward.scoredRules);
+      const w = weighFindings(f.get(`s-${i + j}`) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
       const terms = scoreRewrite({ source: s, output: s, sourceFindings: w, outputFindings: w, config: config.reward });
       out.push({ d: terms.domain, s: terms.sourceFindingsPer1kWords });
     });

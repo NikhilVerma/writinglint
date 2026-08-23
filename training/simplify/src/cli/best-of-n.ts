@@ -121,7 +121,7 @@ for (let start = 0; start < rows.length; start += Number(values.chunk)) {
   });
   const findings = await lintTexts(texts, config);
   const weigh = (key: string) =>
-    weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules);
+    weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
 
   batch.forEach((r, i) => {
     let best: { text: string; cut: number } | null = null;

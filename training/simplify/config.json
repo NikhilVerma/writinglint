@@ -39,10 +39,14 @@
     "echoWorkSpan": 15,
     "echoStrength": 1.0,
     "inventedPenalty": 0.35,
-    "lengthBand": [0.8, 1.15],
+    "lengthBand": [
+      0.8,
+      1.15
+    ],
     "scoredRules": [
       "ai-style",
-      "reader-first/aside-pileup"
+      "reader-first/aside-pileup",
+      "reader-first/sentence-load"
     ],
     "levelWeights": {
       "error": 1,
@@ -50,12 +54,27 @@
       "info": 0.4
     },
     "domains": {
-      "prose": { "band": [7, 15], "echoFloor": 0.25 },
-      "technical": { "band": [2.5, 16.8], "echoFloor": 0.75 }
+      "prose": {
+        "band": [
+          6.5,
+          28.4
+        ],
+        "echoFloor": 0.25
+      },
+      "technical": {
+        "band": [
+          4.3,
+          31.7
+        ],
+        "echoFloor": 0.75
+      }
     },
     "technicalAnchorsPer100Words": 4,
     "lintSpan": 4,
     "belowBandPenalty": 0.5,
-    "stabilityStrength": 1.0
+    "stabilityStrength": 1.0,
+    "unscoredRules": [
+      "ai-style/passive-actor-hiding"
+    ]
   }
 }

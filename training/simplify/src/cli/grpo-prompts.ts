@@ -155,6 +155,7 @@ for (let start = 0; start < withSelf.length; start += 60) {
       findings.get(`s-${start + i}`) ?? [],
       config.reward.levelWeights,
       config.reward.scoredRules,
+      config.reward.unscoredRules,
     );
     const terms = scoreRewrite({
       source: text,
