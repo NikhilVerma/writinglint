@@ -24,7 +24,6 @@ parser.add_argument("--out", required=True)
 parser.add_argument("--data", default=str(SIMPLIFY_DIR / "train" / "data" / "v12" / "train.jsonl"))
 parser.add_argument("--epochs", type=float, default=3.0)
 parser.add_argument("--lr", type=float, default=5e-5)
-parser.add_argument("--max-len", type=int, default=4096)
 parser.add_argument("--batch", type=int, default=1)
 parser.add_argument("--accum", type=int, default=8)
 # fp32 Adam wants about 16 bytes per parameter, which puts a 1.7B over a 24GB
@@ -35,6 +34,10 @@ parser.add_argument("--optim", default="adamw_torch")
 # eval — only the memory strategy differs.
 parser.add_argument("--lora", action="store_true")
 parser.add_argument("--lora-r", type=int, default=32)
+# The escape hatch if bf16 weights plus a long document still will not fit: a
+# 4-bit base costs about 5.5GB instead of 16.2GB and the adapter still trains
+# in bf16.
+parser.add_argument("--load-4bit", action="store_true")
 args = parser.parse_args()
 
 tok = AutoTokenizer.from_pretrained(args.base_model)
@@ -48,6 +51,12 @@ class Pairs(Dataset):
     Training on the prompt tokens too would spend most of the gradient teaching
     the model to reproduce the instructions and the dirty source, which is the
     opposite of the thing being learned.
+
+    Every document trains whole. There is no length cap: truncating the tail
+    cuts the rewrite mid-sentence and takes its EOS with it, which teaches the
+    model to stop in the middle of a document, and dropping the long ones
+    trains away exactly the lengths that were already the weakest. The memory
+    that a cap used to buy is bought by the fused cross-entropy instead.
     """
 
     def __init__(self, path: str):
@@ -59,14 +68,15 @@ class Pairs(Dataset):
             prompt = tok.apply_chat_template(msgs[:-1], tokenize=False, add_generation_prompt=True)
             full = prompt + msgs[-1]["content"] + (tok.eos_token or "")
             p_ids = tok(prompt, add_special_tokens=False).input_ids
-            f_ids = tok(full, add_special_tokens=False).input_ids[: args.max_len]
+            f_ids = tok(full, add_special_tokens=False).input_ids
             if len(f_ids) <= len(p_ids) + 8:
                 continue
             labels = list(f_ids)
             for i in range(min(len(p_ids), len(labels))):
                 labels[i] = -100
             self.rows.append({"input_ids": f_ids, "labels": labels})
-        print(f"[sft] {len(self.rows)} examples from {path}", flush=True)
+        longest = max((len(r["input_ids"]) for r in self.rows), default=0)
+        print(f"[sft] {len(self.rows)} examples from {path}, longest {longest} tokens", flush=True)
 
     def __len__(self):
         return len(self.rows)
@@ -85,7 +95,17 @@ def collate(batch):
     }
 
 
-model = AutoModelForCausalLM.from_pretrained(args.base_model, dtype=torch.bfloat16)
+load_args = {"dtype": torch.bfloat16}
+if args.load_4bit:
+    from transformers import BitsAndBytesConfig
+
+    load_args["quantization_config"] = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_compute_dtype=torch.bfloat16,
+        bnb_4bit_quant_type="nf4",
+        bnb_4bit_use_double_quant=True,
+    )
+model = AutoModelForCausalLM.from_pretrained(args.base_model, **load_args)
 if args.lora:
     from peft import LoraConfig, get_peft_model
 
@@ -125,6 +145,11 @@ Trainer(
         save_strategy="no",
         report_to=[],
         optim=args.optim,
+        # The logits for one long document are 150k wide per token, and both
+        # they and their gradient have to live at once - that is what puts an
+        # 8B over a 24GB card, not the weights. The fused kernel computes the
+        # loss in chunks and never materialises them.
+        use_liger_kernel=True,
     ),
     train_dataset=Pairs(args.data),
     data_collator=collate,
