@@ -948,3 +948,60 @@ Teacher target minus base best-of-8 target, paired on the same training
 documents, at least +3.0 with the interval clear of zero. If the teacher only
 matches what best-of-8 already found, there is nothing to distil and the
 answer is on-policy RL or a reward that stops paying for deletion.
+
+## Teacher distillation is dead, and the reason is worth more than the result
+
+The gate above was run the moment the first batches landed. It failed the
+other way round.
+
+| target, same 39 training documents | cut per 1k | faithfulness | length ratio |
+| --- | --- | --- | --- |
+| teacher | 16.4 | 0.996 | 0.880 |
+| base 8B, best of 8 | **31.5** | 0.993 | 0.660 |
+| base 8B, mean of 8 | 25.0 | | |
+
+Paired: **−15.01 ±2.98, teacher ahead on 10%.** Faithfulness is level at 0.99
+on both sides, so this is not the teacher being careless. The entire gap is
+length. Best-of-8 removes 34% of the words. The teacher removes 12%.
+
+The metric pays for compression, and a careful editor will not compress that
+hard. That is the finding. It is not a fact about teachers; it is a fact about
+what "cleans bad writing" has been operationalised as here, and every result in
+this file has to be read through it.
+
+Note what faithfulness is not doing. It counts anchors — numbers, symbols,
+identifiers — and you can delete a third of a blog post while keeping every
+number in it. So a 0.993 faithfulness score is entirely compatible with
+throwing away a third of the argument. The gate stops fact loss and does not
+stop content loss, and nothing else in the reward does either.
+
+### Two instrument bugs, both mine, both worth remembering
+
+The first version of `teacher-vs-bon` selected best-of-8 by raw cut, without
+the faithfulness and echo gates `best-of-n` applies before it selects. That
+compares a teacher against a target the dataset would never have contained,
+and it flattered the teacher by making the base look unfaithful (0.885 against
+its real 0.993).
+
+And 39 of 78 subagent rewrites were copies of their input. That is a collection
+failure, not a teacher judging a document finished, and scoring them measures
+the collection process. They are counted and dropped.
+
+### v15's adapter is real
+
+Worth ruling out before concluding anything about training: 183 shared
+benchmark documents, zero byte-identical outputs between `sft8bv15` and
+`qwen8`, 27 above 0.9 word overlap. The adapter loads and changes the text. The
+plateau is real training that lands nowhere, not a silent config failure.
+
+### What v15 did with the headroom it was given
+
+Selection headroom, best-of-8 minus mean-of-8, is **+6.42 ±1.28**. That is the
+whole premise of self-distillation: the gap between what the model does and the
+best of what it can do. v15 trained on the best-of-8 side of that gap and came
+out at 26.1 against base's 26.0 — none of it. And it drifted the wrong way on
+the one variable that carries the difference: its targets average 0.66 length
+ratio, and v15 produces 0.738, longer than the 0.716 base it started from.
+
+That is the sharpest statement of the plateau in this file. The model was shown
+900 examples of aggressive compression and did not become more compressive.
