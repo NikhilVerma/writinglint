@@ -1034,9 +1034,18 @@ separate "learned it and cannot generalise" from "never learned it"; this can.
 | --- | --- | --- | --- |
 | the target it was shown | **28.4 ±1.4** | 0.991 | 0.673 |
 | v15 | 23.8 ±1.5 | 0.927 | 0.708 |
+| base 8B, untrained | 22.6 ±1.8 | 0.929 | 0.702 |
 
-It is 4.6 short on documents it memorised, and less faithful than its own
-targets on them. So it is not a generalisation failure and it is not a data
+With the base arm beside it the size of the failure is plain. There were 5.8
+findings per 1k available between the untrained model and the targets, on
+documents the student trained on, and v15 moved 1.2 of them. It is 4.6 short on
+text it memorised, and less faithful than its own targets on that text.
+
+Faithfulness deserves its own line here. The targets sit at 0.991 and both
+models sit at 0.928, trained and untrained alike. Training on targets that keep
+99% of their anchors did not make the student keep more of its own. That is the
+same underfitting showing up on a second axis, and it is worth re-checking
+after v16 rather than assuming the reward's faithfulness term is at fault. So it is not a generalisation failure and it is not a data
 failure. v15 is underfit: 963 examples, LoRA rank 32, 2 epochs at accumulation
 8 is about 240 optimizer steps to teach a behaviour change, and it did not take.
 
