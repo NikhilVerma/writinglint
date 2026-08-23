@@ -796,3 +796,33 @@ and do not drop the document. Show the model the human original and ask it to
 redo the rewrite in its own words, then re-gate that. It converts an
 unusable off-policy target into an on-policy one, and it only costs a second
 sampling pass on the documents best-of-n already lost.
+
+### The training targets get shorter every generation
+
+Median output-to-input length ratio of the kept pairs:
+
+| dataset | n    | p10  | p50  | mean | under 0.6x |
+| ------- | ---- | ---- | ---- | ---- | ---------- |
+| v10     | 1488 | 0.68 | 0.99 | 0.94 |  6%        |
+| v11     | 1295 | 0.65 | 0.96 | 0.93 |  7%        |
+| v12     |  966 | 0.86 | 1.00 | 1.01 |  0%        |
+| v14     |  975 | 0.56 | 0.81 | 0.81 | 13%        |
+| v15     |  164 | 0.53 | 0.72 | 0.70 | 23%        |
+
+This is a drift, not a one-off. Best-of-n ranks by findings removed, deleting
+text removes findings, and the sources get dirtier each generation, so the
+selection filter leans harder on shortening every time. Split by corpus, the
+slop-sourced pairs sit at 0.72 on their own, so it is not an artefact of the
+corruption pass inflating its inputs by 1.16x.
+
+Deliberately NOT guarded yet. v14 trained at 0.81 and did not chop at
+inference; the v7 chopping pathology came from a reward that paid all the way
+to zero, which the band taper already fixed, not from short training targets.
+Adding a length floor now would be an unmeasured guard. Train v15 as built,
+then read the clean-document numbers in `clean-report` — over-deletion shows
+up there as documents coming out dirtier and as a falling length ratio on
+text that needed no work. Add the floor only if that number moves.
+
+Selection on the first 200 sampled documents: 164 kept (82%), mean cut 22.5
+per 1k. Of the 1600 samples, 568 were rejected for dropping facts, 57 for
+cutting too little, 57 for barely changing the source, 0 degenerate.
