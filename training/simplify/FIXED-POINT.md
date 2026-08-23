@@ -650,3 +650,57 @@ Note what this says about the earlier finding. Naming all 48 habits in the
 prompt moved per-rule totals by 2.5%. Removing 329 rows of the wrong data moved
 the dead half of the benchmark on its own. Under supervised fine-tuning the data
 is the instruction.
+
+## The reward run pays more for doing nothing than for doing the work
+
+Fifty steps of GRPO warm-started from v12 made the model edit LESS. Scored on
+the 123 benchmark documents:
+
+| | v12 | after 50 reward steps |
+| --- | --- | --- |
+| prose dirty: landed in band | 59% | 46% |
+| technical dirty: cut | 2.5 | 1.3 |
+| technical dirty: echo | 0.928 | 0.975 |
+| drift input -> p1 | 22.4% | 14.2% |
+| drift p1 -> p2 | 2.5% | 1.7% |
+
+It improved at everything whose right answer is "leave it alone" and got worse
+at the thing it exists to do.
+
+The cause is in the prompt set, not the policy. Of 1,664 logged rollouts, 40%
+were drawn from sources already inside their band:
+
+| | mean reward |
+| --- | --- |
+| near-verbatim copy of an in-band source | 0.803 |
+| genuine attempt on a source that needs work | 0.184 |
+| near-verbatim copy of a source that needs work | 0.038 |
+
+Copying clean text is the highest-paying action available, by a factor of four.
+Cleaning risks the faithfulness and echo terms; copying something already clean
+risks nothing. The reward is not wrong — leaving good writing alone IS correct —
+but a set that is 40% free money teaches inaction. Capped at 15%.
+
+Removing the free rewards exposes the real problem. On the filtered set the
+policy edits much harder and starts dropping facts: echo 0.616 -> 0.468,
+faithfulness 0.741 -> 0.620 with 20% of rollouts scoring zero on it. That is the
+problem the reward run has to solve, and it was invisible while 40% of prompts
+could be answered by doing nothing.
+
+### The per-step reward line cannot see any of this
+
+Each step draws four prompts, so consecutive means differ mostly by which four
+documents came up. Fifty-two steps swung between 0.23 and 0.39 with no trend,
+while the gradient was healthy the whole time: within-prompt reward spread 0.19,
+best-of-eight 0.591 against a 0.330 mean, and only 5% of prompt groups carrying
+no gradient at all. The signal was there; the instrument could not see it.
+
+So the run now scores the same twelve held-out documents every fifteen steps
+under greedy decode, and stops itself after two probes that fail to beat the
+best by 0.02. Two consecutive probes on an unchanged policy return an identical
+0.550, which is the property the per-step line never had.
+
+The probe is instrumentation and is wrapped so it can never fail the job. The
+first version raised inside on_step_end at step 14, and because the function
+retries five times on cancellation, a bug in the measurement was about to be
+bought five times over for a run that had produced nothing.
