@@ -24,6 +24,10 @@ const { values } = parseArgs({
   options: {
     dir: { type: 'string' },
     arm: { type: 'string', multiple: true, default: ['qwen8', 'sft8bv15'] },
+    // A twenty-document mean is one loud document away from any conclusion it
+    // states. Print the per-document differences so the mean can be checked
+    // against the spread that produced it rather than trusted on its own.
+    'per-doc': { type: 'boolean', default: false },
   },
 });
 
@@ -99,6 +103,7 @@ const base = values.arm[0] as string;
 for (const [label, _g] of byLabel) {
   if (label === base) continue;
   const d: number[] = [];
+  const rowsOut: string[] = [];
   for (const entry of index) {
     const a = cands.find((c) => c.label === label && c.id === entry.id);
     const b = cands.find((c) => c.label === base && c.id === entry.id);
@@ -106,10 +111,22 @@ for (const [label, _g] of byLabel) {
     const ia = cands.indexOf(a);
     const ib = cands.indexOf(b);
     if (words(a.output) === 0 || words(b.output) === 0) continue;
-    d.push(
-      (per1k(f.get(`s-${ia}`) ?? [], words(a.source)) - per1k(f.get(`o-${ia}`) ?? [], words(a.output))) -
-        (per1k(f.get(`s-${ib}`) ?? [], words(b.source)) - per1k(f.get(`o-${ib}`) ?? [], words(b.output))),
+    const cutA = per1k(f.get(`s-${ia}`) ?? [], words(a.source)) - per1k(f.get(`o-${ia}`) ?? [], words(a.output));
+    const cutB = per1k(f.get(`s-${ib}`) ?? [], words(b.source)) - per1k(f.get(`o-${ib}`) ?? [], words(b.output));
+    d.push(cutA - cutB);
+    rowsOut.push(
+      `${(cutA - cutB >= 0 ? '+' : '') + (cutA - cutB).toFixed(1)}`.padStart(8) +
+        cutA.toFixed(1).padStart(8) + cutB.toFixed(1).padStart(8) +
+        (words(a.output) / words(a.source)).toFixed(2).padStart(7) +
+        (words(b.output) / words(b.source)).toFixed(2).padStart(7) +
+        `  ${entry.id}`,
     );
+  }
+  if (values['per-doc'] === true) {
+    console.log(
+      `\n${'diff'.padStart(8)}${label.slice(0, 7).padStart(8)}${base.slice(0, 7).padStart(8)}${'lenA'.padStart(7)}${'lenB'.padStart(7)}  document`,
+    );
+    for (const r of rowsOut) console.log(r);
   }
   if (d.length === 0) continue;
   const m = mean(d);
