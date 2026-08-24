@@ -1162,3 +1162,44 @@ fitting the training set is the weakest possible evidence for it. The benchmark
 gate decides: paired against base 8B on prose-dirty, at least +3.0 with the
 interval clear of zero, at faithfulness no worse than 0.909, reported per
 rulepack.
+
+### And none of it reaches unseen documents
+
+| slice, v16 minus base 8B | paired cut | verdict |
+| --- | --- | --- |
+| prose-dirty | +1.45 ±2.79 | SAME |
+| prose-clean | +1.05 ±1.25 | SAME |
+| technical-dirty | +0.75 ±4.84 | SAME |
+| technical-clean | +3.02 ±2.98 | BETTER |
+
+The stop rule was +3.0 clear of zero on prose-dirty. It is +1.45, so v16 fails.
+
+technical-clean is not a win. The mean clears its own interval by 0.04 across
+four slices tested, which is what multiple comparisons produce, and `pack-diff`
+on that slice shows both packs SAME — ai-style +3.91 ±4.14, reader-first +0.92
+±1.34. A slice-level number that no rulepack underneath it can reproduce is a
+coincidence, and reporting it as a result would be the fifth time this session
+that a number was stated before its interval justified it.
+
+Per pack on prose-dirty: ai-style +0.28 ±2.98 SAME, reader-first +1.14 ±2.07
+SAME. Both packs, unmoved.
+
+### What v16 is actually worth
+
+Gate 1 and gate 2 disagree, and that is the first clean answer in six
+generations. v16 reproduces its targets exactly on documents it trained on and
+carries none of it to documents it did not. That is not underfitting, and it is
+not the data being wrong. It is 963 examples memorised over 6 epochs.
+
+Every previous generation confounded these two. v15 failed gate 1, so its gate
+2 number never meant anything. v16 passes gate 1, so its gate 2 number means
+something, and what it means is overfitting.
+
+Which makes the next lever cheap and obvious, and it is the one this file
+talked itself out of twice: more distinct documents, fewer passes over each.
+The recipe demonstrably learns what it is shown now, so the question "can
+rejection sampling exceed the base model's own tail" is finally testable —
+it has been asserted here since v14 and was never once demonstrated by a run
+that had fit its data.
+
+Sampling more documents costs devbox time and nothing else.
