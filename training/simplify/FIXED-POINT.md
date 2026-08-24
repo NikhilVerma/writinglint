@@ -1203,3 +1203,72 @@ it has been asserted here since v14 and was never once demonstrated by a run
 that had fit its data.
 
 Sampling more documents costs devbox time and nothing else.
+
+## Best-of-8 was never a policy. It was the top of a noise distribution.
+
+Before spending devbox hours on "more data", the other reading of the v16
+result deserved a measurement: that there was never a function to learn.
+
+`selection-anatomy.ts` compares the headroom rejection sampling actually
+delivers against the headroom that pure sampling luck predicts. The expected
+maximum of eight independent draws sits about 1.42 within-document standard
+deviations above their mean, so if the two match, selection is finding nothing
+that a rewriter did differently — only the draw that happened to land well.
+
+Over 127 documents with at least four surviving draws:
+
+```
+within-document sd of cut        4.81
+observed headroom, best - mean  +6.34 +/-0.76
+predicted by noise alone        +6.49 +/-0.71
+observed minus predicted        -0.15 +/-0.28  INDISTINGUISHABLE FROM NOISE
+```
+
+There is nothing left over. The +6.42 selection headroom this file has quoted
+since v14 as the prize self-distillation would capture is, to within a quarter
+of a point, exactly what eight coin flips give you for free.
+
+That explains both v16 gates at once, and no other hypothesis does. A student
+shown the luckiest of eight draws can memorise which draw went with which
+document, which is gate 1 at 28.0 against a 28.4 target. It cannot generalise,
+because 59% of what made that draw the winner is not a property of writing.
+
+The 41% that is:
+
+```
+selection            cut
+best of n          23.82
+shortest of n      20.10
+mean of n          17.48
+```
+
+Picking the shortest of the eight draws, ignoring the lint score entirely,
+captures 41% of the headroom, and cut correlates with length ratio at -0.366
++/-0.075 *within* a document, where document difficulty cannot drive it. So
+part of the target is a real and transferable instruction — compress harder —
+and the rest is luck wearing its clothes.
+
+This kills self-distillation by rejection sampling on this reward. It is not a
+data-volume problem, and sampling 16 or 32 would make it worse, not better:
+a wider max reaches further into the same noise.
+
+## Iterated refinement is systematic and too small
+
+The other way to get a better output from the same model is to run it over its
+own work, which fails or succeeds for the opposite reason — every document
+goes through the same procedure, so any gain is caused rather than selected.
+`pass-headroom.ts` measures it on the benchmark:
+
+```
+pass       cut   faith  length
+1        14.80   0.904   0.765
+2        15.67   0.900   0.751
+3        15.67   0.897   0.748
+
+paired pass 2 minus pass 1: +0.87 +/-0.84 (ahead on 37%)  BETTER
+paired pass 3 minus pass 1: +0.86 +/-1.01 (ahead on 40%)  SAME
+```
+
+Real, and it stalls immediately. Distilling three passes into one targets
++0.87, and it helps 37% of documents while the other 63% get slightly worse.
+Not a lever.
