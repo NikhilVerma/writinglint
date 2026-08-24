@@ -1402,3 +1402,76 @@ The recall gate has to be read differently for v18. A model trained on three
 targets per document cannot reproduce any single one of them, so it should
 land BELOW v16's 28.0. What matters is whether it lands near the mean of its
 own targets or back at the base model's 22.6, which is where v15 sat.
+
+## The replication, against the prediction
+
+600 documents, none of them ever trained on or graded against, both arms
+generated on devbox from the same input file in the same order.
+
+| prediction | result | |
+| --- | --- | --- |
+| 1. pooled cut BETTER | +0.516 ±0.774 SAME | **failed** |
+| 2. reader-first BETTER | +0.69 ±0.52 BETTER | passed |
+| 3. ai-style clears zero | −0.03 ±0.91 SAME | **failed** |
+| 4. faithfulness and length SAME | both moved, both in v16's favour | failed |
+
+The first benchmark said +1.605 ±1.075 BETTER over 275 documents. The
+replication says +0.516 ±0.774 over 600. The two intervals overlap, so these
+are not contradictory measurements of different things — they are two
+estimates of one effect, and the better-powered one does not clear zero.
+
+**v16 is not demonstrably better than the model it started from.** The goal is
+not met. The +1.605 I recorded this morning was the best available estimate at
+the time and it was too high; that is what the replication was for.
+
+### What did replicate
+
+reader-first came back at +0.69 ±0.52 against +0.75 ±0.62 on the first
+benchmark. Two independent document sets, near-identical effect sizes, both
+clear of zero. That one is real.
+
+ai-style came back at −0.03 ±0.91 — not small, zero. And ai-style is the pack
+the reward pays for in full, while reader-first has two rules priced out of
+nine. The pack that is paid for did not move and the pack that is mostly
+unpaid did.
+
+Per rule, the whole list of what v16 actually beats the base model on:
+
+| rule | in the source | diff | paid |
+| --- | --- | --- | --- |
+| reader-first/aside-pileup | 3.00 | +0.31 ±0.21 | yes |
+| ai-style/em-dash-overuse | 1.74 | +0.28 ±0.18 | yes |
+| reader-first/paragraph-load | 0.76 | +0.12 ±0.09 | **no** |
+| ai-style/rhetorical-scaffolding | 0.31 | +0.06 ±0.06 | yes |
+
+Four rules, none of them large. `reader-first/sentence-load` is the biggest
+finding family in the corpus at 11.94 per 1k and v16 moves it +0.06 ±0.32,
+which is nothing. `ai-style/passive-actor-hiding` is 11.17 per 1k and moves
+−0.42 ±0.44, in the wrong direction, which is what an unpaid rule that
+correlates against the reward should do.
+
+So the honest description of v16 is: it removes asides, em dashes, overlong
+paragraphs and rhetorical scaffolding slightly more often than the base model,
+it is very slightly more faithful, it does not shorten more, and on everything
+else it is the same model.
+
+### The one thing that got better everywhere
+
+Faithfulness +0.010 ±0.008 and length ratio +0.023 ±0.007, both BETTER, and
+length ratio is BETTER on all four slices. v16 preserves more of the source
+than the base model does while cutting the same number of findings. That is
+worth keeping and it is not what the goal asked for.
+
+### Why this does not change the v18 plan
+
+It confirms it. The selection-anatomy result predicted that a student trained
+on top-1 best-of-8 would memorise and not generalise, and the replication is
+what "did not generalise" looks like when measured properly. v18 trains on
+three targets per document at the same optimizer steps, so the accidents that
+made any one of them the winner cancel across the three.
+
+v18 is already running. If it comes back SAME on the replication set too, then
+SFT on this model's own samples is finished as an idea, whatever the selector,
+and the next thing to try is the one the noise result actually argues for:
+group-relative RL, which uses all the draws and their scores rather than
+picking one and imitating it.
