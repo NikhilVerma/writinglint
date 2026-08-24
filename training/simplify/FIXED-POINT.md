@@ -1345,3 +1345,25 @@ this file so far came from reading a number and then deciding what it meant:
 
 If 3 fails while 1 and 2 hold, the honest statement is that v16 is a better
 cleaner overall and on reader-first, and that ai-style is unproven.
+
+### The slices, repaired
+
+| slice, v16 minus base | n | cut | verdict |
+| --- | --- | --- | --- |
+| prose-dirty | 87 | +1.986 ±1.972 | BETTER |
+| prose-clean | 93 | +0.818 ±0.882 | SAME |
+| technical-dirty | 33 | +0.632 ±4.549 | SAME |
+| technical-clean | 62 | +2.770 ±2.758 | BETTER |
+
+prose-dirty was 46 documents and SAME before the id fix; it is 87 documents
+and BETTER after it. Nothing about the model changed between those two lines.
+
+That said, prose-dirty clears zero by 0.014, which is not a number to lean on.
+The pooled result clears by 0.53 over 275 documents and is the one that should
+be quoted. Faithfulness and length ratio are SAME on every slice, so wherever
+v16 is ahead it is ahead on the habits and not on the word count.
+
+The shape is: better on two slices, no worse on any, better pooled. What it is
+not yet is better on ai-style specifically, and technical-dirty at 33
+documents and ±4.5 cannot report anything at all — which is what the
+replication set was built to fix.
