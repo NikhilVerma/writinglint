@@ -38,6 +38,9 @@ parser.add_argument("--lora-r", type=int, default=32)
 # 4-bit base costs about 5.5GB instead of 16.2GB and the adapter still trains
 # in bf16.
 parser.add_argument("--load-4bit", action="store_true")
+# Pass the checkpoint directory to pick a killed run back up, or bare --resume
+# to take the newest one under <out>-ckpt.
+parser.add_argument("--resume", nargs="?", const=True, default=None)
 args = parser.parse_args()
 
 tok = AutoTokenizer.from_pretrained(args.base_model)
@@ -142,7 +145,12 @@ Trainer(
         warmup_steps=10,
         bf16=True,
         logging_steps=10,
-        save_strategy="no",
+        # A LoRA adapter checkpoint is ~130MB, so keeping two of them costs
+        # nothing and a power cut costs 15 minutes instead of two hours. The
+        # box has already lost a run at step 129 of 1318.
+        save_strategy="steps",
+        save_steps=150,
+        save_total_limit=2,
         report_to=[],
         optim=args.optim,
         # The logits for one long document are 150k wide per token, and both
@@ -153,7 +161,7 @@ Trainer(
     ),
     train_dataset=Pairs(args.data),
     data_collator=collate,
-).train()
+).train(resume_from_checkpoint=args.resume)
 
 model.config.use_cache = True
 model.save_pretrained(args.out)
