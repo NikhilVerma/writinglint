@@ -40,6 +40,20 @@ const { values } = parseArgs({
     //             never seen. All of a smaller number beats 41%% of a larger
     //             one when the other 59%% cannot be learned at all.
     select: { type: 'string', default: 'cut' },
+    // How many of the ranked samples become training pairs.
+    //
+    // Keeping only the top one is what makes selection a lottery. The winner
+    // beats its siblings by an amount indistinguishable from the expected
+    // maximum of eight independent draws, so most of what singles it out is
+    // not a property of the writing, and a student fed one winner per document
+    // can only memorise the pairing.
+    //
+    // Keeping the top k breaks that. The k targets share whatever actually
+    // made them good and disagree on the accidents, so the accidents pull in
+    // different directions across the k and the shared part is what survives
+    // averaging. It also multiplies the dataset by k, which is the other thing
+    // v16 wanted.
+    'top-k': { type: 'string', default: '1' },
     'min-faith': { type: 'string', default: '0.9' },
     'max-echo': { type: 'string', default: '0.9' },
     // Any training source that is a near-copy of a benchmark document is
@@ -58,6 +72,8 @@ if (values.select !== 'cut' && values.select !== 'shortest') {
   throw new Error(`--select must be cut or shortest, got ${values.select}`);
 }
 const selectShortest = values.select === 'shortest';
+const topK = Number(values['top-k']);
+if (!Number.isInteger(topK) || topK < 1) throw new Error(`--top-k must be a positive integer, got ${values['top-k']}`);
 const minFaith = Number(values['min-faith']);
 const maxEcho = Number(values['max-echo']);
 
@@ -144,7 +160,7 @@ for (let start = 0; start < rows.length; start += Number(values.chunk)) {
     weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
 
   batch.forEach((r, i) => {
-    let best: { text: string; cut: number; rank: number } | null = null;
+    const passed: { text: string; cut: number; rank: number }[] = [];
     r.outputs.forEach((o, j) => {
       const clean = normalizeOutput(o);
       if (!texts.has(`o-${start + i}-${j}`)) return;
@@ -178,23 +194,32 @@ for (let start = 0; start < rows.length; start += Number(values.chunk)) {
       // reach for a truncation: it is the shortest of the samples that already
       // kept the facts, avoided echoing, and cut something.
       const rank = selectShortest ? -clean.split(/\s+/).filter(Boolean).length : cut;
-      if (best === null || rank > best.rank) best = { text: clean, cut, rank };
+      passed.push({ text: clean, cut, rank });
     });
-    if (best === null) {
+    if (passed.length === 0) {
       rejected += 1;
       return;
     }
-    cuts.push(best.cut);
-    kept.push(
-      JSON.stringify({
-        kind: `best-of-n:${values.select}`,
-        messages: [
-          { role: 'system', content: system },
-          { role: 'user', content: `Simplify this:\n\n${r.source}` },
-          { role: 'assistant', content: best.text },
-        ],
-      }),
-    );
+    passed.sort((x, y) => y.rank - x.rank);
+    // Duplicate targets teach the same accident twice at twice the weight,
+    // which is the opposite of what keeping k of them is for.
+    const seenTargets = new Set<string>();
+    for (const pick of passed) {
+      if (seenTargets.size >= topK) break;
+      if (seenTargets.has(pick.text)) continue;
+      seenTargets.add(pick.text);
+      cuts.push(pick.cut);
+      kept.push(
+        JSON.stringify({
+          kind: `best-of-n:${values.select}:top${topK}`,
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: `Simplify this:\n\n${r.source}` },
+            { role: 'assistant', content: pick.text },
+          ],
+        }),
+      );
+    }
   });
   console.error(`[best-of-n] ${Math.min(start + Number(values.chunk), rows.length)}/${rows.length} kept ${kept.length}`);
 }

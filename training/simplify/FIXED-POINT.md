@@ -1367,3 +1367,38 @@ The shape is: better on two slices, no worse on any, better pooled. What it is
 not yet is better on ai-style specifically, and technical-dirty at 33
 documents and ±4.5 cannot report anything at all — which is what the
 replication set was built to fix.
+
+## Keeping three targets instead of one
+
+The noise result replicates at 194 documents: headroom +6.23 ±0.54 against
++6.42 ±0.52 predicted, a gap of −0.19 ±0.22. Length still explains 43% of it,
+at a within-document correlation of −0.357 ±0.061.
+
+The obvious response was to select on length instead, since that part is a
+rule rather than a lottery. A split-half check says it helps less than hoped:
+run each selector on half the draws and compare the two answers, and the
+disagreement in length ratio is 1.11 ±0.11 sds for the highest-cut selector
+and 0.84 ±0.09 for the shortest. Better, but both are still order statistics —
+the minimum of four draws moves around for the same reason the maximum does.
+
+So the fix is not a different selector. It is keeping more than one.
+
+Three gated targets per document share whatever actually made them good and
+disagree on the accidents. Across the three the accidents pull in different
+directions and cancel; the shared part accumulates. Top-1 has nothing to
+cancel against, which is why v16 could only memorise.
+
+v18 is that, and it is one variable against v16 at identical compute:
+
+| | v16 | v18 |
+| --- | --- | --- |
+| targets per document | 1 | 3 |
+| pairs | 963 | ~2890 |
+| epochs | 6 | 2 |
+| optimizer steps | 1446 | ~1446 |
+| data, gates, prompt, rank, lr | — | all identical |
+
+The recall gate has to be read differently for v18. A model trained on three
+targets per document cannot reproduce any single one of them, so it should
+land BELOW v16's 28.0. What matters is whether it lands near the mean of its
+own targets or back at the base model's 22.6, which is where v15 sat.
