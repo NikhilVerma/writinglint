@@ -42,15 +42,33 @@ const read = (name: string) =>
     .filter((l) => l.trim() !== '')
     .map((l) => JSON.parse(l) as Row);
 
-const A = new Map(read(values.a as string).map((r) => [r.id, r]));
-const B = new Map(read(values.b as string).map((r) => [r.id, r]));
-const ids = [...A.keys()].filter((id) => B.has(id));
+// Benchmark ids are NOT unique: `paulgraham/95#0` names three different
+// documents, because the chunk index restarts for each corruption variant of
+// the same essay. Keying a Map by id therefore kept one row per id and threw
+// away 92 of 275 documents in silence, which cost a third of the statistical
+// power of every comparison in this project. Both files are written from the
+// same input list in the same order, so they zip positionally — checked
+// against the source text rather than assumed.
+const rowsA = read(values.a as string);
+const rowsB = read(values.b as string);
+if (rowsA.length !== rowsB.length) {
+  throw new Error(`drift-${values.a} has ${rowsA.length} rows and drift-${values.b} has ${rowsB.length}; they cannot be zipped`);
+}
+rowsA.forEach((r, i) => {
+  if ((r.passes[0] ?? '').trim() !== (rowsB[i].passes[0] ?? '').trim()) {
+    throw new Error(`row ${i} (${r.id}) has a different source in each arm; the files are not aligned`);
+  }
+});
+const ids = rowsA.map((_r, i) => String(i));
+const A = new Map(rowsA.map((r, i) => [String(i), r]));
+const B = new Map(rowsB.map((r, i) => [String(i), r]));
 
 /** A document is "dirty" if its source sits above its own band, and
  * "technical" by the same anchor density the reward uses. Recomputed here
  * rather than trusted from a label, so the slice cannot drift from the reward. */
 interface Scored { id: string; cut: number; faith: number; length: number; domain: string; dirty: boolean }
 const measure = async (rows: Row[]): Promise<Map<string, Scored>> => {
+  // Keyed by position for the same reason the arms are zipped by position.
   const out = new Map<string, Scored>();
   const chunk = Number(values.chunk);
   for (let i = 0; i < rows.length; i += chunk) {
@@ -69,7 +87,7 @@ const measure = async (rows: Row[]): Promise<Map<string, Scored>> => {
       const ow = weighFindings(f.get(`o-${i + j}`) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
       const terms = scoreRewrite({ source: src, output: out1, sourceFindings: sw, outputFindings: ow, config: config.reward });
       const [, bandHigh] = config.reward.domains[terms.domain].band;
-      out.set(r.id, {
+      out.set(String(i + j), {
         id: r.id,
         cut: (sw * 1000) / words(src) - (ow * 1000) / words(out1),
         faith: faithfulness(src, out1).keptRate,

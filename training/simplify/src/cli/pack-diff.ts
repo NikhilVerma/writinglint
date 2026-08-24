@@ -44,9 +44,24 @@ const read = (name: string) =>
     .filter((l) => l.trim() !== '')
     .map((l) => JSON.parse(l) as Row);
 
-const A = new Map(read(values.a as string).map((r) => [r.id, r]));
-const B = new Map(read(values.b as string).map((r) => [r.id, r]));
-const ids = [...A.keys()].filter((id) => B.has(id));
+// Benchmark ids are not unique — the chunk index restarts for each corruption
+// variant of the same essay, so `paulgraham/95#0` names three documents. A Map
+// keyed by id silently kept one of each and discarded 92 of 275. Both files are
+// written from the same input list in the same order, so they zip by position,
+// checked against the source text.
+const rowsA = read(values.a as string);
+const rowsB = read(values.b as string);
+if (rowsA.length !== rowsB.length) {
+  throw new Error(`drift-${values.a} has ${rowsA.length} rows and drift-${values.b} has ${rowsB.length}; they cannot be zipped`);
+}
+rowsA.forEach((r, i) => {
+  if ((r.passes[0] ?? '').trim() !== (rowsB[i].passes[0] ?? '').trim()) {
+    throw new Error(`row ${i} (${r.id}) has a different source in each arm; the files are not aligned`);
+  }
+});
+const ids = rowsA.map((_r, i) => String(i));
+const A = new Map(rowsA.map((r, i) => [String(i), r]));
+const B = new Map(rowsB.map((r, i) => [String(i), r]));
 
 type Counts = Map<string, number>;
 interface Scored { id: string; per1k: Counts; source1k: Counts; technical: boolean; sourcePer1k: number }

@@ -1272,3 +1272,76 @@ paired pass 3 minus pass 1: +0.86 +/-1.01 (ahead on 40%)  SAME
 Real, and it stalls immediately. Distilling three passes into one targets
 +0.87, and it helps 37% of documents while the other 63% get slightly worse.
 Not a lever.
+
+## The benchmark was throwing away a third of itself
+
+Benchmark ids are not unique. `paulgraham/95#0` names three different
+documents, because the chunk index restarts for each corruption variant of the
+same essay. `arm-diff` and `pack-diff` both paired the two arms through a Map
+keyed by id, so 92 of 275 documents were silently dropped from every
+comparison in this project — a third of the statistical power, gone without a
+warning line.
+
+`teacher-ceiling` had the same bug and it was worse there than lost power: 5 of
+the first 20 teacher rewrites were scored against the base model's rewrite of a
+*different document*. That comparison was not weak, it was wrong, so the +1.10
+teacher ceiling should not be quoted again until it is re-run.
+
+All three now pair on the source text or by position with a source-equality
+check. The drift files are written from one input list in one order, so
+position is exact and is asserted rather than assumed.
+
+### What the repaired instrument says about v16
+
+Pooled over all 275 documents, paired:
+
+```
+sft8bv16 minus qwen8, 275 paired documents
+  cut             +1.605 +/-1.075   ahead on 55%   BETTER
+  faithfulness    -0.007 +/-0.016   SAME
+  length ratio    +0.001 +/-0.012   SAME
+```
+
+And the control that makes it mean something — the same comparison for v15,
+the generation that failed its recall gate:
+
+```
+sft8bv15 minus qwen8, 275 paired documents
+  cut             +0.157 +/-0.832   ahead on 50%   SAME
+```
+
+v15 is the base model with extra steps. v16 is not. The difference between
+them is 1446 optimizer steps against 240 on identical data, so fitting the
+targets is what produced the gain, exactly as the recall gate predicted.
+
+It cuts more without shortening more and without dropping more facts, which
+rules out the cheap explanation. Per rulepack:
+
+```
+pack             source/1k   v16 left   base left     diff     +/-  verdict
+ai-style              30.2       21.3        22.5    +1.20    1.28     SAME
+reader-first          21.6       10.2        11.0    +0.75    0.62   BETTER
+```
+
+reader-first is real. ai-style points the same way and the benchmark cannot
+resolve it: the effect is +1.20 and the instrument's resolution is +/-1.28.
+
+## Prediction, recorded before the replication runs
+
+The first benchmark is too small for the effect that exists, so 600 documents
+that nothing has trained on or been graded against were assembled from pools
+the pipeline has never touched — checked against the whole v15 prompt pool and
+the first benchmark at the 8-gram level, 617 candidates dropped for overlap,
+150 per slice.
+
+Stating the prediction before the numbers exist, because every retraction in
+this file so far came from reading a number and then deciding what it meant:
+
+1. v16 beats base on pooled cut, and the interval clears zero.
+2. reader-first replicates as BETTER.
+3. ai-style comes out positive and, at 600 documents, clears zero.
+4. faithfulness and length ratio stay SAME. If either moves, v16 is buying
+   its cut with something and the result should be thrown out.
+
+If 3 fails while 1 and 2 hold, the honest statement is that v16 is a better
+cleaner overall and on reader-first, and that ai-style is unproven.

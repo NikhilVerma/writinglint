@@ -45,18 +45,34 @@ for (const entry of index) {
   if (existsSync(outFile)) cands.push({ label: 'teacher', id: entry.id, source, output: readFileSync(outFile, 'utf8').trim() });
 }
 
+let unmatched = 0;
 for (const arm of values.arm as string[]) {
   const rows = readFileSync(path.join(runsDir, `drift-${arm}.jsonl`), 'utf8')
     .split('\n')
     .filter((l) => l.trim() !== '')
     .map((l) => JSON.parse(l) as { id: string; passes: string[] });
-  const byId = new Map(rows.map((r) => [r.id, r]));
+  // Matched on the source TEXT, not the id. Benchmark ids are not unique —
+  // the chunk index restarts for each corruption variant, so `paulgraham/95#0`
+  // names three different documents. Keying by id paired 5 of the first 20
+  // teacher rewrites against the base model's rewrite of a different document,
+  // which is not a weak comparison but a wrong one.
+  const byHead = new Map<string, typeof rows[number]>();
+  for (const r of rows) {
+    const head = (r.passes[0] ?? '').trim().slice(0, 400);
+    if (head !== '' && !byHead.has(head)) byHead.set(head, r);
+  }
   for (const entry of index) {
-    const row = byId.get(entry.id);
-    if (!row) continue;
+    const source = readFileSync(path.join(dir, entry.file), 'utf8');
+    const row = byHead.get(source.trim().slice(0, 400));
+    if (!row) {
+      unmatched += 1;
+      continue;
+    }
     cands.push({ label: arm, id: entry.id, source: row.passes[0] ?? '', output: row.passes[1] ?? '' });
   }
 }
+
+if (unmatched > 0) console.log(`${unmatched} slice documents had no matching benchmark row and were dropped`);
 
 const texts = new Map<string, string>();
 cands.forEach((c, i) => {

@@ -180,3 +180,37 @@ console.log(`\nlength alone captures ${(100 * captured).toFixed(0)}% of the head
 console.log(
   `within-document correlation between cut and length ratio: ${mean(withinCorr).toFixed(3)} +/-${ci(withinCorr).toFixed(3)} over ${withinCorr.length} documents`,
 );
+
+// Split-half agreement: is this selector a policy or a lottery?
+//
+// A selector is learnable when the target it names does not depend on which
+// draws it happened to see. Split the draws into two halves, run the selector
+// on each, and compare the two answers. If a selector picks the same KIND of
+// text from either half, a student has something consistent to imitate. If the
+// two halves name texts of very different length, the selector is choosing
+// among near-equivalent draws for reasons the student cannot reproduce.
+//
+// Reported as the gap in length ratio between the two answers, against the
+// spread of lengths in the document, so a document whose draws all came out
+// the same length cannot look like agreement.
+const agreement = (pick: (cuts: number[], lens: number[]) => number) => {
+  const gaps: number[] = [];
+  for (const r of rows) {
+    const n = r.cuts.length;
+    const half = Math.floor(n / 2);
+    if (half < 2) continue;
+    const aC = r.cuts.slice(0, half);
+    const aL = r.lens.slice(0, half);
+    const bC = r.cuts.slice(half, half * 2);
+    const bL = r.lens.slice(half, half * 2);
+    const spread = sd(r.lens);
+    if (spread === 0) continue;
+    gaps.push(Math.abs(aL[pick(aC, aL)] - bL[pick(bC, bL)]) / spread);
+  }
+  return gaps;
+};
+const byCut = agreement((c) => c.indexOf(Math.max(...c)));
+const byLen = agreement((_c, l) => l.indexOf(Math.min(...l)));
+console.log(`\nsplit-half disagreement, in within-document sds of length ratio (lower is a more consistent selector)`);
+console.log(`  highest cut   ${mean(byCut).toFixed(2)} +/-${ci(byCut).toFixed(2)} over ${byCut.length} documents`);
+console.log(`  shortest      ${mean(byLen).toFixed(2)} +/-${ci(byLen).toFixed(2)} over ${byLen.length} documents`);

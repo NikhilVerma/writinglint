@@ -24,6 +24,22 @@ const { values } = parseArgs({
     out: { type: 'string', default: 'train/data/v14/train.jsonl' },
     system: { type: 'string', default: 'prompts/rewrite-sft-v3.md' },
     'min-cut': { type: 'string', default: '3' },
+    // How to rank the samples that survive the gates.
+    //
+    //   cut       the highest-scoring sample. This is what v14 through v16
+    //             trained on, and `selection-anatomy` showed the headroom it
+    //             delivers is indistinguishable from the expected maximum of
+    //             eight independent draws. The winner is the lucky draw, so
+    //             the map from source to target is not a function of the
+    //             writing and a student can only memorise it.
+    //
+    //   shortest  the shortest sample that passes the same gates. Worth less
+    //             on paper — it captures about 41%% of the headroom — but every
+    //             point of it comes from applying one rule to every document,
+    //             so it is a policy a student can carry to a document it has
+    //             never seen. All of a smaller number beats 41%% of a larger
+    //             one when the other 59%% cannot be learned at all.
+    select: { type: 'string', default: 'cut' },
     'min-faith': { type: 'string', default: '0.9' },
     'max-echo': { type: 'string', default: '0.9' },
     // Any training source that is a near-copy of a benchmark document is
@@ -38,6 +54,10 @@ const { values } = parseArgs({
 
 const config = loadConfig();
 const minCut = Number(values['min-cut']);
+if (values.select !== 'cut' && values.select !== 'shortest') {
+  throw new Error(`--select must be cut or shortest, got ${values.select}`);
+}
+const selectShortest = values.select === 'shortest';
 const minFaith = Number(values['min-faith']);
 const maxEcho = Number(values['max-echo']);
 
@@ -124,7 +144,7 @@ for (let start = 0; start < rows.length; start += Number(values.chunk)) {
     weighFindings(findings.get(key) ?? [], config.reward.levelWeights, config.reward.scoredRules, config.reward.unscoredRules);
 
   batch.forEach((r, i) => {
-    let best: { text: string; cut: number } | null = null;
+    let best: { text: string; cut: number; rank: number } | null = null;
     r.outputs.forEach((o, j) => {
       const clean = normalizeOutput(o);
       if (!texts.has(`o-${start + i}-${j}`)) return;
@@ -154,7 +174,11 @@ for (let start = 0; start < rows.length; start += Number(values.chunk)) {
         why.cut += 1;
         return;
       }
-      if (best === null || cut > best.cut) best = { text: clean, cut };
+      // Both selectors run behind the same gates, so `shortest` can never
+      // reach for a truncation: it is the shortest of the samples that already
+      // kept the facts, avoided echoing, and cut something.
+      const rank = selectShortest ? -clean.split(/\s+/).filter(Boolean).length : cut;
+      if (best === null || rank > best.rank) best = { text: clean, cut, rank };
     });
     if (best === null) {
       rejected += 1;
@@ -163,7 +187,7 @@ for (let start = 0; start < rows.length; start += Number(values.chunk)) {
     cuts.push(best.cut);
     kept.push(
       JSON.stringify({
-        kind: 'best-of-n',
+        kind: `best-of-n:${values.select}`,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: `Simplify this:\n\n${r.source}` },
