@@ -1118,3 +1118,47 @@ What it means for the goal is concrete. "Cleans bad writing better" can be
 demonstrated on the paid rules and still leave the largest single habit in the
 corpus untouched, and no summary in reward units would show it. Every claim
 about v16 gets reported per pack, from this tool, with the unpaid rules visible.
+
+## v16 fits the data. The diagnosis was right.
+
+Same 963 pairs, same prompt, same gates, same benchmark. Only the training
+changed: 6 epochs at accumulation 4 is 1446 optimizer steps against v15's 240.
+Rank stayed at 32 — rank 64 all-linear OOMs at step 34 against a bf16 8B on a
+24GB card with gradient checkpointing already on, and the 4-bit escape hatch
+would train the adapter against different weights than the eval applies it to.
+
+On the 150 documents the student trained on:
+
+| arm | cut per 1k | faithfulness | length ratio |
+| --- | --- | --- | --- |
+| the target it was shown | 28.4 ±1.4 | 0.991 | 0.673 |
+| **v16** | **28.0 ±1.5** | **0.990** | **0.674** |
+| v15 | 23.8 ±1.5 | 0.927 | 0.708 |
+| base 8B, untrained | 22.6 ±1.8 | 0.929 | 0.702 |
+
+v16 matches its targets on all three axes. Gate was 27.5 at faithfulness 0.97.
+
+The faithfulness column is the one to read twice. v15 sat at the untrained
+model's 0.928 no matter what it was shown; six times the steps moved it to the
+targets' 0.99. A model that has not fit its data does not fail uniformly — it
+holds its prior behaviour on every axis at once, and every axis moves together
+when it finally fits.
+
+So five generations of dataset work were graded on runs that had not absorbed
+the data. That does not make the dataset work wrong; the corpora, the gates,
+and the difficulty matching are all still measured and still hold. It makes the
+conclusions drawn FROM those runs unsafe, and they are now reopened:
+
+- "v14 is the same as base" and "v15 is the same as base" measured training
+  that stopped early, not data that did not help.
+- "Rejection sampling can only reach the base model's own tail" is still true
+  as a statement about where targets come from, and was never demonstrated by
+  these runs.
+- The +6.42 selection headroom is real and remains uncollected until a held-out
+  number says otherwise.
+
+Whether any of this reaches unseen documents is a separate question, and
+fitting the training set is the weakest possible evidence for it. The benchmark
+gate decides: paired against base 8B on prose-dirty, at least +3.0 with the
+interval clear of zero, at faithfulness no worse than 0.909, reported per
+rulepack.
