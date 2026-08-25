@@ -36,9 +36,9 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "writinglint-core": "^0.4.0",
-    "writinglint-parser-node": "^0.3.1",
-    "writinglint-rulepack-ai-style": "^0.6.1"
+    "writinglint-core": "^0.5.0",
+    "writinglint-parser-node": "^0.3.2",
+    "writinglint-rulepack-ai-style": "^0.6.2"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').chmodSync('dist/cli.js', 0o755)\"",

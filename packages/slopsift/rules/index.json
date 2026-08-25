@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "packageVersion": "0.10.0",
+  "packageVersion": "0.11.0",
   "name": "SlopSift rule catalogue",
   "url": "https://slopsift.dev/rules/",
   "categories": [

@@ -1,5 +1,12 @@
 # writinglint-parser-node
 
+## 0.3.2
+
+### Patch Changes
+
+- Updated dependencies [f15b2e4]
+  - writinglint-core@0.5.0
+
 ## 0.3.1
 
 ### Patch Changes
