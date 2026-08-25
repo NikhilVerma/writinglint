@@ -387,7 +387,7 @@ test('strict includes low-confidence load reviews while recommended keeps warnin
   assert.equal(finding(await lint(text, true), 'sentence-load')?.severity, 'info');
 });
 
-test('abstract-reference-chain rejects the compressed PR sumpriya that motivated the rule', async () => {
+test('abstract-reference-chain rejects the compressed PR summary that motivated the rule', async () => {
   const text = 'Three first-run gaps, all the same shape: the capability already existed and nothing told anyone. They ship together because they are one journey — see which Org you are in, make another, land in it.';
   const match = finding(await lint(text), 'abstract-reference-chain');
   assert.equal(match?.severity, 'error');

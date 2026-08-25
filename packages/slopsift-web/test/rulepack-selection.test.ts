@@ -46,4 +46,8 @@ test('each browser preset resolves to the configuration named by the dropdown', 
   const combined = await linter.lint(text, configForRulepackPreset('combined'));
   assert.ok(combined.lints.some(({ ruleId }) => ruleId.startsWith('ai-style/')));
   assert.ok(combined.lints.some(({ ruleId }) => ruleId.startsWith('reader-first/')));
+
+  const decisionText = 'The reviewer must accept relevant evidence. The service should reject materially weakened requests. Prefer a small candidate set. The agent must use sufficient support.';
+  const documentWide = await linter.lint(decisionText, configForRulepackPreset('combined'));
+  assert.ok(documentWide.lints.some(({ ruleId }) => ruleId === 'reader-first/undefined-decision-stack'));
 });
