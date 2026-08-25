@@ -40,7 +40,7 @@ export function inputKind(path: string): InputKind | undefined {
 }
 
 function blank(source: string): string[] {
-  return [...source].map((char) => (char === '\n' || char === '\r' ? char : ' '));
+  return source.split('').map((char) => (char === '\n' || char === '\r' ? char : ' '));
 }
 
 function copyRange(output: string[], source: string, start: number, end: number): void {
@@ -231,7 +231,7 @@ function separateMarkdownListItems(output: string[], source: string): void {
 
 /** Remove Markdown syntax regions that are not authorial prose, preserving offsets. */
 function extractMarkdown(source: string): string {
-  const output = [...source];
+  const output = source.split('');
   const lines = source.matchAll(/.*(?:\r?\n|$)/g);
   let fence: { marker: string; start: number } | undefined;
   let frontmatter = source.startsWith('---\n') || source.startsWith('---\r\n');
@@ -313,31 +313,72 @@ function markdownRegions(source: string, text: string): DocumentRegion[] {
     end,
     parentId: 'markdown:document',
   }));
+  let disclosureIndex = 0;
+  for (const match of source.matchAll(/<details\b[^>]*>[\s\S]*?<\/details\s*>/giu)) {
+    regions.push({
+      id: `markdown:disclosure:${disclosureIndex++}`,
+      role: 'disclosure',
+      start: match.index,
+      end: match.index + match[0].length,
+      parentId: 'markdown:document',
+    });
+  }
   let structuralIndex = 0;
+  const headings: Array<{ id: string; start: number; end: number; depth: number; title: string }> = [];
   for (const match of source.matchAll(/.*(?:\r?\n|$)/g)) {
     if (!match[0]) continue;
     const raw = match[0].replace(/\r?\n$/u, '');
     const end = match.index + raw.length;
     const heading = raw.match(/^\s{0,3}#{1,6}\s+/u);
-    const listItem = raw.match(/^\s{0,3}(?:[-+*]|\d+[.)])\s+/u);
-    const role = heading ? 'heading' : listItem ? 'list-item' : undefined;
-    if (!role || !text.slice(match.index, end).trim()) continue;
+    const listItem = raw.match(/^\s{0,3}(?:(?<bullet>[-+*])|(?<ordinal>\d+)[.)])\s+/u);
+    const quotation = raw.match(/^\s{0,3}>\s?/u);
+    const role = heading ? 'heading' : listItem ? 'list-item' : quotation ? 'quotation' : undefined;
+    if (!role || (role !== 'quotation' && !text.slice(match.index, end).trim())) continue;
     const parent = paragraphs.find(({ start, end: paragraphEnd }) => match.index >= start && end <= paragraphEnd);
+    const id = `markdown:${role}:${structuralIndex++}`;
+    const headingMetadata = heading
+      ? { depth: heading[0].trim().length, title: raw.slice(heading[0].length).trim() }
+      : undefined;
+    const metadata = headingMetadata ?? (listItem
+        ? {
+            ordered: listItem.groups?.ordinal !== undefined,
+            ...(listItem.groups?.ordinal !== undefined ? { ordinal: Number(listItem.groups.ordinal) } : {}),
+            marker: listItem.groups?.ordinal ?? listItem.groups?.bullet ?? '',
+          }
+        : undefined);
     regions.push({
-      id: `markdown:${role}:${structuralIndex++}`,
+      id,
       role,
       start: match.index,
       end,
       parentId: parent
         ? `markdown:paragraph:${paragraphs.indexOf(parent)}`
         : 'markdown:document',
+      ...(metadata ? { metadata } : {}),
+    });
+    if (headingMetadata) headings.push({ id, start: match.index, end, ...headingMetadata });
+  }
+  for (let index = 0; index < headings.length; index++) {
+    const heading = headings[index]!;
+    const next = headings.slice(index + 1).find((candidate) => candidate.depth <= heading.depth);
+    const parent = headings.slice(0, index).reverse().find((candidate) => candidate.depth < heading.depth);
+    const normalizedTitle = heading.title.toLowerCase().replace(/[^a-z]+/gu, ' ').trim();
+    const supplementary = /^(?:acknowledgements?|comments?|references?)$/u.test(normalizedTitle);
+    regions.push({
+      id: `markdown:section:${index}`,
+      role: 'section',
+      start: heading.start,
+      end: next?.start ?? text.length,
+      parentId: parent ? `markdown:section:${headings.indexOf(parent)}` : 'markdown:document',
+      ...(supplementary ? { mode: 'supplementary' } : {}),
+      metadata: { depth: heading.depth, title: heading.title, headingId: heading.id },
     });
   }
   return regions;
 }
 
 function maskAstroSource(source: string): string {
-  const output = [...source];
+  const output = source.split('');
   const frontmatter = source.match(/^---\r?\n[\s\S]*?\r?\n---(?=\r?\n|$)/)?.[0];
   if (frontmatter) maskRange(output, source, 0, frontmatter.length);
 

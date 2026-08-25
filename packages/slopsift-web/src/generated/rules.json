@@ -92,7 +92,7 @@
       "id": "load",
       "label": "Reading load",
       "description": "Sentences and paragraphs that ask the reader to track too much at once.",
-      "ruleCount": 2
+      "ruleCount": 9
     },
     {
       "id": "jargon",
@@ -1103,6 +1103,25 @@
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20ai-style%2Funiform-rhythm"
     },
     {
+      "id": "reader-first/concept-introduction-burst",
+      "name": "concept-introduction-burst",
+      "title": "Concept Introduction Burst",
+      "description": "A passage introduces many recurring concepts before the reader has time to absorb them.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/concept-introduction-burst/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/concept-introduction-burst.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fconcept-introduction-burst"
+    },
+    {
       "id": "reader-first/paragraph-load",
       "name": "paragraph-load",
       "title": "Paragraph Load",
@@ -1122,6 +1141,44 @@
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fparagraph-load"
     },
     {
+      "id": "reader-first/procedure-thread-detour",
+      "name": "procedure-thread-detour",
+      "title": "Procedure Thread Detour",
+      "description": "Three numbered steps leave an output unused for one step and then resume it, suggesting that the middle step interrupts the procedure handoff.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/procedure-thread-detour/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/procedure-thread-detour.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fprocedure-thread-detour"
+    },
+    {
+      "id": "reader-first/relationship-pileup",
+      "name": "relationship-pileup",
+      "title": "Relationship Pileup",
+      "description": "A passage rapidly changes the relationships among a small set of participants.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/relationship-pileup/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/relationship-pileup.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Frelationship-pileup"
+    },
+    {
       "id": "reader-first/sentence-load",
       "name": "sentence-load",
       "title": "Sentence Load",
@@ -1139,6 +1196,82 @@
       "url": "https://slopsift.dev/rules/sentence-load/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/sentence-load.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fsentence-load"
+    },
+    {
+      "id": "reader-first/sustained-buffer-pressure",
+      "name": "sustained-buffer-pressure",
+      "title": "Sustained Buffer Pressure",
+      "description": "The document repeatedly adds active entities and relationships faster than it releases or stabilizes them.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/sustained-buffer-pressure/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/sustained-buffer-pressure.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fsustained-buffer-pressure"
+    },
+    {
+      "id": "reader-first/undefined-decision-stack",
+      "name": "undefined-decision-stack",
+      "title": "Undefined Decision Stack",
+      "description": "The document accumulates decision standards such as relevant or sufficient without saying how a reader or system should apply them.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/undefined-decision-stack/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/undefined-decision-stack.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fundefined-decision-stack"
+    },
+    {
+      "id": "reader-first/unoriented-reactivation",
+      "name": "unoriented-reactivation",
+      "title": "Unoriented Reactivation",
+      "description": "A sentence resumes entities or relationships that have already left the active reading context.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/unoriented-reactivation/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/unoriented-reactivation.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Funoriented-reactivation"
+    },
+    {
+      "id": "reader-first/unresolved-idea-stack",
+      "name": "unresolved-idea-stack",
+      "title": "Unresolved Idea Stack",
+      "description": "The document asks the reader to retain several promised explanations or defers one for too long.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/unresolved-idea-stack/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/unresolved-idea-stack.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Funresolved-idea-stack"
     },
     {
       "id": "reader-first/noun-pile",
