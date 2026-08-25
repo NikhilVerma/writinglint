@@ -1,5 +1,19 @@
 # slopsift
 
+## 0.10.0
+
+### Minor Changes
+
+- 17fff83: Add an inspectable sequential reading trace and reader-first cognitive-load findings for concept introduction, relationship churn, dormant-thread reactivation, unresolved promises, undefined decision standards, interrupted procedure handoffs, and sustained working-memory pressure. Markdown extraction now exposes section, disclosure, quotation, and ordered-step structure so these findings can respect meaningful reading boundaries while preserving exact UTF-16 source ranges.
+
+### Patch Changes
+
+- Updated dependencies [17fff83]
+  - writinglint-core@0.4.0
+  - writinglint-rulepack-reader-first@0.4.0
+  - writinglint-parser-node@0.3.1
+  - writinglint-rulepack-ai-style@0.6.1
+
 ## 0.9.0
 
 ### Minor Changes

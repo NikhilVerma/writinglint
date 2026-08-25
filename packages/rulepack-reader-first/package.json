@@ -1,6 +1,6 @@
 {
   "name": "writinglint-rulepack-reader-first",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Deterministic WritingLint rules that reduce cognitive load and unexplained jargon.",
   "type": "module",
   "license": "MIT",
@@ -41,10 +41,10 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "writinglint-core": "^0.3.0"
+    "writinglint-core": "^0.4.0"
   },
   "devDependencies": {
-    "writinglint-parser-node": "^0.3.0"
+    "writinglint-parser-node": "^0.3.1"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
