@@ -59,6 +59,16 @@ test('sentence-load reports a long sentence with clauses and internal labels', a
   assert.ok(match);
   assert.match(match.message, /words.*clause breaks.*technical labels/);
   assert.deepEqual({ start: match.start, end: match.end }, { start: 0, end: text.length });
+  assert.ok(match.anchors?.length);
+  assert.ok(match.anchors?.every(({ kind, offset }) => kind === 'split-point' && offset > match.start && offset < match.end));
+  assert.deepEqual(match.magnitude?.metrics.map(({ name }) => name), [
+    'words',
+    'clause-breaks',
+    'technical-labels',
+    'heavy-punctuation',
+    'nearby-loaded-sentences',
+  ]);
+  assert.ok((match.magnitude?.metrics.find(({ name }) => name === 'words')?.value ?? 0) >= 32);
 });
 
 test('sentence-load enforces the strict 32-word limit even when the structure is plain', async () => {

@@ -15,6 +15,7 @@
 
 - [ ] Added a Changeset for published-package changes
 - [ ] No Changeset is needed (docs, tests, CI, or unreleased app only)
+- [ ] New, renamed, or removed rules are present in the generated public catalogue and rule pages, or no rules changed
 
 ## Safety and provenance
 

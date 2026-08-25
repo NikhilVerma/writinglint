@@ -4,7 +4,7 @@ export const CATEGORIES: Record<string, Category> = {
   load: {
     id: 'load',
     label: 'Reading load',
-    blurb: 'Sentences and paragraphs that ask the reader to track too much at once.',
+    blurb: 'Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track.',
     weight: 3,
   },
   jargon: {

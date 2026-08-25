@@ -11,7 +11,7 @@ const grouped = catalog.categories.map((category) => ({
 const catalogueSchema = {
   '@type': 'DefinedTermSet',
   '@id': 'https://slopsift.dev/rules/#catalogue',
-  name: 'SlopSift AI-style rules',
+  name: 'SlopSift rules',
   url: 'https://slopsift.dev/rules/',
   description: 'Named writing-lint rules with confidence, evidence source, and default reporting level.',
   hasDefinedTerm: catalog.rules.map((rule) => ({

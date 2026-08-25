@@ -174,6 +174,7 @@ const outputSchema = {
       additionalProperties: false,
       required: [
         'filePath',
+        'rulesetVersion',
         'messages',
         'errorCount',
         'warningCount',
@@ -183,6 +184,7 @@ const outputSchema = {
       ],
       properties: {
         filePath: { type: 'string' },
+        rulesetVersion: { type: 'string', pattern: '^slopsift@[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$' },
         messages: {
           type: 'array',
           items: { $ref: '#/$defs/message' },
@@ -237,6 +239,11 @@ const outputSchema = {
           type: 'array',
           items: { $ref: '#/$defs/evidence' },
         },
+        anchors: {
+          type: 'array',
+          items: { $ref: '#/$defs/anchor' },
+        },
+        magnitude: { $ref: '#/$defs/magnitude' },
         fix: {
           type: 'object',
           additionalProperties: false,
@@ -276,6 +283,40 @@ const outputSchema = {
           type: 'object',
           additionalProperties: { type: ['string', 'number', 'boolean', 'null'] },
         },
+      },
+    },
+    anchor: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['kind', 'offset'],
+      properties: {
+        kind: { type: 'string' },
+        offset: { type: 'integer', minimum: 0 },
+        label: { type: 'string' },
+      },
+    },
+    magnitude: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['metrics'],
+      properties: {
+        metrics: {
+          type: 'array',
+          minItems: 1,
+          items: { $ref: '#/$defs/magnitudeMetric' },
+        },
+      },
+    },
+    magnitudeMetric: {
+      type: 'object',
+      additionalProperties: false,
+      required: ['name', 'value', 'unit'],
+      properties: {
+        name: { type: 'string' },
+        value: { type: 'number', minimum: 0 },
+        unit: { type: 'string' },
+        threshold: { type: 'number', minimum: 0 },
+        excess: { type: 'number', minimum: 0 },
       },
     },
   },
@@ -352,6 +393,7 @@ SlopSift ${packageJson.version} is a deterministic, local-first linter for recog
 bunx slopsift .
 npx slopsift "docs/**/*.md"
 npx slopsift . --format compact --exit-zero
+npx slopsift . --format brief --exit-zero
 npx slopsift . --level info --format json --exit-zero
 npx slopsift . --rulepack ai-style --rulepack reader-first
 \`\`\`
@@ -376,12 +418,13 @@ Node.js 24 or newer is required. The npm package includes the compact parser wei
 ## Output formats
 
 - \`text\`: human-readable terminal report. \`stylish\` remains an alias.
+- \`brief\`: plain-language habit notes and excerpts without product names, rule IDs, file paths, or source locations.
 - \`compact\`: all rule groups and counts with short examples and no source locations. \`--feedback compact\` is an alias.
 - \`json\`: one JSON array. See [schema](${SITE}/schemas/slopsift-result-v1.schema.json).
 - \`json-lines\`: one file result per line, following \`$defs.fileResult\` in the schema.
 - \`github\`: GitHub Actions workflow annotations.
 
-JSON messages include an ESLint-compatible numeric severity, SlopSift's textual level, confidence, exact range, rule URL, word count, and findings per thousand words.
+JSON results include a ruleset version, word count, and findings per thousand words. Messages include an ESLint-compatible numeric severity, SlopSift's textual level, confidence, exact range, rule URL, optional positional anchors, and optional numeric magnitude metrics.
 
 ## Rulepacks
 
@@ -583,7 +626,7 @@ SlopSift processes text locally.
 `,
   'rules.md': `# SlopSift rule catalogue
 
-SlopSift ${packageJson.version} includes ${rules.length} AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
+SlopSift ${packageJson.version} includes ${rules.length} AI-style and reader-first rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
 
 ${ruleListMarkdown}
 

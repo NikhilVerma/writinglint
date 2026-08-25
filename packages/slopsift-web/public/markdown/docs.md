@@ -8,6 +8,7 @@ SlopSift 0.10.0 is a deterministic, local-first linter for recognizable AI-writi
 bunx slopsift .
 npx slopsift "docs/**/*.md"
 npx slopsift . --format compact --exit-zero
+npx slopsift . --format brief --exit-zero
 npx slopsift . --level info --format json --exit-zero
 npx slopsift . --rulepack ai-style --rulepack reader-first
 ```
@@ -32,12 +33,13 @@ Node.js 24 or newer is required. The npm package includes the compact parser wei
 ## Output formats
 
 - `text`: human-readable terminal report. `stylish` remains an alias.
+- `brief`: plain-language habit notes and excerpts without product names, rule IDs, file paths, or source locations.
 - `compact`: all rule groups and counts with short examples and no source locations. `--feedback compact` is an alias.
 - `json`: one JSON array. See [schema](https://slopsift.dev/schemas/slopsift-result-v1.schema.json).
 - `json-lines`: one file result per line, following `$defs.fileResult` in the schema.
 - `github`: GitHub Actions workflow annotations.
 
-JSON messages include an ESLint-compatible numeric severity, SlopSift's textual level, confidence, exact range, rule URL, word count, and findings per thousand words.
+JSON results include a ruleset version, word count, and findings per thousand words. Messages include an ESLint-compatible numeric severity, SlopSift's textual level, confidence, exact range, rule URL, optional positional anchors, and optional numeric magnitude metrics.
 
 ## Rulepacks
 

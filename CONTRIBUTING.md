@@ -63,6 +63,8 @@ that must not fire. Severity changes need corpus evidence: record what was
 sampled, why the result is actionable, and what false-positive boundary was
 added. Keep private source text out of commits.
 
+Every added, renamed, or removed rule must also update the public rule catalogue. Run `npm run generate:agent-surfaces`, commit every generated change, and verify that the rule appears correctly on `/rules/`, its individual `/rules/<name>/` page, the catalogue JSON, the packaged SlopSift catalogue, and the Markdown and agent-reference surfaces. `npm run check:agent-surfaces` must pass without stale output. A Changeset or package changelog entry does not replace rule documentation.
+
 ## Pull requests
 
 Keep pull requests scoped and describe:

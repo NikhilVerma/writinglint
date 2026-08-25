@@ -54,8 +54,7 @@ Core provides these standard-neutral extension points:
   and document vocabularies;
 - `CountPolicy` and `countSentenceUnits()` for inspectable, standard-specific
   word counting; and
-- structured finding evidence, visible assumptions, and per-rule execution
-  records.
+- structured finding evidence, split-point and other positional anchors, multi-dimensional magnitude metrics, visible assumptions, and per-rule execution records.
 
 The core does not decide whether a word, sentence, or construction conforms to
 a standard. A rulepack combines these capabilities and remains responsible for

@@ -39,6 +39,7 @@ reject-then-accept decision with a known-bad draft and a clean rewrite. See
 bunx slopsift .
 bunx slopsift "docs/**/*.md" "src/**/*.{ts,tsx}"
 bunx slopsift . --format compact
+bunx slopsift . --format brief
 bunx slopsift . --format json
 bunx slopsift . --format github
 bunx slopsift . --level info
@@ -80,11 +81,11 @@ The default `--level warning` reports errors and warnings. Use `--level info` fo
 the strict editorial view, `--level error` (or `--quiet`) for high-confidence CI,
 and `--max-warnings 0` when warnings should fail CI. JSON format uses ESLint's
 numeric severities (`2`, `1`, `0`), retains `level` plus `confidence`, and adds
-`ruleUrl`, `wordCount`, and `findingsPerThousandWords` for length-aware
-comparison. The `github` formatter emits native GitHub Actions annotations.
+`ruleUrl`, `wordCount`, `findingsPerThousandWords`, and `rulesetVersion` for length-aware and release-stable comparison. Rules may also expose candidate positional `anchors` and numeric `magnitude.metrics` in structured output. The `github` formatter emits native GitHub Actions annotations.
 The `compact` formatter groups all findings by rule, removes source locations,
 and keeps only short examples. Use it when an agent needs the full result in a
 small response. `--feedback compact` is an alias for `--format compact`.
+The `brief` formatter emits plain-language habit notes and excerpts without product names, rule IDs, file paths, or source locations for safe use as model-facing feedback.
 Raw finding totals are not comparable across documents of different lengths.
 
 Machine-readable consumers can use the versioned

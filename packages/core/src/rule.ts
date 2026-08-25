@@ -28,6 +28,30 @@ export interface RuleEvidence {
   data?: Readonly<Record<string, string | number | boolean | null>>;
 }
 
+export interface LintAnchor {
+  /** Machine-readable purpose of this position, such as a candidate sentence split. */
+  kind: string;
+  /** UTF-16 character offset into the document. */
+  offset: number;
+  label?: string;
+}
+
+export interface MagnitudeMetric {
+  /** Stable machine-readable dimension measured by the rule. */
+  name: string;
+  value: number;
+  unit: string;
+  /** Rule boundary at which this dimension starts contributing to the finding. */
+  threshold?: number;
+  /** Amount above the boundary, clamped to zero. */
+  excess?: number;
+}
+
+export interface LintMagnitude {
+  /** Independent dimensions retain partial progress instead of collapsing it to fired/not-fired. */
+  metrics: readonly MagnitudeMetric[];
+}
+
 /** A concrete text replacement a fixer could apply. */
 export interface TextFix {
   /** [start, end) char range in the document to replace. */
@@ -58,6 +82,10 @@ export interface Lint {
   suggestion?: string;
   /** Inspectable facts that produced this finding. */
   evidence?: readonly RuleEvidence[];
+  /** Useful positions inside the finding, such as candidate clause split points. */
+  anchors?: readonly LintAnchor[];
+  /** Numeric strength measurements for scoring partial improvement. */
+  magnitude?: LintMagnitude;
   /** Visible assumptions that still require writer or tool judgment. */
   assumptions?: readonly string[];
 }
@@ -81,6 +109,8 @@ export interface ReportDescriptor {
   /** Certainty for this occurrence; overrides the rule's default confidence. */
   confidence?: Confidence;
   evidence?: readonly RuleEvidence[];
+  anchors?: readonly LintAnchor[];
+  magnitude?: LintMagnitude;
   assumptions?: readonly string[];
 }
 
