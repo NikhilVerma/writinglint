@@ -1,6 +1,6 @@
 {
   "name": "writinglint-parser-node",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "WritingLint's local ONNX dependency parser for Node, including compact INT8 weights.",
   "type": "module",
   "license": "SEE LICENSE IN LICENSE",
@@ -58,7 +58,7 @@
   ],
   "dependencies": {
     "onnxruntime-node": "^1.27.0",
-    "writinglint-core": "^0.4.0"
+    "writinglint-core": "^0.5.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

@@ -1,5 +1,12 @@
 # writinglint-rulepack-ai-style
 
+## 0.6.2
+
+### Patch Changes
+
+- Updated dependencies [f15b2e4]
+  - writinglint-core@0.5.0
+
 ## 0.6.1
 
 ### Patch Changes

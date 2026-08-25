@@ -1,5 +1,19 @@
 # slopsift
 
+## 0.11.0
+
+### Minor Changes
+
+- f15b2e4: Add machine-readable split-point anchors and multi-dimensional magnitude metrics to sentence-load findings so automated rewrites can target real clause boundaries and measure partial improvement. Stamp structured SlopSift results with the producing ruleset version, and add a model-safe `brief` output format without product names, rule IDs, file paths, or source locations.
+
+### Patch Changes
+
+- Updated dependencies [f15b2e4]
+  - writinglint-core@0.5.0
+  - writinglint-rulepack-reader-first@0.5.0
+  - writinglint-parser-node@0.3.2
+  - writinglint-rulepack-ai-style@0.6.2
+
 ## 0.10.0
 
 ### Minor Changes
