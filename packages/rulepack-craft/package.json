@@ -1,6 +1,6 @@
 {
   "name": "writinglint-rulepack-craft",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Craft rulepack for the WritingLint grammar linter: better-writing rules — hedged openers, verdict words with no evidence, self-undercutting asides, reflexive apologies, metronome sentence rhythm.",
   "type": "module",
   "license": "MIT",
@@ -46,10 +46,10 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "writinglint-core": "^0.3.0"
+    "writinglint-core": "^0.4.0"
   },
   "devDependencies": {
-    "writinglint-parser-node": "^0.3.0"
+    "writinglint-parser-node": "^0.3.1"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
