@@ -1,7 +1,7 @@
 {
   "name": "slopsift-vscode",
   "displayName": "SlopSift",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "ESLint-like diagnostics for AI slop in prose and code comments.",
   "private": true,
   "license": "MIT",
