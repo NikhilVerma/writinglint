@@ -95,6 +95,10 @@ export class SlopSift {
           const [evidenceStart, evidenceEnd] = extracted.sourceRange(item.span.start, item.span.end);
           return { ...item, span: { start: evidenceStart, end: evidenceEnd } };
         });
+        const anchors = lint.anchors?.map((anchor) => {
+          const [offset] = extracted.sourceRange(anchor.offset, anchor.offset);
+          return { ...anchor, offset };
+        });
         return {
           ...lint,
           start,
@@ -102,6 +106,7 @@ export class SlopSift {
           text: source.slice(start, end),
           fix: lint.fix ? { ...lint.fix, range: fixRange! } : undefined,
           evidence,
+          anchors,
         };
       }),
     };

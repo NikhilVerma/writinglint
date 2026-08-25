@@ -192,6 +192,19 @@ used only after linting for contextual explanation and repair.
 - [ ] Add a visual dependency-tree debugger for rule authors.
 - [ ] Explore learning local preferences from accepted and rejected edits.
 
+#### Feedback from the simplification training loop
+
+These requests come from repeated model-training runs, not hypothetical API design. Preserve their order unless new measurements show a different bottleneck.
+
+1. [x] Add candidate clause-boundary offsets to `sentence-load` findings so a repair can target and verify a real split point.
+2. [x] Add rule-specific magnitude to findings, such as clauses or words over budget, so partial improvements remain measurable after a rule fires.
+3. [ ] Add a first-party `slopsift diff before.md after.md` command that matches resolved, surviving, and newly introduced findings across edits.
+4. [ ] Add a daemon or batch-server mode with content-hash caching for high-volume evaluation and reward loops.
+5. [x] Add a supported plain-language `brief` format with excerpts but no rule IDs or SlopSift branding for model-facing feedback.
+6. [ ] Expose a document-level signal when a file contains no useful prose so pipelines can skip changelogs and link lists without custom heuristics.
+7. [x] Stamp structured output with a ruleset version so benchmark records identify the producing release.
+8. [ ] Investigate ruleset version pinning so benchmark runs can deliberately retain older behavior after an upgrade.
+
 ### IP boundary
 
 - [ ] Implement against the public Universal Dependencies format and an

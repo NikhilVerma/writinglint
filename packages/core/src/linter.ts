@@ -144,6 +144,8 @@ function makeContext(
         fix: d.fix,
         suggestion: d.suggestion,
         evidence: d.evidence,
+        anchors: d.anchors,
+        magnitude: d.magnitude,
         assumptions: d.assumptions,
       });
     },

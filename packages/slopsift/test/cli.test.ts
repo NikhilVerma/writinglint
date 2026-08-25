@@ -66,6 +66,13 @@ test('normal linting accepts compact as a format and as feedback', () => {
   }
 });
 
+test('brief format emits anonymous model-facing feedback', () => {
+  const result = run(sloppy, '--level', 'error', '--format', 'brief', '--exit-zero');
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Review \d+ writing pattern/);
+  assert.doesNotMatch(result.stdout, /SlopSift|ai-style\/|reader-first\/|high-confidence\.md|:\d+:/i);
+});
+
 test('text and legacy stylish formats produce the normal readable report', () => {
   for (const format of ['text', 'stylish', 'detailed']) {
     const flag = format === 'detailed' ? '--feedback' : '--format';
@@ -85,6 +92,25 @@ test('--rulepack reader-first selects reader-load and jargon checks', () => {
     assert.equal(result.status, 0, result.stderr);
     const [output] = JSON.parse(result.stdout) as Array<{ messages: Array<{ ruleId: string }> }>;
     assert.deepEqual(output?.messages.map((message) => message.ruleId), ['reader-first/unexplained-initialism']);
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test('structured sentence-load output preserves source split offsets and magnitude', () => {
+  const directory = mkdtempSync(join(tmpdir(), 'slopsift-split-points-'));
+  try {
+    const file = join(directory, 'manual.md');
+    const sentence = 'The planner reads every request, and if the current record has no matching identifier, it normalizes the account name, compares every candidate, keeps the most recent result, and then returns the fallback record so the next workflow can continue without losing prior context.';
+    const source = `# Guide\n\n${sentence}\n`;
+    writeFileSync(file, source);
+    const result = run(file, '--rulepack', 'reader-first', '--format', 'json', '--exit-zero');
+    assert.equal(result.status, 0, result.stderr);
+    const [output] = JSON.parse(result.stdout) as Array<{ messages: Array<{ ruleId: string; anchors?: Array<{ kind: string; offset: number }>; magnitude?: { metrics: Array<{ name: string; value: number }> } }> }>;
+    const finding = output?.messages.find(({ ruleId }) => ruleId === 'reader-first/sentence-load');
+    assert.ok(finding?.anchors?.length);
+    assert.ok(finding.anchors.every(({ kind, offset }) => kind === 'split-point' && offset > source.indexOf(sentence) && offset < source.length));
+    assert.ok((finding.magnitude?.metrics.find(({ name }) => name === 'words')?.value ?? 0) >= 32);
   } finally {
     rmSync(directory, { recursive: true, force: true });
   }

@@ -1,4 +1,7 @@
 import type { Lint } from 'writinglint-core';
+import packageJson from '../package.json' with { type: 'json' };
+
+export const RULESET_VERSION = `slopsift@${packageJson.version}`;
 
 export interface Message extends Lint {
   line: number;
@@ -8,6 +11,7 @@ export interface Message extends Lint {
 }
 export interface Result {
   filePath: string;
+  rulesetVersion: string;
   messages: Message[];
   errorCount: number;
   warningCount: number;
@@ -41,6 +45,7 @@ export function makeResult(
   })) as Message[];
   return {
     filePath,
+    rulesetVersion: RULESET_VERSION,
     messages,
     errorCount: messages.filter((message) => message.severity === 'error').length,
     warningCount: messages.filter((message) => message.severity === 'warn').length,
@@ -164,6 +169,35 @@ export function compact(results: Result[]): string {
     if (examples.length) {
       lines.push(`  Examples: ${examples.join('; ')}${remaining > 0 ? `; +${remaining} more` : ''}`);
     }
+  }
+  return lines.join('\n');
+}
+
+const modelSafeText = (value: string): string => value
+  .replace(/\bSlopSift\b/gi, 'the writing check')
+  .replace(/\b(?:ai-style|reader-first)\/[a-z0-9-]+\b/gi, 'this writing pattern')
+  .replace(/\s+/g, ' ')
+  .trim();
+
+/** Plain-language model feedback with excerpts but no product names, rule IDs, or source locations. */
+export function brief(results: Result[]): string {
+  const groups = new Map<string, Message[]>();
+  for (const result of results) {
+    for (const message of result.messages) {
+      const group = groups.get(message.ruleId);
+      if (group) group.push(message);
+      else groups.set(message.ruleId, [message]);
+    }
+  }
+  if (!groups.size) return '';
+  const lines = [`Review ${groups.size} writing pattern${groups.size === 1 ? '' : 's'}:`];
+  for (const messages of groups.values()) {
+    const first = messages[0]!;
+    const note = modelSafeText(first.message);
+    const excerpts = [...new Set(messages.map(({ text }) => modelSafeText(text)).filter((text) => text.length > 1))]
+      .slice(0, 3)
+      .map((text) => `“${text.length > 100 ? `${text.slice(0, 99)}…` : text}”`);
+    lines.push(`- ${note}${excerpts.length ? ` Examples: ${excerpts.join('; ')}` : ''}`);
   }
   return lines.join('\n');
 }

@@ -91,7 +91,7 @@
     {
       "id": "load",
       "label": "Reading load",
-      "description": "Sentences and paragraphs that ask the reader to track too much at once.",
+      "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track.",
       "ruleCount": 9
     },
     {
@@ -1110,7 +1110,7 @@
       "category": {
         "id": "load",
         "label": "Reading load",
-        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
       },
       "confidence": "medium",
       "defaultLevel": "warn",
@@ -1129,7 +1129,7 @@
       "category": {
         "id": "load",
         "label": "Reading load",
-        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
       },
       "confidence": "medium",
       "defaultLevel": "warn",
@@ -1148,7 +1148,7 @@
       "category": {
         "id": "load",
         "label": "Reading load",
-        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
       },
       "confidence": "low",
       "defaultLevel": "info",
@@ -1167,7 +1167,7 @@
       "category": {
         "id": "load",
         "label": "Reading load",
-        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
       },
       "confidence": "medium",
       "defaultLevel": "warn",
@@ -1186,7 +1186,7 @@
       "category": {
         "id": "load",
         "label": "Reading load",
-        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
       },
       "confidence": "medium",
       "defaultLevel": "warn",
@@ -1205,7 +1205,7 @@
       "category": {
         "id": "load",
         "label": "Reading load",
-        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
       },
       "confidence": "low",
       "defaultLevel": "info",
@@ -1224,7 +1224,7 @@
       "category": {
         "id": "load",
         "label": "Reading load",
-        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
       },
       "confidence": "medium",
       "defaultLevel": "warn",
@@ -1243,7 +1243,7 @@
       "category": {
         "id": "load",
         "label": "Reading load",
-        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
       },
       "confidence": "low",
       "defaultLevel": "info",
@@ -1262,7 +1262,7 @@
       "category": {
         "id": "load",
         "label": "Reading load",
-        "description": "Sentences and paragraphs that ask the reader to track too much at once."
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
       },
       "confidence": "low",
       "defaultLevel": "info",

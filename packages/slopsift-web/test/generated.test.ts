@@ -28,6 +28,11 @@ test('generated catalogue covers every published SlopSift rule', async () => {
   }
 });
 
+test('human-facing catalogue documentation names both public rulepacks', async () => {
+  const markdown = await readFile(fileURLToPath(new URL('../public/markdown/rules.md', import.meta.url)), 'utf8');
+  assert.match(markdown, /AI-style and reader-first rules/);
+});
+
 test('versioned schema describes JSON and JSON Lines contracts', async () => {
   const schema = await readJson('../public/schemas/slopsift-result-v1.schema.json') as {
     $id: string;

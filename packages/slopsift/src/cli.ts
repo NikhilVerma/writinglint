@@ -16,7 +16,7 @@ import {
   type RulepackName,
 } from './index.js';
 import { findFiles } from './files.js';
-import { compact, github, jsonResult, stylish } from './format.js';
+import { brief, compact, github, jsonResult, stylish } from './format.js';
 import { lintFiles } from './run-files.js';
 import {
   defaultStopHookStateDirectory,
@@ -36,8 +36,8 @@ Usage:
   bunx slopsift .                    Lint the current project
 
 Options:
-  --format, -f text|compact|json|json-lines|github
-  --feedback text|compact|json|json-lines|github
+  --format, -f text|brief|compact|json|json-lines|github
+  --feedback text|brief|compact|json|json-lines|github
                                       Alias for --format
   --json                              Alias for --format json
   --ext .md,.txt,.ts                  Extensions to include
@@ -98,7 +98,7 @@ Options:
 Doctor is read-only. It can confirm that a plugin is installed and enabled, but
 the host may still require hook trust or a restart before the first live turn.`;
 
-type OutputFormat = 'text' | 'compact' | 'json' | 'json-lines' | 'github';
+type OutputFormat = 'text' | 'brief' | 'compact' | 'json' | 'json-lines' | 'github';
 
 interface Options {
   patterns: string[]; format: OutputFormat; extensions?: string[];
@@ -164,7 +164,7 @@ function parse(argv: string[]): Options | 'help' | 'version' {
     else if (arg.startsWith('-')) throw new Error(`unknown option: ${arg}`);
     else options.patterns.push(arg);
   }
-  if (!['text', 'compact', 'json', 'json-lines', 'github'].includes(options.format)) throw new Error(`unknown format: ${options.format}`);
+  if (!['text', 'brief', 'compact', 'json', 'json-lines', 'github'].includes(options.format)) throw new Error(`unknown format: ${options.format}`);
   if (!['info', 'warning', 'error'].includes(options.level)) throw new Error(`unknown level: ${options.level}`);
   if (options.rulepacks.some((rulepack) => !['ai-style', 'reader-first'].includes(rulepack))) {
     throw new Error(`unknown rulepack: ${options.rulepacks.find((rulepack) => !['ai-style', 'reader-first'].includes(rulepack))}`);
@@ -464,6 +464,7 @@ async function run(): Promise<void> {
     if (options.format === 'json') console.log(JSON.stringify(results.map(jsonResult), null, 2));
     else if (options.format === 'json-lines') for (const result of results) console.log(JSON.stringify(jsonResult(result)));
     else if (options.format === 'github') { const output = github(results); if (output) console.log(output); }
+    else if (options.format === 'brief') { const output = brief(results); if (output) console.log(output); }
     else if (options.format === 'compact') { const output = compact(results); if (output) console.log(output); }
     else { const output = stylish(results); if (output) console.log(output); }
     const warnings = results.reduce((sum, result) => sum + result.warningCount, 0);

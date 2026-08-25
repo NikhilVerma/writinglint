@@ -13,4 +13,6 @@ The pack checks loaded sentences, oversized paragraphs, terminology introduced t
 
 Document-wide findings are part of the reader-first rule set, but their confidence still controls how prominently they appear. Low-confidence calibration signals appear at `info`; use the `strict` preset to include them, while the normal warning level includes document findings with stronger evidence.
 
+`sentence-load` findings include candidate clause-boundary offsets and separate word, clause, label, punctuation, and nearby-load measurements. Consumers can use those fields to propose a real split and measure partial improvement even when the rewritten sentence still exceeds a threshold.
+
 The `eval/strict-cases.jsonl` dataset contains generic bad/fixed pairs for these habits. The examples preserve the writing patterns found during private audits, but contain no private names, identifiers, or copied prose. Tests require each bad example to trigger its expected rule and each fixed example to pass the complete recommended pack.

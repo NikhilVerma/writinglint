@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import type { Lint } from 'writinglint-core';
-import { compact, github, jsonResult, makeResult, stylish } from '../src/format.js';
+import { brief, compact, github, jsonResult, makeResult, RULESET_VERSION, stylish } from '../src/format.js';
 
 const lint = (severity: Lint['severity'], confidence: Lint['confidence'], start: number): Lint => ({
   ruleId: `ai-style/${severity}`,
@@ -32,6 +32,7 @@ test('JSON uses ESLint numeric severity while retaining level and confidence', (
     messages: Array<{ severity: number; level: string; confidence: string; ruleUrl: string }>;
     wordCount: number;
     findingsPerThousandWords: number;
+    rulesetVersion: string;
   };
   assert.equal(result.messages[0]?.severity, 2);
   assert.equal(result.messages[0]?.level, 'error');
@@ -39,6 +40,7 @@ test('JSON uses ESLint numeric severity while retaining level and confidence', (
   assert.equal(result.messages[0]?.ruleUrl, 'https://slopsift.dev/rules/error/');
   assert.equal(result.wordCount, 1);
   assert.equal(result.findingsPerThousandWords, 1000);
+  assert.equal(result.rulesetVersion, RULESET_VERSION);
 });
 
 test('GitHub output emits escaped workflow annotations', () => {
@@ -69,4 +71,12 @@ test('compact output groups every finding by rule without source locations', () 
 
 test('compact output stays empty when there are no findings', () => {
   assert.equal(compact([makeResult('clean.md', 'Clear text.', [])]), '');
+});
+
+test('brief output gives model-safe notes without product names, rule IDs, or locations', () => {
+  const finding = { ...lint('warn', 'medium', 0), message: 'SlopSift found ai-style/warn here.' };
+  const output = brief([makeResult('packages/slopsift/private.md', 'slop', [finding])]);
+  assert.match(output, /Review 1 writing pattern/);
+  assert.match(output, /Examples: “slop”/);
+  assert.doesNotMatch(output, /SlopSift|ai-style|reader-first|private\.md|:\d+/i);
 });
