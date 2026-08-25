@@ -25,6 +25,81 @@ test('Markdown extraction exposes headings and list items as source regions', ()
     'Remove the cover.',
   ]);
   assert.ok(extracted.regions?.some(({ role }) => role === 'paragraph'));
+  assert.deepEqual(extracted.regions?.filter(({ role }) => role === 'list-item').map(({ metadata }) => metadata), [
+    { ordered: true, ordinal: 1, marker: '1' },
+    { ordered: true, ordinal: 2, marker: '2' },
+  ]);
+});
+
+test('Markdown extraction marks collapsed disclosures as optional reading regions', () => {
+  const source = `The main explanation stays in the reading path.
+
+<details>
+<summary>Optional history</summary>
+
+This extended account introduces several people and relationships.
+</details>
+
+The main explanation continues.`;
+  const extracted = extractInput('article.md', source);
+  const disclosure = extracted.regions?.find(({ role }) => role === 'disclosure');
+  assert.equal(source.slice(disclosure?.start, disclosure?.end), source.slice(source.indexOf('<details>'), source.indexOf('</details>') + '</details>'.length));
+});
+
+test('Markdown extraction exposes blockquotes as quoted reading regions', () => {
+  const source = `The author makes the main claim.
+
+> A reviewer adds a separate claim.
+> The quotation continues here.
+
+The author resumes the argument.`;
+  const extracted = extractInput('article.md', source);
+  const quotations = extracted.regions?.filter(({ role }) => role === 'quotation') ?? [];
+  assert.deepEqual(quotations.map(({ start, end }) => source.slice(start, end)), [
+    '> A reviewer adds a separate claim.',
+    '> The quotation continues here.',
+  ]);
+});
+
+test('Markdown extraction builds hierarchical sections and marks supplementary material', () => {
+  const source = `# Guide
+
+Main introduction.
+
+## Setup
+
+Setup instructions.
+
+### Advanced setup
+
+Advanced instructions.
+
+## Comments
+
+Reader responses.`;
+  const extracted = extractInput('guide.md', source);
+  const sections = extracted.regions?.filter(({ role }) => role === 'section') ?? [];
+  assert.deepEqual(sections.map(({ parentId, mode, metadata }) => ({ parentId, mode, metadata })), [
+    { parentId: 'markdown:document', mode: undefined, metadata: { depth: 1, title: 'Guide', headingId: 'markdown:heading:0' } },
+    { parentId: 'markdown:section:0', mode: undefined, metadata: { depth: 2, title: 'Setup', headingId: 'markdown:heading:1' } },
+    { parentId: 'markdown:section:1', mode: undefined, metadata: { depth: 3, title: 'Advanced setup', headingId: 'markdown:heading:2' } },
+    { parentId: 'markdown:section:0', mode: 'supplementary', metadata: { depth: 2, title: 'Comments', headingId: 'markdown:heading:3' } },
+  ]);
+});
+
+test('Markdown regions retain UTF-16 offsets after emoji', () => {
+  const source = `Support this work 💚
+
+## Comments
+
+Reader responses.`;
+  const extracted = extractInput('article.md', source);
+  assert.equal(extracted.text.length, source.length);
+  const heading = extracted.regions?.find(({ role }) => role === 'heading');
+  assert.equal(heading?.start, source.indexOf('## Comments'));
+  assert.equal(source.slice(heading?.start, heading?.end), '## Comments');
+  const comments = extracted.regions?.find(({ role, mode }) => role === 'section' && mode === 'supplementary');
+  assert.equal(comments?.start, source.indexOf('## Comments'));
 });
 
 test('browser-style and URL-like paths resolve without node:path', () => {

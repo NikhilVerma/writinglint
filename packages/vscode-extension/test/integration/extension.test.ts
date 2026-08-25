@@ -40,6 +40,10 @@ suite('SlopSift extension host', () => {
       `expected emerging-slop-phrases; received ${diagnostics.map(({ code }) => String(code)).join(', ')}`,
     );
     assert.ok(
+      diagnostics.some(({ code }) => code === 'reader-first/unexplained-initialism'),
+      `expected reader-first diagnostics; received ${diagnostics.map(({ code }) => String(code)).join(', ')}`,
+    );
+    assert.ok(
       diagnostics.every(({ range }) => !range.isEmpty),
       'every finding should point to a visible source range',
     );

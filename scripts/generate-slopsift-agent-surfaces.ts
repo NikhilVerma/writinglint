@@ -81,12 +81,19 @@ const aiRules = Object.entries(aiStyle.rules).map(([name, rule]) => {
 const readerMethods: Record<keyof typeof readerFirst.rules, RuleMethod> = {
   'abstract-reference-chain': 'document-context',
   'aside-pileup': 'document-context',
+  'concept-introduction-burst': 'document-context',
   'fragment-chain': 'document-context',
   'label-led-explanation': 'document-context',
   'noun-pile': 'dependency-graph',
   'paragraph-load': 'document-context',
+  'procedure-thread-detour': 'dependency-graph',
+  'relationship-pileup': 'dependency-graph',
   'sentence-load': 'document-context',
+  'sustained-buffer-pressure': 'dependency-graph',
   'unexplained-initialism': 'document-context',
+  'undefined-decision-stack': 'document-context',
+  'unoriented-reactivation': 'dependency-graph',
+  'unresolved-idea-stack': 'document-context',
 };
 
 const readerRules = Object.entries(readerFirst.rules).map(([name, rule]) => {

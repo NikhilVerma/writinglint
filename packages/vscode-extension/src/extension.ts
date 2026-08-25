@@ -129,7 +129,10 @@ class SlopSiftController implements vscode.Disposable {
 
     try {
       const engine = await this.getEngine(config);
-      const result = await engine.lintSource(path, source, { level: config.level });
+      const result = await engine.lintSource(path, source, {
+        level: config.level,
+        rulepacks: ['ai-style', 'reader-first'],
+      });
       if (this.generations.get(key) !== generation || document.version !== version || document.isClosed) return;
       const mapped = (result?.lints ?? []).map((lint) => {
         const start = document.positionAt(lint.start);

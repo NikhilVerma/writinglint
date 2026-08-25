@@ -1,6 +1,6 @@
 # SlopSift rule catalogue
 
-SlopSift 0.9.0 includes 60 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
+SlopSift 0.9.0 includes 67 AI-style rules. Default levels derive from rule confidence: high is error, medium is warning, and low is info.
 
 - [ai-style/evidence-cluster](https://slopsift.dev/rules/evidence-cluster/): Several independent slop signals cluster in one paragraph or across the document. (warn, document context)
 - [ai-style/copula-avoidance](https://slopsift.dev/rules/copula-avoidance/): “stands/serves as a …” dressing up a plain “is a …”. (warn, dependency graph)
@@ -54,8 +54,15 @@ SlopSift 0.9.0 includes 60 AI-style rules. Default levels derive from rule confi
 - [ai-style/referential-compression](https://slopsift.dev/rules/referential-compression/): Several nearby sentences open with bare pronouns instead of carrying the subject forward explicitly. (info, dependency graph)
 - [ai-style/repeated-sentence-frame](https://slopsift.dev/rules/repeated-sentence-frame/): Several nearby sentences repeat the same dependency frame and cadence. (info, dependency graph)
 - [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)
+- [reader-first/concept-introduction-burst](https://slopsift.dev/rules/concept-introduction-burst/): A passage introduces many recurring concepts before the reader has time to absorb them. (warn, document context)
 - [reader-first/paragraph-load](https://slopsift.dev/rules/paragraph-load/): A long paragraph hides changes of subject or purpose inside one block. (warn, document context)
+- [reader-first/procedure-thread-detour](https://slopsift.dev/rules/procedure-thread-detour/): Three numbered steps leave an output unused for one step and then resume it, suggesting that the middle step interrupts the procedure handoff. (info, dependency graph)
+- [reader-first/relationship-pileup](https://slopsift.dev/rules/relationship-pileup/): A passage rapidly changes the relationships among a small set of participants. (warn, dependency graph)
 - [reader-first/sentence-load](https://slopsift.dev/rules/sentence-load/): A sentence combines enough length, clauses, labels, or asides to overload the main point. (warn, document context)
+- [reader-first/sustained-buffer-pressure](https://slopsift.dev/rules/sustained-buffer-pressure/): The document repeatedly adds active entities and relationships faster than it releases or stabilizes them. (info, dependency graph)
+- [reader-first/undefined-decision-stack](https://slopsift.dev/rules/undefined-decision-stack/): The document accumulates decision standards such as relevant or sufficient without saying how a reader or system should apply them. (warn, document context)
+- [reader-first/unoriented-reactivation](https://slopsift.dev/rules/unoriented-reactivation/): A sentence resumes entities or relationships that have already left the active reading context. (info, dependency graph)
+- [reader-first/unresolved-idea-stack](https://slopsift.dev/rules/unresolved-idea-stack/): The document asks the reader to retain several promised explanations or defers one for too long. (info, document context)
 - [reader-first/noun-pile](https://slopsift.dev/rules/noun-pile/): Four or more common nouns are stacked together without showing how they relate. (warn, dependency graph)
 - [reader-first/unexplained-initialism](https://slopsift.dev/rules/unexplained-initialism/): A repeated initialism appears without a plain-language introduction. (warn, document context)
 - [reader-first/abstract-reference-chain](https://slopsift.dev/rules/abstract-reference-chain/): Nearby sentences keep referring to generic problems, shapes, paths, or capabilities instead of naming the concrete facts. (warn, document context)
