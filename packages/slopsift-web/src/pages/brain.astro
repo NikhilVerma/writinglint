@@ -1,0 +1,78 @@
+---
+import SiteLayout from '../layouts/SiteLayout.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import '../styles/brain.css';
+
+const sample = `# A system for choosing controls
+
+A policy source contains requirements. Each requirement can produce one or more controls, and every control belongs to a shared library.
+
+The generator first identifies a requirement, its objective, the regulated activity, the relevant jurisdiction, and the business condition in which it applies. It then ranks source passages by authority, specificity, recency, and applicability before preserving provenance and drafting an atomic control.
+
+There is one more matter we will return to later: exceptions.
+
+For every accepted control, the system generates evaluation criteria. Criteria may describe planning, operation, monitoring, remediation, evidence, ownership, timing, scope, status, version, applies-to metadata, and review policy. A reviewer decides whether the objective would be materially weakened if any criterion failed.
+
+In short, the requirement says what must be true. The control says what the organisation does. The criterion says what evidence can prove it.
+
+Now return to exceptions. A human reviewer records a reason when source material cannot ground a necessary control. That decision closes the earlier question and makes the gap visible.`;
+---
+
+<SiteLayout title="Brain buffer | See a document's cognitive load" description="Paste an article and watch concepts, relationships, open ideas, and undefined standards move through a modelled reader buffer.">
+  <main class="brain-page" data-brain-app>
+    <header class="brain-header">
+      <a class="wordmark" href="/" aria-label="SlopSift home"><span>slop</span><span>sift</span><i aria-hidden="true"></i></a>
+      <nav aria-label="Brain navigation"><a href="/editor/">Editor</a><a href="/rules/">Rules</a><a href="/docs/">Docs</a><a class="nav-install" href="https://www.npmjs.com/package/slopsift">Install</a></nav>
+    </header>
+
+    <section class="brain-intro">
+      <div class="brain-intro__copy">
+        <p class="kicker">Reader buffer experiment</p>
+        <h1>Watch a document enter working memory.</h1>
+        <p>This is a reading-pressure model, not a medical model of the brain. Your text stays in this browser.</p>
+      </div>
+      <div class="brain-input-panel">
+        <div class="brain-input-panel__bar"><label for="brain-input">Paste an article</label><span data-parser-state>Loading local parser</span></div>
+        <textarea id="brain-input" data-brain-input spellcheck="true" aria-describedby="brain-input-note"></textarea>
+        <div class="brain-input-panel__actions"><span id="brain-input-note">Markdown or plain text</span><button type="button" data-sample>Reset sample</button><button class="button button--primary" type="button" data-analyse disabled>Model the reading</button></div>
+      </div>
+    </section>
+
+    <section class="brain-stage" aria-label="Sequential reading model">
+      <div class="reading-column">
+        <div class="brain-stage__heading"><p class="kicker">Reading path</p><h2>Scroll through the document.</h2><p>Each sentence pushes, reinforces, reactivates, or releases context.</p></div>
+        <div class="reading-path" data-reading-path aria-live="polite"><p class="brain-empty">Preparing the reading path.</p></div>
+      </div>
+
+      <aside class="brain-instrument" aria-label="Current working-memory pressure">
+        <div class="brain-instrument__bar"><span>Sentence <b data-sentence-counter>0 / 0</b></span><span class="pressure-status" data-pressure-status data-state="clear">clear</span></div>
+        <svg class="brain-map" viewBox="0 0 620 470" role="img" aria-labelledby="brain-title brain-desc">
+          <title id="brain-title">A changing map of the document's reading pressure</title>
+          <desc id="brain-desc">Five regions fill as concepts, relationships, unfinished ideas, undefined standards, and context churn accumulate.</desc>
+          <g class="brain-outline">
+            <path d="M309 424c-31 0-53-17-63-43-38 12-84-8-94-48-43 0-77-36-72-79-36-26-36-83 1-108-8-44 30-83 74-79 18-42 72-57 108-29 29-35 89-31 113 10 41-20 91 5 98 49 42 12 64 55 47 91 34 28 34 83-1 110 4 43-32 78-75 77-14 41-61 61-99 45-12 27-35 43-66 43Z" />
+            <path d="M309 53v355M155 67c17 31 41 50 75 56M81 146c42-5 76 8 101 38M80 254c45-17 86-11 117 19M152 333c39-19 76-14 105 15M376 48c-18 30-29 55-24 85M474 97c-41 8-68 29-81 63M541 184c-43-3-79 13-103 46M542 292c-45-17-87-9-118 23M468 377c-34-26-70-31-107-15" />
+          </g>
+          <g class="brain-fills">
+            <path data-region-fill="concepts" style="--pressure:0" d="M309 53c-17-23-56-35-81-14-35-17-78 2-85 39-39 5-65 42-52 79-29 24-30 67-6 91 36-12 74-4 102 21 26-23 65-31 122-23Z" />
+            <path data-region-fill="relationships" style="--pressure:0" d="M309 246c-57-8-96 0-122 23-32-24-72-29-107-15-5 43 29 79 72 79 10 40 56 60 94 48 10 26 32 43 63 43Z" />
+            <path data-region-fill="ideas" style="--pressure:0" d="M309 53c22-30 70-34 99-9 36-14 77 8 84 46 35 14 55 52 43 88-38-4-76 13-101 44-30-8-73 0-125 24Z" />
+            <path data-region-fill="standards" style="--pressure:0" d="M309 246c52-24 95-32 125-24 25-31 63-48 101-44 31 29 32 77 4 107 10 42-20 83-63 89-35-27-76-31-112-12-17-26-35-62-55-116Z" />
+            <path data-region-fill="churn" style="--pressure:0" d="M309 246c20 54 38 90 55 116-19 16-34 32-55 62-31 0-54-17-63-43 27-36 37-81 63-135Z" />
+          </g>
+        </svg>
+        <div class="brain-legend">
+          <div data-region-row="concepts"><span><i class="swatch swatch--concepts"></i>Concepts</span><b data-region-value>0 / 12</b><i class="meter"><i data-region-meter style="--pressure:0"></i></i></div>
+          <div data-region-row="relationships"><span><i class="swatch swatch--relationships"></i>Relationships</span><b data-region-value>0 / 6</b><i class="meter"><i data-region-meter style="--pressure:0"></i></i></div>
+          <div data-region-row="ideas"><span><i class="swatch swatch--ideas"></i>Open ideas</span><b data-region-value>0 / 3</b><i class="meter"><i data-region-meter style="--pressure:0"></i></i></div>
+          <div data-region-row="standards"><span><i class="swatch swatch--standards"></i>Undefined standards</span><b data-region-value>0 / 4</b><i class="meter"><i data-region-meter style="--pressure:0"></i></i></div>
+          <div data-region-row="churn"><span><i class="swatch swatch--churn"></i>Context churn</span><b data-region-value>0 / 3</b><i class="meter"><i data-region-meter style="--pressure:0"></i></i></div>
+        </div>
+        <div class="brain-event"><p>At this sentence</p><ul data-event-log><li>Waiting for the local model.</li></ul></div>
+      </aside>
+    </section>
+  </main>
+  <SiteFooter />
+  <script id="brain-sample" type="application/json" set:html={JSON.stringify(sample).replaceAll('<', '\\u003c')} />
+  <script type="module" src="/brain.js"></script>
+</SiteLayout>
