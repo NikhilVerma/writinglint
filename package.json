@@ -48,11 +48,11 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.8",
-    "@cloudflare/workers-types": "^5.20260815.1",
+    "@cloudflare/workers-types": "^5.20260903.1",
     "@types/node": "^24.13.3",
     "esbuild": "^0.28.2",
     "husky": "^9.1.7",
-    "tsx": "^4.23.12",
+    "tsx": "^4.23.13",
     "typescript": "^5.9.3"
   }
 }
