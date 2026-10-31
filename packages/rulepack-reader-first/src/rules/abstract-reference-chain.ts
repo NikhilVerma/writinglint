@@ -1,4 +1,4 @@
-import { defineRule, root as rootOf, type Sentence } from 'writinglint-core';
+import { defineRule, isPersonalReference, lower, referenceDistance, root as rootOf, type DepToken, type Document, type Sentence } from 'writinglint-core';
 
 const ABSTRACT_CONTAINERS = new Set([
   'ability', 'approach', 'capability', 'change', 'concern', 'feature', 'flow',
@@ -24,13 +24,34 @@ function singular(lemma: string): string {
   return lemma;
 }
 
-function candidateFor(sentence: Sentence, previous?: Sentence): Candidate | undefined {
+/**
+ * Keeps only references that leave the reader searching.
+ *
+ * "that" in "prove that it works" and "this" in "this principle" aren't vague
+ * references at all. "it" is clear when a concrete noun is close by.
+ */
+function isUnclearReference(document: Document, sentence: Sentence, token: DepToken): boolean {
+  if (token.deprel === 'mark' || token.deprel.startsWith('det')) return false;
+  // A relative "that" belongs to a noun in the same sentence: "the thing that works".
+  const headRelation = sentence.dep.tokens.find((other) => other.id === token.head)?.deprel;
+  if (lower(token) === 'that' && headRelation?.startsWith('acl')) return false;
+  if (!isPersonalReference(token)) return true;
+  const distance = referenceDistance(document, sentence, token);
+  if (distance === undefined || distance > 2) return true;
+  // "There were two issues. They were the same." has a close noun, but "issues"
+  // tells the reader nothing, so the pronoun still hides the facts.
+  const nearby = document.sentences.slice(Math.max(0, sentence.index - distance), sentence.index + 1);
+  return nearby.some((candidate) => candidate.words.some((word) =>
+    ABSTRACT_CONTAINERS.has(singular((word.lemma ?? word.lower).toLowerCase()))));
+}
+
+function candidateFor(document: Document, sentence: Sentence, previous?: Sentence): Candidate | undefined {
   const abstractWords = sentence.words
     .map((token) => singular((token.lemma ?? token.lower).toLowerCase()))
     .filter((word) => ABSTRACT_CONTAINERS.has(word));
-  const references = sentence.words
-    .map((token) => token.lower)
-    .filter((word) => BARE_REFERENCES.has(word));
+  const references = sentence.dep.tokens
+    .filter((token) => BARE_REFERENCES.has(lower(token)) && isUnclearReference(document, sentence, token))
+    .map((token) => lower(token));
   const comparison = GENERIC_COMPARISON_RE.test(sentence.text);
   const root = rootOf(sentence.dep);
   const nounRoot = root?.upos === 'NOUN' && abstractWords.includes(singular((root.lemma ?? root.form).toLowerCase()));
@@ -68,7 +89,7 @@ export const abstractReferenceChain = defineRule({
     return {
       Document(document) {
         const candidates = document.sentences
-          .map((sentence, index) => candidateFor(sentence, document.sentences[index - 1]))
+          .map((sentence, index) => candidateFor(document, sentence, document.sentences[index - 1]))
           .filter((candidate): candidate is Candidate => candidate !== undefined);
         const consumed = new Set<number>();
 

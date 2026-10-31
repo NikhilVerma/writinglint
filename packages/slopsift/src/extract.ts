@@ -229,8 +229,29 @@ function separateMarkdownListItems(output: string[], source: string): void {
   }
 }
 
+/**
+ * Blanks the frame when a whole prose document is one pasted block comment.
+ *
+ * Without this, Markdown reads every ` * ` line as a bullet. A wrapped sentence
+ * then falls apart at each line break, which hides how long it really is.
+ *
+ * It returns undefined for anything else, so real bullet lists are untouched.
+ */
+function blankBlockCommentFrame(source: string): string | undefined {
+  const lines = source.trim().split(/\r?\n/u);
+  if (lines.length < 3 || !lines[0]!.startsWith('/*') || !lines.at(-1)!.endsWith('*/')) return undefined;
+  if (!lines.slice(1, -1).every((line) => /^\s*\*(?:\s|$)/u.test(line))) return undefined;
+  const spaces = (frame: string) => ' '.repeat(frame.length);
+  return source
+    .replace(/^(\s*)\/\*+/u, (frame) => spaces(frame))
+    .replace(/\*+\/(\s*)$/u, (frame) => spaces(frame))
+    .replace(/^[\t ]*\*(?!\/)[\t ]?/gmu, (frame) => spaces(frame));
+}
+
 /** Remove Markdown syntax regions that are not authorial prose, preserving offsets. */
-function extractMarkdown(source: string): string {
+function extractMarkdown(rawSource: string): string {
+  const unframed = blankBlockCommentFrame(rawSource);
+  const source = unframed ?? rawSource;
   const output = source.split('');
   const lines = source.matchAll(/.*(?:\r?\n|$)/g);
   let fence: { marker: string; start: number } | undefined;
@@ -256,7 +277,8 @@ function extractMarkdown(source: string): string {
       maskRange(output, source, start, start + line.length);
       continue;
     }
-    if (/^(?: {4}|\t)/.test(line)) maskRange(output, source, start, start + line.length);
+    // A blanked comment frame indents every line, which is not a code block.
+    if (!unframed && /^(?: {4}|\t)/.test(line)) maskRange(output, source, start, start + line.length);
   }
   separateMarkdownTables(output, source);
   separateMarkdownListItems(output, source);
@@ -303,7 +325,8 @@ function paragraphRanges(text: string): Array<{ start: number; end: number }> {
 }
 
 /** Preserve useful Markdown roles without changing the exact lint text. */
-function markdownRegions(source: string, text: string): DocumentRegion[] {
+function markdownRegions(rawSource: string, text: string): DocumentRegion[] {
+  const source = blankBlockCommentFrame(rawSource) ?? rawSource;
   const regions: DocumentRegion[] = [{ id: 'markdown:document', role: 'document', start: 0, end: text.length }];
   const paragraphs = paragraphRanges(text);
   paragraphs.forEach(({ start, end }, index) => regions.push({
@@ -585,7 +608,7 @@ export function extractInput(path: string, source: string): ExtractedInput {
 export function extractLintText(path: string, source: string): string {
   const ext = extname(path).toLowerCase();
   if (ext === '.md' || ext === '.mdx' || ext === '.markdown') return extractMarkdown(source);
-  if (PROSE.has(ext)) return source;
+  if (PROSE.has(ext)) return blankBlockCommentFrame(source) ?? source;
   if (HTML.has(ext)) return extractHtml(source).text;
   if (ext === '.astro') return extractAstro(source).text;
   const output = blank(source);

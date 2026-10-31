@@ -25,6 +25,9 @@ export const agentlessRationale = defineRule({
     return {
       Sentence(sentence) {
         if (sentence.words.length < 5) return;
+        // Markdown blanks inline code, so "- `write`: adds a row" arrives here
+        // starting at its colon. The label is the subject of that definition.
+        if (/^(?:[-+*]\s+)?:/u.test(sentence.text)) return;
         const root = rootOf(sentence.dep);
         if (!root || root.upos !== 'VERB' || root.id > 3) return;
         const form = root.form.toLowerCase();

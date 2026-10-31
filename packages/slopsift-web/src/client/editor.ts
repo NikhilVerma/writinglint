@@ -11,6 +11,7 @@ import {
   emptyResultFor,
   normalizeRulepackPreset,
   ruleUrl,
+  seriousFindingCount,
   statusForResult,
   type RulepackPreset,
 } from './rulepack-selection.js';
@@ -255,14 +256,14 @@ if (app) {
       warn: lastLints.filter((lint) => lint.severity === 'warn').length,
       info: lastLints.filter((lint) => lint.severity === 'info').length,
     };
-    totalCount.textContent = String(lastLints.length);
+    totalCount.textContent = String(seriousFindingCount(lastLints));
     countElements.all.textContent = String(lastLints.length);
     countElements.error.textContent = String(counts.error);
     countElements.warn.textContent = String(counts.warn);
     countElements.info.textContent = String(counts.info);
     copyFindings.disabled = lastLints.length === 0;
     wordCountElement.textContent = lastWordCount.toLocaleString();
-    densityElement.textContent = lastWordCount ? ((lastLints.length / lastWordCount) * 1000).toFixed(1) : '0';
+    densityElement.textContent = lastWordCount ? ((seriousFindingCount(lastLints) / lastWordCount) * 1000).toFixed(1) : '0';
 
     const visible = lastLints
       .filter((lint) => activeFilter === 'all' || lint.severity === activeFilter)

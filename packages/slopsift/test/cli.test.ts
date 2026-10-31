@@ -101,7 +101,7 @@ test('structured sentence-load output preserves source split offsets and magnitu
   const directory = mkdtempSync(join(tmpdir(), 'slopsift-split-points-'));
   try {
     const file = join(directory, 'manual.md');
-    const sentence = 'The planner reads every request, and if the current record has no matching identifier, it normalizes the account name, compares every candidate, keeps the most recent result, and then returns the fallback record so the next workflow can continue without losing prior context.';
+    const sentence = 'Session tokens the auth proxy issues on behalf of tenants whose SSO providers rotate keys expire when the refresh worker lease lapses, because the scheduler that owns the lease stops renewing it after every failed attempt.';
     const source = `# Guide\n\n${sentence}\n`;
     writeFileSync(file, source);
     const result = run(file, '--rulepack', 'reader-first', '--format', 'json', '--exit-zero');

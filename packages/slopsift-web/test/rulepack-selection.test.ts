@@ -20,7 +20,8 @@ test('browser surfaces expose AI-style, reader-first, and the recommended combin
 
 test('browser status describes findings without external conformance claims', () => {
   assert.equal(statusForResult([]), '0 findings found');
-  assert.equal(statusForResult([{}]), '1 finding found');
+  assert.equal(statusForResult([{ severity: 'warn' }]), '1 finding found');
+  assert.equal(statusForResult([{ severity: 'error' }, { severity: 'info' }]), '1 finding found · 1 note');
   assert.deepEqual(emptyResultFor(), {
     title: 'No problems found.',
     detail: 'This draft reads clean to the active rules.',

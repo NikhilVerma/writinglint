@@ -1,6 +1,6 @@
 # reader-first/sentence-load
 
-A sentence combines enough length, clauses, labels, or asides to overload the main point.
+A sentence makes the reader hold too much open at once, such as a subject waiting far from its verb. Length alone only earns a note.
 
 - Default level: `warn`
 - Confidence: `medium`

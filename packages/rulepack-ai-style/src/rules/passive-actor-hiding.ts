@@ -1,4 +1,4 @@
-import { childrenOf, defineRule, lower, subtree, type DepSentence } from 'writinglint-core';
+import { childrenOf, defineRule, isPersonalReference, lower, referenceDistance, subtree, type DepSentence } from 'writinglint-core';
 
 // Passive voice is not itself slop. Ordinary actorless passives are low-confidence
 // editorial candidates; actions that conceal accountability are promoted.
@@ -27,12 +27,20 @@ export const passiveActorHiding = defineRule({
           const passiveAux = children.some((token) => token.deprel === 'aux:pass');
           if (!passiveSubject || !passiveAux) continue;
           if (lower(verb) === 'made' && lower(passiveSubject) === 'it') continue;
+          // "X is used to do Y" explains what X is for. Nobody is being hidden.
+          if (lower(verb) === 'used' && children.some((token) => token.deprel === 'xcomp' || token.deprel === 'advcl')) continue;
           const hasAgent = children.some(
             (token) => token.deprel === 'obl:agent' || token.deprel === 'nmod:agent',
           );
           if (hasAgent) continue;
+          const hidesAccountabilityWord = ACCOUNTABILITY_ACTIONS.has(lower(verb));
+          // "It is cached." right after naming the thing is plain continuation.
+          if (!hidesAccountabilityWord && isPersonalReference(passiveSubject)) {
+            const distance = referenceDistance(ctx.doc, sentence, passiveSubject);
+            if (distance !== undefined && distance <= 2) continue;
+          }
           const secondPerson = lower(passiveSubject) === 'you';
-          const hidesAccountability = ACCOUNTABILITY_ACTIONS.has(lower(verb)) && !secondPerson;
+          const hidesAccountability = hidesAccountabilityWord && !secondPerson;
           ctx.report({
             tokens: subtree(s, verb.id),
             sentence: s,

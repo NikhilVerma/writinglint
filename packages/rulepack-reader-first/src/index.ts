@@ -5,8 +5,10 @@ export type { BufferEvent, BufferEventKind, BufferEventReason, BufferItemKind, D
 import { abstractReferenceChain } from './rules/abstract-reference-chain.js';
 import { asidePileup } from './rules/aside-pileup.js';
 import { conceptIntroductionBurst } from './rules/concept-introduction-burst.js';
+import { distantPronoun } from './rules/distant-pronoun.js';
 import { fragmentChain } from './rules/fragment-chain.js';
 import { labelLedExplanation } from './rules/label-led-explanation.js';
+import { listWithoutBreak } from './rules/list-without-break.js';
 import { nounPile } from './rules/noun-pile.js';
 import { paragraphLoad } from './rules/paragraph-load.js';
 import { procedureThreadDetour } from './rules/procedure-thread-detour.js';
@@ -17,13 +19,16 @@ import { unexplainedInitialism } from './rules/unexplained-initialism.js';
 import { undefinedDecisionStack } from './rules/undefined-decision-stack.js';
 import { unorientedReactivation } from './rules/unoriented-reactivation.js';
 import { unresolvedIdeaStack } from './rules/unresolved-idea-stack.js';
+import { whFragment } from './rules/wh-fragment.js';
 
 const rules = {
   'abstract-reference-chain': abstractReferenceChain,
   'aside-pileup': asidePileup,
   'concept-introduction-burst': conceptIntroductionBurst,
+  'distant-pronoun': distantPronoun,
   'fragment-chain': fragmentChain,
   'label-led-explanation': labelLedExplanation,
+  'list-without-break': listWithoutBreak,
   'noun-pile': nounPile,
   'paragraph-load': paragraphLoad,
   'procedure-thread-detour': procedureThreadDetour,
@@ -34,6 +39,7 @@ const rules = {
   'undefined-decision-stack': undefinedDecisionStack,
   'unoriented-reactivation': unorientedReactivation,
   'unresolved-idea-stack': unresolvedIdeaStack,
+  'wh-fragment': whFragment,
 };
 
 const ruleSettings = (names: readonly string[]): Record<string, RuleSetting> => Object.fromEntries(
@@ -76,8 +82,11 @@ export { CATEGORIES } from './categories.js';
 export { abstractReferenceChain } from './rules/abstract-reference-chain.js';
 export { asidePileup } from './rules/aside-pileup.js';
 export { conceptIntroductionBurst } from './rules/concept-introduction-burst.js';
+export { distantPronoun } from './rules/distant-pronoun.js';
 export { fragmentChain } from './rules/fragment-chain.js';
 export { labelLedExplanation } from './rules/label-led-explanation.js';
+export { listWithoutBreak } from './rules/list-without-break.js';
+export { whFragment } from './rules/wh-fragment.js';
 export { nounPile } from './rules/noun-pile.js';
 export { paragraphLoad } from './rules/paragraph-load.js';
 export { procedureThreadDetour } from './rules/procedure-thread-detour.js';
