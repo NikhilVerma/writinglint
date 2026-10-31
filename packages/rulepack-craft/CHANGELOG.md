@@ -1,5 +1,12 @@
 # writinglint-rulepack-craft
 
+## 0.3.3
+
+### Patch Changes
+
+- Updated dependencies [05f9fb3]
+  - writinglint-core@0.6.0
+
 ## 0.3.2
 
 ### Patch Changes
