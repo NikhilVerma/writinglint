@@ -18,12 +18,11 @@ function introducedIndefinitely({ sentence, token }: Occurrence): boolean {
 
 function definesTerm({ sentence, token }: Occurrence, term: string): boolean {
   const children = childrenOf(sentence.dep, token.id);
-  if (children.some((child) => child.deprel === 'appos')) return true;
-  // A relative clause only defines the term when it is attached to the
+  // A clause or apposition only defines the term when it is attached to the
   // indefinite introduction itself. Compact parsers sometimes attach a later
-  // parenthetical such as “rules (that's cheating)” as `acl:relcl`.
+  // parenthetical such as “rules (that's cheating)” as `acl:relcl` or `appos`.
   if (introducedIndefinitely({ sentence, token }) && children.some((child) =>
-    child.deprel === 'acl' || child.deprel.startsWith('acl:'))) return true;
+    child.deprel === 'appos' || child.deprel === 'acl' || child.deprel.startsWith('acl:'))) return true;
   const predicate = root(sentence.dep);
   if (predicate && token.deprel.startsWith('nsubj')
       && childrenOf(sentence.dep, predicate.id).some((child) => child.deprel === 'cop')) return true;

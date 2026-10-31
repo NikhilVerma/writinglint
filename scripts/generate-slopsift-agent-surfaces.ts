@@ -82,8 +82,10 @@ const readerMethods: Record<keyof typeof readerFirst.rules, RuleMethod> = {
   'abstract-reference-chain': 'document-context',
   'aside-pileup': 'document-context',
   'concept-introduction-burst': 'document-context',
+  'distant-pronoun': 'dependency-graph',
   'fragment-chain': 'document-context',
   'label-led-explanation': 'document-context',
+  'list-without-break': 'document-context',
   'noun-pile': 'dependency-graph',
   'paragraph-load': 'document-context',
   'procedure-thread-detour': 'dependency-graph',
@@ -94,6 +96,7 @@ const readerMethods: Record<keyof typeof readerFirst.rules, RuleMethod> = {
   'undefined-decision-stack': 'document-context',
   'unoriented-reactivation': 'dependency-graph',
   'unresolved-idea-stack': 'document-context',
+  'wh-fragment': 'dependency-graph',
 };
 
 const readerRules = Object.entries(readerFirst.rules).map(([name, rule]) => {

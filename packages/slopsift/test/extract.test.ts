@@ -257,3 +257,19 @@ The guide is returned as plain text for local tools.\`);
   assert.equal(extracted.includes('Ultimately, this platform unlocks a revolutionary new era'), true);
   assert.equal(extracted.includes('return new Response'), false);
 });
+
+test('a pasted block comment keeps its wrapped sentences whole in Markdown and plain text', () => {
+  const source = '/**\n * First part of a sentence\n *   carries on here.\n *\n * - `write`: adds.\n */\n';
+  for (const path of ['draft.md', 'draft.txt']) {
+    const { text } = extractInput(path, source);
+    assert.equal(text.length, source.length);
+    assert.ok(!text.includes('*'));
+    assert.match(text, /First part of a sentence\n\s+carries on here\./u);
+    assert.doesNotMatch(text.slice(0, text.indexOf('-')), /\u2029/u);
+  }
+});
+
+test('a real Markdown list is not mistaken for a block comment', () => {
+  const source = '* first item\n* second item\n* third item\n';
+  assert.ok(extractInput('draft.md', source).text.includes('\u2029'));
+});

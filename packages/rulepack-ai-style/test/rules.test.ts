@@ -420,6 +420,9 @@ test('passive actor hiding grades ordinary passives below accountability-hiding 
   assert.equal(finding(await lint('Several safety concerns were ignored.'), 'passive-actor-hiding')?.confidence, 'medium');
   assert.equal(finding(await lint('The unused vocabulary has been removed.'), 'passive-actor-hiding')?.confidence, 'low');
   assert.ok(!fired(await lint('It is made up half the time.'), 'passive-actor-hiding'));
+  assert.ok(!fired(await lint('It is used to help with approvals.'), 'passive-actor-hiding'));
+  assert.ok(!fired(await lint('The cache holds results. It is cleared hourly.'), 'passive-actor-hiding'));
+  assert.ok(fired(await lint('The old cache was used yesterday.'), 'passive-actor-hiding'));
 });
 
 test('passive voice density catches a sustained local habit', async () => {
@@ -1093,4 +1096,8 @@ test('modal redundancy removes only the duplicated future modal', async () => {
     await lint('You can rewrite every line or hire an editor; both give you a cleaner draft.'),
     'modal-redundancy',
   ));
+});
+
+test('agentless-rationale treats a blanked inline-code label as the subject', async () => {
+  assert.ok(!fired(await lint(':        adds, or changes something small the user can see and undo.'), 'agentless-rationale'));
 });

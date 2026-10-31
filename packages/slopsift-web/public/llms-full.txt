@@ -157,10 +157,11 @@ Install the maintained [SlopSift Agent Skill](https://skills.sh/NikhilVerma/slop
 - [ai-style/repeated-sentence-frame](https://slopsift.dev/rules/repeated-sentence-frame/): Several nearby sentences repeat the same dependency frame and cadence. (info, dependency graph)
 - [ai-style/uniform-rhythm](https://slopsift.dev/rules/uniform-rhythm/): Sentence lengths cluster tightly enough to produce a machine-like drone. (info, document context)
 - [reader-first/concept-introduction-burst](https://slopsift.dev/rules/concept-introduction-burst/): A passage introduces many recurring concepts before the reader has time to absorb them. (warn, document context)
+- [reader-first/distant-pronoun](https://slopsift.dev/rules/distant-pronoun/): A sentence opens with "it" or "they" several sentences after the noun it refers to, so the reader must search for the meaning. (warn, dependency graph)
 - [reader-first/paragraph-load](https://slopsift.dev/rules/paragraph-load/): A long paragraph hides changes of subject or purpose inside one block. (warn, document context)
 - [reader-first/procedure-thread-detour](https://slopsift.dev/rules/procedure-thread-detour/): Three numbered steps leave an output unused for one step and then resume it, suggesting that the middle step interrupts the procedure handoff. (info, dependency graph)
 - [reader-first/relationship-pileup](https://slopsift.dev/rules/relationship-pileup/): A passage rapidly changes the relationships among a small set of participants. (warn, dependency graph)
-- [reader-first/sentence-load](https://slopsift.dev/rules/sentence-load/): A sentence combines enough length, clauses, labels, or asides to overload the main point. (warn, document context)
+- [reader-first/sentence-load](https://slopsift.dev/rules/sentence-load/): A sentence makes the reader hold too much open at once, such as a subject waiting far from its verb. Length alone only earns a note. (warn, document context)
 - [reader-first/sustained-buffer-pressure](https://slopsift.dev/rules/sustained-buffer-pressure/): The document repeatedly adds active entities and relationships faster than it releases or stabilizes them. (info, dependency graph)
 - [reader-first/undefined-decision-stack](https://slopsift.dev/rules/undefined-decision-stack/): The document accumulates decision standards such as relevant or sufficient without saying how a reader or system should apply them. (warn, document context)
 - [reader-first/unoriented-reactivation](https://slopsift.dev/rules/unoriented-reactivation/): A sentence resumes entities or relationships that have already left the active reading context. (info, dependency graph)
@@ -170,6 +171,8 @@ Install the maintained [SlopSift Agent Skill](https://skills.sh/NikhilVerma/slop
 - [reader-first/abstract-reference-chain](https://slopsift.dev/rules/abstract-reference-chain/): Nearby sentences keep referring to generic problems, shapes, paths, or capabilities instead of naming the concrete facts. (warn, document context)
 - [reader-first/fragment-chain](https://slopsift.dev/rules/fragment-chain/): Several nearby prose fragments omit their subjects or main clauses and read like compressed notes. (warn, document context)
 - [reader-first/label-led-explanation](https://slopsift.dev/rules/label-led-explanation/): Nearby paragraphs or list items repeatedly open with bold headline fragments before explaining the concrete behavior. (warn, document context)
+- [reader-first/list-without-break](https://slopsift.dev/rules/list-without-break/): A list starts straight after a finished sentence with no blank line, so it runs into the paragraph. (info, document context)
+- [reader-first/wh-fragment](https://slopsift.dev/rules/wh-fragment/): A sentence opens with a wh-word but has no main clause, so the reader must guess its subject. (warn, dependency graph)
 - [reader-first/aside-pileup](https://slopsift.dev/rules/aside-pileup/): Explanations sit in brackets or after dashes instead of being stated directly, with nearby asides treated more severely. (warn, document context)
 
 ## References

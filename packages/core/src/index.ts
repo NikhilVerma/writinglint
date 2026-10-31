@@ -8,6 +8,7 @@
 
 // Document model + parser surface
 export { buildDocument } from './document.js';
+export { isPersonalReference, referenceDistance } from './references.js';
 export type { BuildDocumentOptions, Document, Paragraph, Sentence, Tok } from './document.js';
 export type { Parser } from './parser.js';
 export { BASE_PARSER_CAPABILITIES } from './capabilities.js';

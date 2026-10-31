@@ -4,6 +4,7 @@ import {
   emptyResultFor,
   normalizeRulepackPreset,
   ruleUrl,
+  seriousFindingCount,
   statusForResult,
   type RulepackPreset,
 } from './rulepack-selection.js';
@@ -75,7 +76,7 @@ if (host) {
     lastLints = lints;
     const counts = { error: 0, warn: 0, info: 0 };
     for (const lint of lints) counts[lint.severity]++;
-    count.textContent = String(lints.length);
+    count.textContent = String(seriousFindingCount(lints));
     copyErrors.disabled = lints.length === 0;
     totals.textContent = `${counts.error} errors · ${counts.warn} warnings · ${counts.info} notes`;
 

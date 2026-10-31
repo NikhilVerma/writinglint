@@ -92,7 +92,7 @@
       "id": "load",
       "label": "Reading load",
       "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track.",
-      "ruleCount": 9
+      "ruleCount": 10
     },
     {
       "id": "jargon",
@@ -104,7 +104,7 @@
       "id": "directness",
       "label": "Directness",
       "description": "Abstract setup and vague references that delay the concrete point.",
-      "ruleCount": 3
+      "ruleCount": 5
     },
     {
       "id": "economy",
@@ -1122,6 +1122,25 @@
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fconcept-introduction-burst"
     },
     {
+      "id": "reader-first/distant-pronoun",
+      "name": "distant-pronoun",
+      "title": "Distant Pronoun",
+      "description": "A sentence opens with \"it\" or \"they\" several sentences after the noun it refers to, so the reader must search for the meaning.",
+      "category": {
+        "id": "load",
+        "label": "Reading load",
+        "description": "Passages and documents that introduce, retain, or reconnect more than the reader can comfortably track."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/distant-pronoun/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/distant-pronoun.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fdistant-pronoun"
+    },
+    {
       "id": "reader-first/paragraph-load",
       "name": "paragraph-load",
       "title": "Paragraph Load",
@@ -1182,7 +1201,7 @@
       "id": "reader-first/sentence-load",
       "name": "sentence-load",
       "title": "Sentence Load",
-      "description": "A sentence combines enough length, clauses, labels, or asides to overload the main point.",
+      "description": "A sentence makes the reader hold too much open at once, such as a subject waiting far from its verb. Length alone only earns a note.",
       "category": {
         "id": "load",
         "label": "Reading load",
@@ -1367,6 +1386,44 @@
       "url": "https://slopsift.dev/rules/label-led-explanation/",
       "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/label-led-explanation.ts",
       "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Flabel-led-explanation"
+    },
+    {
+      "id": "reader-first/list-without-break",
+      "name": "list-without-break",
+      "title": "List Without Break",
+      "description": "A list starts straight after a finished sentence with no blank line, so it runs into the paragraph.",
+      "category": {
+        "id": "directness",
+        "label": "Directness",
+        "description": "Abstract setup and vague references that delay the concrete point."
+      },
+      "confidence": "low",
+      "defaultLevel": "info",
+      "method": "document-context",
+      "methodLabel": "Document context",
+      "methodDescription": "Compares evidence across a paragraph, nearby sentences, or the complete document.",
+      "url": "https://slopsift.dev/rules/list-without-break/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/list-without-break.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Flist-without-break"
+    },
+    {
+      "id": "reader-first/wh-fragment",
+      "name": "wh-fragment",
+      "title": "Wh Fragment",
+      "description": "A sentence opens with a wh-word but has no main clause, so the reader must guess its subject.",
+      "category": {
+        "id": "directness",
+        "label": "Directness",
+        "description": "Abstract setup and vague references that delay the concrete point."
+      },
+      "confidence": "medium",
+      "defaultLevel": "warn",
+      "method": "dependency-graph",
+      "methodLabel": "Dependency graph",
+      "methodDescription": "Matches grammatical relationships between words, not only their order or part of speech.",
+      "url": "https://slopsift.dev/rules/wh-fragment/",
+      "sourceUrl": "https://github.com/NikhilVerma/writinglint/blob/main/packages/rulepack-reader-first/src/rules/wh-fragment.ts",
+      "reportUrl": "https://github.com/NikhilVerma/writinglint/issues/new?template=false-positive.yml&title=rule%3A%20reader-first%2Fwh-fragment"
     },
     {
       "id": "reader-first/aside-pileup",

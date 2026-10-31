@@ -35,8 +35,10 @@ test('the pack exposes document-wide rules through every reader-first preset', (
     'abstract-reference-chain',
     'aside-pileup',
     'concept-introduction-burst',
+    'distant-pronoun',
     'fragment-chain',
     'label-led-explanation',
+    'list-without-break',
     'noun-pile',
     'paragraph-load',
     'procedure-thread-detour',
@@ -47,6 +49,7 @@ test('the pack exposes document-wide rules through every reader-first preset', (
     'unexplained-initialism',
     'unoriented-reactivation',
     'unresolved-idea-stack',
+    'wh-fragment',
   ]);
   assert.deepEqual(Object.keys(readerFirst.configs ?? {}).sort(), ['ci', 'recommended', 'strict']);
   assert.equal(readerFirst.configs?.recommended?.rules?.['reader-first/relationship-pileup'], 'auto');
@@ -57,28 +60,91 @@ test('sentence-load reports a long sentence with clauses and internal labels', a
   const text = 'The scopePlanner reads `frameworkCriterionId`, and if the legacy root has no matching identifier, it normalizes the criterion name, compares every candidate, keeps the most recent result, and then returns the fallback tree so the next workflow can continue without losing prior context.';
   const match = finding(await lint(text), 'sentence-load');
   assert.ok(match);
-  assert.match(match.message, /words.*clause breaks.*technical labels/);
+  assert.match(match.message, /words.*longest wait.*open at once/);
   assert.deepEqual({ start: match.start, end: match.end }, { start: 0, end: text.length });
   assert.ok(match.anchors?.length);
   assert.ok(match.anchors?.every(({ kind, offset }) => kind === 'split-point' && offset > match.start && offset < match.end));
   assert.deepEqual(match.magnitude?.metrics.map(({ name }) => name), [
     'words',
-    'clause-breaks',
-    'technical-labels',
-    'heavy-punctuation',
-    'nearby-loaded-sentences',
+    'longest-wait',
+    'held-at-once',
+    'ideas',
   ]);
   assert.ok((match.magnitude?.metrics.find(({ name }) => name === 'words')?.value ?? 0) >= 32);
 });
 
-test('sentence-load enforces the strict 32-word limit even when the structure is plain', async () => {
+test('sentence-load gives a long sentence with a plain structure only a note', async () => {
   const text = 'The technician opened the cabinet and checked every cable in the upper tray before recording the serial numbers in the maintenance log for the team that would return during the next shift.';
-  assert.equal(finding(await lint(text), 'sentence-load')?.severity, 'warn');
+  assert.equal(finding(await lint(text), 'sentence-load'), undefined);
 });
 
-test('sentence-load reports a very long sentence even without code identifiers', async () => {
-  const text = `${Array.from({ length: 46 }, (_, index) => `word${index}`).join(' ')}.`;
-  assert.ok(finding(await lint(text), 'sentence-load'));
+test('sentence-load flags a short sentence that overloads the reader', async () => {
+  for (const text of [
+    "The migration coordinator's retry policy, which the billing team's scheduler overrides when ledger reconciliation lags, gates webhook delivery.",
+    'Session tokens the auth proxy issues on behalf of tenants whose SSO providers rotate keys expire when the refresh worker lease lapses.',
+  ]) {
+    const match = finding(await lint(text), 'sentence-load');
+    assert.ok(match && match.severity !== 'info', text);
+  }
+});
+
+test('sentence-load flags nested subjects even when the parser misreads them', async () => {
+  for (const text of [
+    "Whether the consumer group's offset commit, which the broker acknowledges only after the replica set confirms, survives a leader election depends on the client's retry budget.",
+    "Whether the team's final report, which the manager reads only after the editor approves, survives a budget review depends on the client's money.",
+    "The consumer group's offset commit, which the broker acknowledges only after the replica set confirms, survives a leader election.",
+    "The hospital's discharge plan, which the insurer reviews only after the attending physician signs, determines the patient's follow-up care.",
+    "The tenant's deposit, which the landlord returns only once the building inspector reports, covers repairs the lease assigns to the owner.",
+    "The school's admissions policy, whose criteria the board revises whenever enrolment numbers fall, shapes which families apply.",
+    "The grant committee's decision, which the dean overturns only when the faculty senate objects, sets the department's hiring budget.",
+    "The airline's refund rule, which the regulator enforces only after a passenger files a complaint, protects travellers on cancelled flights.",
+    "The cache's eviction policy, which the scheduler overrides when memory pressure on the node rises, decides which sessions survive a restart.",
+    "The bakery's supplier contract, which the owner renews only if flour prices stay low, limits what the shop can charge for bread.",
+    "Whether the city's flood barrier, which engineers inspect only when river levels rise, holds during a storm surge depends on the council's maintenance budget.",
+    "Whether the patient's new dose, which the pharmacist adjusts only after the lab reports results, works depends on the kidney function the clinic measures.",
+    "Whether the startup's pricing change, which the founders announced after investors pushed for revenue, keeps customers depends on what competitors charge.",
+    "Whether the bridge's main cable, which inspectors check only after the wind sensors alarm, lasts another decade depends on the state's repair schedule.",
+    'Whether the ledger reconciliation job the billing service schedules finishes before the nightly export starts depends on the replica lag the monitor reports.',
+    'Whether the migration script the platform team wrote handles the legacy records the old system exports determines the release date the company announced.',
+  ]) {
+    assert.ok(finding(await lint(text), 'sentence-load'), text);
+  }
+});
+
+test('sentence-load accepts short interruptions and easy clause openings', async () => {
+  for (const text of [
+    'The plan, which the board approved, works.',
+    'Whether the plan works depends on the budget.',
+    "Whether it survives a leader election depends on the client's retry budget.",
+    'Whether we ship this week depends on the tests.',
+    'The report, which was late, surprised nobody.',
+    'My sister, who lives in Leeds, called last night.',
+    'The cat, when it is hungry, follows me around the house.',
+    'The retry policy controls when each webhook goes out, and the scheduler can override it when the ledger falls behind.',
+    'When the broker confirms the commit, the client moves on to the next batch of messages.',
+    'If the replica set confirms, the broker acknowledges the commit, and the client carries on.',
+    "If you're not sure what to work on, guess, but make sure you're working on something.",
+    "The consumer group's offset commit is durable.",
+    'The broker acknowledges the commit after the replica set confirms it.',
+    'We went to the store, which was closed, and walked home in the rain.',
+    'I called the office, which was closed, and left a message for the manager.',
+    'She told me that the report, which she wrote last year, was still useful.',
+    'What you need to do is talk to your users.',
+    'What surprised me most was how quickly the team recovered after the launch.',
+    'How you start matters less than whether you keep going after the first bad month.',
+    'That he left surprised everyone.',
+    'Paris, the capital of France, sits on the Seine.',
+    'The new policy, however, applies only to staff who joined after the merger.',
+    'The best founders, in my experience, are the ones who keep talking to customers.',
+    'Most people, if you ask them, will say they want more time with their families.',
+  ]) {
+    assert.equal(finding(await lint(text), 'sentence-load'), undefined, text);
+  }
+});
+
+test('sentence-load accepts a long chain of simple steps', async () => {
+  const text = 'You start by reading the file, then you change the one line you care about, then you run the tests, and if they pass you commit the change and go home.';
+  assert.equal(finding(await lint(text), 'sentence-load'), undefined);
 });
 
 test('paragraph-load reports only a large prose block', async () => {
@@ -553,4 +619,30 @@ test('the public paired dataset rejects every difficult version and accepts ever
     }
     assert.deepEqual(await lint(sample.fixed), [], `${sample.id}: fixed text must pass`);
   }
+});
+
+test('wh-fragment flags a wh-opener with no main clause, not one that has one', async () => {
+  assert.ok(finding(await lint("What an operation does to the user's data. It decides approval."), 'wh-fragment'));
+  assert.ok(!finding(await lint('What he did matters a lot.'), 'wh-fragment'));
+  assert.ok(!finding(await lint('When it runs, the cache clears.'), 'wh-fragment'));
+  assert.ok(!finding(await lint('How do you run it?'), 'wh-fragment'));
+});
+
+test('list-without-break flags a list pressed against a finished sentence', async () => {
+  assert.ok(finding(await lint('Reads are free.\n- `write`: adds a row.\n', true), 'list-without-break'));
+  assert.ok(!finding(await lint('Reads are free.\n\n- `write`: adds a row.\n', true), 'list-without-break'));
+  assert.ok(!finding(await lint('There are two kinds:\n- `write`: adds a row.\n', true), 'list-without-break'));
+  assert.ok(!finding(await lint('- Reads are free.\n- Writes ask first.\n', true), 'list-without-break'));
+});
+
+test('distant-pronoun allows a pronoun right after its noun and flags one left far behind', async () => {
+  const near = 'The cache holds results. It expires after an hour.';
+  const far = 'The cache holds results. Requests arrive quickly. Workers handle requests. Clients send retries. It expires after an hour.';
+  assert.equal(finding(await lint(near, true), 'distant-pronoun'), undefined);
+  assert.ok(finding(await lint(far, true), 'distant-pronoun'));
+});
+
+test('distant-pronoun ignores an "it" that stands for nothing', async () => {
+  const text = 'Workers handle requests. Clients retry failures. Queues hold jobs. It is hard to say why.';
+  assert.equal(finding(await lint(text, true), 'distant-pronoun'), undefined);
 });
