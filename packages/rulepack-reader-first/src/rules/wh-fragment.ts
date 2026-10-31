@@ -12,13 +12,23 @@ const EXCLUDED_ROLES = new Set(['code', 'heading', 'list-item', 'metadata', 'quo
  *
  * "What he did matters" is fine, because "matters" is the main clause. There the
  * parser hangs the wh-word below a subject role, so this check leaves it alone.
+ *
+ * The parser doesn't always read that sentence the same way, so the role alone
+ * isn't enough. In "What he did matters", "what" already fills the object of "did",
+ * so a verb directly followed by another verb or a noun must start a main clause.
  */
+const CAN_FOLLOW_FINISHED_WHAT_CLAUSE = new Set(['AUX', 'NOUN', 'PROPN', 'VERB']);
+
 function isWhFragment(sentence: Sentence): boolean {
   if (!/\.["')\]]*$/u.test(sentence.text)) return false;
   const root = rootOf(sentence.dep);
   const first = sentence.dep.tokens[0];
   if (!root || !first || root.upos !== 'VERB' || first.head !== root.id) return false;
   if (!WH_WORDS.has(lower(first)) || (first.deprel !== 'obj' && first.deprel !== 'advmod')) return false;
+  const { tokens } = sentence.dep;
+  const reachesMainClause = lower(first) === 'what' && tokens.some((token, index) =>
+    token.upos === 'VERB' && CAN_FOLLOW_FINISHED_WHAT_CLAUSE.has(tokens[index + 1]?.upos ?? ''));
+  if (reachesMainClause) return false;
   // An auxiliary makes it a question missing its mark: "How do you run it."
   return !childrenOf(sentence.dep, root.id).some((child) => child.deprel === 'aux');
 }
