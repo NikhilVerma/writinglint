@@ -29,7 +29,9 @@ bunx slopsift@latest "docs/**/*.md" --rulepack ai-style --rulepack reader-first 
 npx slopsift@latest "src/**/*.{ts,tsx}" --rulepack ai-style --rulepack reader-first --level info
 ```
 
-For machine-readable analysis, keep the same runtime choice and use:
+Prefer the default text output, or `--format compact` for a shorter summary, because it's easier to read. There's no Markdown format.
+
+Use JSON only when you're doing analysis, such as counting or comparing results in a script. Keep the same runtime choice:
 
 ```bash
 bunx slopsift@latest . --rulepack ai-style --rulepack reader-first --level info --format json --exit-zero
