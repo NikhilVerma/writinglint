@@ -1,6 +1,6 @@
 ---
 name: slopsift
-description: Lint prose with the SlopSift CLI and interpret its structural AI-writing findings without guessing authorship. Use when reviewing or editing Markdown, documentation, website copy, release notes, plain text, or source-code comments for canned arguments, vague attribution, unsupported certainty, repetitive structure, AI vocabulary, and related writing tells.
+description: Lint prose with the SlopSift CLI and interpret its structural AI-writing findings without guessing authorship. Use when reviewing or editing Markdown, documentation, website copy, release notes, plain text, or source-code comments for canned arguments, vague attribution, unsupported certainty, repetitive structure, AI vocabulary, hard-to-follow sentences, and related writing tells.
 license: MIT
 compatibility: Requires Node.js 24 or newer, or Bun, plus permission to run the public slopsift package in the target workspace.
 ---
@@ -13,22 +13,28 @@ Use the real SlopSift CLI to find writing tells, then apply editorial judgment. 
 
 Run SlopSift from the repository root. Match the runner to the existing environment:
 
-- Bun repository: `bunx slopsift`.
-- Node/npm repository: `npx slopsift`.
+- Bun repository: `bunx slopsift@latest`.
+- Node/npm repository: `npx slopsift@latest`.
 - An explicit user choice overrides lockfile inference. Do not install another runtime or switch package managers for the lint run.
+
+Use `@latest` even when SlopSift is installed globally, because a plain `bunx slopsift` runs that global copy, however old it is. If the repository pins its own SlopSift version, use that version instead.
+
+Run both rulepacks unless the user asks for one. `ai-style` looks for AI writing tells. `reader-first` looks for sentences that are hard to follow. The CLI only runs `ai-style` by default, so name both.
 
 Quote globs so SlopSift, rather than the shell, expands them.
 
 ```bash
-bunx slopsift . --level info
-bunx slopsift "docs/**/*.md" --level info
-npx slopsift "src/**/*.{ts,tsx}" --level info
+bunx slopsift@latest . --rulepack ai-style --rulepack reader-first --level info
+bunx slopsift@latest "docs/**/*.md" --rulepack ai-style --rulepack reader-first --level info
+npx slopsift@latest "src/**/*.{ts,tsx}" --rulepack ai-style --rulepack reader-first --level info
 ```
 
-For machine-readable analysis, keep the same runtime choice and use:
+Prefer the default text output, or `--format compact` for a shorter summary, because it's easier to read. There's no Markdown format.
+
+Use JSON only when you're doing analysis, such as counting or comparing results in a script. Keep the same runtime choice:
 
 ```bash
-bunx slopsift . --level info --format json --exit-zero
+bunx slopsift@latest . --rulepack ai-style --rulepack reader-first --level info --format json --exit-zero
 ```
 
 Do not add `--exit-zero` when the user wants SlopSift to act as a gate.
