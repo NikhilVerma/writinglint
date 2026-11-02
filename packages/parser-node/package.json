@@ -57,7 +57,7 @@
     "CHANGELOG.md"
   ],
   "dependencies": {
-    "onnxruntime-node": "^1.27.0",
+    "onnxruntime-node": "^1.31.1",
     "writinglint-core": "^0.6.0"
   },
   "scripts": {
