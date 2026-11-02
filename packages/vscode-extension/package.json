@@ -152,7 +152,7 @@
   },
   "homepage": "https://slopsift.dev/",
   "dependencies": {
-    "onnxruntime-node": "^1.27.0",
+    "onnxruntime-node": "^1.31.1",
     "slopsift": "^0.12.0"
   },
   "devDependencies": {
