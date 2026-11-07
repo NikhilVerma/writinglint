@@ -3,6 +3,7 @@ import catalog from '../generated/rules.json';
 
 const paths = [
   '/',
+  '/brain/',
   '/editor/',
   '/docs/',
   '/docs/github-actions/',
